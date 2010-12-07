@@ -48,6 +48,7 @@ import org.eclipse.swt.events.ControlAdapter;
 import org.eclipse.swt.events.ControlEvent;
 import org.eclipse.swt.events.DisposeEvent;
 import org.eclipse.swt.events.DisposeListener;
+import org.eclipse.swt.events.KeyAdapter;
 import org.eclipse.swt.events.KeyEvent;
 import org.eclipse.swt.events.KeyListener;
 import org.eclipse.swt.events.MouseEvent;
@@ -61,6 +62,7 @@ import org.eclipse.swt.events.SelectionListener;
 import org.eclipse.swt.events.TreeEvent;
 import org.eclipse.swt.events.TreeListener;
 import org.eclipse.swt.graphics.Color;
+import org.eclipse.swt.graphics.FontMetrics;
 import org.eclipse.swt.graphics.GC;
 import org.eclipse.swt.graphics.Image;
 import org.eclipse.swt.graphics.Point;
@@ -384,7 +386,11 @@ public class SimulatorView extends ViewPart implements IGISimObserver {
 		Label l = new Label(comp, SWT.NONE);
 		l.setText(" Run :");
 
-		fRunText = new Text(comp, SWT.BORDER);
+		fRunText = new Text(comp, SWT.BORDER | SWT.RIGHT);
+		FontMetrics fm = new GC(fRunText).getFontMetrics();
+		int width = 10 * fm.getAverageCharWidth();
+		int height = fm.getHeight();
+		fRunText.setLayoutData(new GridData(width, height));
 		fRunText.setText("100");
 
 		fTimeUnitLabel = new Label(comp, SWT.NONE);
@@ -414,6 +420,14 @@ public class SimulatorView extends ViewPart implements IGISimObserver {
 				}
 			}
 		});
+		fRunText.addKeyListener(new KeyAdapter(){
+			@Override
+			public void keyReleased(KeyEvent e) {
+				if (e.keyCode == SWT.CR) {
+					fRunTI.notifyListeners(SWT.Selection, null);
+				}
+			}
+		});		
 		fRestartTI = new ToolItem(tb, SWT.NONE);
 		icon = ZamiaPlugin.getImage("/share/images/restart.gif");
 		fRestartTI.setImage(icon);
