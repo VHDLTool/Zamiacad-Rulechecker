@@ -358,7 +358,6 @@ public class ZamiaEditor extends TextEditor implements IShowInTargetList {
 		gd.grabExcessHorizontalSpace = false;
 		fAnnotateCheck.setLayoutData(gd);
 		fAnnotateCheck.setText("Annotate");
-		fAnnotateCheck.setEnabled(false);
 		fAnnotateCheck.addSelectionListener(new org.eclipse.swt.events.SelectionListener() {
 
 			public void widgetDefaultSelected(SelectionEvent aE) {
