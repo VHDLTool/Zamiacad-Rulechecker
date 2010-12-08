@@ -186,12 +186,12 @@ public class TraceLineSignal extends TraceLine {
 		if (!aCursor.gotoTransition(getSignalPath(), aTime)) {
 			return aTimeLimit;
 		}
-		
+
 		BigInteger cursorTime = aCursor.getCurrentTime();
-		if (cursorTime.compareTo(aTime)<0) {
+		if (cursorTime.compareTo(aTime) < 0 && aCursor.isEvent()) {
 			return cursorTime;
 		}
-		
+
 		return gotoPreviousTransition(aCursor, aTimeLimit);
 	}
 
