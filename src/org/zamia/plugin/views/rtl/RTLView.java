@@ -84,19 +84,19 @@ public class RTLView extends ViewPart implements ZoomObserver, PaintListener {
 
 	public static String VIEW_ID = "org.zamia.plugin.views.rtl.RTLView";
 
-	public static final double TOP_MARGIN = 50.0;
+	public static final double TOP_MARGIN = 10.0;
 
-	public static final double LEFT_MARGIN = 50.0;
+	public static final double LEFT_MARGIN = 10.0;
 
-	public static final double RIGHT_MARGIN = 50.0;
+	public static final double RIGHT_MARGIN = 10.0;
 
-	public static final double BOTTOM_MARGIN = 50.0;
+	public static final double BOTTOM_MARGIN = 10.0;
 
-	public static final int SMALL_FONT_SIZE = 20;
+	public static final int SMALL_FONT_SIZE = 6;
 
-	public static final int NORMAL_FONT_SIZE = 60;
+	public static final int NORMAL_FONT_SIZE = 10;
 
-	public static final int BIG_FONT_SIZE = 80;
+	public static final int LARGE_FONT_SIZE = 12;
 
 	public static final String FONT_NAME = "Sans";
 
@@ -154,7 +154,7 @@ public class RTLView extends ViewPart implements ZoomObserver, PaintListener {
 	private ScrollBar fVScrollBar;
 
 	// fonts
-	private Font fSmallFont, fNormalFont, fBigFont;
+	private Font fSmallFont, fNormalFont, fLargeFont;
 
 	private Composite fControl;
 
@@ -259,8 +259,6 @@ public class RTLView extends ViewPart implements ZoomObserver, PaintListener {
 		fLayout = null;
 
 		fSelectionProvider = new RTLVisualGraphSelectionProvider();
-
-		display = getDisplay();
 
 		fControl = new Composite(aParent, SWT.NONE);
 
@@ -451,7 +449,7 @@ public class RTLView extends ViewPart implements ZoomObserver, PaintListener {
 		fOffscreenImage = new Image(display, fOffscreenSize.x, fOffscreenSize.y);
 		fOffscreenGC = new GC(fOffscreenImage);
 
-		fGC = new SWTGC(fOffscreenGC);
+		fGC = new SWTGC(fOffscreenGC, this);
 
 		fOffscreenOffset = new Point(0, 0);
 		fOffscreenValid = false;
@@ -675,10 +673,10 @@ public class RTLView extends ViewPart implements ZoomObserver, PaintListener {
 
 		if (fontSize < 2)
 			fontSize = 2;
-		Font font = new Font(display, "Sans", fontSize, SWT.NONE);
-		aOffscreenGC.setFont(font);
+		
+		aOffscreenGC.setFont(getNormalFont());
 
-		aOffscreenGC.setBackground(fColorScheme.getBgColor());
+		aOffscreenGC.setBackground(fColorScheme.getBackgroundColor());
 		aOffscreenGC.setLineWidth((int) (2 * getZoomFactor()));
 		aOffscreenGC.fillRectangle(0, 0, fOffscreenSize.x, fOffscreenSize.y);
 
@@ -686,11 +684,12 @@ public class RTLView extends ViewPart implements ZoomObserver, PaintListener {
 			fLayout.paint(fSelectionProvider);
 		}
 
-		aOffscreenGC.setFont(oldfont);
-		font.dispose();
+		if (!oldfont.isDisposed()) {
+			aOffscreenGC.setFont(oldfont);
+		}
 	}
 
-	public void updateOffscreen(GC aOffscreenGC) {
+	private void updateOffscreen(GC aOffscreenGC) {
 
 		// update offscreenOffset if necessary, repaint in that case
 
@@ -745,6 +744,7 @@ public class RTLView extends ViewPart implements ZoomObserver, PaintListener {
 		});
 	}
 
+	@Override
 	public void paintControl(PaintEvent aPaintEvent) {
 
 		updateOffscreen(fOffscreenGC);
@@ -763,7 +763,7 @@ public class RTLView extends ViewPart implements ZoomObserver, PaintListener {
 
 	private final static double CLIPPING_MIN = Integer.MIN_VALUE;
 
-	public int tX(double aX) {
+	int tX(double aX) {
 		double d = (aX + LEFT_MARGIN) * getZoomFactor() - fOffscreenOffset.x;
 		// simple clipping
 		if (d > CLIPPING_MAX)
@@ -774,7 +774,7 @@ public class RTLView extends ViewPart implements ZoomObserver, PaintListener {
 
 	}
 
-	public int tY(double aY) {
+	int tY(double aY) {
 		double d = (aY + TOP_MARGIN) * getZoomFactor() - fOffscreenOffset.y;
 		// simple clipping
 		if (d > CLIPPING_MAX)
@@ -784,7 +784,7 @@ public class RTLView extends ViewPart implements ZoomObserver, PaintListener {
 		return (int) d;
 	}
 
-	public int tW(double aW) {
+	int tW(double aW) {
 		double d = aW * getZoomFactor();
 		// simple clipping
 		if (d > CLIPPING_MAX)
@@ -794,7 +794,7 @@ public class RTLView extends ViewPart implements ZoomObserver, PaintListener {
 		return (int) d;
 	}
 
-	public int tH(double aH) {
+	int tH(double aH) {
 		double d = aH * getZoomFactor();
 		// simple clipping
 		if (d > CLIPPING_MAX)
@@ -804,7 +804,7 @@ public class RTLView extends ViewPart implements ZoomObserver, PaintListener {
 		return (int) d;
 	}
 
-	public void scrollHorizontally(ScrollBar aScrollBar) {
+	private void scrollHorizontally(ScrollBar aScrollBar) {
 		if (fZommedSize.x > fVisibleSize.x) {
 			final int oldOffset = fVisibleOffset.x;
 			final int newOffset = Math.min(aScrollBar.getSelection(), fZommedSize.x - fVisibleSize.x);
@@ -824,7 +824,7 @@ public class RTLView extends ViewPart implements ZoomObserver, PaintListener {
 		}
 	}
 
-	public void scrollVertically(ScrollBar aScrollBar) {
+	private void scrollVertically(ScrollBar aScrollBar) {
 		if (fZommedSize.y > fVisibleSize.y) {
 			final int oldOffset = fVisibleOffset.y;
 			final int newOffset = Math.min(aScrollBar.getSelection(), fZommedSize.y - fVisibleSize.y);
@@ -988,23 +988,24 @@ public class RTLView extends ViewPart implements ZoomObserver, PaintListener {
 			fNormalFont.dispose();
 			fNormalFont = null;
 		}
-		if (fBigFont != null) {
-			fBigFont.dispose();
-			fBigFont = null;
+		if (fLargeFont != null) {
+			fLargeFont.dispose();
+			fLargeFont = null;
 		}
 
 		fSmallFont = new Font(display, FONT_NAME, tF(SMALL_FONT_SIZE), SWT.NONE);
 		fNormalFont = new Font(display, FONT_NAME, tF(NORMAL_FONT_SIZE), SWT.NONE);
-		fBigFont = new Font(display, FONT_NAME, tF(BIG_FONT_SIZE), SWT.BOLD);
+		fLargeFont = new Font(display, FONT_NAME, tF(LARGE_FONT_SIZE), SWT.BOLD);
 	}
 
-	public int tF(double aSize) {
+	int tF(double aSize) {
 		int d = tW(aSize);
 		if (d < 2)
 			d = 2;
 		return d;
 	}
 
+	@Override
 	public void updateZoom(double aFactor) {
 		fControl.update();
 
@@ -1015,7 +1016,7 @@ public class RTLView extends ViewPart implements ZoomObserver, PaintListener {
 		return fZoomFactor;
 	}
 
-	public void clearHighlight() {
+	private void clearHighlight() {
 		fSelectionProvider.clear();
 	}
 
@@ -1027,7 +1028,7 @@ public class RTLView extends ViewPart implements ZoomObserver, PaintListener {
 		fCanvas.redraw();
 	}
 
-	public void selectAndReveal(RTLNode aNode) {
+	private void selectAndReveal(RTLNode aNode) {
 
 		if (fLayout == null)
 			return;
@@ -1077,7 +1078,7 @@ public class RTLView extends ViewPart implements ZoomObserver, PaintListener {
 		fCanvas.redraw();
 	}
 
-	public void doSearch(String aRegexp) {
+	private void doSearch(String aRegexp) {
 		if (fRTLM == null)
 			return;
 
@@ -1136,7 +1137,7 @@ public class RTLView extends ViewPart implements ZoomObserver, PaintListener {
 		fCanvas.redraw();
 	}
 
-	public boolean handleMouseDown(int aMX, int aMY, int aButton) {
+	private boolean handleMouseDown(int aMX, int aMY, int aButton) {
 		if (fRTLM == null) {
 			return false;
 		}
@@ -1189,7 +1190,7 @@ public class RTLView extends ViewPart implements ZoomObserver, PaintListener {
 		return aButton == 1;
 	}
 
-	public void handleMouseDoubleClick(int aX, int aY) {
+	private void handleMouseDoubleClick(int aX, int aY) {
 		// project coordinates, find out what has been hit
 		int mx = aX + fVisibleOffset.x - fOffscreenOffset.x;
 		int my = aY + fVisibleOffset.y - fOffscreenOffset.y;
@@ -1218,8 +1219,8 @@ public class RTLView extends ViewPart implements ZoomObserver, PaintListener {
 		return fNormalFont;
 	}
 
-	Font getBigFont() {
-		return fBigFont;
+	Font getLargeFont() {
+		return fLargeFont;
 	}
 
 	private void showSource(IProject aPrj, SourceLocation aLocation) {
@@ -1232,10 +1233,6 @@ public class RTLView extends ViewPart implements ZoomObserver, PaintListener {
 		Point pt = control.computeSize(SWT.DEFAULT, SWT.DEFAULT);
 		pt = aItem.computeSize(pt.x, pt.y);
 		aItem.setSize(pt);
-	}
-
-	public Display getDisplay() {
-		return display;
 	}
 
 	@Override

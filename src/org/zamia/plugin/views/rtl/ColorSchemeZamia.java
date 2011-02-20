@@ -1,5 +1,5 @@
 /*
- * Copyright 2005-2008 by the authors indicated in the @author tags.
+ * Copyright 2005-2008,2011 by the authors indicated in the @author tags.
  * All rights reserved.
  *
  * See the LICENSE file for details.
@@ -18,12 +18,12 @@ import org.eclipse.swt.widgets.Display;
  */
 public class ColorSchemeZamia extends ColorScheme {
 
-	public ColorSchemeZamia (Display display_) {
-		super (display_);
+	public ColorSchemeZamia (Display aDisplay) {
+		super (aDisplay);
 	}
 	
 	@Override
-	public Color getBgColor() {
+	public Color getBackgroundColor() {
 		return white;
 	}
 
@@ -33,18 +33,8 @@ public class ColorSchemeZamia extends ColorScheme {
 	}
 
 	@Override
-	public Color getPinColor() {
-		return black;
-	}
-
-	@Override
 	public Color getModuleColor() {
 		return black;
-	}
-
-	@Override
-	public Color getSignalLabelColor() {
-		return blue;
 	}
 
 	@Override
@@ -57,13 +47,4 @@ public class ColorSchemeZamia extends ColorScheme {
 		return red;
 	}
 
-	@Override
-	public Color getAnnotationColor() {
-		return green;
-	}
-
-	@Override
-	public Color getShadowColor() {
-		return gray;
-	}
 }
