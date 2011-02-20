@@ -1,5 +1,5 @@
 /* 
- * Copyright 2008 by the authors indicated in the @author tags. 
+ * Copyright 2008,2011 by the authors indicated in the @author tags. 
  * All rights reserved. 
  * 
  * See the LICENSE file for details.
@@ -40,6 +40,12 @@ public class SyntaxColoringPreferencePage extends FieldEditorPreferencePage impl
 		addField(new ColorFieldEditor(PreferenceConstants.P_MATCHING_CHAR, "Matching char color", getFieldEditorParent()));
 		addField(new ColorFieldEditor(PreferenceConstants.P_BACKGROUND, "Background color", getFieldEditorParent()));
 
+		addField(new ColorFieldEditor(PreferenceConstants.P_MODULE, "Module color", getFieldEditorParent()));
+		addField(new ColorFieldEditor(PreferenceConstants.P_SIGNAL, "Signal color", getFieldEditorParent()));
+		addField(new ColorFieldEditor(PreferenceConstants.P_MODULE_LABEL, "Module label color", getFieldEditorParent()));
+		addField(new ColorFieldEditor(PreferenceConstants.P_HILIGHT, "Hilight color", getFieldEditorParent()));
+
+		
 		/*
 		
 		addField(new DirectoryFieldEditor(PreferenceConstants.P_PATH, 

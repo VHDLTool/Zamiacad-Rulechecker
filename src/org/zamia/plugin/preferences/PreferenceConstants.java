@@ -1,5 +1,5 @@
 /* 
- * Copyright 2010 by the authors indicated in the @author tags. 
+ * Copyright 2010,2011 by the authors indicated in the @author tags. 
  * All rights reserved. 
  * 
  * See the LICENSE file for details.
@@ -25,5 +25,13 @@ public class PreferenceConstants {
 	public static final String P_DEFAULT = "DefaultTextColorPref"; //$NON-NLS-1$
 
 	public static final String P_MATCHING_CHAR = "MatchingCharColorPref"; //$NON-NLS-1$
+
+	public static final String P_SIGNAL = "SignalColorPref"; //$NON-NLS-1$
+
+	public static final String P_MODULE = "ModuleColorPref"; //$NON-NLS-1$
+
+	public static final String P_MODULE_LABEL = "ModuleLabelColorPref"; //$NON-NLS-1$
+
+	public static final String P_HILIGHT = "HilightColorPref"; //$NON-NLS-1$
 
 }

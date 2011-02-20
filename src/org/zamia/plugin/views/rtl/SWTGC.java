@@ -155,6 +155,7 @@ public class SWTGC implements VGGC {
 	@Override
 	public void fillRectangle(int aX, int aY, int aW, int aH) {
 		fGC.fillRectangle(fRTLView.tX(aX), fRTLView.tY(aY), fRTLView.tW(aW), fRTLView.tH(aH));
+		fGC.drawRectangle(fRTLView.tX(aX), fRTLView.tY(aY), fRTLView.tW(aW), fRTLView.tH(aH));
 	}
 
 }

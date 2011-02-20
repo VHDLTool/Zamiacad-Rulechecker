@@ -1,5 +1,5 @@
 /* 
- * Copyright 2010 by the authors indicated in the @author tags. 
+ * Copyright 2010,2011 by the authors indicated in the @author tags. 
  * All rights reserved. 
  * 
  * See the LICENSE file for details.
@@ -14,7 +14,6 @@ import org.eclipse.swt.SWT;
 import org.eclipse.swt.graphics.Color;
 import org.eclipse.swt.widgets.Display;
 import org.zamia.plugin.ZamiaPlugin;
-
 
 /**
  * Class used to initialize default preference values.
@@ -46,6 +45,15 @@ public class PreferenceInitializer extends AbstractPreferenceInitializer {
 		color = display.getSystemColor(SWT.COLOR_WHITE);
 		PreferenceConverter.setDefault(store, PreferenceConstants.P_BACKGROUND, color.getRGB());
 
+		color = display.getSystemColor(SWT.COLOR_BLUE);
+		PreferenceConverter.setDefault(store, PreferenceConstants.P_SIGNAL, color.getRGB());
+		color = display.getSystemColor(SWT.COLOR_BLACK);
+		PreferenceConverter.setDefault(store, PreferenceConstants.P_MODULE, color.getRGB());
+		color = display.getSystemColor(SWT.COLOR_BLUE);
+		PreferenceConverter.setDefault(store, PreferenceConstants.P_MODULE_LABEL, color.getRGB());
+		color = display.getSystemColor(SWT.COLOR_RED);
+		PreferenceConverter.setDefault(store, PreferenceConstants.P_HILIGHT, color.getRGB());
+	
 	}
 
 }

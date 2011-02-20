@@ -92,9 +92,9 @@ public class RTLView extends ViewPart implements ZoomObserver, PaintListener {
 
 	public static final double BOTTOM_MARGIN = 10.0;
 
-	public static final int SMALL_FONT_SIZE = 6;
+	public static final int SMALL_FONT_SIZE = 4;
 
-	public static final int NORMAL_FONT_SIZE = 10;
+	public static final int NORMAL_FONT_SIZE = 6;
 
 	public static final int LARGE_FONT_SIZE = 12;
 
@@ -251,10 +251,7 @@ public class RTLView extends ViewPart implements ZoomObserver, PaintListener {
 
 		display = aParent.getDisplay();
 
-		// control = new RTLView(parent, new ColorSchemeZamia(display), true,
-		// true, this);
-
-		fColorScheme = new ColorSchemeZamia(display);
+		fColorScheme = new ColorScheme(display);
 
 		fLayout = null;
 
@@ -1160,6 +1157,7 @@ public class RTLView extends ViewPart implements ZoomObserver, PaintListener {
 			for (int i = 0; i < n; i++) {
 				RTLPort conn = s.getConn(i);
 
+				fContentProvider.setPortExpanded(conn, true);
 				fContentProvider.setNodeVisible(conn.getNode(), true);
 			}
 
