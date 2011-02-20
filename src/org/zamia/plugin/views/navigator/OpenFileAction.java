@@ -1,5 +1,5 @@
 /*
- * Copyright 2007-2009 by the authors indicated in the @author tags.
+ * Copyright 2007-2009,2011 by the authors indicated in the @author tags.
  * All rights reserved.
  *
  * See the LICENSE file for details.
@@ -31,7 +31,7 @@ import org.zamia.ZamiaProject;
 import org.zamia.plugin.ZamiaPlugin;
 import org.zamia.plugin.ZamiaProjectMap;
 import org.zamia.plugin.editors.ZamiaEditor;
-
+import org.zamia.plugin.views.rtl.RTLView;
 
 /**
  * 
@@ -46,7 +46,9 @@ public class OpenFileAction extends Action {
 
 	private List<IFile> fFileSelected;
 
-	private List<IGModuleWrapper> fWrappersSelected;
+	private List<IGModuleWrapper> fIGWrappersSelected;
+
+	private List<RTLModuleWrapper> fRTLWrappersSelected;
 
 	private List<Object> fContainersSelected; // IContainer or IWrappedResource
 
@@ -77,9 +79,9 @@ public class OpenFileAction extends Action {
 				el.logException(e);
 			}
 
-		} else if (fWrappersSelected.size() > 0) {
+		} else if (fIGWrappersSelected.size() > 0) {
 
-			IGModuleWrapper wrapper = fWrappersSelected.iterator().next();
+			IGModuleWrapper wrapper = fIGWrappersSelected.iterator().next();
 
 			ZamiaProject zprj = wrapper.getZPrj();
 
@@ -107,6 +109,12 @@ public class OpenFileAction extends Action {
 
 			}
 
+		} else if (fRTLWrappersSelected.size() > 0) {
+
+			RTLModuleWrapper wrapper = fRTLWrappersSelected.iterator().next();
+
+			RTLView rtlv = ZamiaPlugin.showRTLView();
+			
 		} else if (fContainersSelected.size() > 0) {
 			if (this.fProvider instanceof TreeViewer) {
 				TreeViewer viewer = (TreeViewer) this.fProvider;
@@ -124,7 +132,8 @@ public class OpenFileAction extends Action {
 
 		fFileSelected = new ArrayList<IFile>();
 		fContainersSelected = new ArrayList<Object>();
-		fWrappersSelected = new ArrayList<IGModuleWrapper>();
+		fIGWrappersSelected = new ArrayList<IGModuleWrapper>();
+		fRTLWrappersSelected = new ArrayList<RTLModuleWrapper>();
 
 		ISelection selection = fProvider.getSelection();
 		if (!selection.isEmpty()) {
@@ -138,7 +147,7 @@ public class OpenFileAction extends Action {
 
 					IGModuleWrapper wrapper = (IGModuleWrapper) element;
 
-					fWrappersSelected.add(wrapper);
+					fIGWrappersSelected.add(wrapper);
 				} else if (element instanceof IAdaptable) {
 					IAdaptable adaptable = (IAdaptable) element;
 					IFile file = (IFile) adaptable.getAdapter(IFile.class);
@@ -151,6 +160,11 @@ public class OpenFileAction extends Action {
 							fContainersSelected.add(element);
 						}
 					}
+				} else if (element instanceof RTLModuleWrapper) {
+
+					RTLModuleWrapper wrapper = (RTLModuleWrapper) element;
+
+					fRTLWrappersSelected.add(wrapper);
 				}
 			}
 		}

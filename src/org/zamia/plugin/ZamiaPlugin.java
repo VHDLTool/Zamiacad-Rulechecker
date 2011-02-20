@@ -1,5 +1,5 @@
 /*
- * Copyright 2007-2010 by the authors indicated in the @author tags.
+ * Copyright 2007-2011 by the authors indicated in the @author tags.
  * All rights reserved.
  *
  * See the LICENSE file for details.
@@ -77,8 +77,8 @@ import org.zamia.plugin.editors.ZamiaEditor;
 import org.zamia.plugin.editors.completion.VHDLContext;
 import org.zamia.plugin.efs.ZamiaFileStore;
 import org.zamia.plugin.views.navigator.IGModuleWrapper;
+import org.zamia.plugin.views.rtl.RTLView;
 import org.zamia.util.PathName;
-
 
 /**
  * The main plugin class
@@ -137,7 +137,7 @@ public class ZamiaPlugin extends AbstractUIPlugin {
 	/**
 	 * This method is called upon plug-in activation
 	 */
-	@SuppressWarnings("unchecked")
+	@SuppressWarnings({ "rawtypes" })
 	public void start(BundleContext context) throws Exception {
 		super.start(context);
 
@@ -175,7 +175,7 @@ public class ZamiaPlugin extends AbstractUIPlugin {
 
 				logger.info("ZamiaCAD V" + fVersion);
 				logger.info("");
-				logger.info("Copyright (C) 2003-2010 G. Bartsch");
+				logger.info("Copyright (C) 2003-2011 G. Bartsch");
 				logger.info("");
 				logger.info("Author: Guenter Bartsch <guenter@zamia.org>");
 				logger.info("");
@@ -348,7 +348,7 @@ public class ZamiaPlugin extends AbstractUIPlugin {
 
 				// a really ugly hack, but effective
 				ZamiaBuilder.disableAutoBuild(5000);
-				
+
 				IFolder extDir = ZamiaBuilder.linkExternalSource(aProject, pathPrefix, entry.fReadonly);
 				file = extDir.getFile(filename);
 
@@ -570,6 +570,24 @@ public class ZamiaPlugin extends AbstractUIPlugin {
 				}
 			}
 		});
+	}
+
+	public static RTLView showRTLView() {
+
+		RTLView rtlview = null;
+
+		IWorkbenchWindow window = ZamiaPlugin.getDefault().getWorkbench().getActiveWorkbenchWindow();
+
+		IWorkbenchPage page = window.getActivePage();
+
+		try {
+			rtlview = (RTLView) page.showView(RTLView.VIEW_ID);
+
+		} catch (Throwable e) {
+			el.logException(e);
+		}
+
+		return rtlview;
 	}
 
 	public static void showError(Shell aShell, String aTitle, String aMsg, String aReason) {

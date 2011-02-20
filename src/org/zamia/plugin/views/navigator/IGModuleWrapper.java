@@ -65,9 +65,9 @@ public class IGModuleWrapper implements Comparable<IGModuleWrapper> {
 
 	private IGProcess fProcess;
 
-	private IGModuleWrapperCache fCache;
+	private NavigatorWrapperCache fCache;
 
-	public IGModuleWrapper(IGMWOp aOp, String aSignature, DMUID aDUUID, ToplevelPath aPath, IGModuleWrapperCache aCache) {
+	public IGModuleWrapper(IGMWOp aOp, String aSignature, DMUID aDUUID, ToplevelPath aPath, NavigatorWrapperCache aCache) {
 		fSignature = aSignature;
 		fDUUID = aDUUID;
 		fPath = aPath;
@@ -76,7 +76,7 @@ public class IGModuleWrapper implements Comparable<IGModuleWrapper> {
 		fZPrj = fCache.getZPrj();
 	}
 
-	public IGModuleWrapper(IGInstantiation aInstantiation, ToplevelPath aPath, IGModuleWrapperCache aCache) {
+	public IGModuleWrapper(IGInstantiation aInstantiation, ToplevelPath aPath, NavigatorWrapperCache aCache) {
 		fInstantiation = aInstantiation;
 		fPath = aPath;
 		fOp = IGMWOp.INSTANTIATION;
@@ -84,7 +84,7 @@ public class IGModuleWrapper implements Comparable<IGModuleWrapper> {
 		fZPrj = fCache.getZPrj();
 	}
 
-	public IGModuleWrapper(IGProcess aProcess, ToplevelPath aPath, IGModuleWrapperCache aCache) {
+	public IGModuleWrapper(IGProcess aProcess, ToplevelPath aPath, NavigatorWrapperCache aCache) {
 		fProcess = aProcess;
 		fPath = aPath;
 		fOp = IGMWOp.PROCESS;
@@ -92,7 +92,7 @@ public class IGModuleWrapper implements Comparable<IGModuleWrapper> {
 		fZPrj = fCache.getZPrj();
 	}
 
-	public IGModuleWrapper(IGMWOp aOp, IGModule aModule, ToplevelPath aPath, IGModuleWrapperCache aCache) {
+	public IGModuleWrapper(IGMWOp aOp, IGModule aModule, ToplevelPath aPath, NavigatorWrapperCache aCache) {
 		fModule = aModule;
 		fPath = aPath;
 		fOp = aOp;
@@ -100,7 +100,7 @@ public class IGModuleWrapper implements Comparable<IGModuleWrapper> {
 		fZPrj = fCache.getZPrj();
 	}
 
-	public IGModuleWrapper(IGStructure aStruct, ToplevelPath aTp, IGModuleWrapperCache aCache) {
+	public IGModuleWrapper(IGStructure aStruct, ToplevelPath aTp, NavigatorWrapperCache aCache) {
 		fStruct = aStruct;
 		fPath = aTp;
 		fCache = aCache;
@@ -108,7 +108,7 @@ public class IGModuleWrapper implements Comparable<IGModuleWrapper> {
 		fOp = IGMWOp.STRUCTURE;
 	}
 
-	public IGModuleWrapper(IGContainerItem aItem, ToplevelPath aPath, IGModuleWrapperCache aCache) {
+	public IGModuleWrapper(IGContainerItem aItem, ToplevelPath aPath, NavigatorWrapperCache aCache) {
 		fItem = aItem;
 		fPath = aPath;
 		fCache = aCache;

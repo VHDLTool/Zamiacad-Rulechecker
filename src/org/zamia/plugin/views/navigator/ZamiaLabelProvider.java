@@ -1,5 +1,5 @@
 /*
- * Copyright 2007-2009 by the authors indicated in the @author tags.
+ * Copyright 2007-2009,2011 by the authors indicated in the @author tags.
  * All rights reserved.
  *
  * See the LICENSE file for details.
@@ -25,7 +25,6 @@ import org.zamia.vhdl.ast.Architecture;
 import org.zamia.vhdl.ast.Entity;
 import org.zamia.vhdl.ast.PackageBody;
 import org.zamia.vhdl.ast.VHDLPackage;
-
 
 /**
  * 
@@ -68,6 +67,8 @@ public class ZamiaLabelProvider extends LabelProvider {
 
 	private Image fVarIcon;
 
+	private Image fRTLModuleIcon;
+
 	public ZamiaLabelProvider() {
 		fEntityIcon = ZamiaPlugin.getImage("/share/images/entity.png");
 		fArchIcon = ZamiaPlugin.getImage("/share/images/arch.gif");
@@ -86,6 +87,7 @@ public class ZamiaLabelProvider extends LabelProvider {
 		fInoutIcon = ZamiaPlugin.getImage("/share/images/inout.gif");
 		fOutIcon = ZamiaPlugin.getImage("/share/images/out.gif");
 		fVarIcon = ZamiaPlugin.getImage("/share/images/var.gif");
+		fRTLModuleIcon = ZamiaPlugin.getImage("/share/images/rtlm.gif");
 	}
 
 	@Override
@@ -149,6 +151,11 @@ public class ZamiaLabelProvider extends LabelProvider {
 			}
 
 			return fRedArchIcon;
+		}
+		if (anElement instanceof RTLModuleWrapper) {
+			//RTLModuleWrapper wrapper = (RTLModuleWrapper) anElement;
+
+			return fRTLModuleIcon;
 		}
 		if (anElement instanceof Entity)
 			return fEntityIcon;

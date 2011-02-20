@@ -1,5 +1,5 @@
 /*
- * Copyright 2006-2010 by the authors indicated in the @author tags.
+ * Copyright 2006-2011 by the authors indicated in the @author tags.
  * All rights reserved.
  *
  * See the LICENSE file for details.
@@ -62,12 +62,12 @@ public class ZamiaContentProvider extends BaseWorkbenchContentProvider implement
 	private Viewer viewer;
 
 	// caching of wrappers is necessary to keep items expanded during navigator refresh
-	private HashMap<ZamiaProject, IGModuleWrapperCache> fCaches = new HashMap<ZamiaProject, IGModuleWrapperCache>();
+	private HashMap<ZamiaProject, NavigatorWrapperCache> fCaches = new HashMap<ZamiaProject, NavigatorWrapperCache>();
 
-	private IGModuleWrapperCache getCache(ZamiaProject aZPrj) {
-		IGModuleWrapperCache cache = fCaches.get(aZPrj);
+	private NavigatorWrapperCache getCache(ZamiaProject aZPrj) {
+		NavigatorWrapperCache cache = fCaches.get(aZPrj);
 		if (cache == null) {
-			cache = new IGModuleWrapperCache(aZPrj);
+			cache = new NavigatorWrapperCache(aZPrj);
 			fCaches.put(aZPrj, cache);
 		}
 		return cache;
@@ -87,7 +87,7 @@ public class ZamiaContentProvider extends BaseWorkbenchContentProvider implement
 
 				ZamiaProject zprj = ZamiaProjectMap.getZamiaProject(prj);
 
-				IGModuleWrapperCache cache = getCache(zprj);
+				NavigatorWrapperCache cache = getCache(zprj);
 
 				ArrayList<Object> res = new ArrayList<Object>();
 
@@ -106,6 +106,19 @@ public class ZamiaContentProvider extends BaseWorkbenchContentProvider implement
 						if (duuid != null) {
 							res.add(cache.getRedWrapper(tl, duuid));
 							res.add(cache.getBlueWrapper(tl, duuid));
+						}
+					}
+
+					n = bp.getNumSynthTLs();
+
+					for (int i = 0; i < n; i++) {
+
+						Toplevel tl = bp.getSynthTL(i);
+
+						DMUID duuid = dum.getArchDUUID(tl);
+
+						if (duuid != null) {
+							res.add(cache.getSynthWrapper(tl, duuid));
 						}
 					}
 				}
@@ -276,7 +289,7 @@ public class ZamiaContentProvider extends BaseWorkbenchContentProvider implement
 	 * 
 	 * @param delta
 	 */
-	@SuppressWarnings("unchecked")
+	@SuppressWarnings("rawtypes")
 	protected void processDelta(IResourceDelta delta) {
 
 		Control ctrl = viewer.getControl();
@@ -320,7 +333,7 @@ public class ZamiaContentProvider extends BaseWorkbenchContentProvider implement
 	 * 
 	 * @param runnables
 	 */
-	@SuppressWarnings("unchecked")
+	@SuppressWarnings({ "rawtypes" })
 	private void runUpdates(Collection runnables) {
 		Iterator runnableIterator = runnables.iterator();
 		while (runnableIterator.hasNext()) {
@@ -332,7 +345,7 @@ public class ZamiaContentProvider extends BaseWorkbenchContentProvider implement
 	/**
 	 * Process a resource delta. Add any runnables
 	 */
-	@SuppressWarnings("unchecked")
+	@SuppressWarnings({ "unchecked", "rawtypes" })
 	private void processDelta(IResourceDelta delta, Collection runnables) {
 		// he widget may have been destroyed
 		// by the time this is run. Check for this and do nothing if so.

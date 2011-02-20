@@ -1,5 +1,5 @@
 /*
- * Copyright 2007-2009 by the authors indicated in the @author tags.
+ * Copyright 2007-2009,2011 by the authors indicated in the @author tags.
  * All rights reserved.
  *
  * See the LICENSE file for details.
@@ -61,7 +61,7 @@ public class BuildPathScanner extends RuleBasedScanner {
 		}
 	}
 
-	public static String[] fgKeywords = { "extern", "local", "toplevel", "readonly", "ignore", "include", "option", "true", "false", "topdown", "bottomup", "list", "none", "default", "exec", "recursive", "nonrecursive" };
+	public static String[] fgKeywords = { "extern", "local", "toplevel", "readonly", "ignore", "include", "option", "true", "false", "topdown", "bottomup", "list", "none", "default", "exec", "recursive", "nonrecursive", "synthesize" };
 
 	public BuildPathScanner() {
 

@@ -1,5 +1,5 @@
 /*
- * Copyright 2005-2010 by the authors indicated in the @author tags.
+ * Copyright 2005-2011 by the authors indicated in the @author tags.
  * All rights reserved.
  *
  * See the LICENSE file for details.
@@ -14,6 +14,7 @@ import org.eclipse.ui.IFolderLayout;
 import org.eclipse.ui.IPageLayout;
 import org.eclipse.ui.IPerspectiveFactory;
 import org.eclipse.ui.progress.IProgressConstants;
+import org.zamia.plugin.views.rtl.RTLView;
 
 /**
  * Creates the zamia eclipse perspective with a default set of views
@@ -31,7 +32,7 @@ public class ZamiaPerspectiveFactory implements IPerspectiveFactory {
 		
 		IFolderLayout consoleArea = layout.createFolder("bottom", IPageLayout.BOTTOM, (float)0.6, editorArea); 
         consoleArea.addView(IPageLayout.ID_PROBLEM_VIEW);
-		//consoleArea.addView("org.zamia.plugin.views.rtl.RTLView");
+		consoleArea.addView(RTLView.VIEW_ID);
 		consoleArea.addView("org.zamia.plugin.views.sim.SimulatorView");
 		//consoleArea.addView("org.zamia.plugin.views.console.ZamiaConsole");
 		consoleArea.addView("org.eclipse.ui.console.ConsoleView");

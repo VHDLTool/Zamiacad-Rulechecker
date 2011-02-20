@@ -1,5 +1,5 @@
 /* 
- * Copyright 2009 by the authors indicated in the @author tags. 
+ * Copyright 2009,2011 by the authors indicated in the @author tags. 
  * All rights reserved. 
  * 
  * See the LICENSE file for details.
@@ -18,6 +18,7 @@ import org.zamia.instgraph.IGModule;
 import org.zamia.instgraph.IGProcess;
 import org.zamia.instgraph.IGStructure;
 import org.zamia.plugin.views.navigator.IGModuleWrapper.IGMWOp;
+import org.zamia.plugin.views.navigator.RTLModuleWrapper.RTLMWOp;
 import org.zamia.util.PathName;
 import org.zamia.vhdl.ast.DMUID;
 
@@ -29,12 +30,13 @@ import org.zamia.vhdl.ast.DMUID;
  *
  */
 
-public class IGModuleWrapperCache {
+public class NavigatorWrapperCache {
 
 	private ZamiaProject fZPrj;
 	
 	private HashMap<DMUID, IGModuleWrapper> fBlueDUUIDWrappers = new HashMap<DMUID, IGModuleWrapper>();
 	private HashMap<DMUID, IGModuleWrapper> fRedDUUIDWrappers = new HashMap<DMUID, IGModuleWrapper>();
+	private HashMap<DMUID, RTLModuleWrapper> fSynthDUUIDWrappers = new HashMap<DMUID, RTLModuleWrapper>();
 	private HashMap<ToplevelPath, IGModuleWrapper> fLocalsWrappers = new HashMap<ToplevelPath, IGModuleWrapper>();
 	private HashMap<ToplevelPath, IGModuleWrapper> fGlobalsWrappers = new HashMap<ToplevelPath, IGModuleWrapper>();
 	private HashMap<ToplevelPath, IGModuleWrapper> fInstantiationWrappers = new HashMap<ToplevelPath, IGModuleWrapper>();
@@ -42,7 +44,7 @@ public class IGModuleWrapperCache {
 	private HashMap<ToplevelPath, IGModuleWrapper> fProcessWrappers = new HashMap<ToplevelPath, IGModuleWrapper>();
 	private HashMap<ToplevelPath, IGModuleWrapper> fBlueWrappers = new HashMap<ToplevelPath, IGModuleWrapper>();
 
-	public IGModuleWrapperCache(ZamiaProject aZPrj) {
+	public NavigatorWrapperCache(ZamiaProject aZPrj) {
 		fZPrj = aZPrj;
 	}
 
@@ -169,6 +171,25 @@ public class IGModuleWrapperCache {
 		wrapper = new IGModuleWrapper(IGMWOp.BLUEIG, aInst.getSignature(), duuid, aTP, this);
 		fBlueWrappers.put(aTP, wrapper);
 
+		return wrapper;
+	}
+
+	public RTLModuleWrapper getSynthWrapper(Toplevel aTL, DMUID aDUUID) {
+
+		RTLModuleWrapper wrapper = fSynthDUUIDWrappers.get(aDUUID);
+		if (wrapper != null) {
+			return wrapper;
+		}
+		
+		String signature = IGInstantiation.computeSignature(aDUUID, null);
+
+		PathName path = new PathName("" + PathName.separator);
+		ToplevelPath tlp = new ToplevelPath (aTL, path);
+
+		wrapper = new RTLModuleWrapper(RTLMWOp.TOP, signature, aDUUID, tlp, this);
+		
+		fSynthDUUIDWrappers.put(aDUUID, wrapper);
+		
 		return wrapper;
 	}
 
