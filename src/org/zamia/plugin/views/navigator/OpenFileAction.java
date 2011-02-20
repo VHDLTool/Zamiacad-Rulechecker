@@ -25,6 +25,7 @@ import org.eclipse.ui.IWorkbenchPage;
 import org.eclipse.ui.ide.IDE;
 import org.zamia.ExceptionLogger;
 import org.zamia.SourceLocation;
+import org.zamia.Toplevel;
 import org.zamia.ToplevelPath;
 import org.zamia.ZamiaLogger;
 import org.zamia.ZamiaProject;
@@ -32,6 +33,9 @@ import org.zamia.plugin.ZamiaPlugin;
 import org.zamia.plugin.ZamiaProjectMap;
 import org.zamia.plugin.editors.ZamiaEditor;
 import org.zamia.plugin.views.rtl.RTLView;
+import org.zamia.rtl.RTLManager;
+import org.zamia.rtl.RTLModule;
+import org.zamia.vhdl.ast.DMUID;
 
 /**
  * 
@@ -113,7 +117,19 @@ public class OpenFileAction extends Action {
 
 			RTLModuleWrapper wrapper = fRTLWrappersSelected.iterator().next();
 
+			DMUID dmuid = wrapper.getDMUID();
+			
+			ZamiaProject zprj = wrapper.getZPrj();
+
+			RTLManager manager = zprj.getRTLM();
+			
+			Toplevel tl = new Toplevel(dmuid, null);
+			
+			RTLModule rtlm = manager.findModule(tl);;
+			
 			RTLView rtlv = ZamiaPlugin.showRTLView();
+			
+			rtlv.setRTLModule(rtlm);
 			
 		} else if (fContainersSelected.size() > 0) {
 			if (this.fProvider instanceof TreeViewer) {

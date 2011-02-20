@@ -78,7 +78,7 @@ public class RTLModuleWrapper implements Comparable<RTLModuleWrapper> {
 		if (p1 != null && p2 == null)
 			return false;
 
-		return getDUUID().equals(wrapper2.getDUUID());
+		return getDMUID().equals(wrapper2.getDMUID());
 	}
 
 	@Override
@@ -86,7 +86,7 @@ public class RTLModuleWrapper implements Comparable<RTLModuleWrapper> {
 		return super.hashCode();
 	}
 
-	public DMUID getDUUID() {
+	public DMUID getDMUID() {
 		return fDUUID;
 	}
 

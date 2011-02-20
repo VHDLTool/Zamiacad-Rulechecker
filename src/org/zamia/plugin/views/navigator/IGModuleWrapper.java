@@ -47,7 +47,7 @@ public class IGModuleWrapper implements Comparable<IGModuleWrapper> {
 
 	private IGMWOp fOp;
 
-	private DMUID fDUUID;
+	private DMUID fDMUID;
 
 	private String fSignature;
 
@@ -67,9 +67,9 @@ public class IGModuleWrapper implements Comparable<IGModuleWrapper> {
 
 	private NavigatorWrapperCache fCache;
 
-	public IGModuleWrapper(IGMWOp aOp, String aSignature, DMUID aDUUID, ToplevelPath aPath, NavigatorWrapperCache aCache) {
+	public IGModuleWrapper(IGMWOp aOp, String aSignature, DMUID aDMUID, ToplevelPath aPath, NavigatorWrapperCache aCache) {
 		fSignature = aSignature;
-		fDUUID = aDUUID;
+		fDMUID = aDMUID;
 		fPath = aPath;
 		fOp = aOp;
 		fCache = aCache;
@@ -156,20 +156,20 @@ public class IGModuleWrapper implements Comparable<IGModuleWrapper> {
 				return false;
 		}
 
-		return getDUUID().equals(wrapper2.getDUUID());
+		return getDMUID().equals(wrapper2.getDMUID());
 	}
 
 	@Override
 	public int hashCode() {
-		return fOp == IGMWOp.BLUEIG ? getDUUID().hashCode() : super.hashCode();
+		return fOp == IGMWOp.BLUEIG ? getDMUID().hashCode() : super.hashCode();
 	}
 
-	public DMUID getDUUID() {
-		return fDUUID;
+	public DMUID getDMUID() {
+		return fDMUID;
 	}
 
-	public void setDUUID(DMUID aDUUID) {
-		fDUUID = aDUUID;
+	public void setDMUID(DMUID aDMUID) {
+		fDMUID = aDMUID;
 	}
 
 	public void setZPrj(ZamiaProject aZPrj) {
@@ -413,7 +413,7 @@ public class IGModuleWrapper implements Comparable<IGModuleWrapper> {
 
 		switch (fOp) {
 		case TOPRED:
-			label = fDUUID.toCompactString();
+			label = fDMUID.toCompactString();
 			break;
 
 		case INSTANTIATION:
@@ -435,7 +435,7 @@ public class IGModuleWrapper implements Comparable<IGModuleWrapper> {
 			break;
 
 		case BLUEIG:
-			label = fDUUID.toCompactString();
+			label = fDMUID.toCompactString();
 			// if (!wrapper.isBlueIG()) {
 			// ToplevelPath tlp = wrapper.getPath();
 			// PathName path = tlp.getPath();

@@ -249,12 +249,6 @@ public class RTLView extends ViewPart implements ZoomObserver, PaintListener {
 
 	public void createPartControl(Composite aParent) {
 
-		if (!ZamiaPlugin.ENABLE_EXPERIMENTAL_FEATURES) {
-			Label l = new Label(aParent, SWT.NONE);
-			l.setText("This feature is still under development.");
-			return;
-		}
-
 		display = aParent.getDisplay();
 
 		// control = new RTLView(parent, new ColorSchemeZamia(display), true,
@@ -688,7 +682,9 @@ public class RTLView extends ViewPart implements ZoomObserver, PaintListener {
 		aOffscreenGC.setLineWidth((int) (2 * getZoomFactor()));
 		aOffscreenGC.fillRectangle(0, 0, fOffscreenSize.x, fOffscreenSize.y);
 
-		fLayout.paint(fSelectionProvider);
+		if (fLayout != null) {
+			fLayout.paint(fSelectionProvider);
+		}
 
 		aOffscreenGC.setFont(oldfont);
 		font.dispose();

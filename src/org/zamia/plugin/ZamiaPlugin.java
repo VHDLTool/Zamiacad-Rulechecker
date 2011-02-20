@@ -93,8 +93,6 @@ public class ZamiaPlugin extends AbstractUIPlugin {
 
 	private static final String CUSTOM_TEMPLATES_PREFERENCE_NAME = "org.zamia.templatesStore";
 
-	public static final boolean ENABLE_EXPERIMENTAL_FEATURES = false;
-
 	public final static String BP_EXTERNAL_SOURCES = "[BP External Sources]";
 
 	private static FSCache fsCache = FSCache.getInstance();
