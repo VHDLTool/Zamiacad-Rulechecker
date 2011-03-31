@@ -74,7 +74,7 @@ public class LaunchIGModuleAction extends org.eclipse.ui.actions.ActionDelegate 
 			ILaunchConfiguration config = null;
 			// if the configuration already exists, delete it
 
-			DMUID duuid = fWrapper.getDUUID();
+			DMUID duuid = fWrapper.getDMUID();
 			
 			String id = duuid.toString();
 

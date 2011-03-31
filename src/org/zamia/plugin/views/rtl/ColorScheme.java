@@ -1,5 +1,5 @@
 /*
- * Copyright 2005-2008 by the authors indicated in the @author tags.
+ * Copyright 2005-2008,2011 by the authors indicated in the @author tags.
  * All rights reserved.
  *
  * See the LICENSE file for details.
@@ -9,42 +9,65 @@
 
 package org.zamia.plugin.views.rtl;
 
-import org.eclipse.swt.SWT;
+import org.eclipse.jface.preference.IPreferenceStore;
+import org.eclipse.jface.preference.PreferenceConverter;
 import org.eclipse.swt.graphics.Color;
+import org.eclipse.swt.graphics.RGB;
 import org.eclipse.swt.widgets.Display;
+import org.zamia.plugin.ZamiaPlugin;
+import org.zamia.plugin.preferences.PreferenceConstants;
 
 /**
+ * Eclipse preferences based color scheme
  * 
  * @author Guenter Bartsch
  *
  */
-public abstract class ColorScheme {
+public class ColorScheme {
 
-	protected Color black;
-	protected Color blue;
-	protected Color white;
-	protected Color green;
-	protected Color yellow;
-	protected Color red;
-	protected Color gray;
+	private Color fColorBackground;
 
-	public ColorScheme(Display display_) {
-		black = display_.getSystemColor(SWT.COLOR_BLACK);
-		blue = display_.getSystemColor(SWT.COLOR_BLUE);
-		white = display_.getSystemColor(SWT.COLOR_WHITE);
-		green = display_.getSystemColor(SWT.COLOR_DARK_GREEN);
-		yellow = display_.getSystemColor(SWT.COLOR_YELLOW);
-		red = display_.getSystemColor(SWT.COLOR_RED);
-		gray = display_.getSystemColor(SWT.COLOR_GRAY);
+	private Color fColorSignal;
+
+	private Color fColorModule;
+
+	private Color fColorModuleLabel;
+
+	private Color fColorHilight;
+
+	public ColorScheme(Display aDisplay) {
+
+		IPreferenceStore store = ZamiaPlugin.getDefault().getPreferenceStore();
+
+		RGB rgb = PreferenceConverter.getColor(store, PreferenceConstants.P_BACKGROUND);
+		fColorBackground = new Color(aDisplay, rgb);
+		rgb = PreferenceConverter.getColor(store, PreferenceConstants.P_SIGNAL);
+		fColorSignal = new Color(aDisplay, rgb);
+		rgb = PreferenceConverter.getColor(store, PreferenceConstants.P_MODULE);
+		fColorModule = new Color(aDisplay, rgb);
+		rgb = PreferenceConverter.getColor(store, PreferenceConstants.P_MODULE_LABEL);
+		fColorModuleLabel = new Color(aDisplay, rgb);
+		rgb = PreferenceConverter.getColor(store, PreferenceConstants.P_HILIGHT);
+		fColorHilight = new Color(aDisplay, rgb);
 	}
 
-	public abstract Color getBgColor();
-	public abstract Color getSignalColor();
-	public abstract Color getPinColor();
-	public abstract Color getModuleColor();
-	public abstract Color getSignalLabelColor();
-	public abstract Color getModuleLabelColor();
-	public abstract Color getHilightColor();
-	public abstract Color getAnnotationColor();
-	public abstract Color getShadowColor();
+	public Color getBackgroundColor() {
+		return fColorBackground;
+	}
+
+	public Color getSignalColor() {
+		return fColorSignal;
+	}
+
+	public Color getModuleColor() {
+		return fColorModule;
+	}
+
+	public Color getModuleLabelColor() {
+		return fColorModuleLabel;
+	}
+
+	public Color getHilightColor() {
+		return fColorHilight;
+	}
 }

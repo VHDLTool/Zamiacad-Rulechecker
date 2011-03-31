@@ -155,7 +155,7 @@
             category="org.zamia.plugin"
             name="RTL Graph Viewer"
             id="org.zamia.plugin.views.rtl.RTLView">
-	  </view>
+      </view>
       <view
             name="ZamiaCAD Navigator"
             icon="share/images/zamia.gif"
@@ -169,13 +169,6 @@
             category="org.zamia.plugin"
             name="Simulator"
             id="org.zamia.plugin.views.sim.SimulatorView">
-      </view>
-      <view
-            class="org.zamia.plugin.views.rtl.RTLViewGEF"
-            icon="share/images/zamia.gif"
-            category="org.zamia.plugin"
-            name="RTLViewGEF"
-            id="org.zamia.plugin.views.rtl.RTLViewGEF">
       </view>
    </extension>
    
@@ -677,6 +670,7 @@
             <or>
                 <instanceof value="org.zamia.vhdl.ast.VHDLNode"/>
                 <instanceof value="org.zamia.plugin.views.navigator.IGModuleWrapper"/>
+                <instanceof value="org.zamia.plugin.views.navigator.RTLModuleWrapper"/>
             </or>
          </possibleChildren>
          <actionProvider

@@ -15,14 +15,10 @@ import org.eclipse.core.runtime.IStatus;
 import org.eclipse.core.runtime.Status;
 import org.eclipse.core.runtime.jobs.Job;
 import org.eclipse.jface.action.IAction;
-import org.eclipse.jface.text.BadLocationException;
 import org.eclipse.jface.viewers.ISelection;
 import org.eclipse.swt.widgets.Display;
 import org.eclipse.swt.widgets.Shell;
 import org.eclipse.ui.IEditorPart;
-import org.eclipse.ui.IWorkbenchPage;
-import org.eclipse.ui.IWorkbenchWindow;
-import org.eclipse.ui.PartInitException;
 import org.zamia.ASTNode;
 import org.zamia.ExceptionLogger;
 import org.zamia.ZamiaException;
@@ -81,8 +77,6 @@ public class ShowInRTLGraphAction extends StaticAnalysisAction {
 		}
 	}
 
-	private IWorkbenchPage fPage;
-
 	private RTLView fView;
 
 	//private RTLGraph fRTLG;
@@ -104,35 +98,25 @@ public class ShowInRTLGraphAction extends StaticAnalysisAction {
 	}
 
 	public void selectionChanged(IAction aAction, ISelection aSelection) {
-		aAction.setEnabled(ZamiaPlugin.ENABLE_EXPERIMENTAL_FEATURES);
+		aAction.setEnabled(true);
 	}
 
 	public void run(IAction aAction) {
 
-		if (ZamiaPlugin.ENABLE_EXPERIMENTAL_FEATURES) {
-			try {
-				processSelection();
+		try {
+			processSelection();
 
-				IWorkbenchWindow window = ZamiaPlugin.getDefault().getWorkbench().getActiveWorkbenchWindow();
+			fView = ZamiaPlugin.showRTLView();
 
-				fPage = window.getActivePage();
+			if (fView != null) {
 
-				fView = (RTLView) fPage.showView("org.zamia.plugin.views.rtl.RTLView");
-				//				fSimView = (SimulatorView) fPage.findView("org.zamia.plugin.views.sim.SimulatorView");
-
-				if (fView != null) {
-
-					ShowInRTLGraphJob job = new ShowInRTLGraphJob(this);
-					job.setPriority(Job.SHORT);
-					job.schedule();
-				}
-
-			} catch (BadLocationException e) {
-				el.logException(e);
-			} catch (PartInitException e) {
-				// TODO Auto-generated catch block
-				e.printStackTrace();
+				ShowInRTLGraphJob job = new ShowInRTLGraphJob(this);
+				job.setPriority(Job.SHORT);
+				job.schedule();
 			}
+
+		} catch (Throwable e) {
+			el.logException(e);
 		}
 	}
 
