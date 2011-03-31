@@ -215,7 +215,7 @@ public class ZamiaNavigator extends CommonNavigator {
 		private long fDelay;
 		
 		public NavigatorRefreshJob(long aDelay) {
-			super("Refresh ZamiaCAD Navigator");
+			super("Refresh zamiaCAD Navigator");
 			fDelay = aDelay;
 		}
 

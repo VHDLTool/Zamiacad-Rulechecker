@@ -28,7 +28,7 @@ public class SyntaxColoringPreferencePage extends FieldEditorPreferencePage impl
 	public SyntaxColoringPreferencePage() {
 		super(GRID);
 		setPreferenceStore(ZamiaPlugin.getDefault().getPreferenceStore());
-		setDescription("ZamiaCAD Syntax Coloring Preference Page");
+		setDescription("zamiaCAD Syntax Coloring Preference Page");
 	}
 
 	public void createFieldEditors() {

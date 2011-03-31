@@ -65,7 +65,7 @@ public class ZamiaProjectMap {
 						File lockfile = e.getLockFile();
 
 						int answer = ZamiaPlugin.askQuestion(null, "Lockfile exists", "A lockfile for project\n\n" + aProject.getName() + "\n\nalready exists:\n\n"
-								+ lockfile.getAbsolutePath() + "\n\nAnother instance of ZamiaCAD is probably running.", SWT.ICON_ERROR | SWT.ABORT | SWT.RETRY | SWT.IGNORE);
+								+ lockfile.getAbsolutePath() + "\n\nAnother instance of zamiaCAD is probably running.", SWT.ICON_ERROR | SWT.ABORT | SWT.RETRY | SWT.IGNORE);
 
 						switch (answer) {
 						case SWT.ABORT:

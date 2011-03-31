@@ -31,7 +31,7 @@ import org.eclipse.swt.widgets.Text;
 
 public class NewZamiaProjectWizardPage extends WizardPage {
 	
-	private static final String PAGE_NAME = "Create New ZamiaCAD Project";
+	private static final String PAGE_NAME = "Create New zamiaCAD Project";
 
 	private Text fBasedirText;
 
@@ -42,8 +42,8 @@ public class NewZamiaProjectWizardPage extends WizardPage {
 	private String fProject;
 
 	public NewZamiaProjectWizardPage() {
-		super(PAGE_NAME, "Create New ZamiaCAD Project", null);
-		setTitle("New ZamiaCAD Project");
+		super(PAGE_NAME, "Create New zamiaCAD Project", null);
+		setTitle("New zamiaCAD Project");
 		setDescription("Select the project name, saving directory and its toplevel entity");
 	}
 
