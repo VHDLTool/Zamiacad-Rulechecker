@@ -183,7 +183,7 @@ public class ZamiaBuilder extends IncrementalProjectBuilder {
 
 			int answer = ZamiaPlugin.askQuestion(null, "Do Full Build?", "A full project build was requested.\n\n"
 					+ zprj +"\n\n"
-					+ "This process can take a long time but will ensure consistency between your sources and ZamiaCAD's model.\n\n"
+					+ "This process can take a long time but will ensure consistency between your sources and zamiaCAD's model.\n\n"
 					+ "Alternatively, you can trigger the full build by manually cleaning the project (project menu item 'Clean...') later.\n\n"
 					+ "Do you want to do a full build now?", SWT.ICON_QUESTION | SWT.YES | SWT.NO);
 

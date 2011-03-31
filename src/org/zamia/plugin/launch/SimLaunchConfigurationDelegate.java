@@ -24,7 +24,7 @@ import org.zamia.plugin.views.sim.SimulatorView;
 
 
 /**
- * Launch the ZamiaCAD logic simulator
+ * Launch the zamiaCAD logic simulator
  * 
  * @author Guenter Bartsch
  * 

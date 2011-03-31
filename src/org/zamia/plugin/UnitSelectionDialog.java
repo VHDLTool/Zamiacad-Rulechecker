@@ -36,7 +36,7 @@ public class UnitSelectionDialog extends FilteredItemsSelectionDialog {
 	public UnitSelectionDialog(Shell aShell, ArrayList<UnitWrapper> aUnits) {
 		super(aShell, false);
 		fUnits = aUnits;
-		setTitle("ZamiaCAD Unit Selection Dialog");
+		setTitle("zamiaCAD Unit Selection Dialog");
 		setSelectionHistory(new ResourceSelectionHistory());
 	}
 

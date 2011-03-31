@@ -173,14 +173,13 @@ public class ZamiaPlugin extends AbstractUIPlugin {
 
 				logger = ZamiaLogger.getInstance();
 
-				logger.info("ZamiaCAD V" + fVersion);
+				logger.info("zamiaCAD V" + fVersion);
 				logger.info("");
-				logger.info("Copyright (C) 2003-2010 G. Bartsch");
+				logger.info("Copyright (C) 2003-2011 by the zamiaCAD project and is covered by the GNU");
+				logger.info("General Public License, Version 3 (see LICENSE file for details).");
 				logger.info("");
-				logger.info("Author: Guenter Bartsch <guenter@zamia.org>");
-				logger.info("");
-				logger.info("Online documentation: http://www.zamia.org");
-				logger.info("Bug tracking: http://zamia.sf.net");
+				logger.info("Online documentation: http://zamiacad.sourceforge.net/");
+				logger.info("Bug tracking: http://sourceforge.net/projects/zamiacad/");
 				logger.info("");
 
 				el = ExceptionLogger.getInstance();
@@ -219,10 +218,10 @@ public class ZamiaPlugin extends AbstractUIPlugin {
 		super.stop(context);
 		ZamiaLogger.setConsoleOutput(null);
 		ZamiaProjectMap.shutdown();
-		System.out.println("ZamiaCAD shutdown complete.");
+		System.out.println("zamiaCAD shutdown complete.");
 		System.out.println("Logfile: " + logger.getLogFileName());
 		System.out.println();
-		System.out.println("Thank you for using ZamiaCAD.");
+		System.out.println("Thank you for using zamiaCAD.");
 	}
 
 	/**
@@ -432,7 +431,7 @@ public class ZamiaPlugin extends AbstractUIPlugin {
 		String uri = sf.getURI();
 		if (uri != null) {
 
-			// this is typically used for std libs that reside in the ZamiaCAD
+			// this is typically used for std libs that reside in the zamiaCAD
 			// plugin jar
 
 			logger.debug("showSource(): URI is '%s'", uri);
