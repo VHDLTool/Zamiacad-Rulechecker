@@ -409,9 +409,9 @@ public class SimulatorView extends ViewPart implements IGISimObserver {
 
 					String str = fRunText.getText();
 
-					int t = Integer.parseInt(str);
+					BigInteger aTime = new BigInteger(str).multiply(BigInteger.valueOf((long) fFSPerUnit));
 
-					fSimulator.run(BigInteger.valueOf(Math.round(t * fFSPerUnit)));
+					fSimulator.run(aTime);
 				} catch (ZamiaException ex) {
 					MessageBox box = new MessageBox(fControl.getShell(), SWT.ICON_ERROR);
 					box.setText("Simulator Error");
