@@ -10,6 +10,7 @@ package org.zamia.plugin.editors;
 
 import java.math.BigInteger;
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.HashMap;
 
 import org.eclipse.core.resources.IFile;
@@ -39,9 +40,11 @@ import org.eclipse.jface.viewers.ISelection;
 import org.eclipse.jface.viewers.IStructuredSelection;
 import org.eclipse.jface.viewers.SelectionChangedEvent;
 import org.eclipse.swt.SWT;
+import org.eclipse.swt.custom.StyledText;
 import org.eclipse.swt.events.KeyAdapter;
 import org.eclipse.swt.events.KeyEvent;
 import org.eclipse.swt.events.SelectionEvent;
+import org.eclipse.swt.graphics.Color;
 import org.eclipse.swt.graphics.Image;
 import org.eclipse.swt.graphics.RGB;
 import org.eclipse.swt.layout.FillLayout;
@@ -50,7 +53,9 @@ import org.eclipse.swt.layout.GridLayout;
 import org.eclipse.swt.widgets.Button;
 import org.eclipse.swt.widgets.Composite;
 import org.eclipse.swt.widgets.Display;
+import org.eclipse.swt.widgets.Event;
 import org.eclipse.swt.widgets.Label;
+import org.eclipse.swt.widgets.Listener;
 import org.eclipse.swt.widgets.Text;
 import org.eclipse.ui.IEditorInput;
 import org.eclipse.ui.IEditorPart;
@@ -106,6 +111,8 @@ public class ZamiaEditor extends TextEditor implements IShowInTargetList {
 	public final static ZamiaLogger logger = ZamiaLogger.getInstance();
 
 	public final static ExceptionLogger el = ExceptionLogger.getInstance();
+
+	private static CoveredSource fCovered;
 
 	private ZamiaOutlinePage fOutlinePage;
 
@@ -428,8 +435,27 @@ public class ZamiaEditor extends TextEditor implements IShowInTargetList {
 		fBracketPainter.setColor(ColorManager.getInstance().getColor(BRACKETS_COLOR));
 		fPaintManager.addPainter(fBracketPainter);
 
+		StyledText textWidget = getSourceViewer().getTextWidget();
+		textWidget.addListener(SWT.FocusIn, new Listener() {
+			@Override
+			public void handleEvent(Event event) {
+				highlight();
+			}
+		});
+
 		//		StyledText styledText = viewer.getTextWidget();
 		//		styledText.setLineSpacing(2);
+	}
+
+	public void highlight() {
+		if (fCovered != null) {
+			SimulatorView simulatorView = findSimulatorView();
+			boolean doHighlight = simulatorView.doShowCoverage();
+
+			StyledText textWidget = getSourceViewer().getTextWidget();
+			Color yellow = fControl.getDisplay().getSystemColor(SWT.COLOR_YELLOW);
+			fCovered.highlight(textWidget, yellow, fSF, doHighlight);
+		}
 	}
 
 	protected void createActions() {
@@ -537,6 +563,10 @@ public class ZamiaEditor extends TextEditor implements IShowInTargetList {
 
 	public ZamiaReconcilingStrategy getReconcilingStrategy() {
 		return fReconcilingStrategy;
+	}
+
+	public static void setCoveredSource(Collection<SourceLocation> aCovered) {
+		fCovered = new CoveredSource(aCovered);
 	}
 
 	class OutlineSelectionChangedListener extends AbstractSelectionChangedListener {

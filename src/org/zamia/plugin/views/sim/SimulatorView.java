@@ -17,6 +17,7 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Iterator;
+import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
 import java.util.TreeMap;
@@ -91,6 +92,9 @@ import org.eclipse.swt.widgets.Tree;
 import org.eclipse.swt.widgets.TreeColumn;
 import org.eclipse.swt.widgets.TreeItem;
 import org.eclipse.ui.IEditorPart;
+import org.eclipse.ui.IEditorReference;
+import org.eclipse.ui.IWorkbenchPage;
+import org.eclipse.ui.IWorkbenchWindow;
 import org.eclipse.ui.part.ViewPart;
 import org.zamia.ExceptionLogger;
 import org.zamia.SourceLocation;
@@ -144,7 +148,7 @@ public class SimulatorView extends ViewPart implements IGISimObserver {
 	
 	private TraceDialog fTraceDialog;
 
-	private ToolItem fTraceTI, fUnTraceTI, fNewLineTI, fRunTI, fRestartTI, fJobTI, fPrevTransTI, fNextTransTI, fGotoCycleTI;
+	private ToolItem fTraceTI, fUnTraceTI, fNewLineTI, fRunTI, fRestartTI, fJobTI, fPrevTransTI, fNextTransTI, fGotoCycleTI, fCoverageTI;
 
 	private SimRunnerConfig fConfig;
 
@@ -477,6 +481,18 @@ public class SimulatorView extends ViewPart implements IGISimObserver {
 				doNewLine();
 			}
 		});
+
+		fCoverageTI = new ToolItem(tb, SWT.CHECK);
+		icon = ZamiaPlugin.getImage("/share/images/show_source.gif");
+		fCoverageTI.setImage(icon);
+		fCoverageTI.setToolTipText("Show simulated lines");
+		fCoverageTI.setEnabled(false);
+		fCoverageTI.addSelectionListener(new SelectionAdapter() {
+			public void widgetSelected(SelectionEvent e) {
+				doCoverage();
+			}
+		});
+
 
 		CoolItem citem = new CoolItem(coolbar, SWT.NONE);
 		citem.setControl(comp);
@@ -1453,6 +1469,7 @@ public class SimulatorView extends ViewPart implements IGISimObserver {
 							fTraceTI.setEnabled(false);
 							fUnTraceTI.setEnabled(false);
 							fNewLineTI.setEnabled(false);
+							fCoverageTI.setEnabled(false);
 							fRunTI.setEnabled(false);
 							fRestartTI.setEnabled(false);
 
@@ -1592,6 +1609,7 @@ public class SimulatorView extends ViewPart implements IGISimObserver {
 							fTraceTI.setEnabled(true);
 							fUnTraceTI.setEnabled(true);
 							fNewLineTI.setEnabled(true);
+							fCoverageTI.setEnabled(true);
 							fRunTI.setEnabled(fSimulator.isSimulator());
 							fRestartTI.setEnabled(fSimulator.isSimulator());
 
@@ -1613,6 +1631,7 @@ public class SimulatorView extends ViewPart implements IGISimObserver {
 							fTraceTI.setEnabled(false);
 							fUnTraceTI.setEnabled(false);
 							fNewLineTI.setEnabled(false);
+							fCoverageTI.setEnabled(false);
 							fRunTI.setEnabled(false);
 							fRestartTI.setEnabled(false);
 
@@ -1943,6 +1962,37 @@ public class SimulatorView extends ViewPart implements IGISimObserver {
 		repaint();
 
 		selectAndReveal(tl);
+	}
+
+	private void doCoverage() {
+
+		if (!(fSimulator instanceof IGSimRef)) {
+			return;
+		}
+
+		IGSimRef sim = (IGSimRef) fSimulator;
+
+		LinkedList<SourceLocation> covered = new LinkedList<SourceLocation>();
+		sim.filterExecutedSource(covered);
+
+		ZamiaEditor.setCoveredSource(covered);
+
+		IWorkbenchWindow window = ZamiaPlugin.getDefault().getWorkbench().getActiveWorkbenchWindow();
+
+		IWorkbenchPage page = window.getActivePage();
+
+		for (IEditorReference ref : page.getEditorReferences()) {
+			IEditorPart openEditor = ref.getEditor(false);
+
+			if (openEditor instanceof ZamiaEditor) {
+				ZamiaEditor zamiaEditor = (ZamiaEditor) openEditor;
+				zamiaEditor.highlight();
+			}
+		}
+	}
+
+	public boolean doShowCoverage() {
+		return fCoverageTI.getSelection();
 	}
 
 	SimRunnerConfig getConfig() {
