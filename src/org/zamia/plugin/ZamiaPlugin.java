@@ -263,18 +263,20 @@ public class ZamiaPlugin extends AbstractUIPlugin {
 	 * a few helper functions
 	 **************************************************************************/
 
+	/**Actually, there can be multiple links for one source file in Eclipse project. This method
+	 * returns only one IFile. If you want them all, use projet.ZamiaProjectMap.EclipseProjectFileIterator*/
 	public static IFile getIFile(SourceFile aSF, IProject aProject) {
-		IFile file = null;
-		String localPath = aSF.getLocalPath();
-
-		String uri = aSF.getURI();
-		if (uri != null) {
+		
+		if (aSF.getURI() != null) {
 			logger.error("getIFile(): Called getIFile() on '%s' (absolute: '%s')", aSF, aSF.getAbsolutePath());
 			return null;
 		}
 
 		logger.debug("getIFile(): sf = '%s', prj='%s'", aSF, aProject);
 
+		IFile file = null;
+		String localPath = aSF.getLocalPath();
+		
 		if (localPath != null) {
 			file = aProject.getFile(localPath);
 
@@ -315,7 +317,7 @@ public class ZamiaPlugin extends AbstractUIPlugin {
 				return null;
 			}
 
-			logger.debug("getIFile(): zprj location is '%s', build path came from '%s'", zprj.getBasePath(), bp.getSourceFile().getAbsolutePath());
+			logger.debug("getIFile(): zprj location is '%s', build path came from '%s'", zprj.fBasePath, bp.getSourceFile().getAbsolutePath());
 
 			BuildPathEntry entry = bp.findEntry(aSF);
 
@@ -502,7 +504,9 @@ public class ZamiaPlugin extends AbstractUIPlugin {
 	}
 
 	public static SourceFile getSourceFile(IFile file) {
-		IPath rawLocation = file.getRawLocation();
+				
+		//IPath rawLocation = file.getRawLocation();
+		IPath rawLocation = file.getLocation();
 
 		String path = null;
 
@@ -535,17 +539,22 @@ public class ZamiaPlugin extends AbstractUIPlugin {
 
 		SourceFile sf = new SourceFile(new File(path));
 
-		if (rawLocation != null) {
-			IPath localPath = file.getFullPath();
-			localPath = localPath.removeFirstSegments(1);
-			localPath = localPath.makeRelative();
-			String lp = localPath.toOSString();
-			sf.setLocalPath(lp);
-		}
+		//valtih: why null? I need this in DeltaBuildDetector to always return proper local path
+		// whereas raw path is garbage on file removal. FileIterator.listChanged() relies on local path.
+		//if (rawLocation != null)
+			sf.setLocalPath(computeLocalPath(file));
 
 		return sf;
 	}
 
+	public static String computeLocalPath(IFile file) {
+		// valtih: why not to make these all in one line?
+//		IPath localPath = file.getFullPath();
+//		localPath = localPath.removeFirstSegments(1);
+//		localPath = localPath.makeRelative();
+		return file.getProjectRelativePath().toOSString();
+				 
+	}
 	public static void showConsole() {
 
 		Display display = Display.getDefault();

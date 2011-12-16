@@ -810,4 +810,50 @@
       </wizard> 
    </extension> 
    
+    <!--
+    Build path decoration 
+    -->    
+	<extension point="org.eclipse.ui.decorators">
+	<decorator
+	    id="org.zamia.plugin.ui.BuildPathDecorator"
+	    label="Build Path Decorator"
+	    state="true"
+	    class= "org.zamia.plugin.ui.BuildPathDecorator"
+	  objectClass="org.eclipse.core.resources.IResource"
+	    adaptable="true">
+	    <description>
+	      Highlights BuildPath.txt selected for elaboration
+	    </description>
+	  </decorator>
+	</extension>
+   
+
+    <!--
+    Build path resource context menu selection 
+    -->    
+	<extension point="org.eclipse.ui.commands">
+	     <command
+	           id="org.zamia.plugin.ui.setBuildPathCommand"
+	           defaultHandler="org.zamia.plugin.ui.SetBuildPathHandler"
+	           name="org.zamia.plugin.setBuildPath"/>
+	</extension>
+	<extension id="add.item" point="org.eclipse.ui.menus">
+		<menuContribution locationURI="popup:org.eclipse.ui.popup.any?after=additions">
+        <command
+			commandId="org.zamia.plugin.ui.setBuildPathCommand"
+	        icon="share/images/bulldozer.gif"
+		    label= "set Build Path">
+			<visibleWhen>
+    <and>
+        <count value="1"/>
+        <iterate ifEmpty="false">
+			  <instanceof value="org.eclipse.core.resources.IFile"/>
+			   <test property="org.eclipse.core.resources.name" value="*BuildPath.txt"/>
+        </iterate>
+    </and>			
+			</visibleWhen>
+        </command>
+     	</menuContribution>
+	</extension>
+   
 </plugin>

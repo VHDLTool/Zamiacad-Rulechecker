@@ -9,7 +9,10 @@
 package org.zamia.plugin.build;
 
 import java.io.File;
+import java.io.IOException;
 import java.net.URI;
+import java.net.URISyntaxException;
+import java.net.URL;
 import java.util.HashSet;
 import java.util.Map;
 
@@ -20,11 +23,18 @@ import org.eclipse.core.resources.IResource;
 import org.eclipse.core.resources.IResourceDelta;
 import org.eclipse.core.resources.IResourceDeltaVisitor;
 import org.eclipse.core.resources.IncrementalProjectBuilder;
+import org.eclipse.core.resources.ResourceAttributes;
 import org.eclipse.core.runtime.CoreException;
+import org.eclipse.core.runtime.FileLocator;
+import org.eclipse.core.runtime.IPath;
 import org.eclipse.core.runtime.IProgressMonitor;
 import org.eclipse.core.runtime.NullProgressMonitor;
+import org.eclipse.core.runtime.QualifiedName;
+import org.eclipse.emf.common.notify.Adapter.Internal;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.widgets.Display;
+import org.eclipse.ui.IDecoratorManager;
+import org.eclipse.ui.PlatformUI;
 import org.zamia.BuildPath;
 import org.zamia.BuildPathEntry;
 import org.zamia.ERManager;
@@ -55,44 +65,103 @@ public class ZamiaBuilder extends IncrementalProjectBuilder {
 
 	private static final ExceptionLogger el = ExceptionLogger.getInstance();
 
+	public static final QualifiedName BUILDPATH_QN = new QualifiedName("org.zamia.plugin", "buildpath");
+	
 	private boolean fNeedFullBuild = false;
 
 	private HashSetArray<SourceFile> fChangedSFs;
 
 	private boolean fBPChanged = false;
+	
+	/**Used when build path is deleted*/
+	private static SourceFile fakeBp = new SourceFile(new File("fake://BuildPath.txt"), "fake://BuildPath.txt"); 
 
 	private static boolean fAutoBuildEnabled = true;
 
 	private static long fDisabledUntil;
 
+	public static String getPersistentBuildPath(IProject project) {
+		try {
+			String result = project.getPersistentProperty(ZamiaBuilder.BUILDPATH_QN);
+			if (result != null)
+				return result;
+		} catch (CoreException e) {
+			e.printStackTrace();
+		}
+		return fakeBp.getLocalPath();
+	}
+	
 	class DeltaBuildDetector implements IResourceDeltaVisitor {
 
 		public boolean visit(IResourceDelta aDelta) throws CoreException {
-			switch (aDelta.getKind()) {
-			case IResourceDelta.REMOVED:
-				fNeedFullBuild = true;
-				break;
-			default:
-				IResource resource = aDelta.getResource();
+			//Eclipse bug - you cannot overwrite linked resource
+			//https://bugs.eclipse.org/bugs/show_bug.cgi?id=366339
+				
+			IResource resource = aDelta.getResource();
+			
+			if (resource instanceof IFile) {
+				
+				IFile file = (IFile) resource;
+//				file.getProjectRelativePath()); // -- alias.vhdl
+//				file.getFullPath()); 		// -- /proj1/alias.vhdl (fullpath in Eclipse view)
+//				file.getRawLocation()); 	// -- PARENT-2-PROJECT_LOC/workspace/zamiacad - Copy/examples/alias/alias.vhdl (resource was linked using PROJECT_LOC)
+//				file.getLocation());		// -- C:/Users/valentin/workspace/zamiacad - Copy/examples/alias/alias.vhdl (seems true absolute path)
+//				file.getLocationURI()); 	// -- file:/C:/Users/valentin/workspace/zamiacad%20-%20Copy/examples/alias/alias.vhdl
+				
+				ZamiaProject zProj = ZamiaProjectMap.getZamiaProject(getProject()); 
+				SourceFile sf = ZamiaPlugin.getSourceFile(file);
+				
+				((ZamiaProjectMap.EclipseProjectFileIterator)(zProj.fBasePath)).listChanged(aDelta, sf);
+						
+				
+				BuildPath bp = zProj.getBuildPath();
+				final boolean isBp;
+						
+				switch (aDelta.getKind()) {
+				case IResourceDelta.REMOVED:
+					fNeedFullBuild = true;
+					
+					// we should remove errors from deleted files. But, deleted links point to wrong target names :(
+					zProj.getERM().removeErrors(sf);
 
-				if (resource instanceof IFile) {
-					IFile file = (IFile) resource;
-
+					// invalidate zamia build path when it is deleted
+					String bpLp = bp.getSourceFile().getLocalPath();
+					String f1 = ZamiaPlugin.computeLocalPath(file);
+					if (isBp = f1.equals(bpLp)) {
+						sf = fakeBp;
+					}
+					break;
+				default:
+	
 					String name = file.getName();
-
-					if (name.equals("BuildPath.txt")) {
-						fBPChanged = true;
-					}
-
-					if (!ZamiaProjectBuilder.fileNameAcceptable(name)) {
+					isBp = name.equals("BuildPath.txt");
+					 
+					if (!(isBp || ZamiaProjectBuilder.fileNameAcceptable(name)))
 						return false;
-					}
-
-					SourceFile sf = ZamiaPlugin.getSourceFile(file);
-
+	
 					fChangedSFs.add(sf);
 					if (aDelta.getKind() == IResourceDelta.ADDED) {
 						fNeedFullBuild = true;
+					}
+				}
+				
+				if (isBp) {
+					fBPChanged = true;
+					assert sf != null;
+
+					if (!sf.getLocalPath().equals(bp.getSourceFile().getLocalPath())) {
+						bp.setSrc(sf);
+						getProject().setPersistentProperty(BUILDPATH_QN, sf.getLocalPath());
+						
+						//Here we need to call on old and new build path resources to update "active buildpath" decorators.
+						Display.getDefault().asyncExec(new Runnable() {
+						       public void run() {
+									IDecoratorManager idm = PlatformUI.getWorkbench().getDecoratorManager();
+									idm.update("org.zamia.plugin.ui.BuildPathDecorator"); 
+						       }
+						});
+						//ZamiaNavigator.refresh(500); // updates only navigator but not project explorer
+						
 					}
 				}
 			}
@@ -100,8 +169,9 @@ public class ZamiaBuilder extends IncrementalProjectBuilder {
 			// return true to continue visiting children.
 			return true;
 		}
-	}
 
+	}
+	
 	@SuppressWarnings("unchecked")
 	protected IProject[] build(int aKind, Map aArgs, IProgressMonitor aMonitor) throws CoreException {
 

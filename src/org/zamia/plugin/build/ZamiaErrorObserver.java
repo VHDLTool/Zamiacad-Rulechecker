@@ -8,6 +8,8 @@
  */
 package org.zamia.plugin.build;
 
+import java.util.Set;
+
 import org.eclipse.core.resources.IFile;
 import org.eclipse.core.resources.IMarker;
 import org.eclipse.core.resources.IProject;
@@ -157,8 +159,11 @@ public class ZamiaErrorObserver implements ErrorObserver {
 	}
 
 	private static void addMarker(IFile aFile, String aMessage, int aLineNumber, int aSeverity) {
+		
+		for (IFile f : ((ZamiaProjectMap.EclipseProjectFileIterator)(ZamiaProjectMap.getZamiaProject(aFile.getProject()).fBasePath)).getFiles(aFile))
+		
 		try {
-			IMarker marker = aFile.createMarker(IMarker.PROBLEM);
+			IMarker marker = f.createMarker(IMarker.PROBLEM);
 			// IMarker marker = file.createMarker(markerType_);
 			marker.setAttribute(IMarker.MESSAGE, aMessage);
 			marker.setAttribute(IMarker.SEVERITY, aSeverity);

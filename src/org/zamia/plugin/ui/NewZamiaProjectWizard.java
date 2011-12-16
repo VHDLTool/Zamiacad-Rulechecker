@@ -140,7 +140,8 @@ public class NewZamiaProjectWizard extends BasicNewResourceWizard implements IEx
 			try {
 				IFile file = project.getFile("BuildPath.txt");
 				if (file.exists()) {
-					file.setContents(getInitialBuildPathContents(), true, false, null);
+					// rewriting file, especially linked one can be dangerous
+					//file.setContents(getInitialBuildPathContents(), true, false, null);
 				} else {
 					file.create(getInitialBuildPathContents(), false, null);
 				}
