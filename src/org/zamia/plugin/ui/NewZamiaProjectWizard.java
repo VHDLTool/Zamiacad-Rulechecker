@@ -20,12 +20,16 @@ import org.eclipse.core.resources.ResourcesPlugin;
 import org.eclipse.core.runtime.CoreException;
 import org.eclipse.core.runtime.IConfigurationElement;
 import org.eclipse.core.runtime.IExecutableExtension;
+import org.eclipse.core.runtime.IPath;
 import org.eclipse.core.runtime.IProgressMonitor;
 import org.eclipse.core.runtime.NullProgressMonitor;
+import org.eclipse.core.runtime.Platform;
 import org.eclipse.core.runtime.SubProgressMonitor;
 import org.eclipse.jface.viewers.IStructuredSelection;
 import org.eclipse.ui.IWorkbench;
 import org.eclipse.ui.actions.WorkspaceModifyOperation;
+import org.eclipse.ui.dialogs.WizardNewProjectCreationPage;
+import org.eclipse.ui.internal.wizards.newresource.ResourceMessages;
 import org.eclipse.ui.wizards.newresource.BasicNewProjectResourceWizard;
 import org.eclipse.ui.wizards.newresource.BasicNewResourceWizard;
 import org.zamia.ExceptionLogger;
@@ -46,7 +50,7 @@ public class NewZamiaProjectWizard extends BasicNewResourceWizard implements IEx
 
 	protected final static ExceptionLogger el = ExceptionLogger.getInstance();
 
-	private NewZamiaProjectWizardPage namePage;
+	private WizardNewProjectCreationPage namePage;
 
 	private IProject project;
 
@@ -62,16 +66,26 @@ public class NewZamiaProjectWizard extends BasicNewResourceWizard implements IEx
 
 	public void addPages() {
 		super.addPages();
-		namePage = new NewZamiaProjectWizardPage();
+		//namePage = new NewZamiaProjectWizardPage(); // Gunter, why do we need a special wizard?
+		namePage = new WizardNewProjectCreationPage("New Zamia Project Page Name");//
+		namePage.setTitle("Create New zamiaCAD Project"); //
+		namePage.setDescription("Select the project name, saving directory and its toplevel entity");
 		addPage(namePage);
 	}
 
 	public boolean performFinish() {
 
+		//valtih: accessing page methods from another thread throws "invalid Display thread" error.  
+		// Might be, it is the reason why gunter decided to create his one replacement for the page? 
+		// I do it simpler: copy name and location in constants. 
+		// This way we avoid code duplication and enable custom project location.
 		try {
+			final String name = namePage.getProjectName();
+			final IPath location = namePage.getLocationPath();
+			
 			WorkspaceModifyOperation op = new WorkspaceModifyOperation() {
 				protected void execute(IProgressMonitor monitor) {
-					createProject(monitor != null ? monitor : new NullProgressMonitor());
+					createProject(name, location, monitor != null ? monitor : new NullProgressMonitor());
 				}
 			};
 			getContainer().run(true, false, op);
@@ -103,17 +117,17 @@ public class NewZamiaProjectWizard extends BasicNewResourceWizard implements IEx
 		}
 	}
 
-	protected void createProject(IProgressMonitor monitor) {
+	protected void createProject(String name, IPath location, IProgressMonitor monitor) {
 
 		monitor.beginTask("Project is being created ...", 50);
 
 		try {
 			IWorkspaceRoot root = ResourcesPlugin.getWorkspace().getRoot();
 			monitor.subTask("Directory is being created");
-			project = root.getProject(namePage.getProjectName());
+			project = root.getProject(name);
 			IProjectDescription description = ResourcesPlugin.getWorkspace().newProjectDescription(project.getName());
-			// if(!Platform.getLocation().equals(namePage.getLocationPath()))
-			// description.setLocation(namePage.getLocationPath());
+			if(!Platform.getLocation().equals(location))
+				description.setLocation(location);
 			description.setNatureIds(new String[] { ZamiaNature.NATURE_ID });
 			ICommand command = description.newCommand();
 			command.setBuilderName(ZamiaBuilder.BUILDER_ID);
