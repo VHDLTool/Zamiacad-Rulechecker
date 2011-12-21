@@ -12,6 +12,7 @@ package org.zamia.plugin.views.navigator;
 import org.eclipse.core.resources.IFile;
 import org.eclipse.core.resources.IFolder;
 import org.eclipse.core.resources.IProject;
+import org.eclipse.core.resources.IResource;
 import org.eclipse.jface.viewers.LabelProvider;
 import org.eclipse.swt.graphics.Image;
 import org.zamia.instgraph.IGItem;
@@ -176,15 +177,8 @@ public class ZamiaLabelProvider extends LabelProvider {
 			IGModuleWrapper wrapper = (IGModuleWrapper) element;
 
 			return wrapper.toString();
-		} else if (element instanceof IFile) {
-			IFile file = (IFile) element;
-			return file.getProjectRelativePath().toString();
-		} else if (element instanceof IFolder) {
-			IFolder folder = (IFolder) element;
-			return folder.getProjectRelativePath().toString();
-		} else if (element instanceof IProject) {
-			IProject prj = (IProject) element;
-			return prj.getName();
+		} else if (element instanceof IResource) { // Ifile, Ifolder and IProject
+			return ((IResource) element).getName().toString();
 		}
 
 		return super.getText(element);
