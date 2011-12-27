@@ -102,7 +102,7 @@ public class ZamiaPlugin extends AbstractUIPlugin {
 
 	public static PrintStream out;
 
-	public static ZamiaLogger logger;
+	public static ZamiaLogger logger = ZamiaLogger.getInstance();
 
 	public static ExceptionLogger el;
 
@@ -168,8 +168,6 @@ public class ZamiaPlugin extends AbstractUIPlugin {
 
 				out = new MessageConsolePrintStream(console);
 				ZamiaLogger.setConsoleOutput(out);
-
-				logger = ZamiaLogger.getInstance();
 
 				logger.info("zamiaCAD V" + fVersion);
 				logger.info("");
