@@ -18,6 +18,7 @@ import org.eclipse.jface.text.IInformationControlCreator;
 import org.eclipse.jface.text.TextAttribute;
 import org.eclipse.jface.text.contentassist.ContentAssistant;
 import org.eclipse.jface.text.contentassist.IContentAssistant;
+import org.eclipse.jface.text.hyperlink.IHyperlinkDetector;
 import org.eclipse.jface.text.information.IInformationPresenter;
 import org.eclipse.jface.text.information.IInformationProvider;
 import org.eclipse.jface.text.information.InformationPresenter;
@@ -149,4 +150,12 @@ public class ZamiaSourceViewerConfiguration extends SourceViewerConfiguration {
 	public IAnnotationHover getAnnotationHover(ISourceViewer sourceViewer) {
 		return new DefaultAnnotationHover();
 	}
+	
+	@Override
+	public IHyperlinkDetector[] getHyperlinkDetectors(ISourceViewer sourceViewer) {
+	    return new IHyperlinkDetector[] { new HyperlinkDetector()
+	    	, new org.eclipse.jface.text.hyperlink.URLHyperlinkDetector() 
+	    };
+	}			
+
 }

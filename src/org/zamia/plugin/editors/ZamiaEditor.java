@@ -26,6 +26,7 @@ import org.eclipse.jface.text.IDocument;
 import org.eclipse.jface.text.ITextSelection;
 import org.eclipse.jface.text.PaintManager;
 import org.eclipse.jface.text.Position;
+import org.eclipse.jface.text.hyperlink.IHyperlinkDetector;
 import org.eclipse.jface.text.rules.ITokenScanner;
 import org.eclipse.jface.text.source.Annotation;
 import org.eclipse.jface.text.source.ISourceViewer;
@@ -43,8 +44,14 @@ import org.eclipse.swt.SWT;
 import org.eclipse.swt.custom.StyledText;
 import org.eclipse.swt.events.KeyAdapter;
 import org.eclipse.swt.events.KeyEvent;
+import org.eclipse.swt.events.MouseAdapter;
+import org.eclipse.swt.events.MouseEvent;
+import org.eclipse.swt.events.MouseListener;
+import org.eclipse.swt.events.MouseMoveListener;
+import org.eclipse.swt.events.MouseTrackListener;
 import org.eclipse.swt.events.SelectionEvent;
 import org.eclipse.swt.graphics.Color;
+import org.eclipse.swt.graphics.Cursor;
 import org.eclipse.swt.graphics.Image;
 import org.eclipse.swt.graphics.RGB;
 import org.eclipse.swt.layout.FillLayout;
@@ -299,7 +306,7 @@ public class ZamiaEditor extends TextEditor implements IShowInTargetList {
 				}
 			}
 		});
-
+		
 		gd = new GridData(SWT.FILL, SWT.FILL, true, false);
 		fPathEdit.setLayoutData(gd);
 
@@ -402,7 +409,7 @@ public class ZamiaEditor extends TextEditor implements IShowInTargetList {
 				updateAnnotation();
 			}
 		});
-
+		
 		comp.pack();
 
 		Composite editorContainer = new Composite(fControl, SWT.NONE);
@@ -415,7 +422,6 @@ public class ZamiaEditor extends TextEditor implements IShowInTargetList {
 
 		FillLayout fl = new FillLayout();
 		editorContainer.setLayout(fl);
-
 		super.createPartControl(editorContainer);
 
 		ProjectionViewer viewer = (ProjectionViewer) getSourceViewer();
@@ -436,6 +442,7 @@ public class ZamiaEditor extends TextEditor implements IShowInTargetList {
 		fPaintManager.addPainter(fBracketPainter);
 
 		StyledText textWidget = getSourceViewer().getTextWidget();
+
 		textWidget.addListener(SWT.FocusIn, new Listener() {
 			@Override
 			public void handleEvent(Event event) {
