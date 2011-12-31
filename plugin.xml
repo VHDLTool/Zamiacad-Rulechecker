@@ -605,7 +605,7 @@
 	            <contentExtension pattern="org.eclipse.ui.navigator.resourceContent"/>
 	            <contentExtension pattern="org.eclipse.ui.navigator.resources.filters.*"/>
                 <contentExtension pattern="org.zamia.plugin.views.navigator.*"/> 
-	            
+				<contentExtension pattern="org.eclipse.jdt.java.ui.javaContent"/> <!-- adds Problem Marker Decorator. Probably java plugin is necessary. -->	            
 	            <!--
 	            <contentExtension pattern="org.python.pydev.navigator.pythoncontent"/>
 	            <contentExtension pattern="org.python.pydev.navigator.filters.*"/> 
