@@ -10,6 +10,7 @@ package org.zamia.plugin.ui;
 
 import java.io.ByteArrayInputStream;
 import java.io.InputStream;
+import java.lang.reflect.Constructor;
 import java.lang.reflect.InvocationTargetException;
 
 import org.eclipse.core.resources.ICommand;
@@ -26,24 +27,29 @@ import org.eclipse.core.runtime.IPath;
 import org.eclipse.core.runtime.IProgressMonitor;
 import org.eclipse.core.runtime.NullProgressMonitor;
 import org.eclipse.core.runtime.Platform;
+import org.eclipse.core.runtime.QualifiedName;
 import org.eclipse.core.runtime.SubProgressMonitor;
 import org.eclipse.jface.viewers.IStructuredSelection;
 import org.eclipse.jface.wizard.WizardPage;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.layout.GridData;
 import org.eclipse.swt.layout.GridLayout;
+import org.eclipse.swt.widgets.Button;
 import org.eclipse.swt.widgets.Composite;
+import org.eclipse.swt.widgets.Control;
 import org.eclipse.swt.widgets.Label;
 import org.eclipse.swt.widgets.Text;
 import org.eclipse.ui.IWorkbench;
 import org.eclipse.ui.actions.WorkspaceModifyOperation;
 import org.eclipse.ui.dialogs.WizardNewProjectCreationPage;
+import org.eclipse.ui.internal.ide.IDEWorkbenchMessages;
 import org.eclipse.ui.internal.wizards.newresource.ResourceMessages;
 import org.eclipse.ui.wizards.newresource.BasicNewProjectResourceWizard;
 import org.eclipse.ui.wizards.newresource.BasicNewResourceWizard;
 import org.zamia.ExceptionLogger;
 import org.zamia.FSCache;
 import org.zamia.ZamiaLogger;
+import org.zamia.plugin.ZamiaPlugin;
 import org.zamia.plugin.build.ZamiaBuilder;
 import org.zamia.plugin.build.ZamiaNature;
 
@@ -73,31 +79,39 @@ public class NewZamiaProjectWizard extends BasicNewResourceWizard implements IEx
 		setNeedsProgressMonitor(true);
 	}
 
-	class TopLevelWizardPage extends WizardPage {
+	static class TopLevelWizardPage extends WizardPage {
 		
 		public Text fProjectText;
+		public Button fuseDefaultsButton; 
 		
 		TopLevelWizardPage() {
 			super("do you see this title?", "Toplevel Entity", null);
 			setDescription("You may leave this value unspecified or use BuildPath.txt to specify it later");
 		}
 		
+		public static QualifiedName BP_CONTENT_DISABLED_QN = new QualifiedName(ZamiaPlugin.PLUGIN_ID, "default bp content disabled");
+		
 		public void createControl(Composite parent) {
 			Composite container = new Composite(parent, SWT.NULL);
 			GridLayout layout = new GridLayout();
 			container.setLayout(layout);
-			//layout.numColumns = 3;
-			//layout.verticalSpacing = 9;
-			
-			Label label = new Label(container, SWT.NULL);
-			label.setText("&Toplevel Entity:");
-			fProjectText = new Text(container, SWT.BORDER | SWT.SINGLE);
-			GridData gd = new GridData(GridData.FILL_HORIZONTAL);
-			fProjectText.setLayoutData(gd);
 			setControl(container);
+	
+			Label label = new Label(container, SWT.NULL); label.setText("&Toplevel Entity:");
+			GridData gd = new GridData(GridData.FILL_HORIZONTAL);
+			(fProjectText = new Text(container, SWT.BORDER | SWT.SINGLE)).setLayoutData(gd);
+			fuseDefaultsButton = new Button(container, SWT.CHECK | SWT.RIGHT);
+			fuseDefaultsButton.setText("Add Green stuff to Build path");
+			try {
+				fuseDefaultsButton.setSelection(ResourcesPlugin.getWorkspace().getRoot().getPersistentProperty(
+						BP_CONTENT_DISABLED_QN) == null);
+			} catch (CoreException e) {
+				e.printStackTrace();
+			}
 		}
 		
 	}
+	
 	TopLevelWizardPage topLevelPage;
 
 	String[] topEntity = new String[1];
@@ -121,10 +135,58 @@ public class NewZamiaProjectWizard extends BasicNewResourceWizard implements IEx
 			final String name = namePage.getProjectName();
 			final IPath location = namePage.getLocationPath();
 			final String topLevel = topLevelPage.fProjectText.getText();
+			final boolean bpGreenStuff = topLevelPage.fuseDefaultsButton.getSelection();
 			
 			WorkspaceModifyOperation op = new WorkspaceModifyOperation() {
 				protected void execute(IProgressMonitor monitor) {
-					createProject(name, location, topLevel, monitor != null ? monitor : new NullProgressMonitor());
+
+					monitor.beginTask("Project is being created ...", 50);
+
+					// create project
+					try {
+						IWorkspaceRoot root = ResourcesPlugin.getWorkspace().getRoot();
+						monitor.subTask("Directory is being created");
+						project = root.getProject(name);
+						IProjectDescription description = ResourcesPlugin.getWorkspace().newProjectDescription(project.getName());
+						if(!Platform.getLocation().equals(location))
+							description.setLocation(location);
+						description.setNatureIds(new String[] { ZamiaNature.NATURE_ID });
+						ICommand command = description.newCommand();
+						command.setBuilderName(ZamiaBuilder.BUILDER_ID);
+						description.setBuildSpec(new ICommand[] { command });
+						project.create(description, monitor);
+						monitor.worked(10);
+						project.open(monitor);
+						addZamiaNature(project, new SubProgressMonitor(monitor, 10));
+
+						try {
+							IFile file = project.getFile("BuildPath.txt");
+							if (file.exists()) {
+								// rewriting file, especially linked one can be dangerous
+								//file.setContents(getInitialBuildPathContents(), true, false, null);
+								logger.warn("Failed to create build path because file " + file.getLocation() + " already exists");
+							} else {
+								file.create(new ByteArrayInputStream(new byte[0]), false, null);
+								
+								if (bpGreenStuff)
+									file.appendContents(getInitialBuildPathContents(), IResource.NONE, null);
+									
+								ResourcesPlugin.getWorkspace().getRoot().setPersistentProperty(
+										topLevelPage.BP_CONTENT_DISABLED_QN, bpGreenStuff ? null : "disabled");
+								
+								if (topLevel.length() != 0)
+									file.appendContents(new ByteArrayInputStream(("toplevel " + topLevel.
+											toUpperCase()).getBytes()), IResource.NONE, null);
+							}
+						} catch (Throwable t) {
+							el.logException(t);
+						}
+
+					} catch (CoreException x) {
+
+					} finally {
+						monitor.done();
+					}
 				}
 			};
 			getContainer().run(true, false, op);
@@ -156,47 +218,6 @@ public class NewZamiaProjectWizard extends BasicNewResourceWizard implements IEx
 		}
 	}
 
-	protected void createProject(String name, IPath location, String topLevel, IProgressMonitor monitor) {
-
-		monitor.beginTask("Project is being created ...", 50);
-
-		try {
-			IWorkspaceRoot root = ResourcesPlugin.getWorkspace().getRoot();
-			monitor.subTask("Directory is being created");
-			project = root.getProject(name);
-			IProjectDescription description = ResourcesPlugin.getWorkspace().newProjectDescription(project.getName());
-			if(!Platform.getLocation().equals(location))
-				description.setLocation(location);
-			description.setNatureIds(new String[] { ZamiaNature.NATURE_ID });
-			ICommand command = description.newCommand();
-			command.setBuilderName(ZamiaBuilder.BUILDER_ID);
-			description.setBuildSpec(new ICommand[] { command });
-			project.create(description, monitor);
-			monitor.worked(10);
-			project.open(monitor);
-			addZamiaNature(project, new SubProgressMonitor(monitor, 10));
-
-			try {
-				IFile file = project.getFile("BuildPath.txt");
-				if (file.exists()) {
-					// rewriting file, especially linked one can be dangerous
-					//file.setContents(getInitialBuildPathContents(), true, false, null);
-				} else {
-					file.create(getInitialBuildPathContents(), false, null);
-					if (topLevel.length() != 0)
-						file.appendContents(new ByteArrayInputStream(("toplevel " + topLevel.toUpperCase()).getBytes()), IResource.NONE, null);
-				}
-			} catch (Throwable t) {
-				el.logException(t);
-			}
-
-		} catch (CoreException x) {
-
-		} finally {
-			monitor.done();
-		}
-	}
-	
 	private InputStream getInitialBuildPathContents() {
 		return FSCache.getInstance().getClass().getResourceAsStream("/templates/BuildPath.txt");
 	}

@@ -65,7 +65,7 @@ public class ZamiaBuilder extends IncrementalProjectBuilder {
 
 	private static final ExceptionLogger el = ExceptionLogger.getInstance();
 
-	public static final QualifiedName BUILDPATH_QN = new QualifiedName("org.zamia.plugin", "buildpath");
+	public static final QualifiedName BUILDPATH_QN = new QualifiedName(ZamiaPlugin.PLUGIN_ID, "buildpath");
 	
 	private boolean fNeedFullBuild = false;
 
