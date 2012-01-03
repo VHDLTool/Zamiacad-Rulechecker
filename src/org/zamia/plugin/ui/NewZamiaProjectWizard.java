@@ -8,6 +8,7 @@
 
 package org.zamia.plugin.ui;
 
+import java.io.ByteArrayInputStream;
 import java.io.InputStream;
 import java.lang.reflect.InvocationTargetException;
 
@@ -15,6 +16,7 @@ import org.eclipse.core.resources.ICommand;
 import org.eclipse.core.resources.IFile;
 import org.eclipse.core.resources.IProject;
 import org.eclipse.core.resources.IProjectDescription;
+import org.eclipse.core.resources.IResource;
 import org.eclipse.core.resources.IWorkspaceRoot;
 import org.eclipse.core.resources.ResourcesPlugin;
 import org.eclipse.core.runtime.CoreException;
@@ -26,6 +28,13 @@ import org.eclipse.core.runtime.NullProgressMonitor;
 import org.eclipse.core.runtime.Platform;
 import org.eclipse.core.runtime.SubProgressMonitor;
 import org.eclipse.jface.viewers.IStructuredSelection;
+import org.eclipse.jface.wizard.WizardPage;
+import org.eclipse.swt.SWT;
+import org.eclipse.swt.layout.GridData;
+import org.eclipse.swt.layout.GridLayout;
+import org.eclipse.swt.widgets.Composite;
+import org.eclipse.swt.widgets.Label;
+import org.eclipse.swt.widgets.Text;
 import org.eclipse.ui.IWorkbench;
 import org.eclipse.ui.actions.WorkspaceModifyOperation;
 import org.eclipse.ui.dialogs.WizardNewProjectCreationPage;
@@ -64,6 +73,34 @@ public class NewZamiaProjectWizard extends BasicNewResourceWizard implements IEx
 		setNeedsProgressMonitor(true);
 	}
 
+	class TopLevelWizardPage extends WizardPage {
+		
+		public Text fProjectText;
+		
+		TopLevelWizardPage() {
+			super("do you see this title?", "Toplevel Entity", null);
+			setDescription("You may leave this value unspecified or use BuildPath.txt to specify it later");
+		}
+		
+		public void createControl(Composite parent) {
+			Composite container = new Composite(parent, SWT.NULL);
+			GridLayout layout = new GridLayout();
+			container.setLayout(layout);
+			//layout.numColumns = 3;
+			//layout.verticalSpacing = 9;
+			
+			Label label = new Label(container, SWT.NULL);
+			label.setText("&Toplevel Entity:");
+			fProjectText = new Text(container, SWT.BORDER | SWT.SINGLE);
+			GridData gd = new GridData(GridData.FILL_HORIZONTAL);
+			fProjectText.setLayoutData(gd);
+			setControl(container);
+		}
+		
+	}
+	TopLevelWizardPage topLevelPage;
+
+	String[] topEntity = new String[1];
 	public void addPages() {
 		super.addPages();
 		//namePage = new NewZamiaProjectWizardPage(); // Gunter, why do we need a special wizard?
@@ -71,6 +108,7 @@ public class NewZamiaProjectWizard extends BasicNewResourceWizard implements IEx
 		namePage.setTitle("Create New zamiaCAD Project"); //
 		namePage.setDescription("Select the project name, saving directory and its toplevel entity");
 		addPage(namePage);
+		addPage(topLevelPage = new TopLevelWizardPage());
 	}
 
 	public boolean performFinish() {
@@ -82,10 +120,11 @@ public class NewZamiaProjectWizard extends BasicNewResourceWizard implements IEx
 		try {
 			final String name = namePage.getProjectName();
 			final IPath location = namePage.getLocationPath();
+			final String topLevel = topLevelPage.fProjectText.getText();
 			
 			WorkspaceModifyOperation op = new WorkspaceModifyOperation() {
 				protected void execute(IProgressMonitor monitor) {
-					createProject(name, location, monitor != null ? monitor : new NullProgressMonitor());
+					createProject(name, location, topLevel, monitor != null ? monitor : new NullProgressMonitor());
 				}
 			};
 			getContainer().run(true, false, op);
@@ -117,7 +156,7 @@ public class NewZamiaProjectWizard extends BasicNewResourceWizard implements IEx
 		}
 	}
 
-	protected void createProject(String name, IPath location, IProgressMonitor monitor) {
+	protected void createProject(String name, IPath location, String topLevel, IProgressMonitor monitor) {
 
 		monitor.beginTask("Project is being created ...", 50);
 
@@ -144,6 +183,8 @@ public class NewZamiaProjectWizard extends BasicNewResourceWizard implements IEx
 					//file.setContents(getInitialBuildPathContents(), true, false, null);
 				} else {
 					file.create(getInitialBuildPathContents(), false, null);
+					if (topLevel.length() != 0)
+						file.appendContents(new ByteArrayInputStream(("toplevel " + topLevel.toUpperCase()).getBytes()), IResource.NONE, null);
 				}
 			} catch (Throwable t) {
 				el.logException(t);
