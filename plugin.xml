@@ -833,24 +833,20 @@
     -->    
 	<extension point="org.eclipse.ui.commands">
 	     <command
-	           id="org.zamia.plugin.ui.setBuildPathCommand"
-	           defaultHandler="org.zamia.plugin.ui.SetBuildPathHandler"
-	           name="org.zamia.plugin.setBuildPath"/>
+	           id="org.zamia.plugin.ui.touchCommand"
+	           defaultHandler="org.zamia.plugin.ui.ResourceToucher"
+	           name="org.zamia.plugin.touch"/>
 	</extension>
 	<extension id="add.item" point="org.eclipse.ui.menus">
 		<menuContribution locationURI="popup:org.eclipse.ui.popup.any?after=additions">
         <command
-			commandId="org.zamia.plugin.ui.setBuildPathCommand"
+			commandId="org.zamia.plugin.ui.touchCommand"
 	        icon="share/images/bulldozer.gif"
-		    label= "set Build Path">
+		    label= "touch to build">
 			<visibleWhen>
-    <and>
-        <count value="1"/>
         <iterate ifEmpty="false">
-			  <instanceof value="org.eclipse.core.resources.IFile"/>
-			   <test property="org.eclipse.core.resources.name" value="*BuildPath.txt"/>
+			  <instanceof value="org.eclipse.core.resources.IResource"/>
         </iterate>
-    </and>			
 			</visibleWhen>
         </command>
      	</menuContribution>
