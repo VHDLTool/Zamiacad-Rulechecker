@@ -842,7 +842,7 @@
         <command
 			commandId="org.zamia.plugin.ui.touchCommand"
 	        icon="share/images/bulldozer.gif"
-		    label= "touch to build">
+		    label= "Touch to build">
 			<visibleWhen>
         <iterate ifEmpty="false">
 			  <instanceof value="org.eclipse.core.resources.IResource"/>
