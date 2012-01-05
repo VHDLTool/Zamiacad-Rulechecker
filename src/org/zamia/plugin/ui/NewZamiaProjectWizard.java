@@ -101,7 +101,7 @@ public class NewZamiaProjectWizard extends BasicNewResourceWizard implements IEx
 			GridData gd = new GridData(GridData.FILL_HORIZONTAL);
 			(fProjectText = new Text(container, SWT.BORDER | SWT.SINGLE)).setLayoutData(gd);
 			fuseDefaultsButton = new Button(container, SWT.CHECK | SWT.RIGHT);
-			fuseDefaultsButton.setText("Add Green stuff to Build path");
+			fuseDefaultsButton.setText("Add sample entries to BuildPath.txt");
 			try {
 				fuseDefaultsButton.setSelection(ResourcesPlugin.getWorkspace().getRoot().getPersistentProperty(
 						BP_CONTENT_DISABLED_QN) == null);
