@@ -23,6 +23,7 @@ import org.eclipse.jface.text.Region;
 import org.eclipse.jface.text.information.IInformationProvider;
 import org.eclipse.jface.text.information.IInformationProviderExtension;
 import org.eclipse.jface.text.information.IInformationProviderExtension2;
+import org.eclipse.swt.graphics.Point;
 import org.eclipse.swt.widgets.Shell;
 import org.eclipse.ui.IEditorInput;
 import org.eclipse.ui.IEditorPart;
@@ -77,21 +78,7 @@ public class VHDLInformationProvider implements IInformationProvider, IInformati
 
 		IDocument doc = aTextViewer.getDocument();
 
-		int start = aOffset;
-		int end = aOffset;
 		try {
-			while (start >= 0) {
-				char c = doc.getChar(start);
-				if (!Character.isJavaIdentifierPart(c) && c != '.')
-					break;
-				start--;
-			}
-			while (true) {
-				char c = doc.getChar(end);
-				if (!Character.isJavaIdentifierPart(c) && c != '.')
-					break;
-				end++;
-			}
 
 			IEditorInput editorInput = fEditor.getEditorInput();
 			fPrj = null;
@@ -120,13 +107,30 @@ public class VHDLInformationProvider implements IInformationProvider, IInformati
 				logger.error("Failed to find project for '%s'", editorInput);
 			}
 
+			return senseIdentifierRange(doc, aOffset);
 		} catch (BadLocationException e) {
 			// probably hit EOF
 		}
+		return new Region(aOffset, 0);
 
-		return new Region(start, end - start);
 	}
-
+	
+	public static Region senseIdentifierRange(IDocument doc, int start) throws BadLocationException {
+		int end = start;
+		while (start >= 0) {
+			char c = doc.getChar(start);
+			if (!Character.isJavaIdentifierPart(c) && c != '.')
+				break;
+			start--;
+		}
+		while (true) {
+			char c = doc.getChar(end);
+			if (!Character.isJavaIdentifierPart(c) && c != '.')
+				break;
+			end++;
+		}
+		return new Region(start+1, end - start-1);
+	}
 	public Object getInformation2(ITextViewer textViewer, IRegion subject) {
 
 		try {

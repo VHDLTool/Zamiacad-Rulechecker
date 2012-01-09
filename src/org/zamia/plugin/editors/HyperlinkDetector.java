@@ -19,35 +19,13 @@ public class HyperlinkDetector extends AbstractHyperlinkDetector {
 			IRegion region, boolean canShowMultipleHyperlinks) {
 
 	        try {
-		        IDocument document = textViewer.getDocument();
-		        Hyperlink left = scan(document, region.getOffset(), true);
-		        Hyperlink right = scan(document, region.getOffset()+1, false);
-	            return new IHyperlink[] {new Hyperlink(left, right)};
+		        final IDocument doc = textViewer.getDocument();
+		        Region r = VHDLInformationProvider.senseIdentifierRange(doc, region.getOffset());
+	            return new IHyperlink[] {new Hyperlink(r, doc.get(r.getOffset(), r.getLength()))};
             } catch (BadLocationException ex) {
                 return null;
             }
 
-	}
-	
-	private static Hyperlink scan(IDocument document, int offset, boolean scanLeft) throws BadLocationException {
-        StringBuilder sb = new StringBuilder();
-        int length = 0;
-        while (true) {
-        	char ch = document.getChar(offset);
-        	if (Character.isIdentifierIgnorable(ch))
-        		continue;
-        	if (!Character.isUnicodeIdentifierPart(ch))
-        		break;
-        	if (scanLeft) {
-        		offset -= 1;        		
-            	sb.insert(0, ch);
-        	} else {
-        		offset += 1;        		
-            	sb.append(ch);
-        	}
-        	length++;
-        }
-		return new Hyperlink(new Region(offset+1, length), sb.toString());
 	}
 
 	public static class Hyperlink implements IHyperlink {
@@ -55,18 +33,13 @@ public class HyperlinkDetector extends AbstractHyperlinkDetector {
 	    private String text;
 	    private IRegion region;
 
-	    public Hyperlink(IRegion region, String text) {
-	        this.region= region;
-	        this.text = text;
-	    }
-	    
 	    public String toString() {
 	    	return "(" + region + "): " + text;
 	    }
 
-	    public Hyperlink(Hyperlink left, Hyperlink right) {
-	        this.region = new Region(left.region.getOffset(), left.region.getLength() + right.region.getLength());
-	        this.text = left.text + right.text;
+	    public Hyperlink(IRegion r, String text) {
+	        this.region = r;
+	        this.text = text;
 	    }
 
 	    public IRegion getHyperlinkRegion() {
