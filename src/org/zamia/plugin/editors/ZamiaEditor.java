@@ -26,12 +26,12 @@ import org.eclipse.jface.text.IDocument;
 import org.eclipse.jface.text.ITextSelection;
 import org.eclipse.jface.text.PaintManager;
 import org.eclipse.jface.text.Position;
-import org.eclipse.jface.text.hyperlink.IHyperlinkDetector;
 import org.eclipse.jface.text.rules.ITokenScanner;
 import org.eclipse.jface.text.source.Annotation;
 import org.eclipse.jface.text.source.ISourceViewer;
 import org.eclipse.jface.text.source.IVerticalRuler;
 import org.eclipse.jface.text.source.MatchingCharacterPainter;
+import org.eclipse.jface.text.source.SourceViewer;
 import org.eclipse.jface.text.source.SourceViewerConfiguration;
 import org.eclipse.jface.text.source.projection.ProjectionAnnotation;
 import org.eclipse.jface.text.source.projection.ProjectionAnnotationModel;
@@ -44,14 +44,8 @@ import org.eclipse.swt.SWT;
 import org.eclipse.swt.custom.StyledText;
 import org.eclipse.swt.events.KeyAdapter;
 import org.eclipse.swt.events.KeyEvent;
-import org.eclipse.swt.events.MouseAdapter;
-import org.eclipse.swt.events.MouseEvent;
-import org.eclipse.swt.events.MouseListener;
-import org.eclipse.swt.events.MouseMoveListener;
-import org.eclipse.swt.events.MouseTrackListener;
 import org.eclipse.swt.events.SelectionEvent;
 import org.eclipse.swt.graphics.Color;
-import org.eclipse.swt.graphics.Cursor;
 import org.eclipse.swt.graphics.Image;
 import org.eclipse.swt.graphics.RGB;
 import org.eclipse.swt.layout.FillLayout;
@@ -59,6 +53,7 @@ import org.eclipse.swt.layout.GridData;
 import org.eclipse.swt.layout.GridLayout;
 import org.eclipse.swt.widgets.Button;
 import org.eclipse.swt.widgets.Composite;
+import org.eclipse.swt.widgets.Control;
 import org.eclipse.swt.widgets.Display;
 import org.eclipse.swt.widgets.Event;
 import org.eclipse.swt.widgets.Label;
@@ -108,6 +103,7 @@ import org.zamia.vhdl.ast.DMUID.LUType;
 import org.zamia.vhdl.ast.VHDLNode;
 
 
+
 /**
  * 
  * @author Guenter Bartsch
@@ -140,8 +136,6 @@ public class ZamiaEditor extends TextEditor implements IShowInTargetList {
 	private final static char[] BRACKETS = { '{', '}', '(', ')', '[', ']' };
 
 	protected AbstractSelectionChangedListener fOutlineSelectionChangedListener = new OutlineSelectionChangedListener();
-
-	private Composite fControl;
 
 	private Text fPathEdit;
 
@@ -258,17 +252,15 @@ public class ZamiaEditor extends TextEditor implements IShowInTargetList {
 	@Override
 	public void createPartControl(Composite aParent) {
 
-		fControl = new Composite(aParent, SWT.NONE);
-
 		GridLayout gl = new GridLayout();
-		fControl.setLayout(gl);
+		aParent.setLayout(gl);
 		gl.numColumns = 1;
 		gl.horizontalSpacing = 0;
 		gl.verticalSpacing = 0;
 		gl.marginHeight = 0;
 		gl.marginWidth = 0;
 
-		Composite comp = new Composite(fControl, SWT.NONE);
+		Composite comp = new Composite(aParent, SWT.NONE);
 
 		gl = new GridLayout();
 		gl.numColumns = 5;
@@ -279,24 +271,11 @@ public class ZamiaEditor extends TextEditor implements IShowInTargetList {
 		comp.setLayout(gl);
 		// comp.setBackground(aParent.getShell().getDisplay().getSystemColor(SWT.COLOR_BLUE));
 
-		GridData gd = new GridData();
-		gd.verticalAlignment = GridData.CENTER;
-		gd.grabExcessVerticalSpace = false;
-		gd.horizontalAlignment = GridData.FILL;
-		gd.grabExcessHorizontalSpace = true;
-		comp.setLayoutData(gd);
+		setFillLayout(comp, false);
 
-		Label label = new Label(comp, SWT.NONE);
-		label.setText("Path:");
-		gd = new GridData();
-		gd.verticalAlignment = GridData.CENTER;
-		gd.grabExcessVerticalSpace = true;
-		gd.horizontalAlignment = GridData.BEGINNING;
-		gd.grabExcessHorizontalSpace = false;
-		label.setLayoutData(gd);
-
+		createLablel("Path:", comp);
 		fPathEdit = new Text(comp, SWT.BORDER);
-		fPathEdit.setEditable(true);
+		setFillLayout(fPathEdit, false);
 		fPathEdit.addKeyListener(new KeyAdapter() {
 			public void keyPressed(KeyEvent e) {
 				if (e.keyCode == SWT.KEYPAD_CR || e.keyCode == SWT.CR) {
@@ -307,20 +286,12 @@ public class ZamiaEditor extends TextEditor implements IShowInTargetList {
 			}
 		});
 		
-		gd = new GridData(SWT.FILL, SWT.FILL, true, false);
-		fPathEdit.setLayoutData(gd);
-
 		if (fPath != null) {
 			fPathEdit.setText(fPath.toString());
 		}
 
 		fGoUpButton = new Button(comp, SWT.PUSH);
-		gd = new GridData();
-		gd.verticalAlignment = GridData.CENTER;
-		gd.grabExcessVerticalSpace = false;
-		gd.horizontalAlignment = GridData.BEGINNING;
-		gd.grabExcessHorizontalSpace = false;
-		fGoUpButton.setLayoutData(gd);
+		setLeftLayout(fGoUpButton);
 		Image icon = ZamiaPlugin.getImage("/share/images/up.gif");
 		fGoUpButton.setImage(icon);
 		fGoUpButton.setEnabled(false);
@@ -365,12 +336,7 @@ public class ZamiaEditor extends TextEditor implements IShowInTargetList {
 		});
 
 		fAnnotateCheck = new Button(comp, SWT.CHECK);
-		gd = new GridData();
-		gd.verticalAlignment = GridData.CENTER;
-		gd.grabExcessVerticalSpace = false;
-		gd.horizontalAlignment = GridData.BEGINNING;
-		gd.grabExcessHorizontalSpace = false;
-		fAnnotateCheck.setLayoutData(gd);
+		setLeftLayout(fAnnotateCheck);
 		fAnnotateCheck.setText("Annotate");
 		fAnnotateCheck.addSelectionListener(new org.eclipse.swt.events.SelectionListener() {
 
@@ -392,12 +358,7 @@ public class ZamiaEditor extends TextEditor implements IShowInTargetList {
 		});
 
 		fAnnotateUpdate = new Button(comp, SWT.PUSH);
-		gd = new GridData();
-		gd.verticalAlignment = GridData.CENTER;
-		gd.grabExcessVerticalSpace = false;
-		gd.horizontalAlignment = GridData.BEGINNING;
-		gd.grabExcessHorizontalSpace = false;
-		fAnnotateUpdate.setLayoutData(gd);
+		setLeftLayout(fAnnotateUpdate);
 		fAnnotateUpdate.setText("Update");
 		fAnnotateUpdate.setEnabled(false);
 		fAnnotateUpdate.addSelectionListener(new org.eclipse.swt.events.SelectionListener() {
@@ -412,14 +373,8 @@ public class ZamiaEditor extends TextEditor implements IShowInTargetList {
 		
 		comp.pack();
 
-		Composite editorContainer = new Composite(fControl, SWT.NONE);
-		gd = new GridData();
-		gd.verticalAlignment = GridData.FILL;
-		gd.grabExcessVerticalSpace = true;
-		gd.horizontalAlignment = GridData.FILL;
-		gd.grabExcessHorizontalSpace = true;
-		editorContainer.setLayoutData(gd);
-
+		Composite editorContainer = new Composite(aParent, SWT.NONE);
+		setFillLayout(editorContainer, true);
 		FillLayout fl = new FillLayout();
 		editorContainer.setLayout(fl);
 		super.createPartControl(editorContainer);
@@ -454,13 +409,30 @@ public class ZamiaEditor extends TextEditor implements IShowInTargetList {
 		//		styledText.setLineSpacing(2);
 	}
 
+	private void setFillLayout(Control comp, boolean fillVertical) {
+		comp.setLayoutData(new GridData(GridData.FILL, GridData.FILL, true, fillVertical));
+	}
+
+	private void setLeftLayout(Control control) {
+		GridData gd = new GridData(GridData.BEGINNING, GridData.CENTER, false, false);
+		control.setLayoutData(gd);
+	}
+	
+	//This method is also used in Philp branch
+	private void createLablel(String name, Composite parent) {
+		Label label = new Label(parent, SWT.NONE);
+		label.setText(name);
+		setLeftLayout(label);
+	}
+	
+	
 	public void highlight() {
 		if (fCovered != null) {
 			SimulatorView simulatorView = findSimulatorView();
 			boolean doHighlight = simulatorView.doShowCoverage();
 
 			StyledText textWidget = getSourceViewer().getTextWidget();
-			Color yellow = fControl.getDisplay().getSystemColor(SWT.COLOR_YELLOW);
+			Color yellow = Display.getDefault().getSystemColor(SWT.COLOR_YELLOW);
 			fCovered.highlight(textWidget, yellow, fSF, doHighlight);
 		}
 	}
@@ -797,7 +769,7 @@ public class ZamiaEditor extends TextEditor implements IShowInTargetList {
 
 				logger.info("ZamiaEditor: generating annotated document...");
 
-				fControl.getDisplay().syncExec(new Runnable() {
+				Display.getDefault().syncExec(new Runnable() {
 
 					public void run() {
 						AnnotatedDocument annotatedDoc = new AnnotatedDocument(originalDocument.get(), fAnns, tabWidth, fSimView);

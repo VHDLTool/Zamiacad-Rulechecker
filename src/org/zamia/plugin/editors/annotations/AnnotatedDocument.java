@@ -43,7 +43,8 @@ public class AnnotatedDocument extends AbstractDocument {
 
 	public final static ExceptionLogger el = ExceptionLogger.getInstance();
 
-	private static class StringTextStore implements ITextStore {
+	//Philip will reused the store
+	static class StringTextStore implements ITextStore {
 
 		private String fContent;
 
@@ -171,12 +172,7 @@ public class AnnotatedDocument extends AbstractDocument {
 
 					if (an != null && col == an.getOffset()) {
 
-						while (bufA.length() > bufB.length()) {
-							bufB.append(" ");
-						}
-						while (bufA.length() < bufB.length()) {
-							bufA.append(" ");
-						}
+						equalizeLen(bufA, bufB);
 
 						bufA.append(an.getStr());
 
@@ -206,6 +202,20 @@ public class AnnotatedDocument extends AbstractDocument {
 		}
 
 		return buf.toString();
+	}
+
+	public static void equalizeLen(StringBuilder bufA, StringBuilder bufB) {
+		if (bufB.length() < bufA.length()) {
+			StringBuilder sb = bufB;
+			bufB = bufA;
+			bufA = sb;
+		}
+		
+		for (int i = bufA.length() ; i != bufB.length() ; i++) {
+			char c = bufB.charAt(i);
+			bufA.append(c == '\t' ? '\t' : ' ');
+		}
+		
 	}
 
 }
