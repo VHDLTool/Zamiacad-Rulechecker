@@ -10,7 +10,8 @@ import org.zamia.plugin.build.ZamiaBuilder;
 
 public class BuildPathDecorator extends LabelProvider implements ILabelDecorator
 {
-	// Method to decorate Image 
+	// Method to decorate Image
+	// You will not see the problem marker for buildpath.txt because of .txt "content type", http://www.eclipse.org/forums/index.php/m/779463/#msg_779463
 	public Image decorateImage(Image image, Object object)
 	{
 	  return null;

@@ -111,6 +111,7 @@ public class ZamiaBuilder extends IncrementalProjectBuilder {
 				ZamiaProject zProj = ZamiaProjectMap.getZamiaProject(getProject()); 
 				SourceFile sf = ZamiaPlugin.getSourceFile(file);
 				
+				String name = file.getName();
 				((ZamiaProjectMap.EclipseProjectFileIterator)(zProj.fBasePath)).listChanged(aDelta, sf);
 						
 				
@@ -133,7 +134,6 @@ public class ZamiaBuilder extends IncrementalProjectBuilder {
 					break;
 				default:
 	
-					String name = file.getName();
 					isBp = name.equals("BuildPath.txt");
 					 
 					if (!(isBp || ZamiaProjectBuilder.fileNameAcceptable(name)))

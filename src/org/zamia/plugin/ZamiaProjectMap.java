@@ -38,6 +38,7 @@ import org.zamia.SourceFile;
 import org.zamia.ZamiaException;
 import org.zamia.ZamiaLogger;
 import org.zamia.ZamiaProject;
+import org.zamia.ZamiaProjectBuilder;
 import org.zamia.plugin.build.ZamiaBuilder;
 import org.zamia.plugin.build.ZamiaErrorObserver;
 import org.zamia.zdb.ZDBException;
@@ -126,7 +127,10 @@ public class ZamiaProjectMap {
 		}
 
 		private void add(SourceFile sf) {
-			projectFiles.put(sf.getLocalPath(), sf.getAbsolutePath());			
+			
+			String name = sf.getFileName();
+			if (ZamiaProjectBuilder.fileNameAcceptable(name) || sf.getLocalPath().endsWith("BuildPath.txt"))
+				projectFiles.put(sf.getLocalPath(), sf.getAbsolutePath());			
 		}
 		
 		//we are notified when files are added/removed. Sf is produced from delta resource.
@@ -142,15 +146,23 @@ public class ZamiaProjectMap {
 				// errors when last link to resource is deleted.
 				
 				String abs = projectFiles.remove(sf.getLocalPath()); // local location must be ok
+
+				if (abs == null) // this is not our file -- forget it
+					return;
 				
 				//if no links to this file remains, clear file errors in Zamia
 				if (!projectFiles.values().contains(abs)) {
 					sf.setFile(new File(abs)); // fix the absolute location
-					ERManager erm = ZamiaProjectMap.getZamiaProject(project).getERM();
+					ERManager erm = getZamiaProject().getERM();
 					erm.removeErrors(sf);
 				}
 				break;
 			}
+			
+		}
+		
+		ZamiaProject getZamiaProject() {
+			return ZamiaProjectMap.getZamiaProject(project);
 		}
 	}
 	

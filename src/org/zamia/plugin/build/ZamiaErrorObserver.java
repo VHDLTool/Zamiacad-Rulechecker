@@ -110,7 +110,7 @@ public class ZamiaErrorObserver implements ErrorObserver {
 
 		IFile file = ZamiaPlugin.getIFile(aSF, fProject);
 
-		if (file != null) {
+		if (file != null && file.exists()) { // file will not exist if it was renamed. By the time this called, errors are removed from ZDB. But, I do not know about eclipse markers, linked to the old file name. How to remove them?
 
 			try {
 				file.deleteMarkers(null, true, IResource.DEPTH_ZERO);
