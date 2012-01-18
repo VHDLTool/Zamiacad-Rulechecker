@@ -31,7 +31,6 @@ import org.eclipse.jface.text.source.Annotation;
 import org.eclipse.jface.text.source.ISourceViewer;
 import org.eclipse.jface.text.source.IVerticalRuler;
 import org.eclipse.jface.text.source.MatchingCharacterPainter;
-import org.eclipse.jface.text.source.SourceViewer;
 import org.eclipse.jface.text.source.SourceViewerConfiguration;
 import org.eclipse.jface.text.source.projection.ProjectionAnnotation;
 import org.eclipse.jface.text.source.projection.ProjectionAnnotationModel;
@@ -710,23 +709,7 @@ public class ZamiaEditor extends TextEditor implements IShowInTargetList {
 		 *  remember cursor position
 		 */
 
-		final ITextSelection selection = (ITextSelection) getSelectionProvider().getSelection();
-		fCaretPos = selection.getOffset();
-		fLine = 0;
-		try {
-			fLine = originalDocument.getLineOfOffset(fCaretPos);
-		} catch (BadLocationException e1) {
-			el.logException(e1);
-		}
-		fCol = 0;
-		try {
-			fCol = fCaretPos - originalDocument.getLineOffset(fLine);
-			if (fCol < 0) {
-				fCol = 0;
-			}
-		} catch (BadLocationException e1) {
-			el.logException(e1);
-		}
+		computeCursorPos(originalDocument);
 
 		final ISourceViewer viewer = getSourceViewer();
 
@@ -778,13 +761,7 @@ public class ZamiaEditor extends TextEditor implements IShowInTargetList {
 
 						fAnnotateUpdate.setEnabled(true);
 
-						try {
-							fCaretPos = annotatedDoc.getLineOffset(fLine) + fCol;
-						} catch (BadLocationException e) {
-							el.logException(e);
-						}
-
-						selectAndReveal(fCaretPos, 0);
+						setCursor(annotatedDoc, ZamiaEditor.this);
 
 						fAnnotateCheck.setEnabled(true);
 						fAnnotateCheck.setSelection(true);
@@ -804,6 +781,26 @@ public class ZamiaEditor extends TextEditor implements IShowInTargetList {
 		job.schedule();
 	}
 
+	private void computeCursorPos(IDocument originalDocument) {
+		ITextSelection selection = (ITextSelection) getSelectionProvider().getSelection();
+		fCaretPos = selection.getOffset();
+		fLine = 0;
+		try {
+			fLine = originalDocument.getLineOfOffset(fCaretPos);
+		} catch (BadLocationException e1) {
+			el.logException(e1);
+		}
+		fCol = 0;
+		try {
+			fCol = fCaretPos - originalDocument.getLineOffset(fLine);
+			if (fCol < 0) {
+				fCol = 0;
+			}
+		} catch (BadLocationException e1) {
+			el.logException(e1);
+		}
+	}
+
 	public boolean isAnnotated() {
 		return fIsAnnotated;
 	}
@@ -815,38 +812,13 @@ public class ZamiaEditor extends TextEditor implements IShowInTargetList {
 
 			IDocument doc = getDocument();
 
-			final ITextSelection selection = (ITextSelection) getSelectionProvider().getSelection();
-			fCaretPos = selection.getOffset();
-			fLine = 0;
-			try {
-				fLine = doc.getLineOfOffset(fCaretPos);
-			} catch (BadLocationException e1) {
-				el.logException(e1);
-			}
-			fCol = 0;
-			try {
-				fCol = fCaretPos - doc.getLineOffset(fLine);
-				if (fCol < 0) {
-					fCol = 0;
-				}
-			} catch (BadLocationException e1) {
-				el.logException(e1);
-			}
-
+			computeCursorPos(doc);
 			fLine = fLine / 2;
 
 			getSite().getPage().closeEditor(this, false);
 			ZamiaEditor editor = (ZamiaEditor) ZamiaPlugin.showSource(getSite().getPage(), fZPrj, path);
 
-			doc = editor.getDocument();
-
-			try {
-				fCaretPos = doc.getLineOffset(fLine) + fCol;
-			} catch (BadLocationException e) {
-				el.logException(e);
-			}
-
-			editor.selectAndReveal(fCaretPos, 0);
+			setCursor(editor.getDocument(), editor);
 
 			try {
 				editor.annotate();
@@ -864,49 +836,26 @@ public class ZamiaEditor extends TextEditor implements IShowInTargetList {
 
 			IDocument doc = getDocument();
 
-			final ITextSelection selection = (ITextSelection) getSelectionProvider().getSelection();
-			fCaretPos = selection.getOffset();
-			fLine = 0;
-			try {
-				fLine = doc.getLineOfOffset(fCaretPos);
-			} catch (BadLocationException e1) {
-				el.logException(e1);
-			}
-			fCol = 0;
-			try {
-				fCol = fCaretPos - doc.getLineOffset(fLine);
-				if (fCol < 0) {
-					fCol = 0;
-				}
-			} catch (BadLocationException e1) {
-				el.logException(e1);
-			}
+			computeCursorPos(doc);
 
 			fLine = fLine / 2;
 
 			getSite().getPage().closeEditor(this, false);
 			ZamiaEditor editor = (ZamiaEditor) ZamiaPlugin.showSource(getSite().getPage(), fZPrj, path);
 
-			doc = editor.getDocument();
-
-			try {
-				fCaretPos = doc.getLineOffset(fLine) + fCol;
-			} catch (BadLocationException e) {
-				el.logException(e);
-			}
-
-			editor.selectAndReveal(fCaretPos, 0);
+			setCursor(editor.getDocument(), editor);
 		}
 
-		//		ISourceViewer viewer = getSourceViewer();
-		//		try {
-		//			viewer.setDocument(fOriginalDocument);
-		//		} catch (Throwable t) {
-		//
-		//		}
-		//
-		//		fAnnotateUpdate.setEnabled(false);
-		//		fOriginalDocument = null;
+	}
+
+	private void setCursor(IDocument document, TextEditor editor) {
+		try {
+			fCaretPos = document.getLineOffset(fLine) + fCol;
+		} catch (BadLocationException e) {
+			el.logException(e);
+		}
+
+		editor.selectAndReveal(fCaretPos, 0);
 	}
 
 	public ToplevelPath getPath() {
