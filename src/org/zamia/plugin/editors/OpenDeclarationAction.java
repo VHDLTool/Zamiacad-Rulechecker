@@ -39,7 +39,7 @@ import org.zamia.vhdl.ast.DeclarativeItem;
  */
 public class OpenDeclarationAction extends StaticAnalysisAction {
 
-	public void run(IAction a) {
+	public void run(IAction ignored) {
 
 		try {
 
@@ -69,56 +69,18 @@ public class OpenDeclarationAction extends StaticAnalysisAction {
 							IGManager igm = fZPrj.getIGM();
 							IGModule module = igm.findModule(inst.getSignature());
 							if (module != null) {
-
 								SourceLocation location = module.computeSourceLocation();
-
-								if (location != null) {
-									IWorkbenchPage page = fEditor.getEditorSite().getPage();
-
-									ZamiaPlugin.showSource(page, fPrj, location, 0);
-									fEditor.setPath(tlp.append(inst.getLabel()));
-									success = true;
-								}
+								success = jumpToIG(location, tlp.append(inst.getLabel()));
 							}
 						} else if (item instanceof IGOperationObject) {
-
 							item = ((IGOperationObject) item).getObject();
-
-							SourceLocation location = item.computeSourceLocation();
-
-							if (location != null) {
-								IWorkbenchPage page = fEditor.getEditorSite().getPage();
-
-								ZamiaPlugin.showSource(page, fPrj, location, 0);
-								fEditor.setPath(tlp);
-								success = true;
-							}
+							success = jumpToIG(item.computeSourceLocation(), tlp);
 						} else if (item instanceof IGType) {
-
-							//item = ((IGOperationObject) item).getObject();
-
-							SourceLocation location = item.computeSourceLocation();
-
-							if (location != null) {
-								IWorkbenchPage page = fEditor.getEditorSite().getPage();
-
-								ZamiaPlugin.showSource(page, fPrj, location, 0);
-								fEditor.setPath(tlp);
-								success = true;
-							}
+							success = jumpToIG(item.computeSourceLocation(), tlp);
 						} else if (item instanceof IGOperationInvokeSubprogram) {
 							
 							IGOperationInvokeSubprogram inv = (IGOperationInvokeSubprogram) item;
-							
-							SourceLocation location = inv.getSub().computeSourceLocation();
-
-							if (location != null) {
-								IWorkbenchPage page = fEditor.getEditorSite().getPage();
-
-								ZamiaPlugin.showSource(page, fPrj, location, 0);
-								fEditor.setPath(tlp);
-								success = true;
-							}
+							success = jumpToIG(inv.getSub().computeSourceLocation(), tlp);
 						}
 					} else {
 
@@ -141,11 +103,12 @@ public class OpenDeclarationAction extends StaticAnalysisAction {
 				if (nearest != null) {
 					DeclarativeItem declaration = ASTDeclarationSearch.search(nearest, fZPrj);
 
+					//for instance, nearest is INTEGER, we jump to declaration = TYPE INTEGER IS "-"2147483648 to 2147483647
+					//Thereby, INTEGER.length = 7 first characters are selected, covering TYPE IN. Keep id start location in DeclarativeItem? 
 					if (declaration != null) {
-						IWorkbenchPage page = fEditor.getEditorSite().getPage();
-
-						ZamiaPlugin.showSource(page, fPrj, declaration.getLocation(), declaration.getId().length());
+						jumpToAST(declaration.getLocation(), declaration.getId().length());
 					}
+					
 				} else {
 					logger.error("Failed to map location %s to an AST object.", fLocation);
 				}
@@ -158,5 +121,18 @@ public class OpenDeclarationAction extends StaticAnalysisAction {
 		} catch (ZamiaException e) {
 			el.logException(e);
 		}
+	}
+
+	private void jumpToAST(SourceLocation location, int len) {
+		IWorkbenchPage page = fEditor.getEditorSite().getPage();
+		ZamiaPlugin.showSource(page, fPrj, location, len);
+	}
+	
+	private boolean jumpToIG(SourceLocation location, ToplevelPath tlp) {
+		if (location == null)
+			return false;
+		jumpToAST(location, 0);
+		fEditor.setPath(tlp);
+		return true;
 	}
 }
