@@ -11,10 +11,14 @@ package org.zamia.plugin.editors;
 import org.eclipse.core.runtime.NullProgressMonitor;
 import org.eclipse.jface.preference.IPreferenceStore;
 import org.eclipse.jface.preference.PreferenceConverter;
+import org.eclipse.jface.text.BadLocationException;
 import org.eclipse.jface.text.DefaultInformationControl;
 import org.eclipse.jface.text.IDocument;
 import org.eclipse.jface.text.IInformationControl;
 import org.eclipse.jface.text.IInformationControlCreator;
+import org.eclipse.jface.text.IRegion;
+import org.eclipse.jface.text.ITextHover;
+import org.eclipse.jface.text.ITextViewer;
 import org.eclipse.jface.text.TextAttribute;
 import org.eclipse.jface.text.contentassist.ContentAssistant;
 import org.eclipse.jface.text.contentassist.IContentAssistant;
@@ -101,7 +105,7 @@ public class ZamiaSourceViewerConfiguration extends SourceViewerConfiguration {
 		presenter.setDocumentPartitioning(getConfiguredDocumentPartitioning(sourceViewer));
 		
 		// Register information provider
-		IInformationProvider provider= new VHDLInformationProvider(getEditor());
+		IInformationProvider provider= createVhdlInfoProvider();
 		String[] contentTypes= getConfiguredContentTypes(sourceViewer);
 		for (int i= 0; i < contentTypes.length; i++)
 			presenter.setInformationProvider(provider, contentTypes[i]);
@@ -109,6 +113,10 @@ public class ZamiaSourceViewerConfiguration extends SourceViewerConfiguration {
 		// sizes: see org.eclipse.jface.text.TextViewer.TEXT_HOVER_*_CHARS
 		presenter.setSizeConstraints(100, 12, true, true);
 		return presenter;
+	}
+
+	private IInformationProvider createVhdlInfoProvider() {
+		return new VHDLInformationProvider(getEditor());
 	}
 
 	protected ITextEditor getEditor() {
@@ -149,6 +157,38 @@ public class ZamiaSourceViewerConfiguration extends SourceViewerConfiguration {
 	@Override
 	public IAnnotationHover getAnnotationHover(ISourceViewer sourceViewer) {
 		return new DefaultAnnotationHover();
+	}
+	
+	@Override
+	public ITextHover getTextHover(ISourceViewer sourceViewer, String contentType) {
+		return new ITextHover() {
+
+			@Override
+			public String getHoverInfo(ITextViewer textViewer, IRegion reg) {
+//		        try {
+//			        return textViewer.getDocument().get(reg.getOffset(), reg.getLength());
+//		        } catch (BadLocationException ex) {
+//		            return null;
+//		        }
+	        	return createVhdlInfoProvider().getInformation(textViewer, reg);
+			}
+
+			@Override
+			public IRegion getHoverRegion(ITextViewer textViewer, int offset) {
+		        try {
+			        final IDocument doc = textViewer.getDocument();
+			        return VHDLInformationProvider.senseIdentifierRange(doc, offset);
+		        } catch (BadLocationException ex) {
+		            return null;
+		        }				
+			}
+			
+		};
+	}
+	
+	@Override
+	public ITextHover getTextHover(ISourceViewer sourceViewer, String contentType, int stateMask) {
+		throw new RuntimeException("getTextHover(flags) is not supported");
 	}
 	
 	@Override
