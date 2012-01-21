@@ -55,58 +55,19 @@ public class VHDLInformationProvider implements IInformationProvider, IInformati
 
 	private IEditorPart fEditor;
 
-	private IProject fPrj;
-
-	private SourceFile fSF;
-
-	private int fLine;
-
-	private int fCol;
-
-	private ZamiaProject fZPrj;
-
 	public VHDLInformationProvider(IEditorPart aEditor) {
 		fEditor = aEditor;
 	}
 
 	public String getInformation(ITextViewer textViewer, IRegion subject) {
-		// TODO Auto-generated method stub
-		return null;
+		Object o = getInformation2(textViewer, subject); 
+		return o == null ? null : o.toString();
 	}
 
 	public IRegion getSubject(ITextViewer aTextViewer, int aOffset) {
 
 		IDocument doc = aTextViewer.getDocument();
-
 		try {
-
-			IEditorInput editorInput = fEditor.getEditorInput();
-			fPrj = null;
-			fSF = null;
-
-			IFile file = ResourceUtil.getFile(editorInput);
-			if (file != null) {
-				fPrj = file.getProject();
-				fSF = ZamiaPlugin.getSourceFile(file);
-			}
-
-			if (fPrj != null) {
-				fLine = doc.getLineOfOffset(aOffset);
-				fCol = aOffset - doc.getLineOffset(fLine);
-
-				fLine++;
-				fCol++;
-
-				logger.debug("Line: " + fLine + ", col: " + fCol);
-
-				fZPrj = ZamiaProjectMap.getZamiaProject(fPrj);
-
-			} else {
-				fLine = 0;
-				fCol = 0;
-				logger.error("Failed to find project for '%s'", editorInput);
-			}
-
 			return senseIdentifierRange(doc, aOffset);
 		} catch (BadLocationException e) {
 			// probably hit EOF
@@ -131,10 +92,38 @@ public class VHDLInformationProvider implements IInformationProvider, IInformati
 		}
 		return new Region(start+1, end - start-1);
 	}
-	public Object getInformation2(ITextViewer textViewer, IRegion subject) {
-
+	public Object getInformation2(ITextViewer aTextViewer, IRegion subject) {
+		IDocument doc = aTextViewer.getDocument();
 		try {
-			SourceLocation location = new SourceLocation(fSF, fLine, fCol);
+			IProject fPrj = null;
+			SourceFile fSF = null;
+			IEditorInput editorInput = fEditor.getEditorInput();
+			IFile file = ResourceUtil.getFile(editorInput);
+			if (file != null) {
+				fPrj = file.getProject();
+				fSF = ZamiaPlugin.getSourceFile(file);
+			}
+
+			int line, col; 
+			ZamiaProject fZPrj = null; // TODO: will have null pointer exception if not found
+			if (fPrj != null) {
+				line = doc.getLineOfOffset(subject.getOffset()) ;
+				int lineOffset = doc.getLineOffset(line);
+				col = subject.getOffset() - lineOffset;
+				
+				line++; col++;
+
+				logger.debug("Line: " + line + ", col: " + col);
+
+				fZPrj = ZamiaProjectMap.getZamiaProject(fPrj);
+
+			} else {
+				line = 0;
+				col = 0;
+				logger.error("Failed to find project for '%s'", editorInput);
+			}
+
+			SourceLocation location = new SourceLocation(fSF, line, col);
 
 			ASTNode nearest = SourceLocation2AST.findNearestASTNode(location, true, fZPrj);
 
@@ -144,6 +133,8 @@ public class VHDLInformationProvider implements IInformationProvider, IInformati
 					return declaration.toString();
 				}
 			}
+		} catch (BadLocationException e) {
+			el.logException(e);
 		} catch (ZamiaException e) {
 			el.logException(e);
 		} catch (IOException e) {
