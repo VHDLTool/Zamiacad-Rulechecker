@@ -39,6 +39,7 @@ import org.zamia.analysis.SourceLocation2AST;
 import org.zamia.analysis.ast.ASTDeclarationSearch;
 import org.zamia.plugin.ZamiaPlugin;
 import org.zamia.plugin.ZamiaProjectMap;
+import org.zamia.plugin.editors.OpenDeclarationAction.LocatedDeclaration;
 import org.zamia.vhdl.ast.VHDLNode;
 
 /**
@@ -93,57 +94,22 @@ public class VHDLInformationProvider implements IInformationProvider, IInformati
 		return new Region(start+1, end - start-1);
 	}
 	public Object getInformation2(ITextViewer aTextViewer, IRegion subject) {
-		IDocument doc = aTextViewer.getDocument();
+		return getInformationStaticMethod(subject.getOffset());
+	}
+	
+	public static Object getInformationStaticMethod(int offset) {
 		try {
-			IProject fPrj = null;
-			SourceFile fSF = null;
-			IEditorInput editorInput = fEditor.getEditorInput();
-			IFile file = ResourceUtil.getFile(editorInput);
-			if (file != null) {
-				fPrj = file.getProject();
-				fSF = ZamiaPlugin.getSourceFile(file);
-			}
-
-			int line, col; 
-			ZamiaProject fZPrj = null; // TODO: will have null pointer exception if not found
-			if (fPrj != null) {
-				line = doc.getLineOfOffset(subject.getOffset()) ;
-				int lineOffset = doc.getLineOffset(line);
-				col = subject.getOffset() - lineOffset;
-				
-				line++; col++;
-
-				logger.debug("Line: " + line + ", col: " + col);
-
-				fZPrj = ZamiaProjectMap.getZamiaProject(fPrj);
-
-			} else {
-				line = 0;
-				col = 0;
-				logger.error("Failed to find project for '%s'", editorInput);
-			}
-
-			SourceLocation location = new SourceLocation(fSF, line, col);
-
-			ASTNode nearest = SourceLocation2AST.findNearestASTNode(location, true, fZPrj);
-
-			if (nearest != null) {
-				VHDLNode declaration = ASTDeclarationSearch.search(nearest, fZPrj);
-				if (declaration != null) {
-					return declaration.toString();
-				}
-			}
-		} catch (BadLocationException e) {
-			el.logException(e);
-		} catch (ZamiaException e) {
-			el.logException(e);
-		} catch (IOException e) {
-			el.logException(e);
-		}
-
+  			OpenDeclarationAction oda = new OpenDeclarationAction();
+			oda.processSelection(offset);
+			LocatedDeclaration ld = oda.findDeclaration();
+			if (ld != null)
+				return ld.fItem;
+  		} catch (BadLocationException e) {
+  			el.logException(e);
+  		}
 		return null;
 	}
-
+	
 	public IInformationControlCreator getInformationPresenterControlCreator() {
 
 		return new IInformationControlCreator() {

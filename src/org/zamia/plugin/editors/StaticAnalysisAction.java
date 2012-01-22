@@ -13,9 +13,12 @@ import org.eclipse.jface.action.IAction;
 import org.eclipse.jface.text.BadLocationException;
 import org.eclipse.jface.text.ITextSelection;
 import org.eclipse.jface.viewers.ISelection;
+import org.eclipse.swt.widgets.Display;
+import org.eclipse.ui.IDecoratorManager;
 import org.eclipse.ui.IEditorActionDelegate;
 import org.eclipse.ui.IEditorInput;
 import org.eclipse.ui.IEditorPart;
+import org.eclipse.ui.PlatformUI;
 import org.eclipse.ui.ide.ResourceUtil;
 import org.zamia.ExceptionLogger;
 import org.zamia.SourceFile;
@@ -69,10 +72,13 @@ public abstract class StaticAnalysisAction implements IEditorActionDelegate {
 		return fPath;
 	}
 
+	
 	public void processSelection() throws BadLocationException {
-		ITextSelection selection = (ITextSelection) fEditor.getSelectionProvider().getSelection();
-		int caretPos = selection.getOffset();
-
+		final ITextSelection selection = (ITextSelection) fEditor.getSelectionProvider().getSelection();
+		processSelection(selection.getOffset());
+	}
+	public void processSelection(int caretPos) throws BadLocationException {
+		
 		IEditorInput editorInput = fEditor.getEditorInput();
 		fPrj = null;
 		SourceFile sf = null;

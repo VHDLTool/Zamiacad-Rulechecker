@@ -165,11 +165,6 @@ public class ZamiaSourceViewerConfiguration extends SourceViewerConfiguration {
 
 			@Override
 			public String getHoverInfo(ITextViewer textViewer, IRegion reg) {
-//		        try {
-//			        return textViewer.getDocument().get(reg.getOffset(), reg.getLength());
-//		        } catch (BadLocationException ex) {
-//		            return null;
-//		        }
 	        	return createVhdlInfoProvider().getInformation(textViewer, reg);
 			}
 
