@@ -91,7 +91,7 @@ public class VHDLInformationProvider implements IInformationProvider, IInformati
 				break;
 			end++;
 		}
-		return new Region(start+1, end - start-1);
+		return new Region(start+1, start == end ? 0 : end - start-1);
 	}
 	public Object getInformation2(ITextViewer aTextViewer, IRegion subject) {
 		return getInformationStaticMethod(subject.getOffset());
@@ -109,7 +109,7 @@ public class VHDLInformationProvider implements IInformationProvider, IInformati
   		}
 		return null;
 	}
-	
+
 	public IInformationControlCreator getInformationPresenterControlCreator() {
 
 		return new IInformationControlCreator() {

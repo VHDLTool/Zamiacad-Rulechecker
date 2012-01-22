@@ -15,17 +15,19 @@ import org.eclipse.jface.text.hyperlink.IHyperlink;
 public class HyperlinkDetector extends AbstractHyperlinkDetector {
 
 	@Override
-	public IHyperlink[] detectHyperlinks(ITextViewer textViewer,
-			IRegion region, boolean canShowMultipleHyperlinks) {
+	public IHyperlink[] detectHyperlinks(ITextViewer textViewer, IRegion region, boolean canShowMultipleHyperlinks) {
 
-	        try {
-		        final IDocument doc = textViewer.getDocument();
-		        Region r = VHDLInformationProvider.senseIdentifierRange(doc, region.getOffset());
-	            return new IHyperlink[] {new Hyperlink(r, doc.get(r.getOffset(), r.getLength()))};
-            } catch (BadLocationException ex) {
-                return null;
-            }
-
+		try {
+			final IDocument doc = textViewer.getDocument();
+//			Region r = VHDLInformationProvider.senseIdentifierRange(doc, region.getOffset());
+			if (VHDLInformationProvider.getInformationStaticMethod(region.getOffset()) != null) {
+				Region r = VHDLInformationProvider.senseIdentifierRange(doc, region.getOffset());
+				return new IHyperlink[] {new Hyperlink(r, doc.get(r.getOffset(), r.getLength()))};
+			}
+		} catch (BadLocationException ex) {
+			ex.printStackTrace();
+		}
+		return null;
 	}
 
 	public static class Hyperlink implements IHyperlink {
