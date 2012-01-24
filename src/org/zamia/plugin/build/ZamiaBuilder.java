@@ -122,9 +122,6 @@ public class ZamiaBuilder extends IncrementalProjectBuilder {
 				case IResourceDelta.REMOVED:
 					fNeedFullBuild = true;
 					
-					// we should remove errors from deleted files. But, deleted links point to wrong target names :(
-					zProj.getERM().removeErrors(sf);
-
 					// invalidate zamia build path when it is deleted
 					String bpLp = bp.getSourceFile().getLocalPath();
 					String f1 = ZamiaPlugin.computeLocalPath(file);

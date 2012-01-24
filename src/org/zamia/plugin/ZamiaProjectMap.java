@@ -128,8 +128,11 @@ public class ZamiaProjectMap {
 
 		private void add(SourceFile sf) {
 			
-			String name = sf.getFileName();
-			if (ZamiaProjectBuilder.fileNameAcceptable(name) || sf.getLocalPath().endsWith("BuildPath.txt"))
+			if (sf.getLocalPath().endsWith("BuildPath.txt") ||
+					(
+					ZamiaProjectBuilder.fileNameAcceptable(sf.getLocalPath())  && // line name will satisfy user, referenced file 
+					ZamiaProjectBuilder.fileNameAcceptable(sf.getFileName())) // must have extension acceptable by compiler
+					)
 				projectFiles.put(sf.getLocalPath(), sf.getAbsolutePath());			
 		}
 		
@@ -153,8 +156,7 @@ public class ZamiaProjectMap {
 				//if no links to this file remains, clear file errors in Zamia
 				if (!projectFiles.values().contains(abs)) {
 					sf.setFile(new File(abs)); // fix the absolute location
-					ERManager erm = getZamiaProject().getERM();
-					erm.removeErrors(sf);
+					getZamiaProject().getERM().removeErrors(sf);
 				}
 				break;
 			}
