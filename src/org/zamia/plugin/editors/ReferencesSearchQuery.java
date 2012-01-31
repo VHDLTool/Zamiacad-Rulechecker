@@ -8,6 +8,9 @@
  */
 package org.zamia.plugin.editors;
 
+import java.util.ArrayList;
+import java.util.List;
+
 import org.eclipse.core.runtime.IProgressMonitor;
 import org.eclipse.core.runtime.IStatus;
 import org.eclipse.core.runtime.OperationCanceledException;
@@ -30,9 +33,11 @@ import org.zamia.analysis.SourceLocation2IG;
 import org.zamia.analysis.ast.ASTDeclarationSearch;
 import org.zamia.analysis.ast.ASTReferencesSearch;
 import org.zamia.analysis.ig.IGReferencesSearch;
+import org.zamia.analysis.ig.IGReferencesSearchThrough;
 import org.zamia.instgraph.IGItem;
 import org.zamia.instgraph.IGObject;
 import org.zamia.instgraph.IGOperationObject;
+import org.zamia.plugin.Utils;
 import org.zamia.plugin.ZamiaPlugin;
 import org.zamia.util.Pair;
 import org.zamia.vhdl.ast.DeclarativeItem;
@@ -68,7 +73,7 @@ public class ReferencesSearchQuery implements ISearchQuery {
 
 		fZPrj = aZPrj;
 		fTLP = aTLP;
-		fLocation = aLocation;
+		fObject = fLocation = aLocation;
 		fSearchUpward = aSearchUpward;
 		fSearchDownward = aSearchDownward;
 		fDeclOnly = aDeclOnly;
@@ -97,8 +102,25 @@ public class ReferencesSearchQuery implements ISearchQuery {
 		return true;
 	}
 
+	Object fObject = null;
+	boolean fDone = false;
+	
 	public String getLabel() {
-		return "Searching for references...";
+		List options = new ArrayList();
+		Object[] pairs = new Object[] {
+				fSearchDownward, "downward_only",
+				fSearchUpward, "upward_only",
+				fDeclOnly, "decl_only",
+				fReadersOnly, "readers_only",
+				fWritersOnly, "writers_only",
+				fUsePath, "path=" + fTLP,
+			};
+		for (int i = 0 ; i != pairs.length ; i++) {
+			if ((Boolean) pairs[i++]) 
+				options.add(pairs[i]);
+		}
+		
+		return "Searching " + fObject + " ("+(Utils.concatenate(options, "+")) +") for references..." + (fDone ? " Done" : "");
 	}
 
 	public ISearchResult getSearchResult() {
@@ -126,12 +148,13 @@ public class ReferencesSearchQuery implements ISearchQuery {
 
 					IGItem item = nearest.getFirst();
 					ToplevelPath path = nearest.getSecond();
-
+					fObject = path + " : " + item;
+					
 					logger.info("ReferencesSearchQuery: nearest item: %s, path: %s", item, path);
 
 					if (item != null) {
 
-						IGReferencesSearch rs = new IGReferencesSearch(zprj);
+						IGReferencesSearchThrough rs = new IGReferencesSearchThrough(zprj);
 
 						IGObject object = null;
 
@@ -166,10 +189,10 @@ public class ReferencesSearchQuery implements ISearchQuery {
 				 */
 
 				ASTNode nearest = SourceLocation2AST.findNearestASTNode(fLocation, true, zprj);
-
+				fObject = nearest;
 				if (nearest != null) {
 					declaration = ASTDeclarationSearch.search(nearest, zprj);
-
+					fObject = declaration;
 					if (declaration != null) {
 
 						ReferenceSearchResult results = ASTReferencesSearch.search(declaration, fSearchUpward, fSearchDownward, zprj);
@@ -184,14 +207,10 @@ public class ReferencesSearchQuery implements ISearchQuery {
 
 								ReferenceSearchResult res = results.getChild(i);
 
-								if (!(res instanceof ReferenceSite))
-									continue;
-
-								ReferenceSite ref = (ReferenceSite) res;
-
-								if (ref.getRefType() == RefType.Declaration) {
-									filteredResults.add(ref);
-								}
+								if (res instanceof ReferenceSite 
+										&& ((ReferenceSite) res).getRefType() == RefType.Declaration)
+									filteredResults.add(res);
+								
 							}
 
 							addMatches(result, filteredResults);
@@ -199,14 +218,6 @@ public class ReferencesSearchQuery implements ISearchQuery {
 						} else {
 							addMatches(result, results);
 
-							// int n = results.size();
-							//
-							// for (int i = 0; i < n; i++) {
-							//
-							// ReferenceSearchResult res = results.get(i);
-							//
-							// addMatches(result, res);
-							// }
 						}
 					} else {
 						ZamiaPlugin.showError(null, "AST-based reference search failed", "Reference search failed.", "Failed to find declaration of " + nearest);
@@ -219,7 +230,7 @@ public class ReferencesSearchQuery implements ISearchQuery {
 			el.logException(e);
 			ZamiaPlugin.showError(null, "Exception caught while executing reference search", "Caught an unexpected exception during reference search", "" + e);
 		}
-
+		fDone = true;
 		aMonitor.done();
 		return Status.OK_STATUS;
 	}
