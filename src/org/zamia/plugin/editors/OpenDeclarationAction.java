@@ -8,12 +8,25 @@
 
 package org.zamia.plugin.editors;
 
+import java.io.BufferedReader;
+import java.io.FileNotFoundException;
 import java.io.IOException;
 
+import org.eclipse.core.resources.IFile;
 import org.eclipse.jface.action.IAction;
 import org.eclipse.jface.text.BadLocationException;
+import org.eclipse.jface.text.IDocument;
+import org.eclipse.jface.text.IRegion;
+import org.eclipse.ui.IEditorDescriptor;
+import org.eclipse.ui.IEditorInput;
 import org.eclipse.ui.IWorkbenchPage;
+import org.eclipse.ui.PartInitException;
+import org.eclipse.ui.PlatformUI;
+import org.eclipse.ui.editors.text.FileDocumentProvider;
+import org.eclipse.ui.ide.IDE;
 import org.zamia.ASTNode;
+import org.zamia.FSCache;
+import org.zamia.SourceFile;
 import org.zamia.SourceLocation;
 import org.zamia.ToplevelPath;
 import org.zamia.ZamiaException;
@@ -150,9 +163,37 @@ public class OpenDeclarationAction extends StaticAnalysisAction {
 			IWorkbenchPage page = fEditor.getEditorSite().getPage();
 			ZamiaPlugin.showSource(page, fPrj, fLocation, fLen);
 		}
+		
+		public String getComment(IDocument document) throws BadLocationException, IOException {
+			int line = fLocation.fLine -1;
+			// signal S1, S2: type; creates two declarations on the same line and 
+			// diff column. Both share the same comment
+			
+			//Do we need to cache this (possibly we shouldn't open and load the file every while hovering the mouse)?
+			SourceFile sf = fLocation.fSF;
+			String uri = sf.getURI();
+			BufferedReader br = new BufferedReader(FSCache.getInstance().openFile(sf, false));
+			try {
+				String s; int l = 0;
+				while ((s = br.readLine()) != null) {
+					if (l++ == line) {
+//						IRegion reg = document.getLineInformation(line);
+//						String s = document.get(reg.getOffset(), reg.getLength());
+						int commentStart = s.indexOf("--");
+						return commentStart != -1 ? s.substring(commentStart + 2).trim(): null; 
+					}
+					
+				}
+			} finally {
+				br.close();
+			}
+		
+			return null;
+		}
 	}
 	
 	private LocatedDeclaration astTarget(DeclarativeItem declaration) {
+		
 		String id = declaration.getId(); // can be null on unresolved package import, for instance
 		return new LocatedDeclaration(declaration, declaration.getLocation(), (id == null ? 0 : id.length()));
 		

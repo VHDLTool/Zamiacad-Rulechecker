@@ -12,21 +12,26 @@ import java.io.IOException;
 
 import org.eclipse.core.resources.IFile;
 import org.eclipse.core.resources.IProject;
+import org.eclipse.jface.internal.text.html.HTMLTextPresenter;
 import org.eclipse.jface.text.BadLocationException;
 import org.eclipse.jface.text.DefaultInformationControl;
 import org.eclipse.jface.text.IDocument;
 import org.eclipse.jface.text.IInformationControl;
 import org.eclipse.jface.text.IInformationControlCreator;
 import org.eclipse.jface.text.IRegion;
+import org.eclipse.jface.text.ITextHover;
+import org.eclipse.jface.text.ITextHoverExtension;
 import org.eclipse.jface.text.ITextViewer;
 import org.eclipse.jface.text.Region;
 import org.eclipse.jface.text.information.IInformationProvider;
 import org.eclipse.jface.text.information.IInformationProviderExtension;
 import org.eclipse.jface.text.information.IInformationProviderExtension2;
+import org.eclipse.swt.SWT;
 import org.eclipse.swt.graphics.Point;
 import org.eclipse.swt.widgets.Shell;
 import org.eclipse.ui.IEditorInput;
 import org.eclipse.ui.IEditorPart;
+import org.eclipse.ui.editors.text.EditorsUI;
 import org.eclipse.ui.ide.ResourceUtil;
 import org.zamia.ASTNode;
 import org.zamia.ExceptionLogger;
@@ -48,7 +53,8 @@ import org.zamia.vhdl.ast.VHDLNode;
  * 
  */
 
-public class VHDLInformationProvider implements IInformationProvider, IInformationProviderExtension, IInformationProviderExtension2 {
+public class VHDLInformationProvider implements IInformationProvider, IInformationProviderExtension, IInformationProviderExtension2, 
+ITextHover, ITextHoverExtension {
 
 	public final static ZamiaLogger logger = ZamiaLogger.getInstance();
 
@@ -94,16 +100,26 @@ public class VHDLInformationProvider implements IInformationProvider, IInformati
 		return new Region(start+1, start == end ? 0 : end - start-1);
 	}
 	public Object getInformation2(ITextViewer aTextViewer, IRegion subject) {
-		return getInformationStaticMethod(subject.getOffset());
+		LocatedDeclaration ld = findDeclaration(subject.getOffset());
+		if (ld != null) 
+			try {
+				String comment = ld.getComment(aTextViewer.getDocument());
+				//return ld.fItem + (comment != null ? "\n" + comment : "");
+				return "<b>" + ld.fItem + "</b>"+ (comment != null ? "<br><br>" + comment : "");
+	  		} catch (BadLocationException e) {
+	  			el.logException(e);
+	  		} catch (IOException e) {
+	  			el.logException(e);
+	  		}
+		return null;
 	}
 	
-	public static Object getInformationStaticMethod(int offset) {
+	public static LocatedDeclaration findDeclaration(int offset) {
 		try {
   			OpenDeclarationAction oda = new OpenDeclarationAction();
 			oda.processSelection(offset);
 			LocatedDeclaration ld = oda.findDeclaration();
-			if (ld != null)
-				return ld.fItem;
+			return oda.findDeclaration();
   		} catch (BadLocationException e) {
   			el.logException(e);
   		}
@@ -111,12 +127,39 @@ public class VHDLInformationProvider implements IInformationProvider, IInformati
 	}
 
 	public IInformationControlCreator getInformationPresenterControlCreator() {
-
-		return new IInformationControlCreator() {
-			public IInformationControl createInformationControl(Shell parent) {
-				//				return new DefaultInformationControl(parent, "Result of declaration search.");
-				return new DefaultInformationControl(parent);
-			}
-		};
+		return getHoverControlCreator();
 	}
+	
+	
+	/*
+	  
+	 Text Hover routines
+	 
+	 */
+	
+	/**Supports HTML in tooltips */
+	public IInformationControlCreator getHoverControlCreator() {
+		   return new IInformationControlCreator() {
+			      @SuppressWarnings("deprecation")
+				public IInformationControl createInformationControl(Shell parent) {
+			          //return new JavaHoverInformationControl(parent);
+					   return new DefaultInformationControl(parent,
+							   SWT.NONE, new HTMLTextPresenter(),
+							   EditorsUI.getTooltipAffordanceString());
+
+			      }
+			   };
+	}			
+
+
+	@Override
+	public String getHoverInfo(ITextViewer textViewer, IRegion reg) {
+    	return getInformation(textViewer, reg);
+	}
+
+	@Override
+	public IRegion getHoverRegion(ITextViewer textViewer, int offset) {
+		return getSubject(textViewer, offset);
+	}
+
 }

@@ -8,6 +8,7 @@ import org.eclipse.jface.text.ITextViewer;
 import org.eclipse.jface.text.Region;
 import org.eclipse.jface.text.hyperlink.AbstractHyperlinkDetector;
 import org.eclipse.jface.text.hyperlink.IHyperlink;
+import org.zamia.plugin.editors.OpenDeclarationAction.LocatedDeclaration;
 
 /**
  * Valentin Tihhomirov
@@ -19,10 +20,10 @@ public class HyperlinkDetector extends AbstractHyperlinkDetector {
 
 		try {
 			final IDocument doc = textViewer.getDocument();
-//			Region r = VHDLInformationProvider.senseIdentifierRange(doc, region.getOffset());
-			if (VHDLInformationProvider.getInformationStaticMethod(region.getOffset()) != null) {
+			LocatedDeclaration ld = VHDLInformationProvider.findDeclaration(region.getOffset());
+			if (ld != null) {
 				Region r = VHDLInformationProvider.senseIdentifierRange(doc, region.getOffset());
-				return new IHyperlink[] {new Hyperlink(r, doc.get(r.getOffset(), r.getLength()))};
+				return new IHyperlink[] {new Hyperlink(r, ld)};
 			}
 		} catch (BadLocationException ex) {
 			ex.printStackTrace();
@@ -32,16 +33,16 @@ public class HyperlinkDetector extends AbstractHyperlinkDetector {
 
 	public static class Hyperlink implements IHyperlink {
 
-	    private String text;
 	    private IRegion region;
+	    LocatedDeclaration locatedDeclaration;
 
-	    public String toString() {
-	    	return "(" + region + "): " + text;
-	    }
+//	    public String toString() {
+//	    	return "(" + region + "): " + text;
+//	    }
 
-	    public Hyperlink(IRegion r, String text) {
+	    public Hyperlink(IRegion r, LocatedDeclaration locatedDeclaration) {
 	        this.region = r;
-	        this.text = text;
+	        this.locatedDeclaration = locatedDeclaration;
 	    }
 
 	    public IRegion getHyperlinkRegion() {
@@ -49,10 +50,9 @@ public class HyperlinkDetector extends AbstractHyperlinkDetector {
 	    }
 
 	    public void open() {
-//	        if(text!=null)
-	    	
-	    		// TODO: It seems that pressing F3 can do without creating a new Action object every time 
-	        	new OpenDeclarationAction().run(null);	        	
+    		// TODO: It seems that pressing F3 can do without creating a new Action object every time 
+        	//new OpenDeclarationAction().run(null);
+	    	locatedDeclaration.jumpTo();
 	    }
 
 	    public String getTypeLabel() {

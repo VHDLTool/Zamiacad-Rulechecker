@@ -9,6 +9,7 @@
 package org.zamia.plugin.editors;
 
 import org.eclipse.core.runtime.NullProgressMonitor;
+import org.eclipse.jface.internal.text.html.HTMLTextPresenter;
 import org.eclipse.jface.preference.IPreferenceStore;
 import org.eclipse.jface.preference.PreferenceConverter;
 import org.eclipse.jface.text.BadLocationException;
@@ -18,6 +19,7 @@ import org.eclipse.jface.text.IInformationControl;
 import org.eclipse.jface.text.IInformationControlCreator;
 import org.eclipse.jface.text.IRegion;
 import org.eclipse.jface.text.ITextHover;
+import org.eclipse.jface.text.ITextHoverExtension;
 import org.eclipse.jface.text.ITextViewer;
 import org.eclipse.jface.text.TextAttribute;
 import org.eclipse.jface.text.contentassist.ContentAssistant;
@@ -36,8 +38,10 @@ import org.eclipse.jface.text.source.DefaultAnnotationHover;
 import org.eclipse.jface.text.source.IAnnotationHover;
 import org.eclipse.jface.text.source.ISourceViewer;
 import org.eclipse.jface.text.source.SourceViewerConfiguration;
+import org.eclipse.swt.SWT;
 import org.eclipse.swt.graphics.RGB;
 import org.eclipse.swt.widgets.Shell;
+import org.eclipse.ui.editors.text.EditorsUI;
 import org.eclipse.ui.texteditor.ITextEditor;
 import org.zamia.plugin.ZamiaPlugin;
 import org.zamia.plugin.editors.completion.VHDLCompletionProcessor;
@@ -161,29 +165,12 @@ public class ZamiaSourceViewerConfiguration extends SourceViewerConfiguration {
 	
 	@Override
 	public ITextHover getTextHover(ISourceViewer sourceViewer, String contentType) {
-		return new ITextHover() {
-
-			@Override
-			public String getHoverInfo(ITextViewer textViewer, IRegion reg) {
-	        	return createVhdlInfoProvider().getInformation(textViewer, reg);
-			}
-
-			@Override
-			public IRegion getHoverRegion(ITextViewer textViewer, int offset) {
-		        try {
-			        final IDocument doc = textViewer.getDocument();
-			        return VHDLInformationProvider.senseIdentifierRange(doc, offset);
-		        } catch (BadLocationException ex) {
-		            return null;
-		        }				
-			}
-			
-		};
+		return new VHDLInformationProvider(getEditor()); 
 	}
 	
 	@Override
 	public ITextHover getTextHover(ISourceViewer sourceViewer, String contentType, int stateMask) {
-		throw new RuntimeException("getTextHover(flags) is not supported");
+		throw new RuntimeException("getTextHover(viewer, contentType, stateMask) is not supported");
 	}
 	
 	@Override
@@ -191,6 +178,6 @@ public class ZamiaSourceViewerConfiguration extends SourceViewerConfiguration {
 	    return new IHyperlinkDetector[] { new HyperlinkDetector()
 	    	, new org.eclipse.jface.text.hyperlink.URLHyperlinkDetector() 
 	    };
-	}			
+	}
 
 }
