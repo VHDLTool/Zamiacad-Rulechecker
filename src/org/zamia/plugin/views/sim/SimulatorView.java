@@ -17,7 +17,6 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Iterator;
-import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
 import java.util.TreeMap;
@@ -98,6 +97,7 @@ import org.eclipse.ui.IWorkbenchWindow;
 import org.eclipse.ui.part.ViewPart;
 import org.zamia.ExceptionLogger;
 import org.zamia.SourceLocation;
+import org.zamia.SourceRanges;
 import org.zamia.Toplevel;
 import org.zamia.ToplevelPath;
 import org.zamia.ZamiaException;
@@ -148,7 +148,7 @@ public class SimulatorView extends ViewPart implements IGISimObserver {
 	
 	private TraceDialog fTraceDialog;
 
-	private ToolItem fTraceTI, fUnTraceTI, fNewLineTI, fRunTI, fRestartTI, fJobTI, fPrevTransTI, fNextTransTI, fGotoCycleTI, fCoverageTI;
+	private ToolItem fTraceTI, fUnTraceTI, fNewLineTI, fRunTI, fRestartTI, fJobTI, fPrevTransTI, fNextTransTI, fGotoCycleTI, fCoverageTI, fStaticAnalysisTI;
 
 	private SimRunnerConfig fConfig;
 
@@ -493,6 +493,16 @@ public class SimulatorView extends ViewPart implements IGISimObserver {
 			}
 		});
 
+		fStaticAnalysisTI = new ToolItem(tb, SWT.CHECK);
+		icon = ZamiaPlugin.getImage("/share/images/find.gif");
+		fStaticAnalysisTI.setImage(icon);
+		fStaticAnalysisTI.setToolTipText("Show statically analyzed suspected lines");
+		fStaticAnalysisTI.setEnabled(false);
+		fStaticAnalysisTI.addSelectionListener(new SelectionAdapter() {
+			public void widgetSelected(SelectionEvent e) {
+				doStaticAnalysis();
+			}
+		});
 
 		CoolItem citem = new CoolItem(coolbar, SWT.NONE);
 		citem.setControl(comp);
@@ -1470,6 +1480,7 @@ public class SimulatorView extends ViewPart implements IGISimObserver {
 							fUnTraceTI.setEnabled(false);
 							fNewLineTI.setEnabled(false);
 							fCoverageTI.setEnabled(false);
+							fStaticAnalysisTI.setEnabled(false);
 							fRunTI.setEnabled(false);
 							fRestartTI.setEnabled(false);
 
@@ -1610,6 +1621,7 @@ public class SimulatorView extends ViewPart implements IGISimObserver {
 							fUnTraceTI.setEnabled(true);
 							fNewLineTI.setEnabled(true);
 							fCoverageTI.setEnabled(true);
+							fStaticAnalysisTI.setEnabled(true);
 							fRunTI.setEnabled(fSimulator.isSimulator());
 							fRestartTI.setEnabled(fSimulator.isSimulator());
 
@@ -1632,6 +1644,7 @@ public class SimulatorView extends ViewPart implements IGISimObserver {
 							fUnTraceTI.setEnabled(false);
 							fNewLineTI.setEnabled(false);
 							fCoverageTI.setEnabled(false);
+							fStaticAnalysisTI.setEnabled(false);
 							fRunTI.setEnabled(false);
 							fRestartTI.setEnabled(false);
 
@@ -1972,10 +1985,14 @@ public class SimulatorView extends ViewPart implements IGISimObserver {
 
 		IGSimRef sim = (IGSimRef) fSimulator;
 
-		LinkedList<SourceLocation> covered = new LinkedList<SourceLocation>();
-		sim.filterExecutedSource(covered);
+		SourceRanges coveredSources = sim.collectCoveredSources();
 
-		ZamiaEditor.setCoveredSource(covered);
+		ZamiaEditor.setCoveredSources(coveredSources);
+
+		highlightOpenEditors();
+	}
+
+	private void highlightOpenEditors() {
 
 		IWorkbenchWindow window = ZamiaPlugin.getDefault().getWorkbench().getActiveWorkbenchWindow();
 
@@ -1991,8 +2008,19 @@ public class SimulatorView extends ViewPart implements IGISimObserver {
 		}
 	}
 
+	private void doStaticAnalysis() {
+
+		//todo: do static analysis and collect SourceRanges to be highlighted
+
+		highlightOpenEditors();
+	}
+
 	public boolean doShowCoverage() {
 		return fCoverageTI.getSelection();
+	}
+
+	public boolean doShowStaticAnalysis() {
+		return fStaticAnalysisTI.getSelection();
 	}
 
 	SimRunnerConfig getConfig() {

@@ -10,8 +10,9 @@ package org.zamia.plugin.editors;
 
 import java.math.BigInteger;
 import java.util.ArrayList;
-import java.util.Collection;
 import java.util.HashMap;
+import java.util.Iterator;
+import java.util.TreeSet;
 
 import org.eclipse.core.resources.IFile;
 import org.eclipse.core.resources.IProject;
@@ -28,6 +29,7 @@ import org.eclipse.jface.text.PaintManager;
 import org.eclipse.jface.text.Position;
 import org.eclipse.jface.text.rules.ITokenScanner;
 import org.eclipse.jface.text.source.Annotation;
+import org.eclipse.jface.text.source.CompositeRuler;
 import org.eclipse.jface.text.source.ISourceViewer;
 import org.eclipse.jface.text.source.IVerticalRuler;
 import org.eclipse.jface.text.source.MatchingCharacterPainter;
@@ -40,6 +42,7 @@ import org.eclipse.jface.viewers.ISelection;
 import org.eclipse.jface.viewers.IStructuredSelection;
 import org.eclipse.jface.viewers.SelectionChangedEvent;
 import org.eclipse.swt.SWT;
+import org.eclipse.swt.custom.StyleRange;
 import org.eclipse.swt.custom.StyledText;
 import org.eclipse.swt.events.KeyAdapter;
 import org.eclipse.swt.events.KeyEvent;
@@ -79,6 +82,7 @@ import org.zamia.ExceptionLogger;
 import org.zamia.SFDMInfo;
 import org.zamia.SourceFile;
 import org.zamia.SourceLocation;
+import org.zamia.SourceRanges;
 import org.zamia.Toplevel;
 import org.zamia.ToplevelPath;
 import org.zamia.ZamiaException;
@@ -102,7 +106,6 @@ import org.zamia.vhdl.ast.DMUID.LUType;
 import org.zamia.vhdl.ast.VHDLNode;
 
 
-
 /**
  * 
  * @author Guenter Bartsch
@@ -114,7 +117,7 @@ public class ZamiaEditor extends TextEditor implements IShowInTargetList {
 
 	public final static ExceptionLogger el = ExceptionLogger.getInstance();
 
-	private static CoveredSource fCovered;
+	private static SourceRanges COVERED_SOURCES, STATICAL_SOURCES;
 
 	private ZamiaOutlinePage fOutlinePage;
 
@@ -426,14 +429,116 @@ public class ZamiaEditor extends TextEditor implements IShowInTargetList {
 	
 	
 	public void highlight() {
-		if (fCovered != null) {
+		if (COVERED_SOURCES != null || STATICAL_SOURCES != null) {
 			SimulatorView simulatorView = findSimulatorView();
-			boolean doHighlight = simulatorView.doShowCoverage();
+			boolean doCoverage = simulatorView.doShowCoverage();
+			boolean doStaticAnalysis = simulatorView.doShowStaticAnalysis();
 
 			StyledText textWidget = getSourceViewer().getTextWidget();
-			Color yellow = Display.getDefault().getSystemColor(SWT.COLOR_YELLOW);
-			fCovered.highlight(textWidget, yellow, fSF, doHighlight);
+			highlightText(textWidget, fSF, doCoverage, doStaticAnalysis);
+
+			addVerticalRulerColumns(doCoverage, doStaticAnalysis, fSF);
 		}
+	}
+
+	public void highlightText(StyledText aTextWidget, SourceFile aSF, boolean aDoCoverage, boolean aDoStaticAnalysis) {
+
+		if (!(COVERED_SOURCES != null && COVERED_SOURCES.hasFile(aSF)
+				|| STATICAL_SOURCES != null && STATICAL_SOURCES.hasFile(aSF))) {
+			return;
+		}
+
+		if (!(aDoCoverage || aDoStaticAnalysis)) {
+			for (StyleRange range : aTextWidget.getStyleRanges()) {
+				range.background = null;
+				aTextWidget.setStyleRange(range);
+			}
+			return;
+		}
+
+		Display display = Display.getDefault();
+		Color yellow = display.getSystemColor(SWT.COLOR_YELLOW);
+		Color blue = new Color(display, 150, 150, 255);
+		Color red = display.getSystemColor(SWT.COLOR_RED);
+		Color color;
+
+		SourceRanges coverageRanges = COVERED_SOURCES != null ? COVERED_SOURCES.getSourceRanges(aSF) : null;
+		SourceRanges staticalRanges = STATICAL_SOURCES != null ? STATICAL_SOURCES.getSourceRanges(aSF) : null;
+
+		int nLines = aTextWidget.getLineCount();
+		for (int i = 0; i < nLines; i++) {
+			boolean dynamic = aDoCoverage && coverageRanges != null && coverageRanges.hasLine(i + 1);
+			boolean statical = aDoStaticAnalysis && staticalRanges != null && staticalRanges.hasLine(i + 1);
+
+			if (dynamic) {
+				if (statical) {
+					color = red;
+				} else {
+					color = yellow;
+				}
+			} else {
+				if (statical) {
+					color = blue;
+				} else {
+					continue;
+				}
+			}
+
+			int off = aTextWidget.getOffsetAtLine(i);
+			int length = aTextWidget.getLine(i).length();
+
+			for (StyleRange range : aTextWidget.getStyleRanges(off, length)) {
+				range.background = color;
+				aTextWidget.setStyleRange(range);
+			}
+		}
+
+	}
+
+	private void addVerticalRulerColumns(boolean aDoCoverage, boolean aDoStaticAnalysis, SourceFile aSourceFile) {
+
+		NumberedVerticalRulerColumn statColumn = (aDoStaticAnalysis && STATICAL_SOURCES != null && STATICAL_SOURCES.hasFile(aSourceFile))
+				? new NumberedVerticalRulerColumn(STATICAL_SOURCES.getSourceRanges(aSourceFile), new RGB(0, 0, 255)) /* blue */
+				: null;
+
+		NumberedVerticalRulerColumn covColumn = (aDoCoverage && COVERED_SOURCES != null && COVERED_SOURCES.hasFile(aSourceFile))
+				? new NumberedVerticalRulerColumn(COVERED_SOURCES.getSourceRanges(aSourceFile), new RGB(33, 222, 75)) /* malachite */
+				: null;
+
+		IVerticalRuler verticalRuler = getVerticalRuler();
+		if (verticalRuler == null) {
+			verticalRuler = super.createVerticalRuler();
+		}
+
+		if (verticalRuler instanceof CompositeRuler) {
+			CompositeRuler compositeRuler = (CompositeRuler) verticalRuler;
+
+			TreeSet<Integer> toBeRemoved = new TreeSet<Integer>();
+			Iterator decoratorIterator = compositeRuler.getDecoratorIterator();
+			int count = 0;
+			while (decoratorIterator.hasNext()) {
+				Object decorator = decoratorIterator.next();
+				if (decorator instanceof NumberedVerticalRulerColumn) {
+					toBeRemoved.add(count);
+				}
+				count++;
+			}
+			count -= toBeRemoved.size();
+			Iterator<Integer> iterator = toBeRemoved.descendingIterator();
+			while (iterator.hasNext()) {
+				int i = iterator.next();
+				compositeRuler.removeDecorator(i);
+			}
+
+			if (aDoStaticAnalysis && statColumn != null) {
+				compositeRuler.addDecorator(count++, statColumn);
+			}
+			if (aDoCoverage && covColumn != null) {
+				compositeRuler.addDecorator(count++, covColumn);
+			}
+		}
+
+		verticalRuler.update();
 	}
 
 	protected void createActions() {
@@ -543,8 +648,9 @@ public class ZamiaEditor extends TextEditor implements IShowInTargetList {
 		return fReconcilingStrategy;
 	}
 
-	public static void setCoveredSource(Collection<SourceLocation> aCovered) {
-		fCovered = new CoveredSource(aCovered);
+	public static void setCoveredSources(SourceRanges aCoveredSources) {
+		COVERED_SOURCES = aCoveredSources;
+//		STATICAL_SOURCES = aCoveredSources;
 	}
 
 	class OutlineSelectionChangedListener extends AbstractSelectionChangedListener {
