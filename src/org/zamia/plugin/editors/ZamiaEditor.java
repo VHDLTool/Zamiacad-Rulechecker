@@ -448,7 +448,7 @@ public class ZamiaEditor extends TextEditor implements IShowInTargetList {
 			return;
 		}
 
-		if (!(aDoCoverage || aDoStaticAnalysis)) {
+		if (!(aDoStaticAnalysis && STATICAL_SOURCES != null || aDoCoverage && COVERED_SOURCES != null)) {
 			for (StyleRange range : aTextWidget.getStyleRanges()) {
 				range.background = null;
 				aTextWidget.setStyleRange(range);
