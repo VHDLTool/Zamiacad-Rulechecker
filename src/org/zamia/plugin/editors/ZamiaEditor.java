@@ -15,7 +15,10 @@ import java.util.Iterator;
 import java.util.TreeSet;
 
 import org.eclipse.core.resources.IFile;
+import org.eclipse.core.resources.IMarker;
 import org.eclipse.core.resources.IProject;
+import org.eclipse.core.resources.IResource;
+import org.eclipse.core.runtime.CoreException;
 import org.eclipse.core.runtime.IPath;
 import org.eclipse.core.runtime.IProgressMonitor;
 import org.eclipse.core.runtime.IStatus;
@@ -42,12 +45,10 @@ import org.eclipse.jface.viewers.ISelection;
 import org.eclipse.jface.viewers.IStructuredSelection;
 import org.eclipse.jface.viewers.SelectionChangedEvent;
 import org.eclipse.swt.SWT;
-import org.eclipse.swt.custom.StyleRange;
 import org.eclipse.swt.custom.StyledText;
 import org.eclipse.swt.events.KeyAdapter;
 import org.eclipse.swt.events.KeyEvent;
 import org.eclipse.swt.events.SelectionEvent;
-import org.eclipse.swt.graphics.Color;
 import org.eclipse.swt.graphics.Image;
 import org.eclipse.swt.graphics.RGB;
 import org.eclipse.swt.layout.FillLayout;
@@ -116,6 +117,18 @@ public class ZamiaEditor extends TextEditor implements IShowInTargetList {
 	public final static ZamiaLogger logger = ZamiaLogger.getInstance();
 
 	public final static ExceptionLogger el = ExceptionLogger.getInstance();
+
+	private static enum MarkerType {
+		COVERAGE 		("org.zamia.plugin.coveragemarker"),
+		STATIC_ANALYSIS ("org.zamia.plugin.staticanalysismarker"),
+		BUG 			("org.zamia.plugin.bugsuspectmarker");
+
+		private final String id;
+
+		MarkerType(String id) {
+			this.id = id;
+		}
+	}
 
 	private static SourceRanges COVERED_SOURCES, STATICAL_SOURCES;
 
@@ -448,19 +461,15 @@ public class ZamiaEditor extends TextEditor implements IShowInTargetList {
 			return;
 		}
 
-		if (!(aDoStaticAnalysis && STATICAL_SOURCES != null || aDoCoverage && COVERED_SOURCES != null)) {
-			for (StyleRange range : aTextWidget.getStyleRanges()) {
-				range.background = null;
-				aTextWidget.setStyleRange(range);
-			}
-			return;
-		}
+		IResource resource = (IResource) getEditorInput().getAdapter(IResource.class);
 
-		Display display = Display.getDefault();
-		Color yellow = display.getSystemColor(SWT.COLOR_YELLOW);
-		Color blue = new Color(display, 150, 150, 255);
-		Color red = display.getSystemColor(SWT.COLOR_RED);
-		Color color;
+		try {
+			resource.deleteMarkers(MarkerType.COVERAGE.id, false, IResource.DEPTH_INFINITE);
+			resource.deleteMarkers(MarkerType.STATIC_ANALYSIS.id, false, IResource.DEPTH_INFINITE);
+			resource.deleteMarkers(MarkerType.BUG.id, false, IResource.DEPTH_INFINITE);
+		} catch (CoreException e) {
+			logger.debug("ZamiaEditor: failed to delete debug markers", e);
+		}
 
 		SourceRanges coverageRanges = COVERED_SOURCES != null ? COVERED_SOURCES.getSourceRanges(aSF) : null;
 		SourceRanges staticalRanges = STATICAL_SOURCES != null ? STATICAL_SOURCES.getSourceRanges(aSF) : null;
@@ -470,15 +479,16 @@ public class ZamiaEditor extends TextEditor implements IShowInTargetList {
 			boolean dynamic = aDoCoverage && coverageRanges != null && coverageRanges.hasLine(i + 1);
 			boolean statical = aDoStaticAnalysis && staticalRanges != null && staticalRanges.hasLine(i + 1);
 
+			String markerType;
 			if (dynamic) {
 				if (statical) {
-					color = red;
+					markerType = MarkerType.BUG.id;
 				} else {
-					color = yellow;
+					markerType = MarkerType.COVERAGE.id;
 				}
 			} else {
 				if (statical) {
-					color = blue;
+					markerType = MarkerType.STATIC_ANALYSIS.id;
 				} else {
 					continue;
 				}
@@ -487,9 +497,14 @@ public class ZamiaEditor extends TextEditor implements IShowInTargetList {
 			int off = aTextWidget.getOffsetAtLine(i);
 			int length = aTextWidget.getLine(i).length();
 
-			for (StyleRange range : aTextWidget.getStyleRanges(off, length)) {
-				range.background = color;
-				aTextWidget.setStyleRange(range);
+			try {
+				IMarker marker = resource.createMarker(markerType);
+				marker.setAttribute(IMarker.SEVERITY, IMarker.SEVERITY_INFO);
+				marker.setAttribute(IMarker.LINE_NUMBER, i);
+				marker.setAttribute(IMarker.CHAR_START, off);
+				marker.setAttribute(IMarker.CHAR_END, off + length);
+			} catch (CoreException e) {
+				logger.debug("ZamiaEditor: failed to add debug markers", e);
 			}
 		}
 

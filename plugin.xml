@@ -103,7 +103,112 @@
             value="true">
       </persistent>
    </extension>
-   
+
+   <extension point="org.eclipse.core.resources.markers"
+           id="org.zamia.plugin.coveragemarker"
+           name="Simulation-covered source">
+       <super
+               type="org.eclipse.core.resources.textmarker">
+       </super>
+   </extension>
+    <extension point="org.eclipse.ui.editors.annotationTypes">
+        <type
+                markerType="org.zamia.plugin.coveragemarker"
+                name="org.zamia.plugin.coveragemarker">
+        </type>
+    </extension>
+    <extension
+            point="org.eclipse.ui.editors.markerAnnotationSpecification">
+        <specification
+                annotationType="org.zamia.plugin.coveragemarker"
+                colorPreferenceKey="org.zamia.plugin.coverage.color"
+                colorPreferenceValue="192,255,192"
+                contributesToHeader="true"
+                highlightPreferenceKey="org.zamia.plugin.coverage.highlight"
+                highlightPreferenceValue="true"
+                includeOnPreferencePage="true"
+                label="Simulation-covered marker"
+                overviewRulerPreferenceKey="org.zamia.plugin.coverage.overview"
+                overviewRulerPreferenceValue="true"
+                presentationLayer="0"
+                textPreferenceKey="org.zamia.plugin.coverage.text"
+                textPreferenceValue="true"
+                textStylePreferenceValue="BOX"
+                verticalRulerPreferenceKey="org.zamia.plugin.coverage.ruler"
+                verticalRulerPreferenceValue="true">
+        </specification>
+    </extension>
+
+   <extension point="org.eclipse.core.resources.markers"
+           id="org.zamia.plugin.staticanalysismarker"
+           name="Statically analyzed suspected source">
+       <super
+               type="org.eclipse.core.resources.textmarker">
+       </super>
+   </extension>
+    <extension point="org.eclipse.ui.editors.annotationTypes">
+        <type
+                markerType="org.zamia.plugin.staticanalysismarker"
+                name="org.zamia.plugin.staticanalysismarker">
+        </type>
+    </extension>
+    <extension
+            point="org.eclipse.ui.editors.markerAnnotationSpecification">
+        <specification
+                annotationType="org.zamia.plugin.staticanalysismarker"
+                colorPreferenceKey="org.zamia.plugin.staticanalysis.color"
+                colorPreferenceValue="150,150,255"
+                contributesToHeader="true"
+                highlightPreferenceKey="org.zamia.plugin.staticanalysis.highlight"
+                highlightPreferenceValue="true"
+                includeOnPreferencePage="true"
+                label="Statically analyzed suspected source marker"
+                overviewRulerPreferenceKey="org.zamia.plugin.staticanalysis.overview"
+                overviewRulerPreferenceValue="true"
+                presentationLayer="0"
+                textPreferenceKey="org.zamia.plugin.staticanalysis.text"
+                textPreferenceValue="true"
+                textStylePreferenceValue="BOX"
+                verticalRulerPreferenceKey="org.zamia.plugin.staticanalysis.ruler"
+                verticalRulerPreferenceValue="true">
+        </specification>
+    </extension>
+
+   <extension point="org.eclipse.core.resources.markers"
+           id="org.zamia.plugin.bugsuspectmarker"
+           name="Finally Suspected Source">
+       <super
+               type="org.eclipse.core.resources.textmarker">
+       </super>
+   </extension>
+    <extension point="org.eclipse.ui.editors.annotationTypes">
+        <type
+                markerType="org.zamia.plugin.bugsuspectmarker"
+                name="org.zamia.plugin.bugsuspectmarker">
+        </type>
+    </extension>
+    <extension
+            point="org.eclipse.ui.editors.markerAnnotationSpecification">
+        <specification
+                annotationType="org.zamia.plugin.bugsuspectmarker"
+                colorPreferenceKey="org.zamia.plugin.bugsuspect.color"
+                colorPreferenceValue="255,90,90"
+                contributesToHeader="true"
+                highlightPreferenceKey="org.zamia.plugin.bugsuspect.highlight"
+                highlightPreferenceValue="true"
+                includeOnPreferencePage="true"
+                label="Finally suspected source marker"
+                overviewRulerPreferenceKey="org.zamia.plugin.bugsuspect.overview"
+                overviewRulerPreferenceValue="true"
+                presentationLayer="0"
+                textPreferenceKey="org.zamia.plugin.bugsuspect.text"
+                textPreferenceValue="true"
+                textStylePreferenceValue="BOX"
+                verticalRulerPreferenceKey="org.zamia.plugin.bugsuspect.ruler"
+                verticalRulerPreferenceValue="true">
+        </specification>
+    </extension>
+
    <extension point="org.eclipse.ui.newWizards">
 		<category name="Zamia"
 			id="org.zamia.plugin.newWizards">
