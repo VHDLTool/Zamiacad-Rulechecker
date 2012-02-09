@@ -170,7 +170,8 @@
                 textPreferenceValue="true"
                 textStylePreferenceValue="BOX"
                 verticalRulerPreferenceKey="org.zamia.plugin.staticanalysis.ruler"
-                verticalRulerPreferenceValue="true">
+                verticalRulerPreferenceValue="true"
+                icon="share/images/in.gif">
         </specification>
     </extension>
 
@@ -205,7 +206,8 @@
                 textPreferenceValue="true"
                 textStylePreferenceValue="BOX"
                 verticalRulerPreferenceKey="org.zamia.plugin.bugsuspect.ruler"
-                verticalRulerPreferenceValue="true">
+                verticalRulerPreferenceValue="true"
+                icon="share/images/10733.error_tsk.gif">
         </specification>
     </extension>
 

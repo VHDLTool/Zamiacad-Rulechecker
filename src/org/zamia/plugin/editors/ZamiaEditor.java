@@ -450,7 +450,7 @@ public class ZamiaEditor extends TextEditor implements IShowInTargetList {
 			StyledText textWidget = getSourceViewer().getTextWidget();
 			highlightText(textWidget, fSF, doCoverage, doStaticAnalysis);
 
-			addVerticalRulerColumns(doCoverage, doStaticAnalysis, fSF);
+			addVerticalRulerColumns(doCoverage, fSF);
 		}
 	}
 
@@ -476,19 +476,23 @@ public class ZamiaEditor extends TextEditor implements IShowInTargetList {
 
 		int nLines = aTextWidget.getLineCount();
 		for (int i = 0; i < nLines; i++) {
-			boolean dynamic = aDoCoverage && coverageRanges != null && coverageRanges.hasLine(i + 1);
-			boolean statical = aDoStaticAnalysis && staticalRanges != null && staticalRanges.hasLine(i + 1);
+			boolean dynamic = aDoCoverage && coverageRanges != null && coverageRanges.hasLine(i);
+			boolean statical = aDoStaticAnalysis && staticalRanges != null && staticalRanges.hasLine(i);
 
 			String markerType;
+			String message;
 			if (dynamic) {
 				if (statical) {
 					markerType = MarkerType.BUG.id;
+					message = "A bug is probably located here";
 				} else {
 					markerType = MarkerType.COVERAGE.id;
+					message = "This line was executed " + coverageRanges.getCount(i) + " times during current simulation run";
 				}
 			} else {
 				if (statical) {
 					markerType = MarkerType.STATIC_ANALYSIS.id;
+					message = "Through-signal reference search result";
 				} else {
 					continue;
 				}
@@ -500,6 +504,7 @@ public class ZamiaEditor extends TextEditor implements IShowInTargetList {
 			try {
 				IMarker marker = resource.createMarker(markerType);
 				marker.setAttribute(IMarker.SEVERITY, IMarker.SEVERITY_INFO);
+				marker.setAttribute(IMarker.MESSAGE, message);
 				marker.setAttribute(IMarker.LINE_NUMBER, i);
 				marker.setAttribute(IMarker.CHAR_START, off);
 				marker.setAttribute(IMarker.CHAR_END, off + length);
@@ -510,11 +515,7 @@ public class ZamiaEditor extends TextEditor implements IShowInTargetList {
 
 	}
 
-	private void addVerticalRulerColumns(boolean aDoCoverage, boolean aDoStaticAnalysis, SourceFile aSourceFile) {
-
-		NumberedVerticalRulerColumn statColumn = (aDoStaticAnalysis && STATICAL_SOURCES != null && STATICAL_SOURCES.hasFile(aSourceFile))
-				? new NumberedVerticalRulerColumn(STATICAL_SOURCES.getSourceRanges(aSourceFile), new RGB(0, 0, 255)) /* blue */
-				: null;
+	private void addVerticalRulerColumns(boolean aDoCoverage, SourceFile aSourceFile) {
 
 		NumberedVerticalRulerColumn covColumn = (aDoCoverage && COVERED_SOURCES != null && COVERED_SOURCES.hasFile(aSourceFile))
 				? new NumberedVerticalRulerColumn(COVERED_SOURCES.getSourceRanges(aSourceFile), new RGB(33, 222, 75)) /* malachite */
@@ -545,11 +546,8 @@ public class ZamiaEditor extends TextEditor implements IShowInTargetList {
 				compositeRuler.removeDecorator(i);
 			}
 
-			if (aDoStaticAnalysis && statColumn != null) {
-				compositeRuler.addDecorator(count++, statColumn);
-			}
 			if (aDoCoverage && covColumn != null) {
-				compositeRuler.addDecorator(count++, covColumn);
+				compositeRuler.addDecorator(count, covColumn);
 			}
 		}
 
@@ -665,7 +663,10 @@ public class ZamiaEditor extends TextEditor implements IShowInTargetList {
 
 	public static void setCoveredSources(SourceRanges aCoveredSources) {
 		COVERED_SOURCES = aCoveredSources;
-//		STATICAL_SOURCES = aCoveredSources;
+	}
+
+	public static void setStaticSources(SourceRanges aStaticSources) {
+		STATICAL_SOURCES = aStaticSources;
 	}
 
 	class OutlineSelectionChangedListener extends AbstractSelectionChangedListener {

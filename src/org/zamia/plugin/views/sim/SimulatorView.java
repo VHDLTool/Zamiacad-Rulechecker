@@ -116,7 +116,9 @@ import org.zamia.instgraph.sim.ref.IGSimRef;
 import org.zamia.instgraph.sim.vcd.VCDImport;
 import org.zamia.plugin.ZamiaPlugin;
 import org.zamia.plugin.ZamiaProjectMap;
+import org.zamia.plugin.editors.ReferenceSearchAction;
 import org.zamia.plugin.editors.ReferencesSearchQuery;
+import org.zamia.plugin.editors.ReferencesSearchQueryListener;
 import org.zamia.plugin.editors.ZamiaEditor;
 import org.zamia.plugin.launch.SimRunnerConfig;
 import org.zamia.util.PathName;
@@ -497,7 +499,7 @@ public class SimulatorView extends ViewPart implements IGISimObserver {
 		icon = ZamiaPlugin.getImage("/share/images/find.gif");
 		fStaticAnalysisTI.setImage(icon);
 		fStaticAnalysisTI.setToolTipText("Show statically analyzed suspected lines");
-		fStaticAnalysisTI.setEnabled(false);
+		fStaticAnalysisTI.setEnabled(true);
 		fStaticAnalysisTI.addSelectionListener(new SelectionAdapter() {
 			public void widgetSelected(SelectionEvent e) {
 				doStaticAnalysis();
@@ -1480,7 +1482,6 @@ public class SimulatorView extends ViewPart implements IGISimObserver {
 							fUnTraceTI.setEnabled(false);
 							fNewLineTI.setEnabled(false);
 							fCoverageTI.setEnabled(false);
-							fStaticAnalysisTI.setEnabled(false);
 							fRunTI.setEnabled(false);
 							fRestartTI.setEnabled(false);
 
@@ -1621,7 +1622,6 @@ public class SimulatorView extends ViewPart implements IGISimObserver {
 							fUnTraceTI.setEnabled(true);
 							fNewLineTI.setEnabled(true);
 							fCoverageTI.setEnabled(true);
-							fStaticAnalysisTI.setEnabled(true);
 							fRunTI.setEnabled(fSimulator.isSimulator());
 							fRestartTI.setEnabled(fSimulator.isSimulator());
 
@@ -1644,7 +1644,6 @@ public class SimulatorView extends ViewPart implements IGISimObserver {
 							fUnTraceTI.setEnabled(false);
 							fNewLineTI.setEnabled(false);
 							fCoverageTI.setEnabled(false);
-							fStaticAnalysisTI.setEnabled(false);
 							fRunTI.setEnabled(false);
 							fRestartTI.setEnabled(false);
 
@@ -2012,7 +2011,27 @@ public class SimulatorView extends ViewPart implements IGISimObserver {
 
 		//todo: do static analysis and collect SourceRanges to be highlighted
 
-		highlightOpenEditors();
+		if (doShowStaticAnalysis()) {
+
+			new ReferenceSearchAction(this).run(null);
+
+		} else {
+
+			highlightOpenEditors();
+
+		}
+
+	}
+
+	public void setStaticSources(final SourceRanges aStaticSources) {
+		Display.getDefault().asyncExec(new Runnable() {
+			public void run() {
+
+				ZamiaEditor.setStaticSources(aStaticSources);
+
+				highlightOpenEditors();
+			}
+		});
 	}
 
 	public boolean doShowCoverage() {

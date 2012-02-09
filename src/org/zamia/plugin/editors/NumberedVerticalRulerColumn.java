@@ -19,7 +19,7 @@ public class NumberedVerticalRulerColumn extends LineNumberRulerColumn {
 	@Override
 	protected String createDisplayString(int line) {
 
-		if (!fSourceRanges.hasLine(++line))
+		if (!fSourceRanges.hasLine(line))
 			return "";
 
 		return String.valueOf(fSourceRanges.getCount(line));
