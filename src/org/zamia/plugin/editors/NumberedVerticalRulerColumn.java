@@ -11,9 +11,13 @@ public class NumberedVerticalRulerColumn extends LineNumberRulerColumn {
 
 	private final SourceRanges fSourceRanges;
 
+	private final int fNumberOfDigits;
+
 	public NumberedVerticalRulerColumn(SourceRanges aSourceRanges, RGB aFontColor) {
 		fSourceRanges = aSourceRanges;
 		setForeground(ColorManager.getInstance().getColor(aFontColor));
+
+		fNumberOfDigits = String.valueOf(fSourceRanges.getMaxCount()).length();
 	}
 
 	@Override
@@ -23,5 +27,10 @@ public class NumberedVerticalRulerColumn extends LineNumberRulerColumn {
 			return "";
 
 		return String.valueOf(fSourceRanges.getCount(line));
+	}
+
+	@Override
+	protected int computeNumberOfDigits() {
+		return fNumberOfDigits;
 	}
 }
