@@ -58,9 +58,7 @@ import org.eclipse.swt.widgets.Button;
 import org.eclipse.swt.widgets.Composite;
 import org.eclipse.swt.widgets.Control;
 import org.eclipse.swt.widgets.Display;
-import org.eclipse.swt.widgets.Event;
 import org.eclipse.swt.widgets.Label;
-import org.eclipse.swt.widgets.Listener;
 import org.eclipse.swt.widgets.Text;
 import org.eclipse.ui.IEditorInput;
 import org.eclipse.ui.IEditorPart;
@@ -411,14 +409,7 @@ public class ZamiaEditor extends TextEditor implements IShowInTargetList {
 		fBracketPainter.setColor(ColorManager.getInstance().getColor(BRACKETS_COLOR));
 		fPaintManager.addPainter(fBracketPainter);
 
-		StyledText textWidget = getSourceViewer().getTextWidget();
-
-		textWidget.addListener(SWT.FocusIn, new Listener() {
-			@Override
-			public void handleEvent(Event event) {
-				highlight();
-			}
-		});
+		highlight();
 
 		//		StyledText styledText = viewer.getTextWidget();
 		//		styledText.setLineSpacing(2);
@@ -442,24 +433,25 @@ public class ZamiaEditor extends TextEditor implements IShowInTargetList {
 	
 	
 	public void highlight() {
-		if (COVERED_SOURCES != null || STATICAL_SOURCES != null) {
-			SimulatorView simulatorView = findSimulatorView();
-			boolean doCoverage = simulatorView.doShowCoverage();
-			boolean doStaticAnalysis = simulatorView.doShowStaticAnalysis();
 
-			StyledText textWidget = getSourceViewer().getTextWidget();
-			highlightText(textWidget, fSF, doCoverage, doStaticAnalysis);
+		if (!isActivePageLoaded())
+			return;
 
-			addVerticalRulerColumns(doCoverage, fSF);
-		}
+		SimulatorView simulatorView = findSimulatorView();
+		boolean doCoverage = simulatorView.doShowCoverage();
+		boolean doStaticAnalysis = simulatorView.doShowStaticAnalysis();
+
+		highlightText(fSF, doCoverage, doStaticAnalysis);
+
+		addVerticalRulerColumns(fSF, doCoverage);
 	}
 
-	public void highlightText(StyledText aTextWidget, SourceFile aSF, boolean aDoCoverage, boolean aDoStaticAnalysis) {
+	private boolean isActivePageLoaded() {
+		IWorkbenchWindow window = ZamiaPlugin.getDefault().getWorkbench().getActiveWorkbenchWindow();
+		return window.getActivePage() != null;
+	}
 
-		if (!(COVERED_SOURCES != null && COVERED_SOURCES.hasFile(aSF)
-				|| STATICAL_SOURCES != null && STATICAL_SOURCES.hasFile(aSF))) {
-			return;
-		}
+	public void highlightText(SourceFile aSF, boolean aDoCoverage, boolean aDoStaticAnalysis) {
 
 		IResource resource = (IResource) getEditorInput().getAdapter(IResource.class);
 
@@ -471,10 +463,16 @@ public class ZamiaEditor extends TextEditor implements IShowInTargetList {
 			logger.debug("ZamiaEditor: failed to delete debug markers", e);
 		}
 
+		if (!(COVERED_SOURCES != null && COVERED_SOURCES.hasFile(aSF)
+				|| STATICAL_SOURCES != null && STATICAL_SOURCES.hasFile(aSF))) {
+			return;
+		}
+
 		SourceRanges coverageRanges = COVERED_SOURCES != null ? COVERED_SOURCES.getSourceRanges(aSF) : null;
 		SourceRanges staticalRanges = STATICAL_SOURCES != null ? STATICAL_SOURCES.getSourceRanges(aSF) : null;
 
-		int nLines = aTextWidget.getLineCount();
+		StyledText textWidget = getSourceViewer().getTextWidget();
+		int nLines = textWidget.getLineCount();
 		for (int i = 0; i < nLines; i++) {
 			boolean dynamic = aDoCoverage && coverageRanges != null && coverageRanges.hasLine(i);
 			boolean statical = aDoStaticAnalysis && staticalRanges != null && staticalRanges.hasLine(i);
@@ -498,8 +496,8 @@ public class ZamiaEditor extends TextEditor implements IShowInTargetList {
 				}
 			}
 
-			int off = aTextWidget.getOffsetAtLine(i);
-			int length = aTextWidget.getLine(i).length();
+			int off = textWidget.getOffsetAtLine(i);
+			int length = textWidget.getLine(i).length();
 
 			try {
 				IMarker marker = resource.createMarker(markerType);
@@ -515,7 +513,7 @@ public class ZamiaEditor extends TextEditor implements IShowInTargetList {
 
 	}
 
-	private void addVerticalRulerColumns(boolean aDoCoverage, SourceFile aSourceFile) {
+	private void addVerticalRulerColumns(SourceFile aSourceFile, boolean aDoCoverage) {
 
 		NumberedVerticalRulerColumn covColumn = (aDoCoverage && COVERED_SOURCES != null && COVERED_SOURCES.hasFile(aSourceFile))
 				? new NumberedVerticalRulerColumn(COVERED_SOURCES.getSourceRanges(aSourceFile), new RGB(33, 222, 75)) /* malachite */

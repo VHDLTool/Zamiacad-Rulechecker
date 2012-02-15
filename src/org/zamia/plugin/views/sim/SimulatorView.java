@@ -118,7 +118,6 @@ import org.zamia.plugin.ZamiaPlugin;
 import org.zamia.plugin.ZamiaProjectMap;
 import org.zamia.plugin.editors.ReferenceSearchAction;
 import org.zamia.plugin.editors.ReferencesSearchQuery;
-import org.zamia.plugin.editors.ReferencesSearchQueryListener;
 import org.zamia.plugin.editors.ZamiaEditor;
 import org.zamia.plugin.launch.SimRunnerConfig;
 import org.zamia.util.PathName;
@@ -443,6 +442,8 @@ public class SimulatorView extends ViewPart implements IGISimObserver {
 			public void widgetSelected(SelectionEvent e) {
 				try {
 					getValueForcer().reset();
+					fCoverageTI.setSelection(false);
+					doCoverage();
 					fSimulator.reset();
 				} catch (ZamiaException e2) {
 					MessageBox box = new MessageBox(fControl.getShell(), SWT.ICON_ERROR);
@@ -1984,7 +1985,7 @@ public class SimulatorView extends ViewPart implements IGISimObserver {
 
 		IGSimRef sim = (IGSimRef) fSimulator;
 
-		SourceRanges coveredSources = sim.collectCoveredSources();
+		SourceRanges coveredSources = doShowCoverage() ? sim.collectCoveredSources() : null;
 
 		ZamiaEditor.setCoveredSources(coveredSources);
 
