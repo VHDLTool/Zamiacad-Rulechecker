@@ -31,36 +31,42 @@ import org.zamia.ToplevelPath;
  * 
  */
 
-public class ShowReferencesDialog extends Dialog {
+public class ShowReferencesDialog extends Dialog implements SelectionListener {
+	
+	private Text fSearchJobText, fPathText;
+	private String fPath, fSearchJobTextStr = "";
 
-	private Button fScopeLocalRadioButton;
-
-	private Button fScopeDownRadioButton;
-
-	private Button fScopeGlobalRadioButton;
-
-	private Button fAliasedSignalsCheckBox;
-
-	public boolean fScopeLocal = true;
-
-	public boolean fScopeDown = false;
-
-	public boolean fScopeGlobal = false;
-
-	private Text fSearchJobText;
-
-	private Button fPathCheckBox, fWritersOnlyCheckBox, fReadersOnlyCheckBox;
-
-	private Text fPathText;
-
-	private ToplevelPath fPath;
-
-	private String fSearchJobTextStr = "";
-
-	private boolean fUsePath, fWritersOnly, fReadersOnly;
-
-	protected ShowReferencesDialog(Shell parentShell) {
+	// The controls are occasionally disposed. So, despite the dialog is not destroyed, we still need duplicate
+	// values in usual java fields because controls are disposed. 
+	
+	//Instead of binding controls with values through the enumerated index, we could use a map: Button -> value
+	enum Option {
+		UsePath, WritesOnly, ReadsOnly, AssignThrough, SupportAlias,
+		ScopeLocal, ScopeDown, ScopeGlobal;
+		static boolean[] newValues() {
+			boolean result[] = new boolean[values().length];
+			for (Option o: new Option[] {UsePath, ScopeLocal, WritesOnly})
+				result[o.ordinal()] = true;
+			return result;
+		}
+	}
+	
+	boolean values[];
+	Button[] buttons = new Button[Option.values().length];
+	
+	private Button getButton(Option option) {
+		return buttons[option.ordinal()];
+	}
+	
+	public boolean getValue(Option option) {
+		return values[option.ordinal()];
+	}
+	
+	protected ShowReferencesDialog(Shell parentShell, String aJobText, ToplevelPath aPath, boolean[] values) {
 		super(parentShell);
+		fPath = (aPath == null) ? "" : aPath.toString();
+		fSearchJobTextStr = aJobText;
+		this.values = (values == null) ? Option.newValues() : values;
 	}
 
 	@Override
@@ -92,6 +98,7 @@ public class ShowReferencesDialog extends Dialog {
 
 		updateWidgetStates();
 
+		parent.pack();
 		return panel;
 	}
 
@@ -112,19 +119,45 @@ public class ShowReferencesDialog extends Dialog {
 		return panel;
 	}
 
-	class MySelectionListener extends SelectionAdapter {
+	/**Updates values on a button click*/
+	public void widgetSelected(SelectionEvent e) {
 
-		@Override
-		public void widgetSelected(SelectionEvent e) {
-
-			fScopeLocal = fScopeLocalRadioButton.getSelection();
-			fScopeDown = fScopeDownRadioButton.getSelection();
-			fScopeGlobal = fScopeGlobalRadioButton.getSelection();
-
+		boolean assignment = getButton(Option.AssignThrough).getSelection();
+		if (getValue(Option.AssignThrough) != assignment) { // buttons must be radio when assigns are followed
+			if (assignment) { // we must not allow both radio buttons to have the same values
+				Button b1 = getButton(Option.ReadsOnly);
+				Button b2 = getButton(Option.WritesOnly);
+				if (b1.getSelection() == b2.getSelection()) 
+					b2.setSelection(!b1.getSelection());
+			}
+			swapButtons(Option.WritesOnly, 0);
+			swapButtons(Option.ReadsOnly, 1);
+			pathPanel.layout();
 		}
-
+		
+		for (int i = 0 ; i != values.length; i++) 
+			values[i] = buttons[i].getSelection();
+		
+		
 	}
 
+	private Button newButton(Composite parent, String label, Option key, int kind, boolean grabExcessVertical) {
+		Button result = new Button(parent, kind | SWT.LEFT);
+		result.setText(label);
+		setGridData(result, SWT.LEFT, false, SWT.CENTER, grabExcessVertical);
+		result.addSelectionListener(this);
+		int ord = key.ordinal();
+		buttons[ord] = result;
+		result.setSelection(values[ord]);
+		return result;
+	}
+	private Button newRadio(Composite parent, String label, Option key) {
+		return newButton(parent, label, key, SWT.RADIO, true);
+	}
+
+	private Button newCheckBox(Composite parent, String label, final Option key) {
+		return newButton(parent, label, key, SWT.CHECK, true);
+	}	
 	private Composite createScopeGroup(Composite parent) {
 
 		Composite panel = new Composite(parent, SWT.NONE);
@@ -133,49 +166,31 @@ public class ShowReferencesDialog extends Dialog {
 		layout.marginHeight = 0;
 		panel.setLayout(layout);
 
-		Group group = new Group(panel, SWT.SHADOW_ETCHED_IN);
-		group.setText("Scope");
-		GridLayout groupLayout = new GridLayout();
-		group.setLayout(groupLayout);
-		group.setLayoutData(new GridData(SWT.FILL, SWT.FILL, true, true));
+		Group scope = new Group(panel, SWT.SHADOW_ETCHED_IN);
+		scope.setText("Scope");
+		GridLayout scopeLayout = new GridLayout();
+		//scopeLayout.numColumns = 3;
+		scope.setLayout(scopeLayout);
+		
+		newRadio(scope, "local", Option.ScopeLocal);
+		newRadio(scope, "local+down", Option.ScopeDown);
+		newRadio(scope, "global", Option.ScopeGlobal);
 
-		fScopeLocalRadioButton = new Button(group, SWT.RADIO | SWT.LEFT);
-		fScopeLocalRadioButton.setText("local");
-		setGridData(fScopeLocalRadioButton, SWT.LEFT, false, SWT.CENTER, false);
-		fScopeLocalRadioButton.setSelection(fScopeLocal);
-		fScopeLocalRadioButton.addSelectionListener(new MySelectionListener());
-
-		fScopeDownRadioButton = new Button(group, SWT.RADIO | SWT.LEFT);
-		fScopeDownRadioButton.setText("local+down");
-		setGridData(fScopeDownRadioButton, SWT.LEFT, false, SWT.CENTER, false);
-		fScopeDownRadioButton.setSelection(fScopeDown);
-		fScopeDownRadioButton.addSelectionListener(new MySelectionListener());
-
-		fScopeGlobalRadioButton = new Button(group, SWT.RADIO | SWT.LEFT);
-		fScopeGlobalRadioButton.setText("global");
-		setGridData(fScopeGlobalRadioButton, SWT.LEFT, false, SWT.CENTER, false);
-		fScopeGlobalRadioButton.setSelection(fScopeGlobal);
-		fScopeGlobalRadioButton.addSelectionListener(new MySelectionListener());
-
+		newCheckBox(parent, "Follow assignments", Option.AssignThrough);		
 		return panel;
 	}
 
 	public boolean isSearchUp() {
-		return fScopeGlobal;
+		return getValue(Option.ScopeGlobal);
 	}
 
 	public boolean isSearchDown() {
-		return fScopeGlobal || fScopeDown;
+		return isSearchUp() || getValue(Option.ScopeDown);
 	}
 
 	private Composite createMyButtonBar(Composite parent) {
 
-		Composite panel = new Composite(parent, SWT.NULL);
-		GridLayout layout = new GridLayout();
-		layout.numColumns = 2;
-		layout.marginWidth = 0;
-		layout.marginHeight = 0;
-		panel.setLayout(layout);
+		Composite panel = newComposite(parent, SWT.NULL, 2);
 
 		Button cancelButton = createButton(panel, IDialogConstants.CANCEL_ID, "Cancel", false);
 		setGridData(cancelButton, SWT.RIGHT, true, SWT.BOTTOM, false);
@@ -185,14 +200,23 @@ public class ShowReferencesDialog extends Dialog {
 
 		return panel;
 	}
-
-	private Composite createOptionsGroup(Composite parent) {
-
-		Composite panel = new Composite(parent, SWT.NONE);
+	
+	private Composite newComposite(Composite parent, int style, int columns) {
+		Composite panel = new Composite(parent, style);
 		GridLayout layout = new GridLayout();
+		layout.numColumns = columns;
 		layout.marginWidth = 0;
 		layout.marginHeight = 0;
 		panel.setLayout(layout);
+		return panel;
+	}
+	
+	// these radio buttons replace checkboxes when assignment through is on
+	Button[] rwReserved = new Button[2];
+	Composite pathPanel;
+	private Composite createOptionsGroup(Composite parent) {
+
+		Composite panel = newComposite(parent, SWT.NONE, 1);
 
 		Group group = new Group(panel, SWT.SHADOW_NONE);
 		group.setText("Options");
@@ -202,78 +226,26 @@ public class ShowReferencesDialog extends Dialog {
 		group.setLayout(groupLayout);
 		group.setLayoutData(new GridData(SWT.FILL, SWT.FILL, true, true));
 
-		Composite pathPanel = new Composite(group, SWT.NONE);
-		GridLayout pathLayout = new GridLayout();
-		pathLayout.marginWidth = 0;
-		pathLayout.marginHeight = 0;
-		pathLayout.numColumns = 2;
-		pathPanel.setLayout(pathLayout);
+		pathPanel = newComposite(group, SWT.NONE, 2);
 		pathPanel.setLayoutData(new GridData(SWT.FILL, SWT.FILL, true, true));
 
-		fPathCheckBox = new Button(pathPanel, SWT.CHECK | SWT.LEFT);
-		fPathCheckBox.setText("Use Path");
-		setGridData(fPathCheckBox, SWT.LEFT, false, SWT.CENTER, true);
-		fPathCheckBox.setSelection(false);
-		fPathCheckBox.setEnabled(false);
-		fPathCheckBox.addSelectionListener(new SelectionListener() {
-
-			@Override
-			public void widgetDefaultSelected(SelectionEvent aE) {
-			}
-
-			@Override
-			public void widgetSelected(SelectionEvent aE) {
-				fUsePath = fPathCheckBox.getSelection();
-			}
-
-		});
-
+		newCheckBox(pathPanel, "Use Path", Option.UsePath);
 		fPathText = new Text(pathPanel, SWT.BORDER | SWT.READ_ONLY);
 		GridData gd = new GridData(SWT.FILL, SWT.CENTER, true, true);
 		fPathText.setLayoutData(gd);
 
-		fWritersOnlyCheckBox = new Button(pathPanel, SWT.CHECK | SWT.LEFT);
-		fWritersOnlyCheckBox.setText("Drivers only");
-		setGridData(fWritersOnlyCheckBox, SWT.LEFT, false, SWT.CENTER, true);
-		fWritersOnlyCheckBox.setSelection(false);
-		fWritersOnlyCheckBox.setEnabled(true);
-		fWritersOnlyCheckBox.addSelectionListener(new SelectionListener() {
-
-			@Override
-			public void widgetDefaultSelected(SelectionEvent aE) {
-			}
-
-			@Override
-			public void widgetSelected(SelectionEvent aE) {
-				fWritersOnly = fWritersOnlyCheckBox.getSelection();
-			}
-
-		});
-
-		fReadersOnlyCheckBox = new Button(pathPanel, SWT.CHECK | SWT.LEFT);
-		fReadersOnlyCheckBox.setText("Readers only");
-		setGridData(fReadersOnlyCheckBox, SWT.LEFT, false, SWT.CENTER, true);
-		fReadersOnlyCheckBox.setSelection(false);
-		fReadersOnlyCheckBox.setEnabled(true);
-		fReadersOnlyCheckBox.addSelectionListener(new SelectionListener() {
-
-			@Override
-			public void widgetDefaultSelected(SelectionEvent aE) {
-			}
-
-			@Override
-			public void widgetSelected(SelectionEvent aE) {
-				fReadersOnly = fReadersOnlyCheckBox.getSelection();
-			}
-
-		});
-
-		fAliasedSignalsCheckBox = new Button(group, SWT.CHECK | SWT.LEFT);
-		fAliasedSignalsCheckBox.setText("Trace aliased signals");
-		setGridData(fAliasedSignalsCheckBox, SWT.LEFT, false, SWT.CENTER, false);
-		fAliasedSignalsCheckBox.setSelection(false);
-		fAliasedSignalsCheckBox.setEnabled(false); // FIXME: not implemented yet
-
+		// show checkboxes and hide radio buttons
+		boolean initialButtKind = getValue(Option.AssignThrough);
+		setVisible(rwReserved[0] = newButton(pathPanel, "Driven only", Option.WritesOnly, initialButtKind ? SWT.CHECK : SWT.RADIO, true), false);
+		setVisible(rwReserved[1] = newButton(pathPanel, "Read only", Option.ReadsOnly, initialButtKind ? SWT.CHECK : SWT.RADIO, true), false);
+		newButton(pathPanel, "Driven only", Option.WritesOnly, initialButtKind ? SWT.RADIO : SWT.CHECK, true);
+		newButton(pathPanel, "Read only", Option.ReadsOnly, initialButtKind ? SWT.RADIO : SWT.CHECK, true);
+		
+		newCheckBox(pathPanel, "Trace aliased signals", Option.SupportAlias);
+		getButton(Option.SupportAlias).setEnabled(false);
+		
+		updateWidgetStates();
+		
 		return panel;
 	}
 
@@ -286,55 +258,50 @@ public class ShowReferencesDialog extends Dialog {
 		gd.grabExcessVerticalSpace = grabExcessVerticalSpace;
 	}
 
+	private void setVisible(Button b, boolean visible) {
+		GridData ld = ((GridData)b.getLayoutData());
+		ld.exclude = !visible;
+		b.setLayoutData(ld);
+		b.setVisible(visible);
+	}
+	private void swapButtons(Option visible, int reserved) {
+		Button tmp = buttons[visible.ordinal()]; 
+		setVisible(buttons[visible.ordinal()] = rwReserved[reserved], true); 
+		setVisible(rwReserved[reserved] = tmp, false);
+		buttons[visible.ordinal()].setSelection(tmp.getSelection());
+	}
+
+	private boolean is(Control control) {
+		return control != null && !control.isDisposed();
+	}
 	private void updateWidgetStates() {
-		if (fSearchJobText != null && !fSearchJobText.isDisposed()) {
+		if (is(fSearchJobText)) {
 			fSearchJobText.setText(fSearchJobTextStr);
 		}
-		if (fPathCheckBox != null && !fPathCheckBox.isDisposed()) {
-			fPathCheckBox.setEnabled(fPath != null);
-			fPathCheckBox.setSelection(fPath != null);
-			fUsePath = fPath != null;
+		
+		for (int i = 0 ; i != values.length ; i++) {
+			Button b = buttons[i];
+			if (is(b)) {
+				b.setSelection(values[i]);
+				
+				if (b == getButton(Option.UsePath)) {
+					b.setEnabled(fPath.length() != 0);
+				}
+				
+				if (b == getButton(Option.AssignThrough)) {
+					b.setEnabled(fPath.length() != 0);
+				}
+			} 
 		}
-		if (fWritersOnlyCheckBox != null && !fWritersOnlyCheckBox.isDisposed()) {
-			fWritersOnlyCheckBox.setEnabled(true);
-			fWritersOnlyCheckBox.setSelection(fWritersOnly);
-		}
-		if (fReadersOnlyCheckBox != null && !fReadersOnlyCheckBox.isDisposed()) {
-			fReadersOnlyCheckBox.setEnabled(true);
-			fReadersOnlyCheckBox.setSelection(fReadersOnly);
-		}
-		if (fPathText != null && !fPathText.isDisposed()) {
-			if (fPath == null) {
-				fPathText.setText("");
-			} else {
-				fPathText.setText(fPath.toString());
-			}
-		}
+		
+		if (is(fPathText)) {
+			fPathText.setText(fPath);
+		};
+		
 	}
 
-	public void setPath(ToplevelPath aPath) {
-		fPath = aPath;
-		updateWidgetStates();
-	}
-
-	public ToplevelPath getPath() {
-		return fPath;
-	}
-
-	public boolean isUsePath() {
-		return fUsePath;
-	}
-
-	public boolean isWritersOnly() {
-		return fWritersOnly;
-	}
-
-	public boolean isReadersOnly() {
-		return fReadersOnly;
-	}
-
-	public void setSearchJobText(String aString) {
-		fSearchJobTextStr = aString;
-		updateWidgetStates();
+	@Override
+	public void widgetDefaultSelected(SelectionEvent e) {
+		
 	}
 }

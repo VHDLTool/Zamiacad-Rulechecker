@@ -8,9 +8,11 @@
  */
 package org.zamia.plugin.editors;
 
+
 import java.util.ArrayList;
 import java.util.List;
-
+import java.util.Collection;
+import java.util.Map;
 import org.eclipse.core.runtime.IProgressMonitor;
 import org.eclipse.core.runtime.IStatus;
 import org.eclipse.core.runtime.OperationCanceledException;
@@ -57,23 +59,23 @@ public class ReferencesSearchQuery implements ISearchQuery {
 
 	private ZamiaSearchResult fSearchResult;
 
-	private boolean fSearchUpward, fSearchDownward, fDeclOnly;
+	protected boolean fSearchUpward, fSearchDownward;
+
+	protected boolean fDeclOnly, fWritersOnly, fReadersOnly;
 
 	private boolean fUsePath;
 
-	private ZamiaProject fZPrj;
+	protected ZamiaProject fZPrj;
 
 	private ToplevelPath fTLP;
 
 	private SourceLocation fLocation;
 
-	private boolean fWritersOnly, fReadersOnly;
-
 	public ReferencesSearchQuery(ZamiaProject aZPrj, ToplevelPath aTLP, SourceLocation aLocation, boolean aSearchUpward, boolean aSearchDownward, boolean aDeclOnly, boolean aUsePath, boolean aWritersOnly, boolean aReadersOnly) {
 
 		fZPrj = aZPrj;
 		fTLP = aTLP;
-		fObject = fLocation = aLocation;
+		fMessage = fLocation = aLocation;
 		fSearchUpward = aSearchUpward;
 		fSearchDownward = aSearchDownward;
 		fDeclOnly = aDeclOnly;
@@ -102,7 +104,7 @@ public class ReferencesSearchQuery implements ISearchQuery {
 		return true;
 	}
 
-	Object fObject = null;
+	Object fMessage = null;
 	boolean fDone = false;
 	
 	public String getLabel() {
@@ -120,10 +122,10 @@ public class ReferencesSearchQuery implements ISearchQuery {
 				options.add(pairs[i]);
 		}
 		
-		return "Searching " + fObject + " ("+(Utils.concatenate(options, "+")) +") for references..." + (fDone ? " Done" : "");
+		return "Searching " + fMessage + " ("+(Utils.concatenate(options, "+")) +") for references..." + (fDone ? " Done" : "");
 	}
 
-	public ISearchResult getSearchResult() {
+	public ZamiaSearchResult getSearchResult() {
 		if (fSearchResult == null)
 			fSearchResult = new ZamiaSearchResult(this);
 		return fSearchResult;
@@ -131,8 +133,8 @@ public class ReferencesSearchQuery implements ISearchQuery {
 
 	public IStatus run(IProgressMonitor aMonitor) throws OperationCanceledException {
 
-		final AbstractTextSearchResult result = (AbstractTextSearchResult) getSearchResult();
-		result.removeAll();
+		fSearchResult = getSearchResult();
+		fSearchResult.removeAll();
 
 		try {
 
@@ -148,13 +150,11 @@ public class ReferencesSearchQuery implements ISearchQuery {
 
 					IGItem item = nearest.getFirst();
 					ToplevelPath path = nearest.getSecond();
-					fObject = path + " : " + item;
+					fMessage = path + " : " + item;
 					
 					logger.info("ReferencesSearchQuery: nearest item: %s, path: %s", item, path);
 
 					if (item != null) {
-
-						IGReferencesSearchThrough rs = new IGReferencesSearchThrough(zprj);
 
 						IGObject object = null;
 
@@ -164,13 +164,8 @@ public class ReferencesSearchQuery implements ISearchQuery {
 							object = (IGObject) item;
 						}
 						if (object != null) {
-							ReferenceSearchResult rsr = rs.search(object, path, fSearchUpward, fSearchDownward, fWritersOnly, fReadersOnly);
-
-							if (rsr != null) {
-								addMatches(result, rsr);
-							} else {
-								ZamiaPlugin.showError(null, "IG-based reference search failed", "Search returned no result.", "");
-							}
+							fMessage = object.getId();
+							igSearch(object, path);
 						} else {
 							ZamiaPlugin.showError(null, "IG-based reference search failed", "Failed to map cursor location to IG Object", "Mapped to non-object " + item);
 						}
@@ -189,10 +184,10 @@ public class ReferencesSearchQuery implements ISearchQuery {
 				 */
 
 				ASTNode nearest = SourceLocation2AST.findNearestASTNode(fLocation, true, zprj);
-				fObject = nearest;
+				fMessage = nearest;
 				if (nearest != null) {
 					declaration = ASTDeclarationSearch.search(nearest, zprj);
-					fObject = declaration;
+					fMessage = declaration;
 					if (declaration != null) {
 
 						ReferenceSearchResult results = ASTReferencesSearch.search(declaration, fSearchUpward, fSearchDownward, zprj);
@@ -213,10 +208,10 @@ public class ReferencesSearchQuery implements ISearchQuery {
 								
 							}
 
-							addMatches(result, filteredResults);
+							addMatches(filteredResults);
 
 						} else {
-							addMatches(result, results);
+							addMatches(results);
 
 						}
 					} else {
@@ -235,14 +230,32 @@ public class ReferencesSearchQuery implements ISearchQuery {
 		return Status.OK_STATUS;
 	}
 
-	private void addMatches(AbstractTextSearchResult aResult, ReferenceSearchResult aRSR) {
+	protected void mergeResults(Object aObject, ReferenceSearchResult aRSR) {
+		if (aRSR != null) {
+			aRSR.dump(1, System.err);
+			addMatches(aRSR);
+		} else {
+			ZamiaPlugin.showError(null, "IG-based reference search (" + aObject + ") failed", "Search returned no result.", "");
+			System.err.println(aObject + " search returns null");
+			
+		}
+	}
+	
+	//Extended search may have more than one result to merge
+	protected void igSearch(IGObject object, ToplevelPath path) {
+		IGReferencesSearch rs = new IGReferencesSearch(fZPrj);
+		ReferenceSearchResult rsr = rs.search(object, path, fSearchUpward, fSearchDownward, fWritersOnly, fReadersOnly);
+		mergeResults(object, rsr);
+	}
 
-		aResult.addMatch(new Match(aRSR, 0, 1));
+	protected void addMatches(ReferenceSearchResult aRSR) {
+
+		fSearchResult.addMatch(new Match(aRSR, 0, 1));
 
 		int n = aRSR.getNumChildren();
 		for (int i = 0; i < n; i++) {
 			ReferenceSearchResult child = aRSR.getChild(i);
-			addMatches(aResult, child);
+			addMatches(child);
 		}
 	}
 }

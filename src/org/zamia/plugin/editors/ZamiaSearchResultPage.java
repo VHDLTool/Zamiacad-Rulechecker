@@ -12,13 +12,18 @@ import java.util.ArrayList;
 
 import org.eclipse.core.resources.IFile;
 import org.eclipse.core.resources.IProject;
+import org.eclipse.jface.action.Action;
+import org.eclipse.jface.action.IMenuManager;
 import org.eclipse.jface.viewers.ILabelProvider;
+import org.eclipse.jface.viewers.IStructuredSelection;
 import org.eclipse.jface.viewers.ITreeContentProvider;
 import org.eclipse.jface.viewers.LabelProvider;
+import org.eclipse.jface.viewers.StructuredSelection;
 import org.eclipse.jface.viewers.TableViewer;
 import org.eclipse.jface.viewers.TreeViewer;
 import org.eclipse.jface.viewers.Viewer;
 import org.eclipse.jface.viewers.ViewerComparator;
+import org.eclipse.search.ui.IContextMenuConstants;
 import org.eclipse.search.ui.text.AbstractTextSearchResult;
 import org.eclipse.search.ui.text.AbstractTextSearchViewPage;
 import org.eclipse.search.ui.text.Match;
@@ -29,6 +34,7 @@ import org.zamia.SourceLocation;
 import org.zamia.ZamiaLogger;
 import org.zamia.analysis.ReferenceSearchResult;
 import org.zamia.analysis.ReferenceSite;
+import org.zamia.analysis.ig.IGReferencesSearchThrough.SearchAssignment;
 import org.zamia.instgraph.IGObject.OIDir;
 import org.zamia.plugin.ZamiaPlugin;
 import org.zamia.plugin.ZamiaProjectMap;
@@ -186,12 +192,19 @@ public class ZamiaSearchResultPage extends AbstractTextSearchViewPage {
 		Object element = match.getElement();
 
 		logger.debug("Element: " + element);
+		if (element instanceof SearchAssignment) {
+			SearchAssignment ref = (SearchAssignment) element;
+			Match[] def = this.getDisplayedMatches(ref.keyResult);
+			StructuredSelection ss = new StructuredSelection(def[0].getElement());
+			getViewer().setSelection(ss);
+		} 
+		
 		if (element instanceof ReferenceSearchResult) {
 
 			ReferenceSearchResult rss = (ReferenceSearchResult) element;
 
 			IProject prj = ZamiaProjectMap.getProject(rss.getZamiaProject());
-
+			
 			SourceLocation location = rss.getLocation();
 			if (location != null) {
 				IEditorPart editor = ZamiaPlugin.showSource(getSite().getPage(), prj, location, rss.getLength());
@@ -286,7 +299,7 @@ public class ZamiaSearchResultPage extends AbstractTextSearchViewPage {
 			return object.toString();
 		}
 	}
-
+	
 	protected ILabelProvider createLabelProvider() {
 		return new SearchLabelProvider();
 	}
