@@ -9,15 +9,23 @@
 package org.zamia.plugin.editors;
 
 import java.util.ArrayList;
+import java.util.List;
 
 import org.eclipse.core.resources.IFile;
 import org.eclipse.core.resources.IProject;
 import org.eclipse.jface.action.Action;
+import org.eclipse.jface.action.ContributionItem;
+import org.eclipse.jface.action.IAction;
+import org.eclipse.jface.action.IContributionItem;
+import org.eclipse.jface.action.IContributionManager;
 import org.eclipse.jface.action.IMenuManager;
+import org.eclipse.jface.action.IToolBarManager;
 import org.eclipse.jface.viewers.ILabelProvider;
+import org.eclipse.jface.viewers.ISelectionChangedListener;
 import org.eclipse.jface.viewers.IStructuredSelection;
 import org.eclipse.jface.viewers.ITreeContentProvider;
 import org.eclipse.jface.viewers.LabelProvider;
+import org.eclipse.jface.viewers.SelectionChangedEvent;
 import org.eclipse.jface.viewers.StructuredSelection;
 import org.eclipse.jface.viewers.TableViewer;
 import org.eclipse.jface.viewers.TreeViewer;
@@ -27,10 +35,25 @@ import org.eclipse.search.ui.IContextMenuConstants;
 import org.eclipse.search.ui.text.AbstractTextSearchResult;
 import org.eclipse.search.ui.text.AbstractTextSearchViewPage;
 import org.eclipse.search.ui.text.Match;
+import org.eclipse.swt.SWT;
+import org.eclipse.swt.events.SelectionEvent;
+import org.eclipse.swt.events.SelectionListener;
 import org.eclipse.swt.graphics.Image;
+import org.eclipse.swt.widgets.Button;
+import org.eclipse.swt.widgets.Composite;
+import org.eclipse.swt.widgets.CoolBar;
+import org.eclipse.swt.widgets.Menu;
+import org.eclipse.swt.widgets.ToolBar;
 import org.eclipse.ui.IEditorPart;
+import org.eclipse.ui.ISharedImages;
+import org.eclipse.ui.IWorkbenchCommandConstants;
+import org.eclipse.ui.IWorkbenchWindow;
 import org.eclipse.ui.PartInitException;
+import org.eclipse.ui.PlatformUI;
+import org.eclipse.ui.internal.IWorkbenchHelpContextIds;
+import org.eclipse.ui.internal.WorkbenchMessages;
 import org.zamia.SourceLocation;
+import org.zamia.Utils;
 import org.zamia.ZamiaLogger;
 import org.zamia.analysis.ReferenceSearchResult;
 import org.zamia.analysis.ReferenceSite;
@@ -177,8 +200,16 @@ public class ZamiaSearchResultPage extends AbstractTextSearchViewPage {
 		viewer.setLabelProvider(createLabelProvider());
 		fContentProvider = new ZamiaSearchTreeContentProvider();
 		viewer.setContentProvider(fContentProvider);
+		viewer.addSelectionChangedListener(backAction);
 	}
 
+    BackAction backAction = new BackAction();
+    
+	protected void fillToolbar(final IToolBarManager tbm) {
+		tbm.appendToGroup(IContextMenuConstants.GROUP_SHOW, backAction);
+		super.fillToolbar(tbm);
+	}
+	
 	protected void configureTableViewer(TableViewer viewer) {
 		logger.error("ZamiaSearchResultPage: TableView not supported.");
 		//		viewer.setComparator(createViewerComparator());
@@ -195,8 +226,8 @@ public class ZamiaSearchResultPage extends AbstractTextSearchViewPage {
 		if (element instanceof SearchAssignment) {
 			SearchAssignment ref = (SearchAssignment) element;
 			Match[] def = this.getDisplayedMatches(ref.keyResult);
-			StructuredSelection ss = new StructuredSelection(def[0].getElement());
-			getViewer().setSelection(ss);
+			StructuredSelection sel = new StructuredSelection(def[0].getElement());
+			getViewer().setSelection(sel);
 		} 
 		
 		if (element instanceof ReferenceSearchResult) {
@@ -304,8 +335,49 @@ public class ZamiaSearchResultPage extends AbstractTextSearchViewPage {
 		return new SearchLabelProvider();
 	}
 
-	protected ViewerComparator createViewerComparator() {
+    protected ViewerComparator createViewerComparator() {
 		return new ViewerComparator();
 	}
-
+    
+    class BackAction extends Action implements ISelectionChangedListener { 
+    	List hist = new ArrayList(); 
+    	
+    	private Object current() {
+    		return hist.get(hist.size()-1);
+    	}
+    	
+    	public void selectionChanged(SelectionChangedEvent event) {
+    		
+    		IStructuredSelection sel = (IStructuredSelection) event.getSelection();
+    		Object selObj = sel.getFirstElement();
+    		
+    		if (selObj == null ) {
+    			hist.clear();
+    		} else {
+    			
+    			if (hist.size() == 0 || selObj != current()) {
+   					hist.add(selObj);
+    			}
+    		}
+    		
+    		setEnabled(hist.size() > 1);
+    	}
+    	
+	    public void run() {
+    		hist.remove(hist.size()-1);
+	    	getViewer().setSelection(new StructuredSelection(current()));
+	    	setEnabled(hist.size() > 1);
+	    }
+    	
+	    public BackAction() {
+	        ISharedImages sharedImages = PlatformUI.getWorkbench().getSharedImages();
+            setText(WorkbenchMessages.NavigationHistoryAction_backward_text); 
+            setToolTipText(WorkbenchMessages.NavigationHistoryAction_backward_toolTip);
+            setImageDescriptor(sharedImages.getImageDescriptor(ISharedImages.IMG_TOOL_BACK));
+            setDisabledImageDescriptor(sharedImages.getImageDescriptor(ISharedImages.IMG_TOOL_BACK_DISABLED));
+	        setEnabled(false);
+	    }
+	    
+    }
+    
 }
