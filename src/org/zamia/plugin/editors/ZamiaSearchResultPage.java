@@ -53,6 +53,7 @@ import org.eclipse.ui.PlatformUI;
 import org.eclipse.ui.internal.IWorkbenchHelpContextIds;
 import org.eclipse.ui.internal.WorkbenchMessages;
 import org.zamia.SourceLocation;
+import org.zamia.SourceRanges;
 import org.zamia.Utils;
 import org.zamia.ZamiaLogger;
 import org.zamia.analysis.ReferenceSearchResult;
@@ -61,6 +62,7 @@ import org.zamia.analysis.ig.IGReferencesSearchThrough.SearchAssignment;
 import org.zamia.instgraph.IGObject.OIDir;
 import org.zamia.plugin.ZamiaPlugin;
 import org.zamia.plugin.ZamiaProjectMap;
+import org.zamia.plugin.views.sim.SimulatorView;
 
 
 /**
@@ -206,6 +208,28 @@ public class ZamiaSearchResultPage extends AbstractTextSearchViewPage {
     BackAction backAction = new BackAction();
     
 	protected void fillToolbar(final IToolBarManager tbm) {
+		tbm.appendToGroup(IContextMenuConstants.GROUP_SHOW, new Action("Highlight assignments", IAction.AS_CHECK_BOX) {
+			
+			public void run() {
+				ZamiaSearchResult root = (ZamiaSearchResult) getViewer().getInput();
+				
+				SourceRanges sources = SourceRanges.createRanges();
+				if (isChecked()) {
+					logger.info("root = "  + root + " " + root.getElements());
+					for (Object o : root.getElements())
+						if (o instanceof SearchAssignment) {
+							SearchAssignment a = (SearchAssignment) o;
+							logger.info(" " + a);
+							sources.add(a.getLocation(), 0);
+						}
+				} else 
+					sources = null;
+				
+				ZamiaEditor.setStaticSources(sources);
+				SimulatorView.highlightOpenEditors();
+			}
+			
+		});
 		tbm.appendToGroup(IContextMenuConstants.GROUP_SHOW, backAction);
 		super.fillToolbar(tbm);
 	}
@@ -226,8 +250,10 @@ public class ZamiaSearchResultPage extends AbstractTextSearchViewPage {
 		if (element instanceof SearchAssignment) {
 			SearchAssignment ref = (SearchAssignment) element;
 			Match[] def = this.getDisplayedMatches(ref.keyResult);
-			StructuredSelection sel = new StructuredSelection(def[0].getElement());
-			getViewer().setSelection(sel);
+			if (def.length != 0) { // in case of reading a constant, fObj and keyResult can be null
+				StructuredSelection sel = new StructuredSelection(def[0].getElement());
+				getViewer().setSelection(sel);
+			}
 		} 
 		
 		if (element instanceof ReferenceSearchResult) {

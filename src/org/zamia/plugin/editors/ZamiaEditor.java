@@ -463,7 +463,7 @@ public class ZamiaEditor extends ErrorMarkEditor implements IShowInTargetList {
 
 		SimulatorView simulatorView = findSimulatorView();
 		boolean doCoverage = simulatorView.doShowCoverage();
-		boolean doStaticAnalysis = simulatorView.doShowStaticAnalysis();
+		boolean doStaticAnalysis = STATICAL_SOURCES != null;
 
 		highlightText(doCoverage, doStaticAnalysis);
 
