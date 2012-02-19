@@ -27,6 +27,7 @@ import org.zamia.ExceptionLogger;
 import org.zamia.SourceLocation;
 import org.zamia.ZamiaLogger;
 import org.zamia.plugin.editors.ColorManager;
+import org.zamia.plugin.editors.ErrorMarkEditor;
 import org.zamia.plugin.editors.ZamiaPairMatcher;
 import org.zamia.vhdl.ast.VHDLNode;
 
@@ -36,7 +37,7 @@ import org.zamia.vhdl.ast.VHDLNode;
  * @author Guenter Bartsch
  * 
  */
-public class BuildPathEditor extends TextEditor {
+public class BuildPathEditor extends ErrorMarkEditor {
 
 	public final static ZamiaLogger logger = ZamiaLogger.getInstance();
 

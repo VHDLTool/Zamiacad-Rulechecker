@@ -18,12 +18,17 @@ import org.eclipse.core.resources.IFile;
 import org.eclipse.core.resources.IMarker;
 import org.eclipse.core.resources.IProject;
 import org.eclipse.core.resources.IResource;
+import org.eclipse.core.resources.IResourceChangeEvent;
+import org.eclipse.core.resources.IResourceChangeListener;
+import org.eclipse.core.resources.IResourceDelta;
+import org.eclipse.core.resources.ResourcesPlugin;
 import org.eclipse.core.runtime.CoreException;
 import org.eclipse.core.runtime.IPath;
 import org.eclipse.core.runtime.IProgressMonitor;
 import org.eclipse.core.runtime.IStatus;
 import org.eclipse.core.runtime.Status;
 import org.eclipse.core.runtime.jobs.Job;
+import org.eclipse.jdt.ui.ProblemsLabelDecorator;
 import org.eclipse.jface.action.IAction;
 import org.eclipse.jface.text.BadLocationException;
 import org.eclipse.jface.text.IDocument;
@@ -63,6 +68,7 @@ import org.eclipse.swt.widgets.Text;
 import org.eclipse.ui.IEditorInput;
 import org.eclipse.ui.IEditorPart;
 import org.eclipse.ui.IEditorSite;
+import org.eclipse.ui.IFileEditorInput;
 import org.eclipse.ui.IWorkbenchPage;
 import org.eclipse.ui.IWorkbenchPart;
 import org.eclipse.ui.IWorkbenchWindow;
@@ -110,7 +116,7 @@ import org.zamia.vhdl.ast.VHDLNode;
  * @author Guenter Bartsch
  * 
  */
-public class ZamiaEditor extends TextEditor implements IShowInTargetList {
+public class ZamiaEditor extends ErrorMarkEditor implements IShowInTargetList {
 
 	public final static ZamiaLogger logger = ZamiaLogger.getInstance();
 
@@ -1067,4 +1073,5 @@ public class ZamiaEditor extends TextEditor implements IShowInTargetList {
 			}
 		});
 	}
+	
 }
