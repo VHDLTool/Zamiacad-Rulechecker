@@ -459,7 +459,9 @@ public class ZamiaEditor extends ErrorMarkEditor implements IShowInTargetList {
 
 	public void highlightText(SourceFile aSF, boolean aDoCoverage, boolean aDoStaticAnalysis) {
 
-		IResource resource = (IResource) getEditorInput().getAdapter(IResource.class);
+		IResource resource = getResource(); 
+		if (resource == null)
+			return;
 
 		try {
 			resource.deleteMarkers(MarkerType.COVERAGE.id, false, IResource.DEPTH_INFINITE);

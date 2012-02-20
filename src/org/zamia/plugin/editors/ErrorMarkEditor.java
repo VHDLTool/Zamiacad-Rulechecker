@@ -12,28 +12,28 @@ import org.eclipse.swt.widgets.Display;
 import org.eclipse.ui.IFileEditorInput;
 import org.eclipse.ui.IWorkbenchPart;
 import org.eclipse.ui.editors.text.TextEditor;
+import org.eclipse.ui.ide.ResourceUtil;
 
 public class ErrorMarkEditor extends TextEditor {
 
+	IResource getResource() {
+		return ResourceUtil.getResource(getEditorInput());
+	}
+	
 	{
-		//titleDecorator.addListener(this);
 		ResourcesPlugin.getWorkspace().addResourceChangeListener(new IResourceChangeListener() {
 
 			public void resourceChanged(IResourceChangeEvent event) {
-				System.err.println("resourceChanged " + event);
+				IResource file = getResource();
 				IResourceDelta delta= event.getDelta();
-				if (getEditorInput() instanceof IFileEditorInput) {
-					IFile file = ((IFileEditorInput)getEditorInput()).getFile();
-					if (delta != null && file != null) {
-						IResourceDelta child = delta.findMember(file.getFullPath());
-						if (child != null && (child.getFlags() & IResourceDelta.MARKERS) != 0) {
-							Display.getDefault().syncExec(new Runnable() {
-								public void run() {
-							
-									firePropertyChange(IWorkbenchPart.PROP_TITLE);
-								}
-							});
-						}
+				if (delta != null && file != null) {
+					IResourceDelta child = delta.findMember(file.getFullPath());
+					if (child != null && (child.getFlags() & IResourceDelta.MARKERS) != 0) {
+						Display.getDefault().syncExec(new Runnable() {
+							public void run() {
+								firePropertyChange(IWorkbenchPart.PROP_TITLE);
+							}
+						});
 					}
 				}
 			}
@@ -42,8 +42,8 @@ public class ErrorMarkEditor extends TextEditor {
 	}
     public Image getTitleImage() {
     	final Image image = super.getTitleImage();
-    	final IResource file = ((IFileEditorInput)getEditorInput()).getFile();
-		return new ProblemsLabelDecorator().decorateImage(image, file);
+    	IResource file = getResource();
+    	return (file != null) ? new ProblemsLabelDecorator().decorateImage(image, file) : image;  
     }
     
 }
