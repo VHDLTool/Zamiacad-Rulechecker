@@ -421,6 +421,11 @@ public class ZamiaEditor extends ErrorMarkEditor implements IShowInTargetList {
 		//		styledText.setLineSpacing(2);
 	}
 
+	/**Overriden to disable editing of annotated text.*/
+	public boolean isEditable() {
+		return !(fIsAnnotated || fIsAnnotating) && super.isEditable();
+	}
+	
 	private void setFillLayout(Control comp, boolean fillVertical) {
 		comp.setLayoutData(new GridData(GridData.FILL, GridData.FILL, true, fillVertical));
 	}
@@ -907,6 +912,10 @@ public class ZamiaEditor extends ErrorMarkEditor implements IShowInTargetList {
 
 		job.setPriority(Job.SHORT);
 		job.schedule();
+		
+		//refresh editable state
+		updateState(getEditorInput());
+		
 	}
 
 	private void computeCursorPos(IDocument originalDocument) {
@@ -973,7 +982,7 @@ public class ZamiaEditor extends ErrorMarkEditor implements IShowInTargetList {
 
 			setCursor(editor.getDocument(), editor);
 		}
-
+		
 	}
 
 	private void setCursor(IDocument document, TextEditor editor) {
