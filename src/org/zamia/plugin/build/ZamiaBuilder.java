@@ -30,6 +30,7 @@ import org.eclipse.core.runtime.IPath;
 import org.eclipse.core.runtime.IProgressMonitor;
 import org.eclipse.core.runtime.NullProgressMonitor;
 import org.eclipse.core.runtime.QualifiedName;
+import org.eclipse.core.runtime.Status;
 import org.eclipse.emf.common.notify.Adapter.Internal;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.widgets.Display;
@@ -40,6 +41,7 @@ import org.zamia.BuildPathEntry;
 import org.zamia.ERManager;
 import org.zamia.ExceptionLogger;
 import org.zamia.SourceFile;
+import org.zamia.ZamiaException;
 import org.zamia.ZamiaLogger;
 import org.zamia.ZamiaProject;
 import org.zamia.ZamiaProjectBuilder;
@@ -167,6 +169,18 @@ public class ZamiaBuilder extends IncrementalProjectBuilder {
 			return true;
 		}
 
+	}
+	
+	/**The full build is always called after clean. It also does the cleans up. However, it
+	 * is often fails at ERManager.removeErrors, leaving project in bad state. We are stuck then. 
+	 * We could make the cleanup safer by catching the exceptions in the ERManager. But, lets do the 
+	 * clean up first, right here, where it is supposed to be. */
+	protected void clean(IProgressMonitor monitor) throws CoreException {
+		try {
+			ZamiaProjectMap.getZamiaProject(getProject()).clean();
+		} catch (Exception e) {
+			throw new CoreException(new Status(Status.ERROR, ZamiaPlugin.PLUGIN_ID, "Failed to clean up the project. ", e));
+		}
 	}
 	
 	@SuppressWarnings("unchecked")
