@@ -236,10 +236,10 @@ public class ShowReferencesDialog extends Dialog implements SelectionListener {
 
 		// show checkboxes and hide radio buttons
 		boolean initialButtKind = getValue(Option.AssignThrough);
-		setVisible(rwReserved[0] = newButton(pathPanel, "Driven only", Option.WritesOnly, initialButtKind ? SWT.CHECK : SWT.RADIO, true), false);
-		setVisible(rwReserved[1] = newButton(pathPanel, "Read only", Option.ReadsOnly, initialButtKind ? SWT.CHECK : SWT.RADIO, true), false);
-		newButton(pathPanel, "Driven only", Option.WritesOnly, initialButtKind ? SWT.RADIO : SWT.CHECK, true);
-		newButton(pathPanel, "Read only", Option.ReadsOnly, initialButtKind ? SWT.RADIO : SWT.CHECK, true);
+		setVisible(rwReserved[0] = newButton(pathPanel, "Drivers", Option.WritesOnly, initialButtKind ? SWT.CHECK : SWT.RADIO, true), false);
+		setVisible(rwReserved[1] = newButton(pathPanel, "Readers", Option.ReadsOnly, initialButtKind ? SWT.CHECK : SWT.RADIO, true), false);
+		newButton(pathPanel, "Drivers", Option.WritesOnly, initialButtKind ? SWT.RADIO : SWT.CHECK, true);
+		newButton(pathPanel, "Readers", Option.ReadsOnly, initialButtKind ? SWT.RADIO : SWT.CHECK, true);
 		
 		newCheckBox(pathPanel, "Trace aliased signals", Option.SupportAlias);
 		getButton(Option.SupportAlias).setEnabled(false);
