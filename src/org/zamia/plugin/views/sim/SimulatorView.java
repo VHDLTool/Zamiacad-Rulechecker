@@ -77,6 +77,7 @@ import org.eclipse.swt.widgets.CoolBar;
 import org.eclipse.swt.widgets.CoolItem;
 import org.eclipse.swt.widgets.Display;
 import org.eclipse.swt.widgets.Event;
+import org.eclipse.swt.widgets.FileDialog;
 import org.eclipse.swt.widgets.Label;
 import org.eclipse.swt.widgets.Listener;
 import org.eclipse.swt.widgets.Menu;
@@ -91,9 +92,6 @@ import org.eclipse.swt.widgets.Tree;
 import org.eclipse.swt.widgets.TreeColumn;
 import org.eclipse.swt.widgets.TreeItem;
 import org.eclipse.ui.IEditorPart;
-import org.eclipse.ui.IEditorReference;
-import org.eclipse.ui.IWorkbenchPage;
-import org.eclipse.ui.IWorkbenchWindow;
 import org.eclipse.ui.part.ViewPart;
 import org.zamia.ExceptionLogger;
 import org.zamia.SourceLocation;
@@ -103,6 +101,7 @@ import org.zamia.ToplevelPath;
 import org.zamia.ZamiaException;
 import org.zamia.ZamiaLogger;
 import org.zamia.ZamiaProject;
+import org.zamia.cli.jython.ZCJInterpreter;
 import org.zamia.instgraph.IGItem;
 import org.zamia.instgraph.IGManager;
 import org.zamia.instgraph.IGRecordField;
@@ -149,7 +148,7 @@ public class SimulatorView extends ViewPart implements IGISimObserver {
 	
 	private TraceDialog fTraceDialog;
 
-	private ToolItem fTraceTI, fUnTraceTI, fNewLineTI, fRunTI, fRestartTI, fJobTI, fPrevTransTI, fNextTransTI, fGotoCycleTI, fCoverageTI, fStaticAnalysisTI;
+	private ToolItem fTraceTI, fUnTraceTI, fNewLineTI, fRunTI, fRestartTI, fJobTI, fPrevTransTI, fNextTransTI, fGotoCycleTI, fCoverageTI, fStaticAnalysisTI, fScriptTI;
 
 	private SimRunnerConfig fConfig;
 
@@ -504,6 +503,17 @@ public class SimulatorView extends ViewPart implements IGISimObserver {
 		fStaticAnalysisTI.addSelectionListener(new SelectionAdapter() {
 			public void widgetSelected(SelectionEvent e) {
 				doStaticAnalysis();
+			}
+		});
+
+		fScriptTI = new ToolItem(tb, SWT.PUSH);
+		icon = ZamiaPlugin.getImage("/share/images/process.gif");
+		fScriptTI.setImage(icon);
+		fScriptTI.setToolTipText("Run debug script");
+		fScriptTI.setEnabled(false);
+		fScriptTI.addSelectionListener(new SelectionAdapter() {
+			public void widgetSelected(SelectionEvent e) {
+				doScript();
 			}
 		});
 
@@ -1483,6 +1493,7 @@ public class SimulatorView extends ViewPart implements IGISimObserver {
 							fUnTraceTI.setEnabled(false);
 							fNewLineTI.setEnabled(false);
 							fCoverageTI.setEnabled(false);
+							fScriptTI.setEnabled(false);
 							fRunTI.setEnabled(false);
 							fRestartTI.setEnabled(false);
 
@@ -1504,9 +1515,7 @@ public class SimulatorView extends ViewPart implements IGISimObserver {
 				Toplevel tl = new Toplevel(tlDUUID, null);
 				ToplevelPath tlp = new ToplevelPath(tl, new PathName(""));
 
-				IProject prj = fConfig.getProject();
-
-				ZamiaProject zprj = ZamiaProjectMap.getZamiaProject(prj);
+				ZamiaProject zprj = getZamiaProject();
 
 				if (sim == SimRunnerConfig.SIM_BUILTIN) {
 
@@ -1623,6 +1632,7 @@ public class SimulatorView extends ViewPart implements IGISimObserver {
 							fUnTraceTI.setEnabled(true);
 							fNewLineTI.setEnabled(true);
 							fCoverageTI.setEnabled(true);
+							fScriptTI.setEnabled(true);
 							fRunTI.setEnabled(fSimulator.isSimulator());
 							fRestartTI.setEnabled(fSimulator.isSimulator());
 
@@ -1645,6 +1655,7 @@ public class SimulatorView extends ViewPart implements IGISimObserver {
 							fUnTraceTI.setEnabled(false);
 							fNewLineTI.setEnabled(false);
 							fCoverageTI.setEnabled(false);
+							fScriptTI.setEnabled(false);
 							fRunTI.setEnabled(false);
 							fRestartTI.setEnabled(false);
 
@@ -1988,24 +1999,6 @@ public class SimulatorView extends ViewPart implements IGISimObserver {
 		SourceRanges coveredSources = doShowCoverage() ? sim.collectCoveredSources() : null;
 
 		ZamiaEditor.setCoveredSources(coveredSources);
-
-		highlightOpenEditors();
-	}
-
-	private void highlightOpenEditors() {
-
-		IWorkbenchWindow window = ZamiaPlugin.getDefault().getWorkbench().getActiveWorkbenchWindow();
-
-		IWorkbenchPage page = window.getActivePage();
-
-		for (IEditorReference ref : page.getEditorReferences()) {
-			IEditorPart openEditor = ref.getEditor(false);
-
-			if (openEditor instanceof ZamiaEditor) {
-				ZamiaEditor zamiaEditor = (ZamiaEditor) openEditor;
-				zamiaEditor.highlight();
-			}
-		}
 	}
 
 	private void doStaticAnalysis() {
@@ -2018,7 +2011,7 @@ public class SimulatorView extends ViewPart implements IGISimObserver {
 
 		} else {
 
-			highlightOpenEditors();
+			ZamiaEditor.highlightOpenEditors();
 
 		}
 
@@ -2027,10 +2020,7 @@ public class SimulatorView extends ViewPart implements IGISimObserver {
 	public void setStaticSources(final SourceRanges aStaticSources) {
 		Display.getDefault().asyncExec(new Runnable() {
 			public void run() {
-
 				ZamiaEditor.setStaticSources(aStaticSources);
-
-				highlightOpenEditors();
 			}
 		});
 	}
@@ -2041,6 +2031,64 @@ public class SimulatorView extends ViewPart implements IGISimObserver {
 
 	public boolean doShowStaticAnalysis() {
 		return fStaticAnalysisTI.getSelection();
+	}
+
+	public void doScript() {
+
+		ZamiaProject zprj = getZamiaProject();
+
+		FileDialog dialog = new FileDialog(fShell, SWT.OPEN);
+		dialog.setText("Open script file");
+		dialog.setFilterPath(zprj.fBasePath.toString());
+		dialog.setFilterExtensions(new String[]{"*.py"});
+		String selected = dialog.open();
+
+		if (selected == null) {
+			return;
+		}
+
+		ZCJInterpreter interpreter = zprj.getZCJ();
+		if (interpreter == null) {
+			zprj.initJythonInterpreter();
+			interpreter = zprj.getZCJ();
+			if (interpreter == null) {
+				MessageBox msg = new MessageBox(fShell, SWT.OK | SWT.ICON_ERROR);
+				msg.setText("Script execution failure");
+				msg.setMessage("Could not start Jython interpreter.\n    See log file for details.");
+				msg.open();
+				return;
+			}
+		}
+
+        ScriptJob job = new ScriptJob(interpreter, selected);
+        job.setPriority(Job.LONG);
+        job.schedule();
+    }
+
+    private class ScriptJob extends Job {
+
+        private final ZCJInterpreter fInterpreter;
+        private final String fScriptFile;
+
+        public ScriptJob(ZCJInterpreter aInterpreter, String aScriptFile) {
+            super("Script execution...");
+            fInterpreter = aInterpreter;
+            fScriptFile = aScriptFile;
+        }
+
+        @Override
+        protected IStatus run(IProgressMonitor iProgressMonitor) {
+            try {
+                fInterpreter.evalFile(fScriptFile);
+            } catch (Throwable e) {
+                el.logException(e);
+            }
+            return Status.OK_STATUS;
+        }
+    }
+
+	private ZamiaProject getZamiaProject() {
+		return ZamiaProjectMap.getZamiaProject(fConfig.getProject());
 	}
 
 	SimRunnerConfig getConfig() {
@@ -3299,7 +3347,7 @@ public class SimulatorView extends ViewPart implements IGISimObserver {
 			
 			NewSearchUI.activateSearchResultView();
 
-			ZamiaProject zprj = ZamiaProjectMap.getZamiaProject(fConfig.getProject());
+			ZamiaProject zprj = getZamiaProject();
 
 			Toplevel tl = new Toplevel(fConfig.getToplevel(), null);
 

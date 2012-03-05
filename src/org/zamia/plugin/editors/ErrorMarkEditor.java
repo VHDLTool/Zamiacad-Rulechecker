@@ -1,6 +1,5 @@
 package org.zamia.plugin.editors;
 
-import org.eclipse.core.resources.IFile;
 import org.eclipse.core.resources.IResource;
 import org.eclipse.core.resources.IResourceChangeEvent;
 import org.eclipse.core.resources.IResourceChangeListener;
@@ -9,7 +8,6 @@ import org.eclipse.core.resources.ResourcesPlugin;
 import org.eclipse.jdt.ui.ProblemsLabelDecorator;
 import org.eclipse.swt.graphics.Image;
 import org.eclipse.swt.widgets.Display;
-import org.eclipse.ui.IFileEditorInput;
 import org.eclipse.ui.IWorkbenchPart;
 import org.eclipse.ui.editors.text.TextEditor;
 import org.eclipse.ui.ide.ResourceUtil;
