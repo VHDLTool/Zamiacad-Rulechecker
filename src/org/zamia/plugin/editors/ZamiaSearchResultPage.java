@@ -60,6 +60,7 @@ import org.zamia.SourceLocation;
 import org.zamia.SourceRanges;
 import org.zamia.Utils;
 import org.zamia.ZamiaLogger;
+import org.zamia.ZamiaProject;
 import org.zamia.analysis.ReferenceSearchResult;
 import org.zamia.analysis.ReferenceSite;
 import org.zamia.analysis.ig.IGAssignmentsSearch.SearchAssignment;
@@ -246,7 +247,13 @@ public class ZamiaSearchResultPage extends AbstractTextSearchViewPage {
 		//		fContentProvider = new ContentProvider();
 		//		viewer.setContentProvider(fContentProvider);
 	}
-
+	
+	private ZamiaProject getZamiaProject() {
+		ZamiaSearchResult searchResult = (ZamiaSearchResult) fContentProvider.fSearchResult;
+		ReferencesSearchQuery query = (ReferencesSearchQuery) searchResult.fQuery;
+		return query.fZPrj;
+	}
+	
 	public void showMatch(Match match, int offset, int length, boolean activate) throws PartInitException {
 
 		Object element = match.getElement();
@@ -265,7 +272,7 @@ public class ZamiaSearchResultPage extends AbstractTextSearchViewPage {
 
 			ReferenceSearchResult rss = (ReferenceSearchResult) element;
 
-			IProject prj = ZamiaProjectMap.getProject(rss.getZamiaProject());
+			IProject prj = ZamiaProjectMap.getProject(getZamiaProject());
 			
 			SourceLocation location = rss.getLocation();
 			if (location != null) {
@@ -350,17 +357,6 @@ public class ZamiaSearchResultPage extends AbstractTextSearchViewPage {
 			return null;
 		}
 
-		public String getText(Object object) {
-			throw new RuntimeException("Use getStyledText() instead of getText()");
-//			if (object instanceof IFile) {
-//				IFile ifile = (IFile) object;
-//
-//				return ifile.getProjectRelativePath().toOSString();
-//
-//			}
-//			return object.toString();
-		}
-
 		@Override
 		public StyledString getStyledText(Object element) {
 			//System.err.println("generating style text for " + element + " (" + element.getClass().getName() + ")");
@@ -368,8 +364,11 @@ public class ZamiaSearchResultPage extends AbstractTextSearchViewPage {
 				ReferenceSite rs = (ReferenceSite) element;
 				if (rs.getDBID() == 0)
 					return  new StyledString("assign a constant");
-				IGObject igObj = (IGObject) rs.getZamiaProject().getZDB().load(rs.getDBID()); 
-				return new StyledString(rs.getRefType() + ": " + igObj.getId()).append(new StyledString(" : " + igObj.getType().toString() + " - " + rs.getPath(), StyledString.QUALIFIER_STYLER));
+				IGObject igObj = (IGObject) getZamiaProject().getZDB().load(rs.getDBID());
+				String prefix_num = rs.getPrefix();
+				return new StyledString((prefix_num == null ? "    " : prefix_num) + rs.getRefType() + ": ", StyledString.QUALIFIER_STYLER)
+					.append(igObj.getId()) .append(new StyledString(" : " + igObj.getType().toString() + 
+						" - " + rs.getPath(), StyledString.QUALIFIER_STYLER));
 			}
 			return new StyledString(element.toString());
 		}

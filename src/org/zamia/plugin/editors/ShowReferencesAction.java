@@ -17,10 +17,10 @@ import org.eclipse.swt.widgets.Shell;
 import org.eclipse.ui.IWorkbenchWindow;
 import org.zamia.ASTNode;
 import org.zamia.ToplevelPath;
+import org.zamia.analysis.ReferenceSite;
 import org.zamia.analysis.SourceLocation2AST;
 import org.zamia.analysis.ast.ASTDeclarationSearch;
 import org.zamia.analysis.ig.IGAssignmentsSearch;
-import org.zamia.analysis.ig.IGAssignmentsSearch.SearchResultEntrySite;
 import org.zamia.instgraph.IGObject;
 import org.zamia.plugin.ZamiaPlugin;
 import org.zamia.plugin.editors.ShowReferencesDialog.Option;
@@ -112,10 +112,10 @@ class ExtendedReferencesSearchQuery extends ReferencesSearchQuery {
 			IGAssignmentsSearch rs = new IGAssignmentsSearch(fZPrj);
 	
 	
-			Map<IGObject, SearchResultEntrySite> searches = rs.assignmentThroughSearch(object, path, fSearchUpward, fSearchDownward, fWritersOnly, fReadersOnly);
+			Map<Long, ReferenceSite> searches = rs.assignmentThroughSearch(object, path, fSearchUpward, fSearchDownward, fWritersOnly, fReadersOnly);
 	
-			for (IGObject key : searches.keySet()) {
-				mergeResults(key, searches.get(key).restOfResults);
+			for (Long key : searches.keySet()) {
+				mergeResults(key, searches.get(key));
 			}
 		} else 
 			super.igSearch(object, path);

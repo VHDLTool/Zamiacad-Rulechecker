@@ -194,7 +194,7 @@ public class ReferencesSearchQuery implements ISearchQuery {
 
 						if (fDeclOnly) {
 
-							ReferenceSearchResult filteredResults = new ReferenceSearchResult("Initial Signal Declarations of " + declaration, declaration.getLocation(), declaration.toString().length(), zprj);
+							ReferenceSearchResult filteredResults = new ReferenceSearchResult("Initial Signal Declarations of " + declaration, declaration.getLocation(), declaration.toString().length());
 
 							int n = results.getNumChildren();
 
@@ -232,7 +232,7 @@ public class ReferencesSearchQuery implements ISearchQuery {
 
 	protected void mergeResults(Object aObject, ReferenceSearchResult aRSR) {
 		if (aRSR != null) {
-			aRSR.dump(1, System.err);
+			//aRSR.dump(1, System.err);
 			addMatches(aRSR);
 		} else {
 			ZamiaPlugin.showError(null, "IG-based reference search (" + aObject + ") failed", "Search returned no result.", "");
