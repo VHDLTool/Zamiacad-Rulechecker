@@ -193,7 +193,7 @@ public class ZamiaProjectMap {
 				while (zprj == null) {
 
 					try {
-						zprj = new ZamiaProject(aProject.getName(), new EclipseProjectFileIterator(baseDir, aProject), bpsf, null);
+						zprj = new ZamiaProject(aProject.getName(), new EclipseProjectFileIterator(baseDir, aProject), EclipseLocator.getInstance(), bpsf, null);
 						
 					} catch (ZDBException e) {
 

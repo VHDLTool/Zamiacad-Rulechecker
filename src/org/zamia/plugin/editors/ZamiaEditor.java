@@ -808,6 +808,10 @@ public class ZamiaEditor extends ErrorMarkEditor implements IShowInTargetList {
 		return fZPrj;
 	}
 
+	public SourceFile getSourceFile() {
+		return fSF;
+	}
+
 	public SimulatorView findSimulatorView() {
 
 		if (fSimView == null) {

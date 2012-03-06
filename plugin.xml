@@ -301,6 +301,15 @@
        			<selection class="org.eclipse.jface.text.ITextSelection">
        			</selection>
        		</action>
+            <action label="Compile with GHDL"
+                class="org.zamia.plugin.editors.CompileWithGHDLAction"
+                menubarPath="additions"
+                definitionId="org.zamia.commands.compileWithGHDL"
+                enablesFor="1"
+                id="org.zamia.editors.CompileWithGHDLAction">
+                <selection class="org.eclipse.jface.text.ITextSelection">
+                </selection>
+            </action>
          	<action label="Open Declaration"
          		class="org.zamia.plugin.editors.OpenDeclarationAction"
          		menubarPath="staticAnalysisMenu/staticAnalysisGroup"
@@ -360,6 +369,14 @@
        		</action>
      </editorContribution>
      <editorContribution id="org.zamia.actions" targetID="org.zamia.editors.VHDLEditor">
+            <action
+                label="Compile with GHDL"
+                class="org.zamia.plugin.editors.CompileWithGHDLAction"
+                definitionId="org.zamia.commands.compileWithGHDL"
+                id="org.zamia.editors.CompileWithGHDLAction">
+            </action>
+     </editorContribution>
+     <editorContribution id="org.zamia.actions" targetID="org.zamia.editors.VHDLEditor">
          	<action 
          	    label="OpenDeclaration"
          		class="org.zamia.plugin.editors.OpenDeclarationAction"
@@ -410,6 +427,12 @@
        description="(Un-) Comments the line"
        categoryId="org.zamia.category.source"
        id="org.zamia.commands.comment">
+     </command>
+     <command
+       name="Compile with GHDL Command"
+       description="Compile file with GHDL to find syntax errors"
+       categoryId="org.zamia.category.source"
+       id="org.zamia.commands.compileWithGHDL">
      </command>
      <command
        name="Open Declaration"
@@ -491,7 +514,12 @@
 		   schemeId="org.eclipse.ui.defaultAcceleratorConfiguration" 
 		   contextId="org.zamia.plugin.ZamiaEditorScope">
 	   </key>
-		 <key sequence="F3" 
+		 <key sequence="M1+M2+C"
+		   commandId="org.zamia.commands.compileWithGHDL"
+		   schemeId="org.eclipse.ui.defaultAcceleratorConfiguration"
+		   contextId="org.zamia.plugin.ZamiaEditorScope">
+	   </key>
+		 <key sequence="F3"
 		   commandId="org.zamia.commands.openDeclaration" 
 		   schemeId="org.eclipse.ui.defaultAcceleratorConfiguration" 
 		   contextId="org.zamia.plugin.ZamiaEditorScope">
