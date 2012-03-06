@@ -71,6 +71,8 @@ import org.eclipse.ui.IWorkbenchWindow;
 import org.eclipse.ui.PartInitException;
 import org.eclipse.ui.editors.text.TextEditor;
 import org.eclipse.ui.ide.ResourceUtil;
+import org.eclipse.ui.internal.WorkbenchPlugin;
+import org.eclipse.ui.internal.misc.StatusUtil;
 import org.eclipse.ui.navigator.resources.ProjectExplorer;
 import org.eclipse.ui.part.FileEditorInput;
 import org.eclipse.ui.part.IShowInTargetList;
@@ -820,6 +822,12 @@ public class ZamiaEditor extends ErrorMarkEditor implements IShowInTargetList {
 			IWorkbenchPage page = window.getActivePage();
 
 			fSimView = (SimulatorView) page.findView("org.zamia.plugin.views.sim.SimulatorView");
+			if (fSimView == null)
+				try {
+					fSimView  = (SimulatorView) page.showView("org.zamia.plugin.views.sim.SimulatorView");
+				} catch (PartInitException e) {
+					ExceptionLogger.getInstance().logException(e);
+				}
 		}
 
 		return fSimView;
