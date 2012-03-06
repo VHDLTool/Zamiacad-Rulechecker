@@ -19,8 +19,8 @@ import org.zamia.ASTNode;
 import org.zamia.ToplevelPath;
 import org.zamia.analysis.SourceLocation2AST;
 import org.zamia.analysis.ast.ASTDeclarationSearch;
-import org.zamia.analysis.ig.IGReferencesSearchThrough;
-import org.zamia.analysis.ig.IGReferencesSearchThrough.SearchResultEntrySite;
+import org.zamia.analysis.ig.IGAssignmentsSearch;
+import org.zamia.analysis.ig.IGAssignmentsSearch.SearchResultEntrySite;
 import org.zamia.instgraph.IGObject;
 import org.zamia.plugin.ZamiaPlugin;
 import org.zamia.plugin.editors.ShowReferencesDialog.Option;
@@ -109,7 +109,7 @@ class ExtendedReferencesSearchQuery extends ReferencesSearchQuery {
 	protected void igSearch(IGObject object, ToplevelPath path) {
 		
 		if (fFollowAssignments) {
-			IGReferencesSearchThrough rs = new IGReferencesSearchThrough(fZPrj);
+			IGAssignmentsSearch rs = new IGAssignmentsSearch(fZPrj);
 	
 	
 			Map<IGObject, SearchResultEntrySite> searches = rs.assignmentThroughSearch(object, path, fSearchUpward, fSearchDownward, fWritersOnly, fReadersOnly);

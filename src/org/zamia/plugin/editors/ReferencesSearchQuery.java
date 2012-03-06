@@ -36,7 +36,7 @@ import org.zamia.analysis.SourceLocation2IG;
 import org.zamia.analysis.ast.ASTDeclarationSearch;
 import org.zamia.analysis.ast.ASTReferencesSearch;
 import org.zamia.analysis.ig.IGReferencesSearch;
-import org.zamia.analysis.ig.IGReferencesSearchThrough;
+import org.zamia.analysis.ig.IGAssignmentsSearch;
 import org.zamia.instgraph.IGItem;
 import org.zamia.instgraph.IGObject;
 import org.zamia.instgraph.IGOperationObject;

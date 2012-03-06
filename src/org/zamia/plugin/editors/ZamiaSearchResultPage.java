@@ -13,6 +13,7 @@ import java.util.List;
 
 import org.eclipse.core.resources.IFile;
 import org.eclipse.core.resources.IProject;
+import org.eclipse.jdt.internal.ui.viewsupport.ColoringLabelProvider;
 import org.eclipse.jface.action.Action;
 import org.eclipse.jface.action.ContributionItem;
 import org.eclipse.jface.action.IAction;
@@ -20,6 +21,7 @@ import org.eclipse.jface.action.IContributionItem;
 import org.eclipse.jface.action.IContributionManager;
 import org.eclipse.jface.action.IMenuManager;
 import org.eclipse.jface.action.IToolBarManager;
+import org.eclipse.jface.viewers.DelegatingStyledCellLabelProvider.IStyledLabelProvider;
 import org.eclipse.jface.viewers.ILabelProvider;
 import org.eclipse.jface.viewers.ISelectionChangedListener;
 import org.eclipse.jface.viewers.IStructuredSelection;
@@ -27,6 +29,8 @@ import org.eclipse.jface.viewers.ITreeContentProvider;
 import org.eclipse.jface.viewers.LabelProvider;
 import org.eclipse.jface.viewers.SelectionChangedEvent;
 import org.eclipse.jface.viewers.StructuredSelection;
+import org.eclipse.jface.viewers.StyledString;
+import org.eclipse.jface.viewers.StyledString.Styler;
 import org.eclipse.jface.viewers.TableViewer;
 import org.eclipse.jface.viewers.TreeViewer;
 import org.eclipse.jface.viewers.Viewer;
@@ -58,7 +62,8 @@ import org.zamia.Utils;
 import org.zamia.ZamiaLogger;
 import org.zamia.analysis.ReferenceSearchResult;
 import org.zamia.analysis.ReferenceSite;
-import org.zamia.analysis.ig.IGReferencesSearchThrough.SearchAssignment;
+import org.zamia.analysis.ig.IGAssignmentsSearch.SearchAssignment;
+import org.zamia.instgraph.IGObject;
 import org.zamia.instgraph.IGObject.OIDir;
 import org.zamia.plugin.ZamiaPlugin;
 import org.zamia.plugin.ZamiaProjectMap;
@@ -199,7 +204,7 @@ public class ZamiaSearchResultPage extends AbstractTextSearchViewPage {
 
 	protected void configureTreeViewer(TreeViewer viewer) {
 		viewer.setComparator(createViewerComparator());
-		viewer.setLabelProvider(createLabelProvider());
+        viewer.setLabelProvider(new ColoringLabelProvider(createLabelProvider()));
 		fContentProvider = new ZamiaSearchTreeContentProvider();
 		viewer.setContentProvider(fContentProvider);
 		viewer.addSelectionChangedListener(backAction);
@@ -273,7 +278,7 @@ public class ZamiaSearchResultPage extends AbstractTextSearchViewPage {
 		}
 	}
 
-	static class SearchLabelProvider extends LabelProvider {
+	class SearchLabelProvider extends LabelProvider implements IStyledLabelProvider {
 
 		private final Image searchIcon;
 
@@ -346,18 +351,31 @@ public class ZamiaSearchResultPage extends AbstractTextSearchViewPage {
 		}
 
 		public String getText(Object object) {
+			throw new RuntimeException("Use getStyledText() instead of getText()");
+//			if (object instanceof IFile) {
+//				IFile ifile = (IFile) object;
+//
+//				return ifile.getProjectRelativePath().toOSString();
+//
+//			}
+//			return object.toString();
+		}
 
-			if (object instanceof IFile) {
-				IFile ifile = (IFile) object;
-
-				return ifile.getProjectRelativePath().toOSString();
-
+		@Override
+		public StyledString getStyledText(Object element) {
+			//System.err.println("generating style text for " + element + " (" + element.getClass().getName() + ")");
+			if (element instanceof ReferenceSite) {
+				ReferenceSite rs = (ReferenceSite) element;
+				if (rs.getDBID() == 0)
+					return  new StyledString("assign a constant");
+				IGObject igObj = (IGObject) rs.getZamiaProject().getZDB().load(rs.getDBID()); 
+				return new StyledString(rs.getRefType() + ": " + igObj.getId()).append(new StyledString(" : " + igObj.getType().toString() + " - " + rs.getPath(), StyledString.QUALIFIER_STYLER));
 			}
-			return object.toString();
+			return new StyledString(element.toString());
 		}
 	}
 	
-	protected ILabelProvider createLabelProvider() {
+	protected IStyledLabelProvider createLabelProvider() {
 		return new SearchLabelProvider();
 	}
 
