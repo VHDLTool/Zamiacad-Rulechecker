@@ -34,7 +34,7 @@ public class ZamiaSearchResult extends AbstractTextSearchResult implements IEdit
 
 	public final static ZamiaLogger logger = ZamiaLogger.getInstance();
 
-	private final ISearchQuery fQuery;
+	final ISearchQuery fQuery;
 
 	// private final Map fElementsToParticipants;
 
@@ -88,7 +88,7 @@ public class ZamiaSearchResult extends AbstractTextSearchResult implements IEdit
 		// return null;
 		// }
 		
-		logger.debug("ZamiaSearchResult.getFile(%s)", element);
+		//logger.debug("ZamiaSearchResult.getFile(%s)", element);
 		
 		if (element instanceof IFile)
 			return (IFile) element;

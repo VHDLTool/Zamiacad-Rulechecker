@@ -92,6 +92,9 @@ import org.eclipse.swt.widgets.Tree;
 import org.eclipse.swt.widgets.TreeColumn;
 import org.eclipse.swt.widgets.TreeItem;
 import org.eclipse.ui.IEditorPart;
+import org.eclipse.ui.IEditorReference;
+import org.eclipse.ui.IWorkbenchPage;
+import org.eclipse.ui.IWorkbenchWindow;
 import org.eclipse.ui.part.ViewPart;
 import org.zamia.ExceptionLogger;
 import org.zamia.SourceLocation;
@@ -1999,6 +2002,25 @@ public class SimulatorView extends ViewPart implements IGISimObserver {
 		SourceRanges coveredSources = doShowCoverage() ? sim.collectCoveredSources() : null;
 
 		ZamiaEditor.setCoveredSources(coveredSources);
+
+		highlightOpenEditors();
+	}
+
+	public static void highlightOpenEditors() {
+
+		IWorkbenchWindow window = ZamiaPlugin.getDefault().getWorkbench().getActiveWorkbenchWindow();
+
+		IWorkbenchPage page = window.getActivePage();
+
+		for (IEditorReference ref : page.getEditorReferences()) {
+			IEditorPart openEditor = ref.getEditor(false);
+
+			if (openEditor instanceof ZamiaEditor) {
+				ZamiaEditor zamiaEditor = (ZamiaEditor) openEditor;
+				zamiaEditor.highlight();
+			}
+		}
+
 	}
 
 	private void doStaticAnalysis() {
