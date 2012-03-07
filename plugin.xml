@@ -813,6 +813,7 @@
                id="org.zamia.plugin.views.resources.ZamiaActionProvider"
                overrides="org.eclipse.ui.navigator.resources.actions.EditActions"/>
       </navigatorContent>
+      <commonWizard type="new" wizardId="org.zamia.plugin.ui.NewZamiaProjectWizard"><enablement></enablement> </commonWizard>      
   	  <commonFilter activeByDefault="true" 
 	  	  name="zamiaCAD: Hide ZDB / .du files"
 	  	  description="zamiaCAD: Hide ZDB / .du files"
