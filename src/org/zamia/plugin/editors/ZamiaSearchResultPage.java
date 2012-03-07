@@ -9,10 +9,13 @@
 package org.zamia.plugin.editors;
 
 import java.util.ArrayList;
+import java.util.Comparator;
 import java.util.List;
 
 import org.eclipse.core.resources.IFile;
 import org.eclipse.core.resources.IProject;
+import org.eclipse.jdt.internal.ui.JavaPlugin;
+import org.eclipse.jdt.internal.ui.JavaPluginImages;
 import org.eclipse.jdt.internal.ui.viewsupport.ColoringLabelProvider;
 import org.eclipse.jface.action.Action;
 import org.eclipse.jface.action.ContributionItem;
@@ -21,6 +24,9 @@ import org.eclipse.jface.action.IContributionItem;
 import org.eclipse.jface.action.IContributionManager;
 import org.eclipse.jface.action.IMenuManager;
 import org.eclipse.jface.action.IToolBarManager;
+import org.eclipse.jface.resource.ImageDescriptor;
+import org.eclipse.jface.util.IOpenEventListener;
+import org.eclipse.jface.util.OpenStrategy;
 import org.eclipse.jface.viewers.DelegatingStyledCellLabelProvider.IStyledLabelProvider;
 import org.eclipse.jface.viewers.ILabelProvider;
 import org.eclipse.jface.viewers.ISelectionChangedListener;
@@ -46,6 +52,8 @@ import org.eclipse.swt.graphics.Image;
 import org.eclipse.swt.widgets.Button;
 import org.eclipse.swt.widgets.Composite;
 import org.eclipse.swt.widgets.CoolBar;
+import org.eclipse.swt.widgets.Event;
+import org.eclipse.swt.widgets.Listener;
 import org.eclipse.swt.widgets.Menu;
 import org.eclipse.swt.widgets.ToolBar;
 import org.eclipse.ui.IEditorPart;
@@ -63,6 +71,7 @@ import org.zamia.ZamiaLogger;
 import org.zamia.ZamiaProject;
 import org.zamia.analysis.ReferenceSearchResult;
 import org.zamia.analysis.ReferenceSite;
+import org.zamia.analysis.ig.IGAssignmentsSearch.RootResult;
 import org.zamia.analysis.ig.IGAssignmentsSearch.SearchAssignment;
 import org.zamia.instgraph.IGObject;
 import org.zamia.instgraph.IGObject.OIDir;
@@ -209,9 +218,20 @@ public class ZamiaSearchResultPage extends AbstractTextSearchViewPage {
 		fContentProvider = new ZamiaSearchTreeContentProvider();
 		viewer.setContentProvider(fContentProvider);
 		viewer.addSelectionChangedListener(backAction);
+		
+		// one click just shows in editor
+		viewer.addSelectionChangedListener(new ISelectionChangedListener() {
+
+			public void selectionChanged(SelectionChangedEvent event) {
+				showInEditor(getFirstSelected(event));
+			}
+			
+		});
+		
 	}
 
     BackAction backAction = new BackAction();
+    ForwardAction fwdAction = new ForwardAction();
     
 	protected void fillToolbar(final IToolBarManager tbm) {
 		tbm.appendToGroup(IContextMenuConstants.GROUP_SHOW, new Action("Highlight assignments", IAction.AS_CHECK_BOX) {
@@ -237,6 +257,7 @@ public class ZamiaSearchResultPage extends AbstractTextSearchViewPage {
 			
 		});
 		tbm.appendToGroup(IContextMenuConstants.GROUP_SHOW, backAction);
+		tbm.appendToGroup(IContextMenuConstants.GROUP_SHOW, fwdAction);
 		super.fillToolbar(tbm);
 	}
 	
@@ -254,19 +275,10 @@ public class ZamiaSearchResultPage extends AbstractTextSearchViewPage {
 		return query.fZPrj;
 	}
 	
-	public void showMatch(Match match, int offset, int length, boolean activate) throws PartInitException {
-
-		Object element = match.getElement();
+	void showInEditor(Object element) {
+		
 
 		logger.debug("Element: " + element);
-		if (element instanceof SearchAssignment) {
-			SearchAssignment ref = (SearchAssignment) element;
-			Match[] def = this.getDisplayedMatches(ref.keyResult);
-			if (def.length != 0) { // in case of reading a constant, fObj and keyResult can be null
-				StructuredSelection sel = new StructuredSelection(def[0].getElement());
-				getViewer().setSelection(sel);
-			}
-		} 
 		
 		if (element instanceof ReferenceSearchResult) {
 
@@ -283,6 +295,20 @@ public class ZamiaSearchResultPage extends AbstractTextSearchViewPage {
 				}
 			}
 		}
+	}
+	public void showMatch(Match match, int offset, int length, boolean activate) throws PartInitException {
+		Object element = match.getElement();
+		showInEditor(element);
+		if (element instanceof SearchAssignment) {
+//			SearchAssignment ref = (SearchAssignment) element;
+//			Match[] def = this.getDisplayedMatches(ref.keyResult);
+//			if (def.length != 0) { // in case of reading a constant, fObj and keyResult can be null
+//				StructuredSelection sel = new StructuredSelection(def[0].getElement());
+//				getViewer().setSelection(sel);
+//			}			
+			fwdAction.run();
+		} 
+
 	}
 
 	class SearchLabelProvider extends LabelProvider implements IStyledLabelProvider {
@@ -319,7 +345,14 @@ public class ZamiaSearchResultPage extends AbstractTextSearchViewPage {
 
 		public Image getImage(Object element) {
 
-			if (element instanceof ReferenceSite) {
+			if (element instanceof SearchAssignment) {
+				ImageDescriptor descr = JavaPluginImages.createImageDescriptor(JavaPlugin.getDefault().getBundle(), JavaPluginImages.ICONS_PATH.append("e" + "lcl16").append("ch_callers.gif"), true);
+				return JavaPlugin.getImageDescriptorRegistry().get(
+						//JavaPluginImages.DESC_MISC_DEFAULT
+						descr
+						);
+			}
+			else if (element instanceof ReferenceSite) {
 
 				ReferenceSite rs = (ReferenceSite) element;
 
@@ -359,14 +392,14 @@ public class ZamiaSearchResultPage extends AbstractTextSearchViewPage {
 
 		@Override
 		public StyledString getStyledText(Object element) {
-			//System.err.println("generating style text for " + element + " (" + element.getClass().getName() + ")");
 			if (element instanceof ReferenceSite) {
 				ReferenceSite rs = (ReferenceSite) element;
+				//String icon = rs instanceof SearchAssignment ? "    => " : ""; 
+				String icon= "";
 				if (rs.getDBID() == 0)
-					return  new StyledString("assign a constant");
+					return new StyledString(icon, StyledString.QUALIFIER_STYLER).append("a constant");
 				IGObject igObj = (IGObject) getZamiaProject().getZDB().load(rs.getDBID());
-				String prefix_num = rs.getPrefix();
-				return new StyledString((prefix_num == null ? "    " : prefix_num) + rs.getRefType() + ": ", StyledString.QUALIFIER_STYLER)
+				return new StyledString(rs instanceof RootResult ? ((RootResult)rs).num_prefix+ ". " : icon, StyledString.QUALIFIER_STYLER)
 					.append(igObj.getId()) .append(new StyledString(" : " + igObj.getType().toString() + 
 						" - " + rs.getPath(), StyledString.QUALIFIER_STYLER));
 			}
@@ -379,21 +412,33 @@ public class ZamiaSearchResultPage extends AbstractTextSearchViewPage {
 	}
 
     protected ViewerComparator createViewerComparator() {
-		return new ViewerComparator();
+		return new ViewerComparator() {
+			public int compare(Viewer viewer, Object e1, Object e2) {
+				if (e1 instanceof RootResult && e2 instanceof RootResult)
+					return ((RootResult) e1).num_prefix - ((RootResult) e2).num_prefix;
+				return super.compare(viewer, e1, e2);
+			}
+		};
+
 	}
     
+    Object getFirstSelected(SelectionChangedEvent event) {
+    	IStructuredSelection sel = (IStructuredSelection) event.getSelection();
+    	return sel.getFirstElement();
+    }
+	
     class BackAction extends Action implements ISelectionChangedListener { 
     	List hist = new ArrayList(); 
     	
     	private Object current() {
     		return hist.get(hist.size()-1);
     	}
-    	
+
+
     	public void selectionChanged(SelectionChangedEvent event) {
     		
-    		IStructuredSelection sel = (IStructuredSelection) event.getSelection();
-    		Object selObj = sel.getFirstElement();
-    		
+    		Object selObj = getFirstSelected(event);
+
     		if (selObj == null ) {
     			hist.clear();
     		} else {
@@ -404,6 +449,13 @@ public class ZamiaSearchResultPage extends AbstractTextSearchViewPage {
     		}
     		
     		setEnabled(hist.size() > 1);
+    		
+    		boolean fwdEnabled = selObj != null && selObj instanceof SearchAssignment 
+    				&& ((SearchAssignment) selObj).getDBID() != 0
+    				//&& fwdAction.selection.keyResult != null
+    				; 
+    		fwdAction.setEnabled(fwdEnabled);
+
     	}
     	
 	    public void run() {
@@ -422,5 +474,23 @@ public class ZamiaSearchResultPage extends AbstractTextSearchViewPage {
 	    }
 	    
     }
+    
+    class ForwardAction extends Action {
+	    public ForwardAction() {
+	        ISharedImages sharedImages = PlatformUI.getWorkbench().getSharedImages();
+            setText(WorkbenchMessages.NavigationHistoryAction_forward_text); 
+            setToolTipText(WorkbenchMessages.NavigationHistoryAction_forward_toolTip);
+            setImageDescriptor(sharedImages.getImageDescriptor(ISharedImages.IMG_TOOL_FORWARD));
+            setDisabledImageDescriptor(sharedImages.getImageDescriptor(ISharedImages.IMG_TOOL_FORWARD_DISABLED));
+	        setEnabled(false);
+	    }
+	    
+	    public void run() {
+	    	if (isEnabled())
+	    		getViewer().setSelection(new StructuredSelection(((SearchAssignment) backAction.current()).keyResult));
+	    }
+
+    }
+
     
 }
