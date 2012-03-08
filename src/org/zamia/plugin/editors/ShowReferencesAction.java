@@ -21,6 +21,7 @@ import org.zamia.analysis.ReferenceSite;
 import org.zamia.analysis.SourceLocation2AST;
 import org.zamia.analysis.ast.ASTDeclarationSearch;
 import org.zamia.analysis.ig.IGAssignmentsSearch;
+import org.zamia.analysis.ig.IGAssignmentsSearch.RootResult;
 import org.zamia.instgraph.IGObject;
 import org.zamia.plugin.ZamiaPlugin;
 import org.zamia.plugin.editors.ShowReferencesDialog.Option;
@@ -112,7 +113,7 @@ class ExtendedReferencesSearchQuery extends ReferencesSearchQuery {
 			IGAssignmentsSearch rs = new IGAssignmentsSearch(fZPrj);
 	
 	
-			Map<Long, ReferenceSite> searches = rs.assignmentThroughSearch(object, path, fSearchUpward, fSearchDownward, fWritersOnly, fReadersOnly);
+			Map<Long, RootResult> searches = rs.assignmentThroughSearch(object, path, fSearchUpward, fSearchDownward, fWritersOnly, fReadersOnly);
 	
 			for (Long key : searches.keySet()) {
 				mergeResults(key, searches.get(key));
