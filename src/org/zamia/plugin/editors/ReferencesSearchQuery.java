@@ -110,11 +110,11 @@ public class ReferencesSearchQuery implements ISearchQuery {
 	public String getLabel() {
 		List options = new ArrayList();
 		Object[] pairs = new Object[] {
-				fSearchDownward, "downward_only",
-				fSearchUpward, "upward_only",
-				fDeclOnly, "decl_only",
-				fReadersOnly, "readers_only",
-				fWritersOnly, "writers_only",
+				fSearchDownward, "Down",
+				fSearchUpward, "Up",
+				fDeclOnly, "Decl",
+				fReadersOnly, "Readers",
+				fWritersOnly, "Writers",
 				fUsePath, "path=" + fTLP,
 			};
 		for (int i = 0 ; i != pairs.length ; i++) {
