@@ -102,13 +102,15 @@ public class ZamiaSearchResultPage extends AbstractTextSearchViewPage {
 
 					Object element = elements[i];
 
-					if (element instanceof ReferenceSearchResult) {
-
+					if (element instanceof RootResult) {
+						res.add(element);
+					} else {
 						ReferenceSearchResult rss = (ReferenceSearchResult) element;
-						if (rss.getParent() != null && rss.getParent().getParent() == null) {
-							res.add(element);
+						for (Object o : rss.fChildren) {
+							res.add(o);
 						}
 					}
+						
 				}
 				return res.toArray();
 
@@ -371,7 +373,7 @@ public class ZamiaSearchResultPage extends AbstractTextSearchViewPage {
 		tbm.appendToGroup(IContextMenuConstants.GROUP_VIEWER_SETUP, showAssignments);
 	}
 	
-	Action showAssignments = new Action("Show Assignments", IAction.AS_CHECK_BOX) {
+	Action showAssignments = new Action("Expand Assignments", IAction.AS_CHECK_BOX) {
 		
 		{setToolTipText("Uncollapses duplicate assignments, the cases where a signal depends on another through multiple different assignments.");}
 		
@@ -423,34 +425,22 @@ public class ZamiaSearchResultPage extends AbstractTextSearchViewPage {
 
 	class SearchLabelProvider extends LabelProvider implements IStyledLabelProvider {
 
-		private final Image searchIcon;
-
-		private final Image declIcon;
-
-		private final Image readIcon;
-
-		private final Image writeIcon;
-
-		private final Image rwIcon;
-
-		private final Image instantiationIcon;
-
-		private final Image fInIcon;
-		private final Image fOutIcon;
-		private final Image fInoutIcon;
+		private final Image searchIcon = ZamiaPlugin.getImage("/share/images/search.gif");
+		private final Image declIcon = ZamiaPlugin.getImage("/share/images/decl.gif");
+		private final Image readIcon = ZamiaPlugin.getImage("/share/images/read.gif");
+		private final Image writeIcon = ZamiaPlugin.getImage("/share/images/write.gif");
+		private final Image rwIcon = ZamiaPlugin.getImage("/share/images/rw.gif");
+		private final Image instantiationIcon = ZamiaPlugin.getImage("/share/images/decl.gif");
+		private final Image fInIcon = ZamiaPlugin.getImage("/share/images/in.gif");
+		private final Image fOutIcon = ZamiaPlugin.getImage("/share/images/out.gif");
+		private final Image fInoutIcon = ZamiaPlugin.getImage("/share/images/inout.gif");
+		
+		private final Image assignmentIcon;
 
 		public SearchLabelProvider() {
 			super();
-
-			searchIcon = ZamiaPlugin.getImage("/share/images/search.gif");
-			declIcon = ZamiaPlugin.getImage("/share/images/decl.gif");
-			readIcon = ZamiaPlugin.getImage("/share/images/read.gif");
-			writeIcon = ZamiaPlugin.getImage("/share/images/write.gif");
-			rwIcon = ZamiaPlugin.getImage("/share/images/rw.gif");
-			instantiationIcon = ZamiaPlugin.getImage("/share/images/decl.gif");
-			fInIcon = ZamiaPlugin.getImage("/share/images/in.gif");
-			fOutIcon = ZamiaPlugin.getImage("/share/images/out.gif");
-			fInoutIcon = ZamiaPlugin.getImage("/share/images/inout.gif");
+			ImageDescriptor descr = JavaPluginImages.createImageDescriptor(JavaPlugin.getDefault().getBundle(), JavaPluginImages.ICONS_PATH.append("e" + "lcl16").append("ch_callers.gif"), true);
+			assignmentIcon = JavaPlugin.getImageDescriptorRegistry().get(descr);
 		}
 
 		public Image getImage(Object element) {
@@ -473,11 +463,7 @@ public class ZamiaSearchResultPage extends AbstractTextSearchViewPage {
 		public Image getUndecoratedImage(Object element) {
 
 			if (element instanceof SearchAssignment) {
-				ImageDescriptor descr = JavaPluginImages.createImageDescriptor(JavaPlugin.getDefault().getBundle(), JavaPluginImages.ICONS_PATH.append("e" + "lcl16").append("ch_callers.gif"), true);
-				return JavaPlugin.getImageDescriptorRegistry().get(
-						//JavaPluginImages.DESC_MISC_DEFAULT
-						descr
-						);
+				return assignmentIcon;
 			}
 			else if (element instanceof ReferenceSite) {
 

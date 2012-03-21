@@ -212,10 +212,10 @@ public class ReferencesSearchQuery implements ISearchQuery {
 								
 							}
 
-							addMatches(filteredResults);
+							addMatch(filteredResults);
 
 						} else {
-							addMatches(results);
+							addMatch(results);
 
 						}
 					} else {
@@ -234,10 +234,10 @@ public class ReferencesSearchQuery implements ISearchQuery {
 		return Status.OK_STATUS;
 	}
 
-	protected void mergeResults(Object aObject, ReferenceSearchResult aRSR) {
-		if (aRSR != null) {
+	protected void mergeResults(Object aObject, ReferenceSearchResult root) {
+		if (root != null) {
 			//aRSR.dump(1, System.err);
-			addMatches(aRSR);
+			addMatch(root);
 		} else {
 			ZamiaPlugin.showError(null, "IG-based reference search (" + aObject + ") failed", "Search returned no result.", "");
 			System.err.println(aObject + " search returns null");
@@ -252,14 +252,7 @@ public class ReferencesSearchQuery implements ISearchQuery {
 		mergeResults(object, rsr);
 	}
 
-	protected void addMatches(ReferenceSearchResult aRSR) {
-
+	protected void addMatch(ReferenceSearchResult aRSR) {
 		fSearchResult.addMatch(new Match(aRSR, 0, 1));
-
-		int n = aRSR.getNumChildren();
-		for (int i = 0; i < n; i++) {
-			ReferenceSearchResult child = aRSR.getChild(i);
-			addMatches(child);
-		}
 	}
 }
