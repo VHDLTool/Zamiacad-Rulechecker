@@ -8,6 +8,7 @@
  */
 package org.zamia.plugin.editors;
 
+
 import java.io.FileWriter;
 import java.io.IOException;
 import java.io.Writer;
@@ -16,13 +17,11 @@ import java.util.Collection;
 import java.util.List;
 
 import org.eclipse.core.resources.IProject;
-import org.eclipse.core.runtime.IProgressMonitor;
-import org.eclipse.core.runtime.IStatus;
-import org.eclipse.core.runtime.Status;
-import org.eclipse.core.runtime.jobs.Job;
 import org.eclipse.jdt.internal.ui.JavaPlugin;
 import org.eclipse.jdt.internal.ui.JavaPluginImages;
+import org.eclipse.jdt.internal.ui.callhierarchy.CallHierarchyImageDescriptor;
 import org.eclipse.jdt.internal.ui.viewsupport.ColoringLabelProvider;
+import org.eclipse.jdt.internal.ui.viewsupport.ImageImageDescriptor;
 import org.eclipse.jface.action.Action;
 import org.eclipse.jface.action.IAction;
 import org.eclipse.jface.action.IToolBarManager;
@@ -47,6 +46,8 @@ import org.eclipse.search.ui.text.Match;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.graphics.Color;
 import org.eclipse.swt.graphics.Image;
+import org.eclipse.swt.graphics.ImageData;
+import org.eclipse.swt.graphics.Point;
 import org.eclipse.swt.graphics.TextStyle;
 import org.eclipse.swt.widgets.Display;
 import org.eclipse.swt.widgets.FileDialog;
@@ -69,7 +70,6 @@ import org.zamia.instgraph.IGObject.OIDir;
 import org.zamia.plugin.ZamiaPlugin;
 import org.zamia.plugin.ZamiaProjectMap;
 import org.zamia.plugin.views.sim.SimulatorView;
-import org.zamia.util.PathName;
 
 
 /**
@@ -454,6 +454,23 @@ public class ZamiaSearchResultPage extends AbstractTextSearchViewPage {
 		}
 
 		public Image getImage(Object element) {
+			Image image = getUndecoratedImage(element);
+			
+			// decorate with max depth
+			if (element instanceof RootResult) {
+				RootResult r = (RootResult) element;
+				if (r.skippedDueToDepth) {
+		            ImageDescriptor baseImage= new ImageImageDescriptor(image);
+		            ImageData bounds= baseImage.getImageData();
+		            image = JavaPlugin.getImageDescriptorRegistry().get(new CallHierarchyImageDescriptor(baseImage, 
+		            		CallHierarchyImageDescriptor.MAX_LEVEL, new Point(bounds.width, bounds.height)));
+				
+				}
+			}
+			return image;
+		}
+		
+		public Image getUndecoratedImage(Object element) {
 
 			if (element instanceof SearchAssignment) {
 				ImageDescriptor descr = JavaPluginImages.createImageDescriptor(JavaPlugin.getDefault().getBundle(), JavaPluginImages.ICONS_PATH.append("e" + "lcl16").append("ch_callers.gif"), true);

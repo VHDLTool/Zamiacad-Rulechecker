@@ -11,7 +11,8 @@ package org.zamia.plugin.editors;
 import org.eclipse.jface.dialogs.Dialog;
 import org.eclipse.jface.dialogs.IDialogConstants;
 import org.eclipse.swt.SWT;
-import org.eclipse.swt.events.SelectionAdapter;
+import org.eclipse.swt.events.ModifyEvent;
+import org.eclipse.swt.events.ModifyListener;
 import org.eclipse.swt.events.SelectionEvent;
 import org.eclipse.swt.events.SelectionListener;
 import org.eclipse.swt.layout.GridData;
@@ -20,6 +21,7 @@ import org.eclipse.swt.widgets.Button;
 import org.eclipse.swt.widgets.Composite;
 import org.eclipse.swt.widgets.Control;
 import org.eclipse.swt.widgets.Group;
+import org.eclipse.swt.widgets.Label;
 import org.eclipse.swt.widgets.Shell;
 import org.eclipse.swt.widgets.Text;
 import org.zamia.ToplevelPath;
@@ -33,8 +35,11 @@ import org.zamia.ToplevelPath;
 
 public class ShowReferencesDialog extends Dialog implements SelectionListener {
 	
+	private Button fSearchButton;
 	private Text fSearchJobText, fPathText;
 	private String fPath, fSearchJobTextStr = "";
+	private Text fDepthText;
+	public int fDepth;
 
 	// The controls are occasionally disposed. So, despite the dialog is not destroyed, we still need duplicate
 	// values in usual java fields because controls are disposed. 
@@ -62,10 +67,11 @@ public class ShowReferencesDialog extends Dialog implements SelectionListener {
 		return values[option.ordinal()];
 	}
 	
-	protected ShowReferencesDialog(Shell parentShell, String aJobText, ToplevelPath aPath, boolean[] values) {
+	protected ShowReferencesDialog(Shell parentShell, String aJobText, ToplevelPath aPath, boolean[] values, int aDepth) {
 		super(parentShell);
 		fPath = (aPath == null) ? "" : aPath.toString();
 		fSearchJobTextStr = aJobText;
+		fDepth = aDepth;
 		this.values = (values == null) ? Option.newValues() : values;
 	}
 
@@ -95,10 +101,31 @@ public class ShowReferencesDialog extends Dialog implements SelectionListener {
 		setGridData(buttonBar, SWT.FILL, true, SWT.BOTTOM, false);
 
 		applyDialogFont(panel);
-
-		updateWidgetStates();
+		
+		// initialize control values
+		{
+			
+			fSearchJobText.setText(fSearchJobTextStr);
+			
+			for (int i = 0 ; i != values.length ; i++) {
+				Button b = buttons[i];
+				b.setSelection(values[i]);
+				
+				if (b == getButton(Option.UsePath)) {
+					b.setEnabled(fPath.length() != 0);
+				}
+				
+				if (b == getButton(Option.AssignThrough)) {
+					b.setEnabled(fPath.length() != 0);
+					fDepthText.setEnabled(b.getSelection());
+				}
+			}
+			
+			fPathText.setText(fPath);
+		}
 
 		parent.pack();
+		fDepthText.setText(fDepth + "");
 		return panel;
 	}
 
@@ -119,10 +146,24 @@ public class ShowReferencesDialog extends Dialog implements SelectionListener {
 		return panel;
 	}
 
+	/**Is called when depth text or Follow Assignments changes.*/
+	private void updateDepthNSearchButton() {
+		fSearchButton.setEnabled(true);
+		if (fDepthText.isEnabled())
+			try {
+				String text = fDepthText.getText();
+				fDepth = text.length() == 0 ? -1 : Integer.parseInt(fDepthText.getText());
+			} catch (NumberFormatException ex) {
+				fSearchButton.setEnabled(false);
+			}
+		
+	}
 	/**Updates values on a button click*/
 	public void widgetSelected(SelectionEvent e) {
 
 		boolean assignment = getButton(Option.AssignThrough).getSelection();
+		fDepthText.setEnabled(assignment);
+		updateDepthNSearchButton();
 		if (getValue(Option.AssignThrough) != assignment) { // buttons must be radio when assigns are followed
 			if (assignment) { // we must not allow both radio buttons to have the same values
 				Button b1 = getButton(Option.ReadsOnly);
@@ -160,23 +201,34 @@ public class ShowReferencesDialog extends Dialog implements SelectionListener {
 	}	
 	private Composite createScopeGroup(Composite parent) {
 
-		Composite panel = new Composite(parent, SWT.NONE);
-		GridLayout layout = new GridLayout();
-		layout.marginWidth = 0;
-		layout.marginHeight = 0;
-		panel.setLayout(layout);
+		Composite panel = newComposite(parent, SWT.NONE, 1);
 
 		Group scope = new Group(panel, SWT.SHADOW_ETCHED_IN);
-		scope.setText("Scope");
-		GridLayout scopeLayout = new GridLayout();
-		//scopeLayout.numColumns = 3;
-		scope.setLayout(scopeLayout);
-		
-		newRadio(scope, "local", Option.ScopeLocal);
-		newRadio(scope, "local+down", Option.ScopeDown);
-		newRadio(scope, "global", Option.ScopeGlobal);
+			scope.setText("Scope");
+			GridLayout scopeLayout = new GridLayout();
+			scopeLayout.numColumns = 3;
+			scope.setLayout(scopeLayout);
+			
+			newRadio(scope, "local", Option.ScopeLocal);
+			newRadio(scope, "local+down", Option.ScopeDown);
+			newRadio(scope, "global", Option.ScopeGlobal);
 
-		newCheckBox(parent, "Follow assignments", Option.AssignThrough);		
+		Composite assignmentPanel = newComposite(parent, SWT.NONE, 2);
+			newCheckBox(assignmentPanel, "Follow assignments", Option.AssignThrough);
+			Composite depthPanel = newComposite(assignmentPanel, SWT.BORDER, 2);
+				Label label = new Label(depthPanel, SWT.NONE);
+				label.setText("Depth:");
+				fDepthText = new Text(depthPanel, SWT.NONE);
+				
+				// disable search when depth is not integer 
+				fDepthText.addModifyListener(new ModifyListener() {
+					public void modifyText(ModifyEvent e) {
+						updateDepthNSearchButton();
+					}
+				});
+				fDepthText.setEnabled(false);
+				fDepthText.setToolTipText("Limit amount of assignments to follow. Empty or negative value results in unlimited search");
+		
 		return panel;
 	}
 
@@ -195,8 +247,8 @@ public class ShowReferencesDialog extends Dialog implements SelectionListener {
 		Button cancelButton = createButton(panel, IDialogConstants.CANCEL_ID, "Cancel", false);
 		setGridData(cancelButton, SWT.RIGHT, true, SWT.BOTTOM, false);
 
-		Button searchButton = createButton(panel, IDialogConstants.OK_ID, "Search", true);
-		setGridData(searchButton, SWT.RIGHT, false, SWT.BOTTOM, false);
+		fSearchButton = createButton(panel, IDialogConstants.OK_ID, "Search", true);
+		setGridData(fSearchButton, SWT.RIGHT, false, SWT.BOTTOM, false);
 
 		return panel;
 	}
@@ -244,8 +296,6 @@ public class ShowReferencesDialog extends Dialog implements SelectionListener {
 		newCheckBox(pathPanel, "Trace aliased signals", Option.SupportAlias);
 		getButton(Option.SupportAlias).setEnabled(false);
 		
-		updateWidgetStates();
-		
 		return panel;
 	}
 
@@ -269,35 +319,6 @@ public class ShowReferencesDialog extends Dialog implements SelectionListener {
 		setVisible(buttons[visible.ordinal()] = rwReserved[reserved], true); 
 		setVisible(rwReserved[reserved] = tmp, false);
 		buttons[visible.ordinal()].setSelection(tmp.getSelection());
-	}
-
-	private boolean is(Control control) {
-		return control != null && !control.isDisposed();
-	}
-	private void updateWidgetStates() {
-		if (is(fSearchJobText)) {
-			fSearchJobText.setText(fSearchJobTextStr);
-		}
-		
-		for (int i = 0 ; i != values.length ; i++) {
-			Button b = buttons[i];
-			if (is(b)) {
-				b.setSelection(values[i]);
-				
-				if (b == getButton(Option.UsePath)) {
-					b.setEnabled(fPath.length() != 0);
-				}
-				
-				if (b == getButton(Option.AssignThrough)) {
-					b.setEnabled(fPath.length() != 0);
-				}
-			} 
-		}
-		
-		if (is(fPathText)) {
-			fPathText.setText(fPath);
-		};
-		
 	}
 
 	@Override

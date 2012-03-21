@@ -107,7 +107,7 @@ public class ReferencesSearchQuery implements ISearchQuery {
 	Object fMessage = null;
 	boolean fDone = false;
 	
-	public String getLabel() {
+	protected String getLabelOptions() {
 		List options = new ArrayList();
 		Object[] pairs = new Object[] {
 				fSearchDownward, "Down",
@@ -121,8 +121,12 @@ public class ReferencesSearchQuery implements ISearchQuery {
 			if ((Boolean) pairs[i++]) 
 				options.add(pairs[i]);
 		}
+
+		return Utils.concatenate(options, "+");
+	}
+	public String getLabel() {
 		
-		return "Searching " + fMessage + " ("+(Utils.concatenate(options, "+")) +") for references..." + (fDone ? " Done" : "");
+		return "Searching " + fMessage + " ("+ getLabelOptions() +") for references..." + (fDone ? " Done" : "");
 	}
 
 	public ZamiaSearchResult getSearchResult() {
