@@ -6,7 +6,7 @@
  * 
  * Created by Guenter Bartsch on Sep 7, 2008
  */
-package org.zamia.plugin.editors;
+package org.zamia.plugin.search;
 
 import org.eclipse.jface.dialogs.Dialog;
 import org.eclipse.jface.dialogs.IDialogConstants;
@@ -67,6 +67,14 @@ public class ShowReferencesDialog extends Dialog implements SelectionListener {
 		return values[option.ordinal()];
 	}
 	
+	public boolean isSearchUp() {
+		return getValue(Option.ScopeGlobal);
+	}
+
+	public boolean isSearchDown() {
+		return isSearchUp() || getValue(Option.ScopeDown);
+	}
+
 	protected ShowReferencesDialog(Shell parentShell, String aJobText, ToplevelPath aPath, boolean[] values, int aDepth) {
 		super(parentShell);
 		fPath = (aPath == null) ? "" : aPath.toString();
@@ -75,6 +83,35 @@ public class ShowReferencesDialog extends Dialog implements SelectionListener {
 		this.values = (values == null) ? Option.newValues() : values;
 	}
 
+
+	private Button newButton(Composite parent, String label, Option key, int kind, boolean grabExcessVertical) {
+		Button result = new Button(parent, kind | SWT.LEFT);
+		result.setText(label);
+		setGridData(result, SWT.LEFT, false, SWT.CENTER, grabExcessVertical);
+		result.addSelectionListener(this);
+		int ord = key.ordinal();
+		buttons[ord] = result;
+		result.setSelection(values[ord]);
+		return result;
+	}
+	private Button newRadio(Composite parent, String label, Option key) {
+		return newButton(parent, label, key, SWT.RADIO, true);
+	}
+
+	private Button newCheckBox(Composite parent, String label, final Option key) {
+		return newButton(parent, label, key, SWT.CHECK, true);
+	}	
+
+	private Composite newComposite(Composite parent, int style, int columns) {
+		Composite panel = new Composite(parent, style);
+		GridLayout layout = new GridLayout();
+		layout.numColumns = columns;
+		layout.marginWidth = 0;
+		layout.marginHeight = 0;
+		panel.setLayout(layout);
+		return panel;
+	}
+	
 	@Override
 	protected Control createContents(Composite parent) {
 
@@ -145,60 +182,7 @@ public class ShowReferencesDialog extends Dialog implements SelectionListener {
 
 		return panel;
 	}
-
-	/**Is called when depth text or Follow Assignments changes.*/
-	private void updateDepthNSearchButton() {
-		fSearchButton.setEnabled(true);
-		if (fDepthText.isEnabled())
-			try {
-				String text = fDepthText.getText();
-				fDepth = text.length() == 0 ? -1 : Integer.parseInt(fDepthText.getText());
-			} catch (NumberFormatException ex) {
-				fSearchButton.setEnabled(false);
-			}
-		
-	}
-	/**Updates values on a button click*/
-	public void widgetSelected(SelectionEvent e) {
-
-		boolean assignment = getButton(Option.AssignThrough).getSelection();
-		fDepthText.setEnabled(assignment);
-		updateDepthNSearchButton();
-		if (getValue(Option.AssignThrough) != assignment) { // buttons must be radio when assigns are followed
-			if (assignment) { // we must not allow both radio buttons to have the same values
-				Button b1 = getButton(Option.ReadsOnly);
-				Button b2 = getButton(Option.WritesOnly);
-				if (b1.getSelection() == b2.getSelection()) 
-					b2.setSelection(!b1.getSelection());
-			}
-			swapButtons(Option.WritesOnly, 0);
-			swapButtons(Option.ReadsOnly, 1);
-			pathPanel.layout();
-		}
-		
-		for (int i = 0 ; i != values.length; i++) 
-			values[i] = buttons[i].getSelection();
-		
-		
-	}
-
-	private Button newButton(Composite parent, String label, Option key, int kind, boolean grabExcessVertical) {
-		Button result = new Button(parent, kind | SWT.LEFT);
-		result.setText(label);
-		setGridData(result, SWT.LEFT, false, SWT.CENTER, grabExcessVertical);
-		result.addSelectionListener(this);
-		int ord = key.ordinal();
-		buttons[ord] = result;
-		result.setSelection(values[ord]);
-		return result;
-	}
-	private Button newRadio(Composite parent, String label, Option key) {
-		return newButton(parent, label, key, SWT.RADIO, true);
-	}
-
-	private Button newCheckBox(Composite parent, String label, final Option key) {
-		return newButton(parent, label, key, SWT.CHECK, true);
-	}	
+	
 	private Composite createScopeGroup(Composite parent) {
 
 		Composite panel = newComposite(parent, SWT.NONE, 1);
@@ -231,15 +215,7 @@ public class ShowReferencesDialog extends Dialog implements SelectionListener {
 		
 		return panel;
 	}
-
-	public boolean isSearchUp() {
-		return getValue(Option.ScopeGlobal);
-	}
-
-	public boolean isSearchDown() {
-		return isSearchUp() || getValue(Option.ScopeDown);
-	}
-
+	
 	private Composite createMyButtonBar(Composite parent) {
 
 		Composite panel = newComposite(parent, SWT.NULL, 2);
@@ -250,16 +226,6 @@ public class ShowReferencesDialog extends Dialog implements SelectionListener {
 		fSearchButton = createButton(panel, IDialogConstants.OK_ID, "Search", true);
 		setGridData(fSearchButton, SWT.RIGHT, false, SWT.BOTTOM, false);
 
-		return panel;
-	}
-	
-	private Composite newComposite(Composite parent, int style, int columns) {
-		Composite panel = new Composite(parent, style);
-		GridLayout layout = new GridLayout();
-		layout.numColumns = columns;
-		layout.marginWidth = 0;
-		layout.marginHeight = 0;
-		panel.setLayout(layout);
 		return panel;
 	}
 	
@@ -314,15 +280,54 @@ public class ShowReferencesDialog extends Dialog implements SelectionListener {
 		b.setLayoutData(ld);
 		b.setVisible(visible);
 	}
+	
+	/**Is called when depth text or Follow Assignments changes.*/
+	private void updateDepthNSearchButton() {
+		fSearchButton.setEnabled(true);
+		if (fDepthText.isEnabled())
+			try {
+				String text = fDepthText.getText();
+				fDepth = text.length() == 0 ? -1 : Integer.parseInt(fDepthText.getText());
+			} catch (NumberFormatException ex) {
+				fSearchButton.setEnabled(false);
+			}
+		
+	}
+
 	private void swapButtons(Option visible, int reserved) {
 		Button tmp = buttons[visible.ordinal()]; 
 		setVisible(buttons[visible.ordinal()] = rwReserved[reserved], true); 
 		setVisible(rwReserved[reserved] = tmp, false);
 		buttons[visible.ordinal()].setSelection(tmp.getSelection());
 	}
+	
+	/**Updates values on a button click*/
+	public void widgetSelected(SelectionEvent e) {
 
+		boolean assignment = getButton(Option.AssignThrough).getSelection();
+		fDepthText.setEnabled(assignment);
+		updateDepthNSearchButton();
+		if (getValue(Option.AssignThrough) != assignment) { // buttons must be radio when assigns are followed
+			if (assignment) { // we must not allow both radio buttons to have the same values
+				Button b1 = getButton(Option.ReadsOnly);
+				Button b2 = getButton(Option.WritesOnly);
+				if (b1.getSelection() == b2.getSelection()) 
+					b2.setSelection(!b1.getSelection());
+			}
+			swapButtons(Option.WritesOnly, 0);
+			swapButtons(Option.ReadsOnly, 1);
+			pathPanel.layout();
+		}
+		
+		for (int i = 0 ; i != values.length; i++) 
+			values[i] = buttons[i].getSelection();
+		
+		
+	}
+	
 	@Override
 	public void widgetDefaultSelected(SelectionEvent e) {
 		
 	}
+	
 }

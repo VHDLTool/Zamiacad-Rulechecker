@@ -6,7 +6,7 @@
  * 
  * Created by Guenter Bartsch on Jun 22, 2008
  */
-package org.zamia.plugin.editors;
+package org.zamia.plugin.search;
 
 import java.util.HashSet;
 import java.util.Set;

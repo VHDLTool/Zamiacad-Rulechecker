@@ -338,7 +338,7 @@
        			</selection>
        		</action>
          	<action label="Show References..."
-         		class="org.zamia.plugin.editors.ShowReferencesAction"
+         		class="org.zamia.plugin.search.ShowReferencesAction"
          		menubarPath="staticAnalysisMenu/staticAnalysisGroup"
          		definitionId="org.zamia.commands.showReferences"
          		enablesFor="1"
@@ -403,7 +403,7 @@
      <editorContribution id="org.zamia.actions" targetID="org.zamia.editors.VHDLEditor">
          	<action 
          	    label="Show References..."
-         		class="org.zamia.plugin.editors.ShowReferencesAction"
+         		class="org.zamia.plugin.search.ShowReferencesAction"
          		definitionId="org.zamia.commands.showReferences"
          		id="org.zamia.editors.ShowReferencesAction">
        		</action>
@@ -860,8 +860,8 @@
   <extension id="ZamiaSearchResultPage" point="org.eclipse.search.searchResultViewPages">
 	<viewPage
 		id="org.zamia.plugin.editors.ZamiaSearchResultPage"
-		searchResultClass="org.zamia.plugin.editors.ZamiaSearchResult"
-		class="org.zamia.plugin.editors.ZamiaSearchResultPage">
+		searchResultClass="org.zamia.plugin.search.ZamiaSearchResult"
+		class="org.zamia.plugin.search.ZamiaSearchResultPage">
 	</viewPage>
   </extension>
   <extension

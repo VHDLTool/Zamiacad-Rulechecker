@@ -6,7 +6,7 @@
  *
  */
 
-package org.zamia.plugin.editors;
+package org.zamia.plugin.search;
 
 import java.util.Map;
 
@@ -23,7 +23,8 @@ import org.zamia.analysis.ig.IGAssignmentsSearch;
 import org.zamia.analysis.ig.IGAssignmentsSearch.RootResult;
 import org.zamia.instgraph.IGObject;
 import org.zamia.plugin.ZamiaPlugin;
-import org.zamia.plugin.editors.ShowReferencesDialog.Option;
+import org.zamia.plugin.editors.StaticAnalysisAction;
+import org.zamia.plugin.search.ShowReferencesDialog.Option;
 import org.zamia.vhdl.ast.DeclarativeItem;
 import org.zamia.vhdl.ast.InterfaceDeclaration;
 import org.zamia.vhdl.ast.SignalDeclaration;

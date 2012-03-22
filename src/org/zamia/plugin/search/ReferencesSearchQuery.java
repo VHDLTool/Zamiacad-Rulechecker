@@ -6,7 +6,7 @@
  * 
  * Created by Guenter Bartsch on Jun 22, 2008
  */
-package org.zamia.plugin.editors;
+package org.zamia.plugin.search;
 
 
 import java.util.ArrayList;
@@ -41,6 +41,7 @@ import org.zamia.instgraph.IGItem;
 import org.zamia.instgraph.IGObject;
 import org.zamia.instgraph.IGOperationObject;
 import org.zamia.plugin.ZamiaPlugin;
+import org.zamia.plugin.editors.StaticAnalysisAction;
 import org.zamia.util.Pair;
 import org.zamia.vhdl.ast.DeclarativeItem;
 
@@ -234,6 +235,13 @@ public class ReferencesSearchQuery implements ISearchQuery {
 		return Status.OK_STATUS;
 	}
 
+	//Extended search may have more than one result to merge
+	protected void igSearch(IGObject object, ToplevelPath path) {
+		IGReferencesSearch rs = new IGReferencesSearch(fZPrj);
+		ReferenceSearchResult rsr = rs.search(object, path, fSearchUpward, fSearchDownward, fWritersOnly, fReadersOnly);
+		mergeResults(object, rsr);
+	}
+
 	protected void mergeResults(Object aObject, ReferenceSearchResult root) {
 		if (root != null) {
 			//aRSR.dump(1, System.err);
@@ -245,13 +253,6 @@ public class ReferencesSearchQuery implements ISearchQuery {
 		}
 	}
 	
-	//Extended search may have more than one result to merge
-	protected void igSearch(IGObject object, ToplevelPath path) {
-		IGReferencesSearch rs = new IGReferencesSearch(fZPrj);
-		ReferenceSearchResult rsr = rs.search(object, path, fSearchUpward, fSearchDownward, fWritersOnly, fReadersOnly);
-		mergeResults(object, rsr);
-	}
-
 	protected void addMatch(ReferenceSearchResult aRSR) {
 		fSearchResult.addMatch(new Match(aRSR, 0, 1));
 	}

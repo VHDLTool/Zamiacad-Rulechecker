@@ -7,6 +7,8 @@ import org.eclipse.swt.widgets.Shell;
 import org.eclipse.ui.IEditorPart;
 import org.eclipse.ui.IWorkbenchWindow;
 import org.zamia.plugin.ZamiaPlugin;
+import org.zamia.plugin.search.ReferencesSearchQuery;
+import org.zamia.plugin.search.ReferencesSearchQueryListener;
 import org.zamia.plugin.views.sim.SimulatorView;
 
 /**

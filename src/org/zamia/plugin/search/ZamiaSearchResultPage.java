@@ -6,7 +6,7 @@
  * 
  * Created by Guenter Bartsch on Jun 22, 2008
  */
-package org.zamia.plugin.editors;
+package org.zamia.plugin.search;
 
 
 import java.io.FileWriter;
@@ -69,6 +69,7 @@ import org.zamia.instgraph.IGObject;
 import org.zamia.instgraph.IGObject.OIDir;
 import org.zamia.plugin.ZamiaPlugin;
 import org.zamia.plugin.ZamiaProjectMap;
+import org.zamia.plugin.editors.ZamiaEditor;
 import org.zamia.plugin.views.sim.SimulatorView;
 
 
@@ -164,30 +165,6 @@ public class ZamiaSearchResultPage extends AbstractTextSearchViewPage {
 					res.add(r);
 				}
 					
-//				// Complex algorithm introduces intermediate parent node for duplicates
-				// Resulting tree may need more complex handling
-//				HashSetArray<SearchAssignment> ch = new HashSetArray<SearchAssignment>(root.fChildren);
-//				Collection<ReferenceSite> res = new ArrayList<ReferenceSite>(n);
-//				while (!ch.isEmpty()) {
-//					SearchAssignment a = ch.get(ch.size()-1);
-//					RootResult next = a.keyResult;
-//					if (next != null) {
-//						ReferenceSite intermediate = new ReferenceSite(null, next.getLocation(), 1, RefType.Declaration, next.getPath(), loadObj(next.getDBID()));
-//						for (SearchAssignment a2: ch) {
-//							if (a2.keyResult == next) {
-//								intermediate.add(a2);
-//								ch.remove(a2);
-//							}
-//						}
-//						assert intermediate.fChildren.size() > 0;
-//						res.add(intermediate.fChildren.size() == 1 ? a : intermediate);
-//					} else {
-//						res.add(a);
-//						ch.remove(a);
-//					}
-//					
-//				}
-					
 				return res.toArray(new Object[res.size()]);
 				
 			}
@@ -233,8 +210,7 @@ public class ZamiaSearchResultPage extends AbstractTextSearchViewPage {
 	private ZamiaSearchTreeContentProvider fContentProvider;
 
 	public ZamiaSearchResultPage() {
-		//		super(AbstractTextSearchViewPage.FLAG_LAYOUT_FLAT);
-		super(AbstractTextSearchViewPage.FLAG_LAYOUT_TREE);
+		super(AbstractTextSearchViewPage.FLAG_LAYOUT_TREE); // FLAG_LAYOUT_FLAT
 	}
 
 	protected void elementsChanged(Object[] objects) {
@@ -645,3 +621,4 @@ public class ZamiaSearchResultPage extends AbstractTextSearchViewPage {
 
     
 }
+
