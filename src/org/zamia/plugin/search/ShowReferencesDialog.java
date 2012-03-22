@@ -8,6 +8,7 @@
  */
 package org.zamia.plugin.search;
 
+import org.eclipse.jface.dialogs.ControlEnableState;
 import org.eclipse.jface.dialogs.Dialog;
 import org.eclipse.jface.dialogs.IDialogConstants;
 import org.eclipse.swt.SWT;
@@ -56,6 +57,9 @@ public class ShowReferencesDialog extends Dialog implements SelectionListener {
 		}
 	}
 	
+	Button[] rwReserved = new Button[2]; // these radio buttons replace checkboxes when assignment through is on
+	Composite assignmentPanel, pathPanel;
+	
 	boolean values[];
 	Button[] buttons = new Button[Option.values().length];
 	
@@ -73,6 +77,10 @@ public class ShowReferencesDialog extends Dialog implements SelectionListener {
 
 	public boolean isSearchDown() {
 		return isSearchUp() || getValue(Option.ScopeDown);
+	}
+
+	public boolean isFollowAssignments() {
+		return getValue(Option.AssignThrough) && getValue(Option.UsePath);
 	}
 
 	protected ShowReferencesDialog(Shell parentShell, String aJobText, ToplevelPath aPath, boolean[] values, int aDepth) {
@@ -147,23 +155,20 @@ public class ShowReferencesDialog extends Dialog implements SelectionListener {
 			for (int i = 0 ; i != values.length ; i++) {
 				Button b = buttons[i];
 				b.setSelection(values[i]);
-				
-				if (b == getButton(Option.UsePath)) {
-					b.setEnabled(fPath.length() != 0);
-				}
-				
-				if (b == getButton(Option.AssignThrough)) {
-					b.setEnabled(fPath.length() != 0);
-					fDepthText.setEnabled(b.getSelection());
-				}
 			}
+			
+			getButton(Option.UsePath).setEnabled(fPath.length() != 0);
+			getButton(Option.AssignThrough).setEnabled(fPath.length() != 0);
 			
 			fPathText.setText(fPath);
 		}
 
 		parent.pack();
 		fDepthText.setText(fDepth + "");
+		widgetSelected(null);
+		
 		return panel;
+		
 	}
 
 	private Composite createMainPanel(Composite parent) {
@@ -174,30 +179,18 @@ public class ShowReferencesDialog extends Dialog implements SelectionListener {
 		layout.makeColumnsEqualWidth = true;
 		panel.setLayout(layout);
 
-		Composite scopeGroup = createScopeGroup(panel);
-		setGridData(scopeGroup, SWT.FILL, true, SWT.FILL, false);
+		createScopeGroup(panel);
 
 		Composite optionsGroup = createOptionsGroup(panel);
 		setGridData(optionsGroup, SWT.FILL, true, SWT.FILL, true);
-
+		
+		createAssignmentsGroup(parent);
 		return panel;
 	}
 	
-	private Composite createScopeGroup(Composite parent) {
+	private void createAssignmentsGroup(Composite parent) {
 
-		Composite panel = newComposite(parent, SWT.NONE, 1);
-
-		Group scope = new Group(panel, SWT.SHADOW_ETCHED_IN);
-			scope.setText("Scope");
-			GridLayout scopeLayout = new GridLayout();
-			scopeLayout.numColumns = 3;
-			scope.setLayout(scopeLayout);
-			
-			newRadio(scope, "local", Option.ScopeLocal);
-			newRadio(scope, "local+down", Option.ScopeDown);
-			newRadio(scope, "global", Option.ScopeGlobal);
-
-		Composite assignmentPanel = newComposite(parent, SWT.NONE, 2);
+		assignmentPanel = newComposite(parent, SWT.NONE, 2);
 			newCheckBox(assignmentPanel, "Follow assignments", Option.AssignThrough);
 			Composite depthPanel = newComposite(assignmentPanel, SWT.BORDER, 2);
 				Label label = new Label(depthPanel, SWT.NONE);
@@ -207,13 +200,28 @@ public class ShowReferencesDialog extends Dialog implements SelectionListener {
 				// disable search when depth is not integer 
 				fDepthText.addModifyListener(new ModifyListener() {
 					public void modifyText(ModifyEvent e) {
-						updateDepthNSearchButton();
+						widgetSelected(null);
 					}
 				});
 				fDepthText.setEnabled(false);
 				fDepthText.setToolTipText("Limit amount of assignments to follow. Empty or negative value results in unlimited search");
 		
-		return panel;
+	}
+
+	Group createScopeGroup(Composite parent) {
+		Group scope = new Group(parent, SWT.SHADOW_ETCHED_IN);
+		scope.setText("Scope");
+		GridLayout scopeLayout = new GridLayout();
+		scopeLayout.numColumns = 3;
+		scope.setLayout(scopeLayout);
+		
+		newRadio(scope, "local", Option.ScopeLocal);
+		newRadio(scope, "local+down", Option.ScopeDown);
+		newRadio(scope, "global", Option.ScopeGlobal);
+		
+		setGridData(scope, SWT.FILL, true, SWT.FILL, false);
+		return scope;
+
 	}
 	
 	private Composite createMyButtonBar(Composite parent) {
@@ -229,39 +237,29 @@ public class ShowReferencesDialog extends Dialog implements SelectionListener {
 		return panel;
 	}
 	
-	// these radio buttons replace checkboxes when assignment through is on
-	Button[] rwReserved = new Button[2];
-	Composite pathPanel;
 	private Composite createOptionsGroup(Composite parent) {
 
-		Composite panel = newComposite(parent, SWT.NONE, 1);
+		Composite panel = newComposite(parent, SWT.NONE, 2);
 
-		Group group = new Group(panel, SWT.SHADOW_NONE);
-		group.setText("Options");
-		GridLayout groupLayout = new GridLayout();
-		groupLayout.numColumns = 1;
-		groupLayout.makeColumnsEqualWidth = true;
-		group.setLayout(groupLayout);
-		group.setLayoutData(new GridData(SWT.FILL, SWT.FILL, true, true));
-
-		pathPanel = newComposite(group, SWT.NONE, 2);
+		Button alias = newCheckBox(newComposite(parent, SWT.NONE, 2), "Trace aliased signals", Option.SupportAlias);
+		alias.setEnabled(false);
+		
+		// show checkboxes and hide radio buttons
+		
+		pathPanel = newComposite(panel, SWT.NONE, 2);
 		pathPanel.setLayoutData(new GridData(SWT.FILL, SWT.FILL, true, true));
+
+		boolean initialButtKind = getValue(Option.AssignThrough);
+		setVisible(rwReserved[0] = newButton(pathPanel, "Drivers", Option.WritesOnly, initialButtKind ? SWT.CHECK : SWT.RADIO, true), false);
+		setVisible(rwReserved[1] = newButton(pathPanel, "Readers", Option.ReadsOnly, initialButtKind ? SWT.CHECK : SWT.RADIO, true), false);
+		newButton(pathPanel, "Drivers", Option.WritesOnly, initialButtKind ? SWT.RADIO : SWT.CHECK, true);
+		newButton(pathPanel, "Readers", Option.ReadsOnly, initialButtKind ? SWT.RADIO : SWT.CHECK, true);
 
 		newCheckBox(pathPanel, "Use Path", Option.UsePath);
 		fPathText = new Text(pathPanel, SWT.BORDER | SWT.READ_ONLY);
 		GridData gd = new GridData(SWT.FILL, SWT.CENTER, true, true);
 		fPathText.setLayoutData(gd);
 
-		// show checkboxes and hide radio buttons
-		boolean initialButtKind = getValue(Option.AssignThrough);
-		setVisible(rwReserved[0] = newButton(pathPanel, "Drivers", Option.WritesOnly, initialButtKind ? SWT.CHECK : SWT.RADIO, true), false);
-		setVisible(rwReserved[1] = newButton(pathPanel, "Readers", Option.ReadsOnly, initialButtKind ? SWT.CHECK : SWT.RADIO, true), false);
-		newButton(pathPanel, "Drivers", Option.WritesOnly, initialButtKind ? SWT.RADIO : SWT.CHECK, true);
-		newButton(pathPanel, "Readers", Option.ReadsOnly, initialButtKind ? SWT.RADIO : SWT.CHECK, true);
-		
-		newCheckBox(pathPanel, "Trace aliased signals", Option.SupportAlias);
-		getButton(Option.SupportAlias).setEnabled(false);
-		
 		return panel;
 	}
 
@@ -281,19 +279,6 @@ public class ShowReferencesDialog extends Dialog implements SelectionListener {
 		b.setVisible(visible);
 	}
 	
-	/**Is called when depth text or Follow Assignments changes.*/
-	private void updateDepthNSearchButton() {
-		fSearchButton.setEnabled(true);
-		if (fDepthText.isEnabled())
-			try {
-				String text = fDepthText.getText();
-				fDepth = text.length() == 0 ? -1 : Integer.parseInt(fDepthText.getText());
-			} catch (NumberFormatException ex) {
-				fSearchButton.setEnabled(false);
-			}
-		
-	}
-
 	private void swapButtons(Option visible, int reserved) {
 		Button tmp = buttons[visible.ordinal()]; 
 		setVisible(buttons[visible.ordinal()] = rwReserved[reserved], true); 
@@ -301,14 +286,31 @@ public class ShowReferencesDialog extends Dialog implements SelectionListener {
 		buttons[visible.ordinal()].setSelection(tmp.getSelection());
 	}
 	
-	/**Updates values on a button click*/
+	/**
+	 * Updates values on a button click and enables/disables buttons.
+	 * The flow of events:<br>
+	 * 	 UsePath -> enables IG search options (over hierarchy)<br>
+	 *   Follow Assignments -> enables depth<br>
+	 *   					-> controls R/W checkbox shape (cannot do both when following assignments) <br>
+	 *   Depth -> disables Search button when contains bad value  <br>
+	 * */
 	public void widgetSelected(SelectionEvent e) {
 
-		boolean assignment = getButton(Option.AssignThrough).getSelection();
-		fDepthText.setEnabled(assignment);
-		updateDepthNSearchButton();
-		if (getValue(Option.AssignThrough) != assignment) { // buttons must be radio when assigns are followed
-			if (assignment) { // we must not allow both radio buttons to have the same values
+		boolean before = isFollowAssignments();
+				
+		for (int i = 0 ; i != values.length; i++) 
+			values[i] = buttons[i].getSelection();
+
+		// UsePath -> IG hierarchy search enabled
+		boolean igSearchEnabled = getButton(Option.UsePath).getSelection(); 
+		setChildrenEnabled(assignmentPanel, igSearchEnabled);
+		
+		// FollowAssignments -> Depth Text and scope box shape
+		fDepthText.setEnabled(isFollowAssignments());
+		
+		//boolean ba = getButton(Option.AssignThrough).getSelection();
+		if (before != isFollowAssignments()) { // buttons must be radio when assigns are followed
+			if (isFollowAssignments()) { // we must not allow both radio buttons to have the same values
 				Button b1 = getButton(Option.ReadsOnly);
 				Button b2 = getButton(Option.WritesOnly);
 				if (b1.getSelection() == b2.getSelection()) 
@@ -318,11 +320,26 @@ public class ShowReferencesDialog extends Dialog implements SelectionListener {
 			swapButtons(Option.ReadsOnly, 1);
 			pathPanel.layout();
 		}
+
+		// Depth text -> Search button
+		fSearchButton.setEnabled(true);
+		if (fDepthText.isEnabled())
+			try {
+				String text = fDepthText.getText().trim();
+				fDepth = text.length() == 0 ? -1 : Integer.parseInt(fDepthText.getText());
+			} catch (NumberFormatException ex) {
+				fSearchButton.setEnabled(false);
+			}
 		
-		for (int i = 0 ; i != values.length; i++) 
-			values[i] = buttons[i].getSelection();
-		
-		
+	}
+	
+	/**Does Eclipse's homework, who does not gray out children when parent's Composite is disabled.*/
+	void setChildrenEnabled(Control c, boolean enabled) {
+		c.setEnabled(enabled);
+		if (c instanceof Composite)
+			for (Control ch : ((Composite)c).getChildren()) {
+				setChildrenEnabled(ch, enabled);
+		}
 	}
 	
 	@Override
