@@ -98,7 +98,7 @@ public class ShowReferencesAction extends StaticAnalysisAction {
 
 class ExtendedReferencesSearchQuery extends ReferencesSearchQuery {
 
-	private boolean fFollowAssignments;
+	public final boolean fFollowAssignments;
 	private int fDepth;
 	protected String getLabelOptions() {
 		return super.getLabelOptions() + (fFollowAssignments ? ", depth="+fDepth : "");

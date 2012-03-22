@@ -125,6 +125,17 @@ public class ZamiaSearchResultPage extends AbstractTextSearchViewPage {
 		public void inputChanged(Viewer viewer, Object oldInput, Object newInput) {
 			fTreeViewer = (TreeViewer) viewer;
 			fSearchResult = (ZamiaSearchResult) newInput;
+
+			boolean assignmentSearch = newInput != null && (((ExtendedReferencesSearchQuery) getQuery()).fFollowAssignments);
+			exportAction.setEnabled(assignmentSearch);
+			highlightAssignments.setEnabled(assignmentSearch);
+			expandAssignments.setEnabled(assignmentSearch);
+			if (!assignmentSearch) // I do not know how to check if it is assignment-through
+				assignmentIcon = null;
+			else
+				assignmentIcon = JavaPlugin.getImageDescriptorRegistry().get(JavaPluginImages.createImageDescriptor(JavaPlugin.getDefault().getBundle(), JavaPluginImages.ICONS_PATH.append("e" + "lcl16")
+					.append("ch_calle"+(getQuery().fReadersOnly ? "e" : "r")+"s.gif"), true));
+
 		}
 
 		public void refresh() {
@@ -151,7 +162,7 @@ public class ZamiaSearchResultPage extends AbstractTextSearchViewPage {
 
 		public Object[] getChildren(Object parentElement) {
 
-			if (parentElement instanceof RootResult && !showAssignments.isChecked()) {
+			if (parentElement instanceof RootResult && !expandAssignments.isChecked()) {
 				
 				RootResult root = (RootResult) parentElement;
 				int n = root.getNumChildren(); 
@@ -244,112 +255,114 @@ public class ZamiaSearchResultPage extends AbstractTextSearchViewPage {
 
     BackAction backAction = new BackAction();
     ForwardAction fwdAction = new ForwardAction();
-    
-	protected void fillToolbar(final IToolBarManager tbm) {
-		tbm.appendToGroup(IContextMenuConstants.GROUP_SHOW, new Action("Highlight Assignments", IAction.AS_CHECK_BOX) {
-			{
-				setToolTipText("Highlights lines in Editor");
-			}
-			public void run() {
-				ZamiaSearchResult root = (ZamiaSearchResult) getViewer().getInput();
-				
-				SourceRanges sources = SourceRanges.createRanges();
-				if (isChecked()) {
-					logger.info("root = "  + root + " " + root.getElements());
-					for (Object o : root.getElements())
-						if (o instanceof SearchAssignment) {
-							SearchAssignment a = (SearchAssignment) o;
-							logger.info(" " + a);
-							sources.add(a.getLocation(), 0);
-						}
-				} else 
-					sources = null;
-				
-				ZamiaEditor.setStaticSources(sources);
-				SimulatorView.highlightOpenEditors();
-			}
-			
-		});
-		tbm.appendToGroup(IContextMenuConstants.GROUP_GENERATE, new Action("Export", IAction.AS_PUSH_BUTTON) {
-			{
-				setToolTipText("Saves the graph of results as a DOT file (for further analysis of signal dependencies with external tools)");
-			}
-			
-			String exportName(ReferenceSite ref) {
-				IGObject o = loadObj(ref.getDBID());
-				String pa = ref.getPath().getPath().toString();
-				return "\"" + o.getId() + (pa.length() == 0 ? "" : " - " + pa) + "\""; 
-			}
-			
-			public void run() {
+    Action exportAction = new Action("Export", IAction.AS_PUSH_BUTTON) {
+		{
+			setToolTipText("Saves the graph of results as a DOT file (for further analysis of signal dependencies with external tools)");
+		}
+		
+		String exportName(ReferenceSite ref) {
+			IGObject o = loadObj(ref.getDBID());
+			String pa = ref.getPath().getPath().toString();
+			return "\"" + o.getId() + (pa.length() == 0 ? "" : " - " + pa) + "\""; 
+		}
+		
+		public void run() {
 
-				FileDialog fd = new FileDialog(getSite().getShell(), SWT.SAVE);
-				fd.setFilterExtensions(new String[] {".gv", ".dot"});
-				final String fname = fd.open();
-				if (fname == null)
-					return;
+			FileDialog fd = new FileDialog(getSite().getShell(), SWT.SAVE);
+			fd.setFilterExtensions(new String[] {".gv", ".dot"});
+			final String fname = fd.open();
+			if (fname == null)
+				return;
 
-				Collection<RootResult> searches = new ArrayList<RootResult>();
-				for (Object e: fContentProvider.fSearchResult.getElements())
-					if (e instanceof RootResult)
-						searches.add((RootResult) e);
-				
+			try {
+				Writer out = new FileWriter(fname);
 				try {
-					Writer out = new FileWriter(fname);
-					try {
-						out.write("digraph dependencies_from_assignments {\r");
-						for (RootResult r : searches) {
-							for (Object sa : fContentProvider.getChildren(r)) {
-								final SearchAssignment a = (SearchAssignment) sa;
-								if (a.getDBID() != 0) {
-									String first = exportName(r);
-									String second = a.keyResult == null ? "\"- search for ["+exportName(a)+"] has failed -\"" : exportName(a.keyResult);
-									out.write("\t");
-									out.write(getQuery().fWritersOnly ? second  + " -> " +  first : first + " -> " + second);
-									out.write("\r");
-								}
-								//graph.add( exportName(r) + " -> " + exportName(a.keyResult));
+					out.write("digraph dependencies_from_assignments {\r");
+					for (Object o: fContentProvider.fSearchResult.getElements()) {
+						RootResult r = (RootResult) o;
+						String first = exportName(r);
+						if (r.num_prefix == 1)
+							out.write("\t" + first + " [fillcolor=red, style=\"filled\"]\r");
+						for (Object sa : fContentProvider.getChildren(r)) {
+							final SearchAssignment a = (SearchAssignment) sa;
+							if (a.keyResult != null && a.keyResult.skippedDueToDepth) // do not show skipped nodes
+								continue;
+							if (a.getDBID() != 0) {
+								String second = a.keyResult == null ? "\"- search for ["+exportName(a).replace('"', '\'')+"] has failed -\"" : exportName(a.keyResult);
+								out.write("\t");
+								out.write(getQuery().fWritersOnly ? second  + " -> " +  first : first + " -> " + second);
+								out.write("\r");
 							}
+							//graph.add( exportName(r) + " -> " + exportName(a.keyResult));
 						}
-						out.write("}");
-					} finally {
-						out.close();
 					}
-				} catch (IOException e) {
-					ExceptionLogger.getInstance().logException(e);
+					out.write("}");
+				} finally {
+					out.close();
 				}
-					
-
-				// open the graph in Eclipse
-//				Shell shell = new Shell();
-//				shell.setText(DotGraph.class.getSimpleName());
-//			    shell.setSize(10000, 10000);
-//			    shell.setLayout(new FillLayout());
-//				File f = new File(fname);
-//				try {
-//					char buf[] = new char[(int) f.length()];
-//					(new BufferedReader(new FileReader(f))).read(buf, 0, (int) f.length());
-//					String dot = new String(buf);
-//					DotGraph graph = new DotGraph(dot, shell, SWT.NONE);
-//				} catch (IOException e) {
-//					e.printStackTrace();
-//				}
-//			     shell.open();
-//			     Display display = shell.getDisplay();
-//			     while (!shell.isDisposed())
-//			       if (!display.readAndDispatch())
-//			         display.sleep();
-				
+			} catch (IOException e) {
+				ExceptionLogger.getInstance().logException(e);
 			}
+				
+
+			// open the graph in Eclipse
+//			Shell shell = new Shell();
+//			shell.setText(DotGraph.class.getSimpleName());
+//		    shell.setSize(10000, 10000);
+//		    shell.setLayout(new FillLayout());
+//			File f = new File(fname);
+//			try {
+//				char buf[] = new char[(int) f.length()];
+//				(new BufferedReader(new FileReader(f))).read(buf, 0, (int) f.length());
+//				String dot = new String(buf);
+//				DotGraph graph = new DotGraph(dot, shell, SWT.NONE);
+//			} catch (IOException e) {
+//				e.printStackTrace();
+//			}
+//		     shell.open();
+//		     Display display = shell.getDisplay();
+//		     while (!shell.isDisposed())
+//		       if (!display.readAndDispatch())
+//		         display.sleep();
 			
-		});
+		}
+		
+	};
+	Action highlightAssignments = new Action("Highlight Assignments", IAction.AS_CHECK_BOX) {
+		{
+			setToolTipText("Highlights lines in Editor");
+		}
+		public void run() {
+			
+			final SourceRanges sources;
+			if (!isChecked()) 
+				sources = null;
+			else {
+				sources = SourceRanges.createRanges();
+				for (Object o: fContentProvider.fSearchResult.getElements()) {
+					RootResult r = (RootResult) o;
+					for (Object sa : fContentProvider.getChildren(r)) {
+						final SearchAssignment a = (SearchAssignment) sa;
+						sources.add(a.getLocation(), 0);
+					}
+				}
+			}  
+			
+			ZamiaEditor.setStaticSources(sources);
+			SimulatorView.highlightOpenEditors();
+		}
+		
+	};
+	protected void fillToolbar(final IToolBarManager tbm) {
+		tbm.appendToGroup(IContextMenuConstants.GROUP_SHOW, highlightAssignments);
+		tbm.appendToGroup(IContextMenuConstants.GROUP_GENERATE, exportAction);
 		tbm.appendToGroup(IContextMenuConstants.GROUP_SHOW, backAction);
 		tbm.appendToGroup(IContextMenuConstants.GROUP_SHOW, fwdAction);
 		super.fillToolbar(tbm);
-		tbm.appendToGroup(IContextMenuConstants.GROUP_VIEWER_SETUP, showAssignments);
+		tbm.appendToGroup(IContextMenuConstants.GROUP_VIEWER_SETUP, expandAssignments);
 	}
 	
-	Action showAssignments = new Action("Expand Assignments", IAction.AS_CHECK_BOX) {
+	Action expandAssignments = new Action("Expand Assignments", IAction.AS_CHECK_BOX) {
 		
 		{setToolTipText("Uncollapses duplicate assignments, the cases where a signal depends on another through multiple different assignments.");}
 		
@@ -399,6 +412,8 @@ public class ZamiaSearchResultPage extends AbstractTextSearchViewPage {
 
 	}
 
+	private Image assignmentIcon;
+
 	class SearchLabelProvider extends LabelProvider implements IStyledLabelProvider {
 
 		private final Image searchIcon = ZamiaPlugin.getImage("/share/images/search.gif");
@@ -411,12 +426,8 @@ public class ZamiaSearchResultPage extends AbstractTextSearchViewPage {
 		private final Image fOutIcon = ZamiaPlugin.getImage("/share/images/out.gif");
 		private final Image fInoutIcon = ZamiaPlugin.getImage("/share/images/inout.gif");
 		
-		private final Image assignmentIcon;
-
 		public SearchLabelProvider() {
 			super();
-			ImageDescriptor descr = JavaPluginImages.createImageDescriptor(JavaPlugin.getDefault().getBundle(), JavaPluginImages.ICONS_PATH.append("e" + "lcl16").append("ch_callers.gif"), true);
-			assignmentIcon = JavaPlugin.getImageDescriptorRegistry().get(descr);
 		}
 
 		public Image getImage(Object element) {
@@ -621,4 +632,3 @@ public class ZamiaSearchResultPage extends AbstractTextSearchViewPage {
 
     
 }
-
