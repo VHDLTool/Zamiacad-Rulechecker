@@ -13,6 +13,8 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Collection;
 import java.util.Map;
+import java.util.regex.Matcher;
+
 import org.eclipse.core.runtime.IProgressMonitor;
 import org.eclipse.core.runtime.IStatus;
 import org.eclipse.core.runtime.OperationCanceledException;
@@ -116,7 +118,7 @@ public class ReferencesSearchQuery implements ISearchQuery {
 				fDeclOnly, "Decl",
 				fReadersOnly, "Readers",
 				fWritersOnly, "Writers",
-				fUsePath, "path=" + fTLP,
+				fUsePath, "Path=" + fTLP,
 			};
 		for (int i = 0 ; i != pairs.length ; i++) {
 			if ((Boolean) pairs[i++]) 
@@ -126,8 +128,7 @@ public class ReferencesSearchQuery implements ISearchQuery {
 		return Utils.concatenate(options, "+");
 	}
 	public String getLabel() {
-		
-		return "Searching " + fMessage + " ("+ getLabelOptions() +") for references..." + (fDone ? " Done" : "");
+		return "Searching " + fMessage + " ("+ getLabelOptions() +") for references..." + (fDone ? " Done " : " ") + refCounter + " refs found" ;
 	}
 
 	public ZamiaSearchResult getSearchResult() {
@@ -138,6 +139,7 @@ public class ReferencesSearchQuery implements ISearchQuery {
 
 	public IStatus run(IProgressMonitor aMonitor) throws OperationCanceledException {
 
+		refCounter = 0;
 		fSearchResult = getSearchResult();
 		fSearchResult.removeAll();
 
@@ -253,7 +255,9 @@ public class ReferencesSearchQuery implements ISearchQuery {
 		}
 	}
 	
+	int refCounter = 0;
 	protected void addMatch(ReferenceSearchResult aRSR) {
+		refCounter += aRSR.countRefs();
 		fSearchResult.addMatch(new Match(aRSR, 0, 1));
 	}
 }
