@@ -506,7 +506,7 @@ public class ZamiaSearchResultPage extends AbstractTextSearchViewPage {
 		
 		@Override
 		public StyledString getStyledText(Object element) {
-			if (element instanceof ReferenceSite) {
+			if (exportAction.isEnabled()) {
 				ReferenceSite rs = (ReferenceSite) element;
 				//String icon = rs instanceof SearchAssignment ? "    => " : ""; 
 				if (rs.getDBID() == 0)
