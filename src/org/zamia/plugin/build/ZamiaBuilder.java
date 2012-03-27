@@ -50,6 +50,7 @@ import org.zamia.plugin.editors.ZamiaEditor;
 import org.zamia.plugin.efs.ZamiaFileSystem;
 import org.zamia.plugin.views.navigator.ZamiaNavigator;
 import org.zamia.util.HashSetArray;
+import org.zamia.util.Native;
 
 
 /**
@@ -346,6 +347,15 @@ public class ZamiaBuilder extends IncrementalProjectBuilder {
 		try {
 			String name = aPath.replace('/', '.').substring(1);
 			String host = aReadonly ? ZamiaFileSystem.ZAMIA_EFS_HOST_READONLY : ZamiaFileSystem.ZAMIA_EFS_HOST_READWRITE;
+
+			if (Native.isWindows()) {
+				name = aPath.replace("\\", ".").substring(3);
+				aPath = "/" + aPath;
+			}
+
+			if (name.endsWith(".")) {
+				name = name.substring(0, name.length() - 1);
+			}
 
 			URI uri = new URI(ZamiaFileSystem.ZAMIA_EFS_SCHEME, null, host, aPath.length(), aPath, null, null);
 
