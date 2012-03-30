@@ -156,9 +156,13 @@ public class ShowReferencesDialog extends Dialog implements SelectionListener {
 				Button b = buttons[i];
 				b.setSelection(values[i]);
 			}
-			
-			getButton(Option.UsePath).setEnabled(fPath.length() != 0);
-			getButton(Option.AssignThrough).setEnabled(fPath.length() != 0);
+
+			if (fPath.length() == 0) {
+				getButton(Option.UsePath).setEnabled(false);
+				getButton(Option.UsePath).setSelection(false);
+				getButton(Option.AssignThrough).setEnabled(false);
+				getButton(Option.AssignThrough).setSelection(false);
+			}
 			
 			fPathText.setText(fPath);
 		}
@@ -237,6 +241,7 @@ public class ShowReferencesDialog extends Dialog implements SelectionListener {
 		return panel;
 	}
 	
+	boolean buttonsAreRound = false;
 	private Composite createOptionsGroup(Composite parent) {
 
 		Composite panel = newComposite(parent, SWT.NONE, 2);
@@ -249,11 +254,10 @@ public class ShowReferencesDialog extends Dialog implements SelectionListener {
 		pathPanel = newComposite(panel, SWT.NONE, 2);
 		pathPanel.setLayoutData(new GridData(SWT.FILL, SWT.FILL, true, true));
 
-		boolean initialButtKind = getValue(Option.AssignThrough);
-		setVisible(rwReserved[0] = newButton(pathPanel, "Drivers", Option.WritesOnly, initialButtKind ? SWT.CHECK : SWT.RADIO, true), false);
-		setVisible(rwReserved[1] = newButton(pathPanel, "Readers", Option.ReadsOnly, initialButtKind ? SWT.CHECK : SWT.RADIO, true), false);
-		newButton(pathPanel, "Drivers", Option.WritesOnly, initialButtKind ? SWT.RADIO : SWT.CHECK, true);
-		newButton(pathPanel, "Readers", Option.ReadsOnly, initialButtKind ? SWT.RADIO : SWT.CHECK, true);
+		setVisible(rwReserved[0] = newButton(pathPanel, "Drivers", Option.WritesOnly, buttonsAreRound ? SWT.CHECK : SWT.RADIO, true), false);
+		setVisible(rwReserved[1] = newButton(pathPanel, "Readers", Option.ReadsOnly, buttonsAreRound ? SWT.CHECK : SWT.RADIO, true), false);
+		newButton(pathPanel, "Drivers", Option.WritesOnly, buttonsAreRound ? SWT.RADIO : SWT.CHECK, true);
+		newButton(pathPanel, "Readers", Option.ReadsOnly, buttonsAreRound ? SWT.RADIO : SWT.CHECK, true);
 
 		newCheckBox(pathPanel, "Use Path", Option.UsePath);
 		fPathText = new Text(pathPanel, SWT.BORDER | SWT.READ_ONLY);
@@ -296,8 +300,6 @@ public class ShowReferencesDialog extends Dialog implements SelectionListener {
 	 * */
 	public void widgetSelected(SelectionEvent e) {
 
-		boolean before = isFollowAssignments();
-				
 		for (int i = 0 ; i != values.length; i++) 
 			values[i] = buttons[i].getSelection();
 
@@ -308,17 +310,19 @@ public class ShowReferencesDialog extends Dialog implements SelectionListener {
 		// FollowAssignments -> Depth Text and scope box shape
 		fDepthText.setEnabled(isFollowAssignments());
 		
-		//boolean ba = getButton(Option.AssignThrough).getSelection();
-		if (before != isFollowAssignments()) { // buttons must be radio when assigns are followed
-			if (isFollowAssignments()) { // we must not allow both radio buttons to have the same values
-				Button b1 = getButton(Option.ReadsOnly);
-				Button b2 = getButton(Option.WritesOnly);
-				if (b1.getSelection() == b2.getSelection()) 
-					b2.setSelection(!b1.getSelection());
-			}
+		if (buttonsAreRound != isFollowAssignments()) { // buttons must be radio when assigns are followed
+			buttonsAreRound = !buttonsAreRound;
 			swapButtons(Option.WritesOnly, 0);
 			swapButtons(Option.ReadsOnly, 1);
 			pathPanel.layout();
+			if (isFollowAssignments()) { // one and only one when following assignments
+				Button b1 = getButton(Option.ReadsOnly);
+				Button b2 = getButton(Option.WritesOnly);
+				if (b1.getSelection() == b2.getSelection()) {
+					b2.setSelection(!b1.getSelection());
+					widgetSelected(e); // update buttons => values
+				}
+			}
 		}
 
 		// Depth text -> Search button

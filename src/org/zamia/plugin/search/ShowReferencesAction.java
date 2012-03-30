@@ -77,7 +77,7 @@ public class ShowReferencesAction extends StaticAnalysisAction {
 
 			if (dlg.open() == Window.OK) {
 				NewSearchUI.runQueryInBackground(new ExtendedReferencesSearchQuery(this, dlg.isSearchUp(), dlg.isSearchDown(), false, 
-						usePath && dlg.getValue(Option.UsePath), dlg.getValue(Option.WritesOnly), dlg.getValue(Option.ReadsOnly), dlg.isFollowAssignments(), depth = dlg.fDepth));
+						dlg.getValue(Option.UsePath), dlg.getValue(Option.WritesOnly), dlg.getValue(Option.ReadsOnly), dlg.isFollowAssignments(), depth = dlg.fDepth));
 			}
 
 			values = dlg.values;
