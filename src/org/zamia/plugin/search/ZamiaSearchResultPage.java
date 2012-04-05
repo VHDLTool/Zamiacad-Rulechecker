@@ -367,7 +367,10 @@ public class ZamiaSearchResultPage extends AbstractTextSearchViewPage {
 		{setToolTipText("Uncollapses duplicate assignments, the cases where a signal depends on another through multiple different assignments.");}
 		
 		public void run() {
-			fContentProvider.refresh();
+			fContentProvider.fTreeViewer.getControl().setRedraw(false);
+			fContentProvider.refresh(); // calls viewer.refresh()
+			fContentProvider.fTreeViewer.getControl().setRedraw(true);
+			fContentProvider.fTreeViewer.reveal(backAction.current());
 		}
 	};
 	
@@ -567,7 +570,7 @@ public class ZamiaSearchResultPage extends AbstractTextSearchViewPage {
     class BackAction extends Action implements ISelectionChangedListener { 
     	List hist = new ArrayList(); 
     	
-    	private Object current() {
+    	public Object current() {
     		return hist.get(hist.size()-1);
     	}
 
@@ -589,7 +592,7 @@ public class ZamiaSearchResultPage extends AbstractTextSearchViewPage {
     		
     		boolean fwdEnabled = selObj != null && selObj instanceof SearchAssignment 
     				&& ((SearchAssignment) selObj).getDBID() != 0
-    				//&& fwdAction.selection.keyResult != null
+    				&& ((SearchAssignment) selObj).keyResult != null
     				; 
     		fwdAction.setEnabled(fwdEnabled);
 
