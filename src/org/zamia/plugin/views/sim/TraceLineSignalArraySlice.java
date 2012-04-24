@@ -33,14 +33,14 @@ public class TraceLineSignalArraySlice extends TraceLineSignal {
 
 	private int fMax;
 
-	public TraceLineSignalArraySlice(TraceLineSignal aParent, int aMin, int aMax, TraceDisplayMode aTDM, int aColor, IGTypeStatic aType) {
+	public TraceLineSignalArraySlice(TraceLineSignal aParent, int aMin, int aMax, boolean aAsc, TraceDisplayMode aTDM, int aColor, IGTypeStatic aType) {
 		fMin = aMin;
 		fMax = aMax;
 		fTDM = aTDM;
 		fColor = aColor;
 		fType = aType;
 		fUID = aParent.getUID() + "." + fMin + ":" + fMax;
-		fLabel = fMin != fMax ? "(" + fMin + ":" + fMax + ")" : "(" + fMin + ")";
+		fLabel = fMin != fMax ? "(" + (aAsc ? fMin : fMax) + ":" + (aAsc ? fMax : fMin) + ")" : "(" + fMin + ")";
 		fParent = aParent;
 		fSignalPath = aParent.getSignalPath();
 	}

@@ -2752,7 +2752,7 @@ public class SimulatorView extends ViewPart implements IGISimObserver {
 			subtype = type.getStaticElementType(null);
 		}
 
-		TraceLineSignalArraySlice tlsas = new TraceLineSignalArraySlice(tls, min, max, aTDM, aColor, subtype);
+		TraceLineSignalArraySlice tlsas = new TraceLineSignalArraySlice(tls, min, max, ascending, aTDM, aColor, subtype);
 
 		addTrace(tlsas, aParent);
 
