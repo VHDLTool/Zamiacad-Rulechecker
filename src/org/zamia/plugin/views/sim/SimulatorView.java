@@ -2070,24 +2070,7 @@ public class SimulatorView extends ViewPart implements IGISimObserver {
 
 		ZamiaEditor.setCoveredSources(coveredSources);
 
-		highlightOpenEditors();
-	}
-
-	public static void highlightOpenEditors() {
-
-		IWorkbenchWindow window = ZamiaPlugin.getDefault().getWorkbench().getActiveWorkbenchWindow();
-
-		IWorkbenchPage page = window.getActivePage();
-
-		for (IEditorReference ref : page.getEditorReferences()) {
-			IEditorPart openEditor = ref.getEditor(false);
-
-			if (openEditor instanceof ZamiaEditor) {
-				ZamiaEditor zamiaEditor = (ZamiaEditor) openEditor;
-				zamiaEditor.highlight();
-			}
-		}
-
+		ZamiaEditor.highlightOpenEditors();
 	}
 
 	private void doStaticAnalysis() {

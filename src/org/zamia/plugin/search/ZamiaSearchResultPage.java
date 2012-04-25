@@ -128,6 +128,7 @@ public class ZamiaSearchResultPage extends AbstractTextSearchViewPage {
 
 			boolean assignmentSearch = newInput != null && (((ExtendedReferencesSearchQuery) getQuery()).fFollowAssignments);
 			exportAction.setEnabled(assignmentSearch);
+			
 			highlightAssignments.setEnabled(assignmentSearch);
 			expandAssignments.setEnabled(assignmentSearch);
 			if (!assignmentSearch) // I do not know how to check if it is assignment-through
@@ -349,7 +350,7 @@ public class ZamiaSearchResultPage extends AbstractTextSearchViewPage {
 			}  
 			
 			ZamiaEditor.setStaticSources(sources);
-			SimulatorView.highlightOpenEditors();
+			ZamiaEditor.highlightOpenEditors();
 		}
 		
 	};
