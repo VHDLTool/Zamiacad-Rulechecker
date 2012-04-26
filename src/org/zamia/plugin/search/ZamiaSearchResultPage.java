@@ -14,7 +14,9 @@ import java.io.IOException;
 import java.io.Writer;
 import java.util.ArrayList;
 import java.util.Collection;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 import org.eclipse.core.resources.IProject;
 import org.eclipse.jdt.internal.ui.JavaPlugin;
@@ -59,6 +61,7 @@ import org.eclipse.ui.internal.WorkbenchMessages;
 import org.zamia.ExceptionLogger;
 import org.zamia.SourceLocation;
 import org.zamia.SourceRanges;
+import org.zamia.Utils;
 import org.zamia.ZamiaLogger;
 import org.zamia.ZamiaProject;
 import org.zamia.analysis.ReferenceSearchResult;
@@ -130,6 +133,10 @@ public class ZamiaSearchResultPage extends AbstractTextSearchViewPage {
 			exportAction.setEnabled(assignmentSearch);
 			
 			highlightAssignments.setEnabled(assignmentSearch);
+			if (!assignmentSearch) {
+				highlightAssignments.setChecked(false);
+			}
+			highlightAssignments.run();
 			expandAssignments.setEnabled(assignmentSearch);
 			if (!assignmentSearch) // I do not know how to check if it is assignment-through
 				assignmentIcon = null;
@@ -340,13 +347,21 @@ public class ZamiaSearchResultPage extends AbstractTextSearchViewPage {
 				sources = null;
 			else {
 				sources = SourceRanges.createRanges();
+				Utils.Counter<String> lineCounter = new Utils.Counter<String>(); 
 				for (Object o: fContentProvider.fSearchResult.getElements()) {
 					RootResult r = (RootResult) o;
 					for (Object sa : fContentProvider.getChildren(r)) {
 						final SearchAssignment a = (SearchAssignment) sa;
 						sources.add(a.getLocation(), 0);
+						
+						SourceLocation loc = a.getLocation();
+						String s = loc.fSF.toString() + ":" + loc.fLine;
+						lineCounter.inc(s);
+						logger.info(loc.toString());
 					}
 				}
+				
+				logger.info("there are " + lineCounter.size() + " different lines totally");
 			}  
 			
 			ZamiaEditor.setStaticSources(sources);
