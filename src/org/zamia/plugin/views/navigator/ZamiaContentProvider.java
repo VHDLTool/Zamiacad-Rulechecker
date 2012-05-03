@@ -86,7 +86,10 @@ public class ZamiaContentProvider extends BaseWorkbenchContentProvider implement
 			if (prj.isAccessible()) {
 
 				ZamiaProject zprj = ZamiaProjectMap.getZamiaProject(prj);
-
+				if (zprj == null) {
+					return new Object[0];
+				}
+				
 				NavigatorWrapperCache cache = getCache(zprj);
 
 				ArrayList<Object> res = new ArrayList<Object>();

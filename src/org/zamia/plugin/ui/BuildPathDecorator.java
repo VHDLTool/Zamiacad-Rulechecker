@@ -4,6 +4,7 @@ import org.eclipse.core.resources.IFile;
 import org.eclipse.jface.viewers.ILabelDecorator;
 import org.eclipse.jface.viewers.LabelProvider;
 import org.eclipse.swt.graphics.Image;
+import org.zamia.ZamiaProject;
 import org.zamia.plugin.ZamiaPlugin;
 import org.zamia.plugin.ZamiaProjectMap;
 import org.zamia.plugin.build.ZamiaBuilder;
@@ -22,7 +23,9 @@ public class BuildPathDecorator extends LabelProvider implements ILabelDecorator
 		if (object instanceof IFile) {
 			IFile file = (IFile) object;
 			//String peristentBp = ZamiaBuilder.getPersistentBuildPath(file.getProject());
-			String persistentBp = ZamiaProjectMap.getZamiaProject(file.getProject()).getBuildPath().getSourceFile().getLocalPath();
+			ZamiaProject proj = ZamiaProjectMap.getZamiaProject(file.getProject());
+			if (proj == null) return null;
+			String persistentBp = proj.getBuildPath().getSourceFile().getLocalPath();
 			if (ZamiaPlugin.computeLocalPath(file).equals(persistentBp)) {
 				return "*active* "+label + "";
 			}

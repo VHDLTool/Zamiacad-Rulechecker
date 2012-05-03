@@ -23,6 +23,7 @@ import org.eclipse.core.resources.IResource;
 import org.eclipse.core.resources.IResourceDelta;
 import org.eclipse.core.runtime.CoreException;
 import org.eclipse.swt.SWT;
+import org.eclipse.swt.widgets.Display;
 import org.eclipse.ui.PlatformUI;
 import org.zamia.ERManager;
 import org.zamia.ExceptionLogger;
@@ -160,12 +161,40 @@ public class ZamiaProjectMap {
 		}
 	}
 	
+	/**Creating a new ZamiaProject takes time, so wait while it completes rather than
+	 * create the same project from another thread. This happens when
+	 * we have closed project, open it and kill Eclipse. Next open results in
+	 * concurrent creation: from a builder and main thread. Even worse when Main (GUI)
+	 * thread re-enters when shows modal Retry/Cancel dialog (I've observed 
+	 * ZamiaContentProvider.getChildren() and Navigator's LabelDecorator calling this method) 
+	 * */
+	static HashMap<IProject, Thread> pendingCreation = new HashMap<IProject, Thread>();
+	
 	public static ZamiaProject getZamiaProject(final IProject aProject) {
-
-		ZamiaProject zprj = fZPrjs.get(aProject);
-
+		
+		ZamiaProject zprj;
+		synchronized (fZPrjs) {
+			while (true) {// check if anybody is creating/opening our project
+				Thread that = pendingCreation.get(aProject);
+				if (that == null)
+					break;
+				logger.warn("Thread " + Thread.currentThread() + " requests getZamiaProject(" + aProject + ") while " + that + " is creating/opening it");
+				if (Thread.currentThread() == Display.getDefault().getThread()) {
+					logger.warn("Cannot block the GUI thread - give it a null result.");
+					return null;
+				}
+				try {
+					fZPrjs.wait();
+				} catch (InterruptedException e) {el.logException(e);}
+			}
+			zprj = fZPrjs.get(aProject);
+			if (zprj == null)
+				pendingCreation.put(aProject, Thread.currentThread());
+		}
+		
 		if (zprj == null) {
-			try {
+			try { // finally, release the pending process
+				try {
 
 				String baseDir = aProject.getLocation().toOSString();
 				
@@ -192,10 +221,10 @@ public class ZamiaProjectMap {
 						File lockfile = e.getLockFile();
 
 						int answer = ZamiaPlugin.askQuestion(null, "Lockfile exists", "A lockfile for project\n\n" + aProject.getName() + "\n\nalready exists:\n\n"
-								+ lockfile.getAbsolutePath() + "\n\nAnother instance of zamiaCAD is probably running.", SWT.ICON_ERROR | SWT.ABORT | SWT.RETRY | SWT.IGNORE);
+								+ lockfile.getAbsolutePath() + "\n\nAnother instance of zamiaCAD is probably running.", SWT.ICON_ERROR | SWT.CANCEL | SWT.RETRY);
 
 						switch (answer) {
-						case SWT.ABORT:
+						case SWT.CANCEL:
 							logger.info("ZamiaProjectMap: Shutting down because lockfile was in the way.");
 							try {
 								PlatformUI.getWorkbench().close();
@@ -204,29 +233,31 @@ public class ZamiaProjectMap {
 							}
 							System.exit(1);
 
-						case SWT.RETRY:
-							break;
-
-						case SWT.IGNORE:
-							logger.info("ZamiaProjectMap: deleting lockfile '%s'.", lockfile.getAbsolutePath());
-							lockfile.delete();
-							break;
 						}
 					}
 				}
 
-				fZPrjs.put(aProject, zprj);
-				fIPrjs.put(zprj, aProject);
+				synchronized (fZPrjs) {
+					fZPrjs.put(aProject, zprj);
+					fIPrjs.put(zprj, aProject);
+				}
 
 				// hook up error observer
 
 				ERManager erm = zprj.getERM();
 				erm.addObserver(new ZamiaErrorObserver(aProject));
 
-			} catch (ZamiaException e1) {
-				el.logException(e1);
-			} catch (IOException e) {
-				el.logException(e);
+				} catch (ZamiaException e1) {
+					el.logException(e1);
+				} catch (IOException e) {
+					el.logException(e);
+				}
+			} finally {
+				synchronized (fZPrjs) {
+					pendingCreation.remove(aProject); 
+					fZPrjs.notifyAll();
+				}
+				
 			}
 		}
 		return zprj;
@@ -237,9 +268,11 @@ public class ZamiaProjectMap {
 	}
 
 	public static void remove(IProject aPrj) {
-		ZamiaProject zprj = getZamiaProject(aPrj);
-		fZPrjs.remove(aPrj);
-		fIPrjs.remove(zprj);
+		synchronized(fZPrjs) { 
+			ZamiaProject zprj = getZamiaProject(aPrj);
+			fZPrjs.remove(aPrj);
+			fIPrjs.remove(zprj);
+		}
 	}
 
 	public static void shutdown() {
