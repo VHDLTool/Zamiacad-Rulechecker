@@ -254,10 +254,10 @@ public class ShowReferencesDialog extends Dialog implements SelectionListener {
 		pathPanel = newComposite(panel, SWT.NONE, 2);
 		pathPanel.setLayoutData(new GridData(SWT.FILL, SWT.FILL, true, true));
 
-		setVisible(rwReserved[0] = newButton(pathPanel, "Drivers", Option.WritesOnly, buttonsAreRound ? SWT.CHECK : SWT.RADIO, true), false);
-		setVisible(rwReserved[1] = newButton(pathPanel, "Readers", Option.ReadsOnly, buttonsAreRound ? SWT.CHECK : SWT.RADIO, true), false);
-		newButton(pathPanel, "Drivers", Option.WritesOnly, buttonsAreRound ? SWT.RADIO : SWT.CHECK, true);
-		newButton(pathPanel, "Readers", Option.ReadsOnly, buttonsAreRound ? SWT.RADIO : SWT.CHECK, true);
+		setVisible(rwReserved[0] = newButton(pathPanel, "Backward", Option.WritesOnly, buttonsAreRound ? SWT.CHECK : SWT.RADIO, true), false);
+		setVisible(rwReserved[1] = newButton(pathPanel, "Forward", Option.ReadsOnly, buttonsAreRound ? SWT.CHECK : SWT.RADIO, true), false);
+		newButton(pathPanel, "Drivers Only", Option.WritesOnly, buttonsAreRound ? SWT.RADIO : SWT.CHECK, true);
+		newButton(pathPanel, "Readers Only", Option.ReadsOnly, buttonsAreRound ? SWT.RADIO : SWT.CHECK, true);
 
 		newCheckBox(pathPanel, "Use Path", Option.UsePath);
 		fPathText = new Text(pathPanel, SWT.BORDER | SWT.READ_ONLY);
