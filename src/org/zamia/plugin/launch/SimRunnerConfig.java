@@ -111,7 +111,7 @@ public class SimRunnerConfig {
 		fEnvP = launchManager.getEnvironment(aConfiguration);
 	}
 
-	private List getTraces(ILaunchConfiguration aConfiguration) throws CoreException {
+	public static List getTraces(ILaunchConfiguration aConfiguration) throws CoreException {
 		List traces = aConfiguration.getAttribute(ATTR_TRACES, (List) null);
 		if (traces == null) {
 			traces = new ArrayList<String>();

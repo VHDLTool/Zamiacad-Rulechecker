@@ -8,6 +8,8 @@
 
 package org.zamia.plugin.launch;
 
+import java.util.List;
+
 import org.eclipse.core.resources.IProject;
 import org.eclipse.core.runtime.CoreException;
 import org.eclipse.debug.core.DebugPlugin;
@@ -77,14 +79,16 @@ public class LaunchIGModuleAction extends org.eclipse.ui.actions.ActionDelegate 
 			DMUID duuid = fWrapper.getDMUID();
 			
 			String id = duuid.toString();
-
+			
+			List traces = null;
 			ILaunchConfiguration[] configurations = manager.getLaunchConfigurations();
 			for (int i = 0; i < configurations.length; i++) {
-				if (configurations[i].getName().equals(id))
+				if (configurations[i].getName().equals(id)) {
+					traces = SimRunnerConfig.getTraces(configurations[i]);
 					configurations[i].delete();
+				}
 			}
 			// else create a new one
-			if (config == null) {
 				ILaunchConfigurationWorkingCopy configWC = type.newInstance(null, id);
 
 				ZamiaProject zprj = fWrapper.getZPrj();
@@ -93,9 +97,10 @@ public class LaunchIGModuleAction extends org.eclipse.ui.actions.ActionDelegate 
 
 				configWC.setAttribute(SimRunnerConfig.ATTR_TOPLEVEL, duuid.toString());
 				configWC.setAttribute(SimRunnerConfig.ATTR_PROJECT, prj.getName());
-
+				if (traces != null)
+					configWC.setAttribute(SimRunnerConfig.ATTR_TRACES, traces);
 				config = configWC.doSave();
-			}
+				
 			ILaunch launch = config.launch(ILaunchManager.RUN_MODE, null);
 			manager.addLaunch(launch);
 			//config.delete();
