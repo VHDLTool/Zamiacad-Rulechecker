@@ -9,15 +9,23 @@
 
 package org.zamia.plugin.views.navigator;
 
+import java.util.Iterator;
+
+import org.eclipse.core.resources.IProject;
 import org.eclipse.core.runtime.IProgressMonitor;
 import org.eclipse.core.runtime.IStatus;
 import org.eclipse.core.runtime.Status;
 import org.eclipse.core.runtime.jobs.Job;
+import org.eclipse.jface.action.IAction;
+import org.eclipse.jface.viewers.DoubleClickEvent;
+import org.eclipse.jface.viewers.IStructuredSelection;
 import org.eclipse.swt.widgets.Composite;
 import org.eclipse.swt.widgets.Display;
+import org.eclipse.ui.IActionBars;
 import org.eclipse.ui.IEditorInput;
 import org.eclipse.ui.IFileEditorInput;
 import org.eclipse.ui.IWorkbenchPage;
+import org.eclipse.ui.ide.IDEActionFactory;
 import org.eclipse.ui.navigator.CommonNavigator;
 import org.eclipse.ui.navigator.CommonViewer;
 import org.eclipse.ui.part.ShowInContext;
@@ -188,6 +196,18 @@ public class ZamiaNavigator extends CommonNavigator {
 		super.createPartControl(aParent);
 		CommonViewer cv = getCommonViewer();
 		cv.setComparator(null);
+	}
+	
+	protected void handleDoubleClick(DoubleClickEvent anEvent) {
+		super.handleDoubleClick(anEvent); // this expands the nodes
+		
+		// open project
+		for (Iterator it = ((IStructuredSelection) getCommonViewer().getSelection()).iterator(); it.hasNext();) {
+			if (!(it.next() instanceof IProject)) return;
+		}
+		IActionBars ab = getViewSite().getActionBars();
+		IAction op = ab.getGlobalActionHandler(IDEActionFactory.OPEN_PROJECT.getId());
+		op.run();
 	}
 	/**
 	 * Returns the element contained in the EditorInput
