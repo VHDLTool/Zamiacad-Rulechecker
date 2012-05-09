@@ -209,9 +209,7 @@ public class SimulatorView extends ViewPart implements IGISimObserver {
 
 	private Image fOffscreenImage = null;
 
-	private GC fOffscreenGC;
-
-	private Lock fOffscreenLock;
+	private Lock fOffscreenLock = new ReentrantLock();
 
 	private WaveformPaintJobScheduler fScheduler = null;
 
@@ -227,7 +225,6 @@ public class SimulatorView extends ViewPart implements IGISimObserver {
 
 	public SimulatorView() throws ZamiaException {
 		fSimJobLock = new ReentrantLock();
-		fOffscreenLock = new ReentrantLock();
 	}
 
 	class GotoTransitionJob extends Job {
@@ -3153,27 +3150,24 @@ public class SimulatorView extends ViewPart implements IGISimObserver {
 		return TraceLineSignal.formatSignalValue(aValue, tls.getTDM());
 	}
 
-	GC resizeOffscreenImage(Rectangle aClientArea) {
+	Image resizeOffscreenImage(Rectangle aClientArea) {
 
 		fOffscreenLock.lock();
 		try {
 
 			if (fOffscreenImage != null && !fOffscreenImage.getBounds().equals(aClientArea)) {
-				fOffscreenGC.dispose();
-				fOffscreenGC = null;
 				fOffscreenImage.dispose();
 				fOffscreenImage = null;
 			}
 
 			if (fOffscreenImage == null) {
 				fOffscreenImage = new Image(fDisplay, aClientArea.width, aClientArea.height);
-				fOffscreenGC = new GC(fOffscreenImage);
 			}
+			return fOffscreenImage;
 		} finally {
 			fOffscreenLock.unlock();
 		}
 
-		return fOffscreenGC;
 	}
 
 	public Display getDisplay() {

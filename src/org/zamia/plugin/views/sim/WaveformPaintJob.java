@@ -18,6 +18,7 @@ import org.eclipse.core.runtime.jobs.Job;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.graphics.Color;
 import org.eclipse.swt.graphics.GC;
+import org.eclipse.swt.graphics.Image;
 import org.eclipse.swt.graphics.Rectangle;
 import org.eclipse.swt.widgets.Display;
 import org.eclipse.swt.widgets.Tree;
@@ -191,7 +192,8 @@ public class WaveformPaintJob extends Job {
 
 		fMonitor = aMonitor;
 
-		GC gc = fViewer.resizeOffscreenImage(fClientArea);
+		Image displayImage = fViewer.resizeOffscreenImage(fClientArea);
+		GC gc = new GC(displayImage);
 
 		gc.setClipping(fClientArea);
 
@@ -262,7 +264,7 @@ public class WaveformPaintJob extends Job {
 			time = time.add(minorScale);
 		}
 
-		repaintViewer(false);
+		//repaintViewer(false);
 
 		/*
 		 * repaint waveforms
@@ -296,9 +298,10 @@ public class WaveformPaintJob extends Job {
 				break;
 			}
 
-			repaintViewer(false);
+			//repaintViewer(false);
 		}
 		
+		gc.dispose();
 		repaintViewer(!isCanceled());
 		
 		fCursor.dispose();
