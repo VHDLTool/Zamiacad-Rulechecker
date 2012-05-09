@@ -71,6 +71,7 @@ import org.eclipse.swt.layout.FillLayout;
 import org.eclipse.swt.layout.GridData;
 import org.eclipse.swt.layout.GridLayout;
 import org.eclipse.swt.widgets.Canvas;
+import org.eclipse.swt.widgets.Combo;
 import org.eclipse.swt.widgets.Composite;
 import org.eclipse.swt.widgets.Control;
 import org.eclipse.swt.widgets.CoolBar;
@@ -111,6 +112,7 @@ import org.zamia.instgraph.IGRecordField;
 import org.zamia.instgraph.IGStaticValue;
 import org.zamia.instgraph.IGStaticValueBuilder;
 import org.zamia.instgraph.IGTypeStatic;
+import org.zamia.instgraph.sim.IGAbstractProgressMonitor;
 import org.zamia.instgraph.sim.IGISimCursor;
 import org.zamia.instgraph.sim.IGISimObserver;
 import org.zamia.instgraph.sim.IGISimulator;
@@ -151,7 +153,7 @@ public class SimulatorView extends ViewPart implements IGISimObserver {
 	
 	private TraceDialog fTraceDialog;
 
-	private ToolItem fTraceTI, fUnTraceTI, fNewLineTI, fRunTI, fRestartTI, fJobTI, fPrevTransTI, fNextTransTI, fGotoCycleTI, fCoverageTI, fStaticAnalysisTI, fScriptTI;
+	private ToolItem fTraceTI, fUnTraceTI, fNewLineTI, fRunTI, fRestartTI, fJobTI, fStopTI, fPrevTransTI, fNextTransTI, fGotoCycleTI, fCoverageTI, fStaticAnalysisTI, fScriptTI;
 
 	private SimRunnerConfig fConfig;
 
@@ -219,7 +221,7 @@ public class SimulatorView extends ViewPart implements IGISimObserver {
 
 	private Image fMinusIcon;
 
-	private Label fTimeUnitLabel;
+	private Combo fTimeUnitCombo;
 
 	private Shell fShell;
 
@@ -400,8 +402,9 @@ public class SimulatorView extends ViewPart implements IGISimObserver {
 		fRunText.setLayoutData(new GridData(width, height));
 		fRunText.setText("100");
 
-		fTimeUnitLabel = new Label(comp, SWT.NONE);
-		fTimeUnitLabel.setText("ns");
+		fTimeUnitCombo = new Combo(comp, SWT.NONE);
+		fTimeUnitCombo.setItems(new String[]{"s", "ms", "\u00B5s", "ns"});
+		fTimeUnitCombo.select(3);
 
 		ToolBar tb = new ToolBar(comp, SWT.FLAT);
 
@@ -412,19 +415,28 @@ public class SimulatorView extends ViewPart implements IGISimObserver {
 		fRunTI.setEnabled(false);
 		fRunTI.addSelectionListener(new SelectionAdapter() {
 			public void widgetSelected(SelectionEvent e) {
-				try {
 
-					String str = fRunText.getText();
+				String str = fRunText.getText();
 
-					BigInteger aTime = new BigInteger(str).multiply(BigInteger.valueOf((long) fFSPerUnit));
-
-					fSimulator.run(aTime);
-				} catch (ZamiaException ex) {
-					MessageBox box = new MessageBox(fControl.getShell(), SWT.ICON_ERROR);
-					box.setText("Simulator Error");
-					box.setMessage("Simulator exception caught:\n" + ex);
-					box.open();
+				double factor;
+				switch (fTimeUnitCombo.getSelectionIndex()) {
+					case 0:
+						factor = 1000000000000000.0;
+						break;
+					case 1:
+						factor = 1000000000000.0;
+						break;
+					case 2:
+						factor = 1000000000.0;
+						break;
+					default:
+						factor = 1000000.0;
 				}
+				BigInteger aTime = new BigInteger(str).multiply(BigInteger.valueOf((long) factor));
+
+				SimulationJob simJob = new SimulationJob(aTime);
+				simJob.setPriority(Job.LONG);
+				simJob.schedule();
 			}
 		});
 		fRunText.addKeyListener(new KeyAdapter(){
@@ -434,7 +446,7 @@ public class SimulatorView extends ViewPart implements IGISimObserver {
 					fRunTI.notifyListeners(SWT.Selection, null);
 				}
 			}
-		});		
+		});
 		fRestartTI = new ToolItem(tb, SWT.NONE);
 		icon = ZamiaPlugin.getImage("/share/images/restart.gif");
 		fRestartTI.setImage(icon);
@@ -442,19 +454,39 @@ public class SimulatorView extends ViewPart implements IGISimObserver {
 		fRestartTI.setEnabled(false);
 		fRestartTI.addSelectionListener(new SelectionAdapter() {
 			public void widgetSelected(SelectionEvent e) {
-				try {
-					getValueForcer().reset();
-					fCoverageTI.setSelection(false);
-					doCoverage();
-					fSimulator.reset();
-				} catch (ZamiaException e2) {
-					MessageBox box = new MessageBox(fControl.getShell(), SWT.ICON_ERROR);
-					box.setText("Simulator Error");
-					box.setMessage("Simulator exception caught:\n" + e2);
-					box.open();
+				getValueForcer().reset();
+				fCoverageTI.setSelection(false);
+				doCoverage();
+				Job resetJob = new Job("Resetting simulator...") {
+					@Override
+					protected IStatus run(IProgressMonitor iProgressMonitor) {
+						try {
+							fSimulator.reset();
+						} catch (ZamiaException e2) {
+							el.logException(e2);
+							ZamiaPlugin.showError(getSite().getShell(), "Simulator Error", "Simulator exception caught", e2.toString());
+						}
+						return Status.OK_STATUS;
+					}
+				};
+				resetJob.setPriority(Job.LONG);
+				resetJob.schedule();
+			}
+		});
+
+		fStopTI = new ToolItem(tb, SWT.NONE);
+		icon = ZamiaPlugin.getImage("/share/images/minus.gif");
+		fStopTI.setImage(icon);
+		fStopTI.setToolTipText("Stop simulation");
+		fStopTI.setEnabled(false);
+		fStopTI.addSelectionListener(new SelectionAdapter() {
+			public void widgetSelected(SelectionEvent e) {
+				if (fSimulator instanceof IGSimRef) {
+					((IGSimRef) fSimulator).setMonitor(IGAbstractProgressMonitor.CANCELLED_MONITOR);
 				}
 			}
 		});
+
 		fTraceTI = new ToolItem(tb, SWT.NONE);
 		icon = ZamiaPlugin.getImage("/share/images/trace.gif");
 		fTraceTI.setImage(icon);
@@ -1649,7 +1681,6 @@ public class SimulatorView extends ViewPart implements IGISimObserver {
 							} else {
 								fUnitName = "ns";
 							}
-							fTimeUnitLabel.setText(fUnitName);
 
 						} else {
 							fInfoLabel.setText("No simulator started yet.          ");
@@ -1682,6 +1713,45 @@ public class SimulatorView extends ViewPart implements IGISimObserver {
 		SimRunJob job = new SimRunJob(aConfig);
 		job.setPriority(Job.SHORT);
 		job.schedule();
+	}
+
+	class SimulationJob extends Job {
+
+		private final BigInteger fTime;
+
+		public SimulationJob(BigInteger aTime) {
+			super("Running simulator...");
+			fTime = aTime;
+		}
+
+		@Override
+		protected IStatus run(IProgressMonitor iProgressMonitor) {
+			try {
+
+				enableStopBtn(true);
+
+				if (fSimulator instanceof IGSimRef) {
+					((IGSimRef) fSimulator).setMonitor(new EclipseProgressMonitor(fSimulator.getEndTime(), fTime, 100, iProgressMonitor));
+				}
+				fSimulator.run(fTime);
+
+				enableStopBtn(false);
+
+			} catch (ZamiaException e) {
+				el.logException(e);
+				ZamiaPlugin.showError(getSite().getShell(), "Simulator Error", "Simulator exception caught", e.toString());
+			}
+			return Status.OK_STATUS;
+		}
+
+		private void enableStopBtn(final boolean enable) {
+			Display.getDefault().asyncExec(new Runnable() {
+				@Override
+				public void run() {
+					fStopTI.setEnabled(enable);
+				}
+			});
+		}
 	}
 
 	public void setFocus() {
@@ -3392,4 +3462,25 @@ public class SimulatorView extends ViewPart implements IGISimObserver {
 
 	}
 
+	private class EclipseProgressMonitor extends IGAbstractProgressMonitor {
+
+		private final IProgressMonitor fProgressMonitor;
+
+		public EclipseProgressMonitor(BigInteger aStartTime, BigInteger aTotalTime, int aSteps, IProgressMonitor aProgressMonitor) {
+			super(aStartTime, aTotalTime, aSteps);
+
+			fProgressMonitor = aProgressMonitor;
+			fProgressMonitor.beginTask("Running simulator...", aSteps);
+		}
+
+		@Override
+		public void doProgress() {
+			fProgressMonitor.worked(1);
+		}
+
+		@Override
+		public boolean isCanceled() {
+			return fProgressMonitor.isCanceled();
+		}
+	}
 }
