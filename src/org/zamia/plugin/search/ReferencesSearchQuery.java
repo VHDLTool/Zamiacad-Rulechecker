@@ -128,7 +128,7 @@ public class ReferencesSearchQuery implements ISearchQuery {
 		return Utils.concatenate(options, "+");
 	}
 	public String getLabel() {
-		return "Searching " + fMessage + " ("+ getLabelOptions() +") for references..." + (fDone ? " Done " : " ") + refCounter + " refs found" ;
+		return (fDone ? " Done " : " ") + "Searching " + fMessage + " ("+ getLabelOptions() +") for references..." + refCounter + " found" ;
 	}
 
 	public ZamiaSearchResult getSearchResult() {
