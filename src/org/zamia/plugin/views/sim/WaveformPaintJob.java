@@ -192,6 +192,9 @@ public class WaveformPaintJob extends Job {
 
 		fMonitor = aMonitor;
 
+		fViewer.fOffscreenLock.lock();
+		try {
+
 		Image displayImage = fViewer.resizeOffscreenImage(fClientArea);
 		GC gc = new GC(displayImage);
 
@@ -300,9 +303,11 @@ public class WaveformPaintJob extends Job {
 
 			//repaintViewer(false);
 		}
-		
 		gc.dispose();
 		repaintViewer(!isCanceled());
+		} finally {
+			fViewer.fOffscreenLock.unlock();			
+		}
 		
 		fCursor.dispose();
 		fCursor = null;

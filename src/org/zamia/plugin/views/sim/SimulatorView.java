@@ -205,7 +205,7 @@ public class SimulatorView extends ViewPart implements IGISimObserver {
 
 	private Image fOffscreenImage = null;
 
-	private Lock fOffscreenLock = new ReentrantLock();
+	Lock fOffscreenLock = new ReentrantLock();
 
 	private WaveformPaintJobScheduler fScheduler = null;
 
@@ -1091,7 +1091,7 @@ public class SimulatorView extends ViewPart implements IGISimObserver {
 
 		createPopupMenu();
 
-		fWaveformCanvas = new Canvas(sash, SWT.V_SCROLL | SWT.H_SCROLL | SWT.NO_BACKGROUND | SWT.NO_REDRAW_RESIZE);
+		fWaveformCanvas = new Canvas(sash, SWT.V_SCROLL | SWT.H_SCROLL | SWT.NO_BACKGROUND | SWT.NO_REDRAW_RESIZE | SWT.DOUBLE_BUFFERED);
 		fWaveformCanvas.addControlListener(new ControlAdapter() {
 			public void controlResized(ControlEvent event) {
 				handleResize();
@@ -2320,6 +2320,8 @@ public class SimulatorView extends ViewPart implements IGISimObserver {
 	}
 
 	private void paintWaveformCanvas(PaintEvent aPaintEvent) {
+		fOffscreenLock.lock();
+		try {
 		GC gc = aPaintEvent.gc;
 
 		Rectangle clientArea = fWaveformCanvas.getClientArea();
@@ -2396,6 +2398,11 @@ public class SimulatorView extends ViewPart implements IGISimObserver {
 			if (timeOffset.compareTo(fEndTime) > 0) {
 				timeOffset = fEndTime;
 			}
+			
+
+		}
+		} finally {
+			fOffscreenLock.unlock();
 
 		}
 	}
@@ -3064,9 +3071,6 @@ public class SimulatorView extends ViewPart implements IGISimObserver {
 
 	Image resizeOffscreenImage(Rectangle aClientArea) {
 
-		fOffscreenLock.lock();
-		try {
-
 			if (fOffscreenImage != null && !fOffscreenImage.getBounds().equals(aClientArea)) {
 				fOffscreenImage.dispose();
 				fOffscreenImage = null;
@@ -3076,9 +3080,6 @@ public class SimulatorView extends ViewPart implements IGISimObserver {
 				fOffscreenImage = new Image(fDisplay, aClientArea.width, aClientArea.height);
 			}
 			return fOffscreenImage;
-		} finally {
-			fOffscreenLock.unlock();
-		}
 
 	}
 
