@@ -118,7 +118,6 @@ ITextHover, ITextHoverExtension {
 		try {
   			OpenDeclarationAction oda = new OpenDeclarationAction();
 			oda.processSelection(offset);
-			LocatedDeclaration ld = oda.findDeclaration();
 			return oda.findDeclaration();
   		} catch (BadLocationException e) {
   			el.logException(e);
