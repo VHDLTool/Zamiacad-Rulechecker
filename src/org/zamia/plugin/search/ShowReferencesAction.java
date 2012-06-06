@@ -28,6 +28,7 @@ import org.zamia.plugin.search.ShowReferencesDialog.Option;
 import org.zamia.vhdl.ast.DeclarativeItem;
 import org.zamia.vhdl.ast.InterfaceDeclaration;
 import org.zamia.vhdl.ast.SignalDeclaration;
+import org.zamia.vhdl.ast.VariableDeclaration;
 
 /**
  * 
@@ -72,9 +73,9 @@ public class ShowReferencesAction extends StaticAnalysisAction {
 			}
 
 			String jobText = "Search for " + decl + "\nLocation: " + fLocation + "\nPath: " + fPath;
-			boolean usePath = decl instanceof SignalDeclaration || decl instanceof InterfaceDeclaration;
+			boolean usePath = decl instanceof SignalDeclaration || decl instanceof InterfaceDeclaration || decl instanceof VariableDeclaration;
 			ShowReferencesDialog dlg = new ShowReferencesDialog(window.getShell(), jobText, usePath ? fPath : null, values, depth);
-
+			
 			if (dlg.open() == Window.OK) {
 				NewSearchUI.runQueryInBackground(new ExtendedReferencesSearchQuery(this, dlg.isSearchUp(), dlg.isSearchDown(), false, 
 						dlg.getValue(Option.UsePath), dlg.getValue(Option.WritesOnly), dlg.getValue(Option.ReadsOnly), dlg.isFollowAssignments(), depth = dlg.fDepth));
@@ -117,7 +118,7 @@ class ExtendedReferencesSearchQuery extends ReferencesSearchQuery {
 		
 		if (fFollowAssignments) {
 			IGAssignmentsSearch rs = new IGAssignmentsSearch(fZPrj, fDepth);
-	
+
 			Map<Long, RootResult> searches = rs.assignmentThroughSearch(object, path, fSearchUpward, fSearchDownward, fWritersOnly, fReadersOnly);
 	
 			for (Long key : searches.keySet()) {

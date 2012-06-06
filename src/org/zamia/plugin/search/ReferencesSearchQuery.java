@@ -163,13 +163,8 @@ public class ReferencesSearchQuery implements ISearchQuery {
 
 					if (item != null) {
 
-						IGObject object = null;
-
-						if (item instanceof IGOperationObject) {
-							object = ((IGOperationObject) item).getObject();
-						} else if (item instanceof IGObject) {
-							object = (IGObject) item;
-						}
+						IGObject object = IGReferencesSearch.asObject(item);
+						
 						if (object != null) {
 							fMessage = object.getId();
 							igSearch(object, path);
