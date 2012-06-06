@@ -13,26 +13,17 @@ import java.io.IOException;
 import java.io.Writer;
 import java.util.ArrayList;
 import java.util.Collection;
-import java.util.Comparator;
 import java.util.List;
 
-import org.eclipse.core.resources.IFile;
 import org.eclipse.core.resources.IProject;
 import org.eclipse.jdt.internal.ui.JavaPlugin;
 import org.eclipse.jdt.internal.ui.JavaPluginImages;
 import org.eclipse.jdt.internal.ui.viewsupport.ColoringLabelProvider;
 import org.eclipse.jface.action.Action;
-import org.eclipse.jface.action.ContributionItem;
 import org.eclipse.jface.action.IAction;
-import org.eclipse.jface.action.IContributionItem;
-import org.eclipse.jface.action.IContributionManager;
-import org.eclipse.jface.action.IMenuManager;
 import org.eclipse.jface.action.IToolBarManager;
 import org.eclipse.jface.resource.ImageDescriptor;
-import org.eclipse.jface.util.IOpenEventListener;
-import org.eclipse.jface.util.OpenStrategy;
 import org.eclipse.jface.viewers.DelegatingStyledCellLabelProvider.IStyledLabelProvider;
-import org.eclipse.jface.viewers.ILabelProvider;
 import org.eclipse.jface.viewers.ISelectionChangedListener;
 import org.eclipse.jface.viewers.IStructuredSelection;
 import org.eclipse.jface.viewers.ITreeContentProvider;
@@ -50,48 +41,29 @@ import org.eclipse.search.ui.text.AbstractTextSearchResult;
 import org.eclipse.search.ui.text.AbstractTextSearchViewPage;
 import org.eclipse.search.ui.text.Match;
 import org.eclipse.swt.SWT;
-import org.eclipse.swt.events.SelectionEvent;
-import org.eclipse.swt.events.SelectionListener;
 import org.eclipse.swt.graphics.Color;
 import org.eclipse.swt.graphics.Image;
 import org.eclipse.swt.graphics.TextStyle;
-import org.eclipse.swt.widgets.Button;
-import org.eclipse.swt.widgets.Composite;
-import org.eclipse.swt.widgets.CoolBar;
 import org.eclipse.swt.widgets.Display;
-import org.eclipse.swt.widgets.Event;
 import org.eclipse.swt.widgets.FileDialog;
-import org.eclipse.swt.widgets.Listener;
-import org.eclipse.swt.widgets.Menu;
-import org.eclipse.swt.widgets.ToolBar;
 import org.eclipse.ui.IEditorPart;
 import org.eclipse.ui.ISharedImages;
-import org.eclipse.ui.IWorkbenchCommandConstants;
-import org.eclipse.ui.IWorkbenchWindow;
 import org.eclipse.ui.PartInitException;
 import org.eclipse.ui.PlatformUI;
-import org.eclipse.ui.internal.IWorkbenchHelpContextIds;
 import org.eclipse.ui.internal.WorkbenchMessages;
 import org.zamia.ExceptionLogger;
 import org.zamia.SourceLocation;
-import org.zamia.SourceRanges;
-import org.zamia.ToplevelPath;
-import org.zamia.Utils;
 import org.zamia.ZamiaLogger;
 import org.zamia.ZamiaProject;
 import org.zamia.analysis.ReferenceSearchResult;
 import org.zamia.analysis.ReferenceSite;
-import org.zamia.analysis.ReferenceSite.RefType;
 import org.zamia.analysis.ig.IGAssignmentsSearch.RootResult;
 import org.zamia.analysis.ig.IGAssignmentsSearch.SearchAssignment;
 import org.zamia.instgraph.IGObject;
 import org.zamia.instgraph.IGObject.OIDir;
+import org.zamia.instgraph.interpreter.logger.IGHitCountLogger;
 import org.zamia.plugin.ZamiaPlugin;
 import org.zamia.plugin.ZamiaProjectMap;
-import org.zamia.plugin.views.sim.SimulatorView;
-import org.zamia.util.HashSetArray;
-import org.zamia.util.PathName;
-
 
 /**
  * 
@@ -295,23 +267,22 @@ public class ZamiaSearchResultPage extends AbstractTextSearchViewPage {
 			}
 			public void run() {
 				ZamiaSearchResult root = (ZamiaSearchResult) getViewer().getInput();
-				
-				SourceRanges sources = SourceRanges.createRanges();
+
+				IGHitCountLogger linesLogger = new IGHitCountLogger("Lines logger");
 				if (isChecked()) {
 					logger.info("root = "  + root + " " + root.getElements());
 					for (Object o : root.getElements())
 						if (o instanceof SearchAssignment) {
 							SearchAssignment a = (SearchAssignment) o;
 							logger.info(" " + a);
-							sources.add(a.getLocation(), 0);
+							linesLogger.logHit(a.getLocation(), 0);
 						}
-				} else 
-					sources = null;
-				
-				ZamiaEditor.setStaticSources(sources);
-				SimulatorView.highlightOpenEditors();
+				} else
+					linesLogger = null;
+
+				DebugReportVisualizer.getInstance(getZamiaProject()).setStaticalLines(linesLogger);
 			}
-			
+
 		});
 		tbm.appendToGroup(IContextMenuConstants.GROUP_GENERATE, new Action("Export", IAction.AS_PUSH_BUTTON) {
 			{

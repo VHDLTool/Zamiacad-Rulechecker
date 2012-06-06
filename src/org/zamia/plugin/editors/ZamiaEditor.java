@@ -15,10 +15,7 @@ import java.util.Iterator;
 import java.util.TreeSet;
 
 import org.eclipse.core.resources.IFile;
-import org.eclipse.core.resources.IMarker;
 import org.eclipse.core.resources.IProject;
-import org.eclipse.core.resources.IResource;
-import org.eclipse.core.runtime.CoreException;
 import org.eclipse.core.runtime.IPath;
 import org.eclipse.core.runtime.IProgressMonitor;
 import org.eclipse.core.runtime.IStatus;
@@ -35,6 +32,7 @@ import org.eclipse.jface.text.source.Annotation;
 import org.eclipse.jface.text.source.CompositeRuler;
 import org.eclipse.jface.text.source.ISourceViewer;
 import org.eclipse.jface.text.source.IVerticalRuler;
+import org.eclipse.jface.text.source.IVerticalRulerColumn;
 import org.eclipse.jface.text.source.MatchingCharacterPainter;
 import org.eclipse.jface.text.source.SourceViewerConfiguration;
 import org.eclipse.jface.text.source.projection.ProjectionAnnotation;
@@ -62,17 +60,13 @@ import org.eclipse.swt.widgets.Label;
 import org.eclipse.swt.widgets.Text;
 import org.eclipse.ui.IEditorInput;
 import org.eclipse.ui.IEditorPart;
-import org.eclipse.ui.IEditorReference;
 import org.eclipse.ui.IEditorSite;
-import org.eclipse.ui.IFileEditorInput;
 import org.eclipse.ui.IWorkbenchPage;
 import org.eclipse.ui.IWorkbenchPart;
 import org.eclipse.ui.IWorkbenchWindow;
 import org.eclipse.ui.PartInitException;
 import org.eclipse.ui.editors.text.TextEditor;
 import org.eclipse.ui.ide.ResourceUtil;
-import org.eclipse.ui.internal.WorkbenchPlugin;
-import org.eclipse.ui.internal.misc.StatusUtil;
 import org.eclipse.ui.navigator.resources.ProjectExplorer;
 import org.eclipse.ui.part.FileEditorInput;
 import org.eclipse.ui.part.IShowInTargetList;
@@ -85,7 +79,6 @@ import org.zamia.ExceptionLogger;
 import org.zamia.SFDMInfo;
 import org.zamia.SourceFile;
 import org.zamia.SourceLocation;
-import org.zamia.SourceRanges;
 import org.zamia.Toplevel;
 import org.zamia.ToplevelPath;
 import org.zamia.ZamiaException;
@@ -119,20 +112,6 @@ public class ZamiaEditor extends ErrorMarkEditor implements IShowInTargetList {
 	public final static ZamiaLogger logger = ZamiaLogger.getInstance();
 
 	public final static ExceptionLogger el = ExceptionLogger.getInstance();
-
-	private static enum MarkerType {
-		COVERAGE 		("org.zamia.plugin.coveragemarker"),
-		STATIC_ANALYSIS ("org.zamia.plugin.staticanalysismarker"),
-		BUG 			("org.zamia.plugin.bugsuspectmarker");
-
-		private final String id;
-
-		MarkerType(String id) {
-			this.id = id;
-		}
-	}
-
-	private static SourceRanges COVERED_SOURCES, STATICAL_SOURCES;
 
 	private ZamiaOutlinePage fOutlinePage;
 
@@ -290,7 +269,7 @@ public class ZamiaEditor extends ErrorMarkEditor implements IShowInTargetList {
 
 		setFillLayout(comp, false);
 
-		createLablel("Path:", comp);
+		createLabel("Path:", comp);
 		fPathEdit = new Text(comp, SWT.BORDER);
 		setFillLayout(fPathEdit, false);
 		fPathEdit.addKeyListener(new KeyAdapter() {
@@ -298,7 +277,7 @@ public class ZamiaEditor extends ErrorMarkEditor implements IShowInTargetList {
 				if (e.keyCode == SWT.KEYPAD_CR || e.keyCode == SWT.CR) {
 					navigateTo(fPathEdit.getText().toUpperCase());
 					fPathEdit.setText(fPath != null ? fPath.toString() : "");
-					getSourceViewer().getTextWidget().forceFocus();
+					getTextWidget().forceFocus();
 				}
 			}
 		});
@@ -413,7 +392,11 @@ public class ZamiaEditor extends ErrorMarkEditor implements IShowInTargetList {
 		fBracketPainter.setColor(ColorManager.getInstance().getColor(BRACKETS_COLOR));
 		fPaintManager.addPainter(fBracketPainter);
 
-		highlight();
+		DebugReportVisualizer visualizer = DebugReportVisualizer.getInstance(fReconcilingStrategy.getZPrj());
+
+		visualizer.highlightDeprecatedLines(this);
+
+		visualizer.highlightAssignments(this);
 
 		//		StyledText styledText = viewer.getTextWidget();
 		//		styledText.setLineSpacing(2);
@@ -433,117 +416,14 @@ public class ZamiaEditor extends ErrorMarkEditor implements IShowInTargetList {
 		control.setLayoutData(gd);
 	}
 	
-	//This method is also used in Philp branch
-	private void createLablel(String name, Composite parent) {
+	//This method is also used in Philip branch
+	private void createLabel(String name, Composite parent) {
 		Label label = new Label(parent, SWT.NONE);
 		label.setText(name);
 		setLeftLayout(label);
 	}
-	
-	public static void highlightOpenEditors() {
 
-		IWorkbenchWindow window = ZamiaPlugin.getDefault().getWorkbench().getActiveWorkbenchWindow();
-
-		IWorkbenchPage page = window.getActivePage();
-
-		for (IEditorReference ref : page.getEditorReferences()) {
-			IEditorPart openEditor = ref.getEditor(false);
-
-			if (openEditor instanceof ZamiaEditor) {
-				ZamiaEditor zamiaEditor = (ZamiaEditor) openEditor;
-				zamiaEditor.highlight();
-			}
-		}
-	}
-
-	public void highlight() {
-
-		if (!isActivePageLoaded())
-			return;
-
-		SimulatorView simulatorView = findSimulatorView();
-		boolean doCoverage = simulatorView.doShowCoverage();
-		boolean doStaticAnalysis = STATICAL_SOURCES != null;
-
-		highlightText(doCoverage, doStaticAnalysis);
-
-		addVerticalRulerColumns(doCoverage);
-	}
-
-	private boolean isActivePageLoaded() {
-		IWorkbenchWindow window = ZamiaPlugin.getDefault().getWorkbench().getActiveWorkbenchWindow();
-		return window.getActivePage() != null;
-	}
-
-	public void highlightText(boolean aDoCoverage, boolean aDoStaticAnalysis) {
-
-		IResource resource = getResource(); 
-		if (resource == null)
-			return;
-
-		try {
-			resource.deleteMarkers(MarkerType.COVERAGE.id, false, IResource.DEPTH_INFINITE);
-			resource.deleteMarkers(MarkerType.STATIC_ANALYSIS.id, false, IResource.DEPTH_INFINITE);
-			resource.deleteMarkers(MarkerType.BUG.id, false, IResource.DEPTH_INFINITE);
-		} catch (CoreException e) {
-			logger.debug("ZamiaEditor: failed to delete debug markers", e);
-		}
-
-		if (!(COVERED_SOURCES != null && COVERED_SOURCES.hasFile(fSF)
-				|| STATICAL_SOURCES != null && STATICAL_SOURCES.hasFile(fSF))) {
-			return;
-		}
-
-		SourceRanges coverageRanges = COVERED_SOURCES != null ? COVERED_SOURCES.getSourceRanges(fSF) : null;
-		SourceRanges staticalRanges = STATICAL_SOURCES != null ? STATICAL_SOURCES.getSourceRanges(fSF) : null;
-
-		StyledText textWidget = getSourceViewer().getTextWidget();
-		int nLines = textWidget.getLineCount();
-		for (int i = 0; i < nLines; i++) {
-			boolean dynamic = aDoCoverage && coverageRanges != null && coverageRanges.hasLine(i);
-			boolean statical = aDoStaticAnalysis && staticalRanges != null && staticalRanges.hasLine(i);
-
-			String markerType;
-			String message;
-			if (dynamic) {
-				if (statical) {
-					markerType = MarkerType.BUG.id;
-					message = "A bug is probably located here";
-				} else {
-					markerType = MarkerType.COVERAGE.id;
-					message = "This line was executed " + coverageRanges.getCount(i) + " times during current simulation run";
-				}
-			} else {
-				if (statical) {
-					markerType = MarkerType.STATIC_ANALYSIS.id;
-					message = "Through-signal reference search result";
-				} else {
-					continue;
-				}
-			}
-
-			int off = textWidget.getOffsetAtLine(i);
-			int length = textWidget.getLine(i).length();
-
-			try {
-				IMarker marker = resource.createMarker(markerType);
-				marker.setAttribute(IMarker.SEVERITY, IMarker.SEVERITY_INFO);
-				marker.setAttribute(IMarker.MESSAGE, message);
-				marker.setAttribute(IMarker.LINE_NUMBER, i);
-				marker.setAttribute(IMarker.CHAR_START, off);
-				marker.setAttribute(IMarker.CHAR_END, off + length);
-			} catch (CoreException e) {
-				logger.debug("ZamiaEditor: failed to add debug markers", e);
-			}
-		}
-
-	}
-
-	private void addVerticalRulerColumns(boolean aDoCoverage) {
-
-		NumberedVerticalRulerColumn covColumn = (aDoCoverage && COVERED_SOURCES != null && COVERED_SOURCES.hasFile(fSF))
-				? new NumberedVerticalRulerColumn(COVERED_SOURCES.getSourceRanges(fSF), new RGB(33, 222, 75)) /* malachite */
-				: null;
+	void addHitCountColumn(IVerticalRulerColumn aHitCountColumn) {
 
 		IVerticalRuler verticalRuler = getVerticalRuler();
 		if (verticalRuler == null) {
@@ -570,12 +450,16 @@ public class ZamiaEditor extends ErrorMarkEditor implements IShowInTargetList {
 				compositeRuler.removeDecorator(i);
 			}
 
-			if (aDoCoverage && covColumn != null) {
-				compositeRuler.addDecorator(count, covColumn);
+			if (aHitCountColumn != null) {
+				compositeRuler.addDecorator(count, aHitCountColumn);
 			}
 		}
 
 		verticalRuler.update();
+	}
+
+	StyledText getTextWidget() {
+		return getSourceViewer().getTextWidget();
 	}
 
 	protected void createActions() {
@@ -629,7 +513,6 @@ public class ZamiaEditor extends ErrorMarkEditor implements IShowInTargetList {
 	/**
 	 * Get the content outline page if requested.
 	 * 
-	 * @see org.eclipse.core.runtime.IAdaptable.getAdapter(Class)
 	 */
 	public Object getAdapter(@SuppressWarnings("rawtypes") Class aClass) {
 		Object adapter;
@@ -685,14 +568,8 @@ public class ZamiaEditor extends ErrorMarkEditor implements IShowInTargetList {
 		return fReconcilingStrategy;
 	}
 
-	public static void setCoveredSources(SourceRanges aCoveredSources) {
-		COVERED_SOURCES = aCoveredSources;
-		highlightOpenEditors();
-	}
-
-	public static void setStaticSources(SourceRanges aStaticSources) {
-		STATICAL_SOURCES = aStaticSources;
-		highlightOpenEditors();
+	public boolean isShowingCoverage() {
+		return findSimulatorView().doShowCoverage();
 	}
 
 	class OutlineSelectionChangedListener extends AbstractSelectionChangedListener {
@@ -1109,5 +986,4 @@ public class ZamiaEditor extends ErrorMarkEditor implements IShowInTargetList {
 			}
 		});
 	}
-	
 }

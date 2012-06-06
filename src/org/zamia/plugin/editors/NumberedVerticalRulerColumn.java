@@ -2,31 +2,33 @@ package org.zamia.plugin.editors;
 
 import org.eclipse.jface.text.source.LineNumberRulerColumn;
 import org.eclipse.swt.graphics.RGB;
-import org.zamia.SourceRanges;
+import org.zamia.instgraph.interpreter.logger.IGHitCountLogger;
 
 /**
  * @author Anton Chepurov
  */
 public class NumberedVerticalRulerColumn extends LineNumberRulerColumn {
 
-	private final SourceRanges fSourceRanges;
+	private final IGHitCountLogger fLineHitLogger;
 
 	private final int fNumberOfDigits;
 
-	public NumberedVerticalRulerColumn(SourceRanges aSourceRanges, RGB aFontColor) {
-		fSourceRanges = aSourceRanges;
+	public NumberedVerticalRulerColumn(IGHitCountLogger aHitCountLogger, RGB aFontColor) {
+		fLineHitLogger = aHitCountLogger;
 		setForeground(ColorManager.getInstance().getColor(aFontColor));
 
-		fNumberOfDigits = String.valueOf(fSourceRanges.getMaxCount()).length();
+		fNumberOfDigits = String.valueOf(fLineHitLogger.getMaxCount()).length();
 	}
 
 	@Override
 	protected String createDisplayString(int line) {
 
-		if (!fSourceRanges.hasLine(line))
+		int adjustedLine = line + 1;
+
+		if (!fLineHitLogger.hasLine(adjustedLine))
 			return "";
 
-		return String.valueOf(fSourceRanges.getCount(line));
+		return String.valueOf(fLineHitLogger.getCount(adjustedLine));
 	}
 
 	@Override

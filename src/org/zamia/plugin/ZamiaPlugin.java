@@ -576,6 +576,27 @@ public class ZamiaPlugin extends AbstractUIPlugin {
 		});
 	}
 
+	public static void showMarkers() {
+
+		Display display = Display.getDefault();
+
+		display.asyncExec(new Runnable() {
+
+			@Override
+			public void run() {
+				try {
+					IWorkbenchWindow window = getWorkbenchWindow();
+
+					IWorkbenchPage page = window.getActivePage();
+
+					page.showView("org.eclipse.ui.views.AllMarkersView");
+				} catch (Throwable e) {
+					el.logException(e);
+				}
+			}
+		});
+	}
+
 	public static RTLView showRTLView() {
 
 		RTLView rtlview = null;

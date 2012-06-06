@@ -3,8 +3,8 @@ package org.zamia.plugin.editors;
 import org.eclipse.search.ui.IQueryListener;
 import org.eclipse.search.ui.ISearchQuery;
 import org.zamia.SourceLocation;
-import org.zamia.SourceRanges;
 import org.zamia.analysis.ReferenceSite;
+import org.zamia.instgraph.interpreter.logger.IGHitCountLogger;
 import org.zamia.plugin.views.sim.SimulatorView;
 
 /**
@@ -16,7 +16,7 @@ public class ReferencesSearchQueryListener implements IQueryListener {
 
 	private final SimulatorView fSimulatorView;
 
-	private final SourceRanges fSources = SourceRanges.createRanges();
+	private final IGHitCountLogger fLinesLogger = new IGHitCountLogger("Lines logger");
 
 	public ReferencesSearchQueryListener(ReferencesSearchQuery aQuery, SimulatorView aSimulatorView) {
 		fQuery = aQuery;
@@ -53,13 +53,11 @@ public class ReferencesSearchQueryListener implements IQueryListener {
 
 				SourceLocation location = site.getLocation();
 
-				fSources.add(location, 0);
+				fLinesLogger.logHit(location, 0);
 			}
-
 		}
 
-		fSimulatorView.setStaticSources(fSources);
-
+		fSimulatorView.setStaticalLines(fLinesLogger);
 	}
 
 }

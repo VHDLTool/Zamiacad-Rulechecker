@@ -34,6 +34,7 @@ import org.eclipse.jface.util.Util;
 import org.eclipse.jface.viewers.ColumnWeightData;
 import org.eclipse.search.ui.NewSearchUI;
 import org.eclipse.swt.SWT;
+import org.eclipse.swt.custom.CCombo;
 import org.eclipse.swt.custom.SashForm;
 import org.eclipse.swt.dnd.DND;
 import org.eclipse.swt.dnd.DragSource;
@@ -71,14 +72,12 @@ import org.eclipse.swt.layout.FillLayout;
 import org.eclipse.swt.layout.GridData;
 import org.eclipse.swt.layout.GridLayout;
 import org.eclipse.swt.widgets.Canvas;
-import org.eclipse.swt.widgets.Combo;
 import org.eclipse.swt.widgets.Composite;
 import org.eclipse.swt.widgets.Control;
 import org.eclipse.swt.widgets.CoolBar;
 import org.eclipse.swt.widgets.CoolItem;
 import org.eclipse.swt.widgets.Display;
 import org.eclipse.swt.widgets.Event;
-import org.eclipse.swt.widgets.FileDialog;
 import org.eclipse.swt.widgets.Label;
 import org.eclipse.swt.widgets.Listener;
 import org.eclipse.swt.widgets.Menu;
@@ -93,25 +92,21 @@ import org.eclipse.swt.widgets.Tree;
 import org.eclipse.swt.widgets.TreeColumn;
 import org.eclipse.swt.widgets.TreeItem;
 import org.eclipse.ui.IEditorPart;
-import org.eclipse.ui.IEditorReference;
-import org.eclipse.ui.IWorkbenchPage;
-import org.eclipse.ui.IWorkbenchWindow;
 import org.eclipse.ui.part.ViewPart;
 import org.zamia.ExceptionLogger;
 import org.zamia.SourceLocation;
-import org.zamia.SourceRanges;
 import org.zamia.Toplevel;
 import org.zamia.ToplevelPath;
 import org.zamia.ZamiaException;
 import org.zamia.ZamiaLogger;
 import org.zamia.ZamiaProject;
-import org.zamia.cli.jython.ZCJInterpreter;
 import org.zamia.instgraph.IGItem;
 import org.zamia.instgraph.IGManager;
 import org.zamia.instgraph.IGRecordField;
 import org.zamia.instgraph.IGStaticValue;
 import org.zamia.instgraph.IGStaticValueBuilder;
 import org.zamia.instgraph.IGTypeStatic;
+import org.zamia.instgraph.interpreter.logger.IGHitCountLogger;
 import org.zamia.instgraph.sim.IGAbstractProgressMonitor;
 import org.zamia.instgraph.sim.IGISimCursor;
 import org.zamia.instgraph.sim.IGISimObserver;
@@ -120,6 +115,7 @@ import org.zamia.instgraph.sim.ref.IGSimRef;
 import org.zamia.instgraph.sim.vcd.VCDImport;
 import org.zamia.plugin.ZamiaPlugin;
 import org.zamia.plugin.ZamiaProjectMap;
+import org.zamia.plugin.editors.DebugReportVisualizer;
 import org.zamia.plugin.editors.ReferenceSearchAction;
 import org.zamia.plugin.editors.ReferencesSearchQuery;
 import org.zamia.plugin.editors.ZamiaEditor;
@@ -153,7 +149,7 @@ public class SimulatorView extends ViewPart implements IGISimObserver {
 	
 	private TraceDialog fTraceDialog;
 
-	private ToolItem fTraceTI, fUnTraceTI, fNewLineTI, fRunTI, fRestartTI, fJobTI, fStopTI, fPrevTransTI, fNextTransTI, fGotoCycleTI, fCoverageTI, fStaticAnalysisTI, fScriptTI;
+	private ToolItem fTraceTI, fUnTraceTI, fNewLineTI, fRunTI, fRestartTI, fJobTI, fStopTI, fPrevTransTI, fNextTransTI, fGotoCycleTI, fCoverageTI, fStaticAnalysisTI;
 
 	private SimRunnerConfig fConfig;
 
@@ -219,7 +215,7 @@ public class SimulatorView extends ViewPart implements IGISimObserver {
 
 	private Image fMinusIcon;
 
-	private Combo fTimeUnitCombo;
+	private CCombo fTimeUnitCombo;
 
 	private Shell fShell;
 
@@ -399,7 +395,7 @@ public class SimulatorView extends ViewPart implements IGISimObserver {
 		fRunText.setLayoutData(new GridData(width, height));
 		fRunText.setText("100");
 
-		fTimeUnitCombo = new Combo(comp, SWT.NONE);
+		fTimeUnitCombo = new CCombo(comp, SWT.READ_ONLY | SWT.BORDER);
 		fTimeUnitCombo.setItems(new String[]{"s", "ms", "\u00B5s", "ns"});
 		fTimeUnitCombo.select(3);
 
@@ -436,14 +432,17 @@ public class SimulatorView extends ViewPart implements IGISimObserver {
 				simJob.schedule();
 			}
 		});
-		fRunText.addKeyListener(new KeyAdapter(){
+		KeyAdapter simRunnerOnEnter = new KeyAdapter() {
 			@Override
 			public void keyReleased(KeyEvent e) {
 				if (e.keyCode == SWT.CR) {
 					fRunTI.notifyListeners(SWT.Selection, null);
 				}
 			}
-		});
+		};
+		fRunText.addKeyListener(simRunnerOnEnter);
+		fTimeUnitCombo.addKeyListener(simRunnerOnEnter);
+
 		fRestartTI = new ToolItem(tb, SWT.NONE);
 		icon = ZamiaPlugin.getImage("/share/images/restart.gif");
 		fRestartTI.setImage(icon);
@@ -535,17 +534,6 @@ public class SimulatorView extends ViewPart implements IGISimObserver {
 		fStaticAnalysisTI.addSelectionListener(new SelectionAdapter() {
 			public void widgetSelected(SelectionEvent e) {
 				doStaticAnalysis();
-			}
-		});
-
-		fScriptTI = new ToolItem(tb, SWT.PUSH);
-		icon = ZamiaPlugin.getImage("/share/images/process.gif");
-		fScriptTI.setImage(icon);
-		fScriptTI.setToolTipText("Run debug script");
-		fScriptTI.setEnabled(false);
-		fScriptTI.addSelectionListener(new SelectionAdapter() {
-			public void widgetSelected(SelectionEvent e) {
-				doScript();
 			}
 		});
 
@@ -1525,7 +1513,6 @@ public class SimulatorView extends ViewPart implements IGISimObserver {
 							fUnTraceTI.setEnabled(false);
 							fNewLineTI.setEnabled(false);
 							fCoverageTI.setEnabled(false);
-							fScriptTI.setEnabled(false);
 							fRunTI.setEnabled(false);
 							fRestartTI.setEnabled(false);
 
@@ -1664,7 +1651,6 @@ public class SimulatorView extends ViewPart implements IGISimObserver {
 							fUnTraceTI.setEnabled(true);
 							fNewLineTI.setEnabled(true);
 							fCoverageTI.setEnabled(true);
-							fScriptTI.setEnabled(true);
 							fRunTI.setEnabled(fSimulator.isSimulator());
 							fRestartTI.setEnabled(fSimulator.isSimulator());
 
@@ -1686,7 +1672,6 @@ public class SimulatorView extends ViewPart implements IGISimObserver {
 							fUnTraceTI.setEnabled(false);
 							fNewLineTI.setEnabled(false);
 							fCoverageTI.setEnabled(false);
-							fScriptTI.setEnabled(false);
 							fRunTI.setEnabled(false);
 							fRestartTI.setEnabled(false);
 
@@ -2066,28 +2051,9 @@ public class SimulatorView extends ViewPart implements IGISimObserver {
 
 		IGSimRef sim = (IGSimRef) fSimulator;
 
-		SourceRanges coveredSources = doShowCoverage() ? sim.collectCoveredSources() : null;
+		IGHitCountLogger coveredSources = doShowCoverage() ? sim.collectExecutedLines("LineCoverage") : null;
 
-		ZamiaEditor.setCoveredSources(coveredSources);
-
-		highlightOpenEditors();
-	}
-
-	public static void highlightOpenEditors() {
-
-		IWorkbenchWindow window = ZamiaPlugin.getDefault().getWorkbench().getActiveWorkbenchWindow();
-
-		IWorkbenchPage page = window.getActivePage();
-
-		for (IEditorReference ref : page.getEditorReferences()) {
-			IEditorPart openEditor = ref.getEditor(false);
-
-			if (openEditor instanceof ZamiaEditor) {
-				ZamiaEditor zamiaEditor = (ZamiaEditor) openEditor;
-				zamiaEditor.highlight();
-			}
-		}
-
+		DebugReportVisualizer.getInstance(getZamiaProject()).setSimulatedLines(coveredSources);
 	}
 
 	private void doStaticAnalysis() {
@@ -2100,16 +2066,16 @@ public class SimulatorView extends ViewPart implements IGISimObserver {
 
 		} else {
 
-			ZamiaEditor.highlightOpenEditors();
+			DebugReportVisualizer.getInstance(getZamiaProject()).highlightDeprecatedLines();
 
 		}
 
 	}
 
-	public void setStaticSources(final SourceRanges aStaticSources) {
+	public void setStaticalLines(final IGHitCountLogger aStaticSources) {
 		Display.getDefault().asyncExec(new Runnable() {
 			public void run() {
-				ZamiaEditor.setStaticSources(aStaticSources);
+				DebugReportVisualizer.getInstance(getZamiaProject()).setStaticalLines(aStaticSources);
 			}
 		});
 	}
@@ -2121,60 +2087,6 @@ public class SimulatorView extends ViewPart implements IGISimObserver {
 	public boolean doShowStaticAnalysis() {
 		return fStaticAnalysisTI.getSelection();
 	}
-
-	public void doScript() {
-
-		ZamiaProject zprj = getZamiaProject();
-
-		FileDialog dialog = new FileDialog(fShell, SWT.OPEN);
-		dialog.setText("Open script file");
-		dialog.setFilterPath(zprj.fBasePath.toString());
-		dialog.setFilterExtensions(new String[]{"*.py"});
-		String selected = dialog.open();
-
-		if (selected == null) {
-			return;
-		}
-
-		ZCJInterpreter interpreter = zprj.getZCJ();
-		if (interpreter == null) {
-			zprj.initJythonInterpreter();
-			interpreter = zprj.getZCJ();
-			if (interpreter == null) {
-				MessageBox msg = new MessageBox(fShell, SWT.OK | SWT.ICON_ERROR);
-				msg.setText("Script execution failure");
-				msg.setMessage("Could not start Jython interpreter.\n    See log file for details.");
-				msg.open();
-				return;
-			}
-		}
-
-        ScriptJob job = new ScriptJob(interpreter, selected);
-        job.setPriority(Job.LONG);
-        job.schedule();
-    }
-
-    private class ScriptJob extends Job {
-
-        private final ZCJInterpreter fInterpreter;
-        private final String fScriptFile;
-
-        public ScriptJob(ZCJInterpreter aInterpreter, String aScriptFile) {
-            super("Script execution...");
-            fInterpreter = aInterpreter;
-            fScriptFile = aScriptFile;
-        }
-
-        @Override
-        protected IStatus run(IProgressMonitor iProgressMonitor) {
-            try {
-                fInterpreter.evalFile(fScriptFile);
-            } catch (Throwable e) {
-                el.logException(e);
-            }
-            return Status.OK_STATUS;
-        }
-    }
 
 	private ZamiaProject getZamiaProject() {
 		return ZamiaProjectMap.getZamiaProject(fConfig.getProject());

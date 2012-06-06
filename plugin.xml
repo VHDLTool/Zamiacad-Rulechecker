@@ -105,6 +105,154 @@
    </extension>
 
    <extension point="org.eclipse.core.resources.markers"
+           id="org.zamia.plugin.debugmarkergreen"
+           name="Simulation-covered source">
+       <super
+               type="org.eclipse.core.resources.textmarker">
+       </super>
+   </extension>
+    <extension point="org.eclipse.ui.editors.annotationTypes">
+        <type
+                markerType="org.zamia.plugin.debugmarkergreen"
+                name="org.zamia.plugin.debugmarkergreen">
+        </type>
+    </extension>
+    <extension
+            point="org.eclipse.ui.editors.markerAnnotationSpecification">
+        <specification
+                annotationType="org.zamia.plugin.debugmarkergreen"
+                colorPreferenceKey="org.zamia.plugin.debuggreen.color"
+                colorPreferenceValue="192,255,192"
+                contributesToHeader="true"
+                highlightPreferenceKey="org.zamia.plugin.debuggreen.highlight"
+                highlightPreferenceValue="true"
+                includeOnPreferencePage="true"
+                label="Simulation-covered marker"
+                overviewRulerPreferenceKey="org.zamia.plugin.debuggreen.overview"
+                overviewRulerPreferenceValue="true"
+                presentationLayer="0"
+                textPreferenceKey="org.zamia.plugin.debuggreen.text"
+                textPreferenceValue="true"
+                textStylePreferenceValue="BOX"
+                verticalRulerPreferenceKey="org.zamia.plugin.debuggreen.ruler"
+                verticalRulerPreferenceValue="true">
+        </specification>
+    </extension>
+
+   <extension point="org.eclipse.core.resources.markers"
+           id="org.zamia.plugin.debugmarkeryellow"
+           name="Simulation-covered source">
+       <super
+               type="org.eclipse.core.resources.textmarker">
+       </super>
+   </extension>
+    <extension point="org.eclipse.ui.editors.annotationTypes">
+        <type
+                markerType="org.zamia.plugin.debugmarkeryellow"
+                name="org.zamia.plugin.debugmarkeryellow">
+        </type>
+    </extension>
+    <extension
+            point="org.eclipse.ui.editors.markerAnnotationSpecification">
+        <specification
+                annotationType="org.zamia.plugin.debugmarkeryellow"
+                colorPreferenceKey="org.zamia.plugin.debugyellow.color"
+                colorPreferenceValue="255,255,0"
+                contributesToHeader="true"
+                highlightPreferenceKey="org.zamia.plugin.debugyellow.highlight"
+                highlightPreferenceValue="true"
+                includeOnPreferencePage="true"
+                label="Simulation-covered marker"
+                overviewRulerPreferenceKey="org.zamia.plugin.debugyellow.overview"
+                overviewRulerPreferenceValue="true"
+                presentationLayer="0"
+                textPreferenceKey="org.zamia.plugin.debugyellow.text"
+                textPreferenceValue="true"
+                textStylePreferenceValue="BOX"
+                verticalRulerPreferenceKey="org.zamia.plugin.debugyellow.ruler"
+                verticalRulerPreferenceValue="true">
+        </specification>
+    </extension>
+
+   <extension point="org.eclipse.core.resources.markers"
+           id="org.zamia.plugin.debugmarkerorange"
+           name="Simulation-covered source">
+       <super
+               type="org.eclipse.core.resources.textmarker">
+       </super>
+   </extension>
+    <extension point="org.eclipse.ui.editors.annotationTypes">
+        <type
+                markerType="org.zamia.plugin.debugmarkerorange"
+                name="org.zamia.plugin.debugmarkerorange">
+        </type>
+    </extension>
+    <extension
+            point="org.eclipse.ui.editors.markerAnnotationSpecification">
+        <specification
+                annotationType="org.zamia.plugin.debugmarkerorange"
+                colorPreferenceKey="org.zamia.plugin.debugorange.color"
+                colorPreferenceValue="255,170,0"
+                contributesToHeader="true"
+                highlightPreferenceKey="org.zamia.plugin.debugorange.highlight"
+                highlightPreferenceValue="true"
+                includeOnPreferencePage="true"
+                label="Simulation-covered marker"
+                overviewRulerPreferenceKey="org.zamia.plugin.debugorange.overview"
+                overviewRulerPreferenceValue="true"
+                presentationLayer="0"
+                textPreferenceKey="org.zamia.plugin.debugorange.text"
+                textPreferenceValue="true"
+                textStylePreferenceValue="BOX"
+                verticalRulerPreferenceKey="org.zamia.plugin.debugorange.ruler"
+                verticalRulerPreferenceValue="true">
+        </specification>
+    </extension>
+
+   <extension point="org.eclipse.core.resources.markers"
+           id="org.zamia.plugin.debugmarkerred"
+           name="Simulation-covered source">
+       <super
+               type="org.eclipse.core.resources.textmarker">
+       </super>
+   </extension>
+    <extension point="org.eclipse.ui.editors.annotationTypes">
+        <type
+                markerType="org.zamia.plugin.debugmarkerred"
+                name="org.zamia.plugin.debugmarkerred">
+        </type>
+    </extension>
+    <extension
+            point="org.eclipse.ui.editors.markerAnnotationSpecification">
+        <specification
+                annotationType="org.zamia.plugin.debugmarkerred"
+                colorPreferenceKey="org.zamia.plugin.debugred.color"
+                colorPreferenceValue="255,90,90"
+                contributesToHeader="true"
+                highlightPreferenceKey="org.zamia.plugin.debugred.highlight"
+                highlightPreferenceValue="true"
+                includeOnPreferencePage="true"
+                label="Simulation-covered marker"
+                overviewRulerPreferenceKey="org.zamia.plugin.debugred.overview"
+                overviewRulerPreferenceValue="true"
+                presentationLayer="0"
+                textPreferenceKey="org.zamia.plugin.debugred.text"
+                textPreferenceValue="true"
+                textStylePreferenceValue="BOX"
+                verticalRulerPreferenceKey="org.zamia.plugin.debugred.ruler"
+                verticalRulerPreferenceValue="true">
+        </specification>
+    </extension>
+
+   <extension point="org.eclipse.core.resources.markers"
+           id="debugmarkerpoint"
+           name="Suspicious code item">
+       <super
+               type="org.eclipse.core.resources.textmarker">
+       </super>
+   </extension>
+
+   <extension point="org.eclipse.core.resources.markers"
            id="org.zamia.plugin.coveragemarker"
            name="Simulation-covered source">
        <super
@@ -310,6 +458,24 @@
                 <selection class="org.eclipse.jface.text.ITextSelection">
                 </selection>
             </action>
+            <action label="Show suspected conditions"
+                class="org.zamia.plugin.editors.ShowSelectedConditionsAction"
+                menubarPath="additions"
+                definitionId="org.zamia.commands.showSelectedConditions"
+                enablesFor="1"
+                id="org.zamia.editors.ShowSelectedConditionsAction">
+                <selection class="org.eclipse.jface.text.ITextSelection">
+                </selection>
+            </action>
+            <action label="Clear all selection"
+                class="org.zamia.plugin.editors.ClearAllSelectionAction"
+                menubarPath="additions"
+                definitionId="org.zamia.commands.clearAllSelection"
+                enablesFor="1"
+                id="org.zamia.editors.ClearAllSelectionAction">
+                <selection class="org.eclipse.jface.text.ITextSelection">
+                </selection>
+            </action>
          	<action label="Open Declaration"
          		class="org.zamia.plugin.editors.OpenDeclarationAction"
          		menubarPath="staticAnalysisMenu/staticAnalysisGroup"
@@ -377,6 +543,22 @@
             </action>
      </editorContribution>
      <editorContribution id="org.zamia.actions" targetID="org.zamia.editors.VHDLEditor">
+            <action
+                label="Show suspected conditions"
+                class="org.zamia.plugin.editors.ShowSelectedConditionsAction"
+                definitionId="org.zamia.commands.showSelectedConditions"
+                id="org.zamia.editors.ShowSelectedConditionsAction">
+            </action>
+     </editorContribution>
+     <editorContribution id="org.zamia.actions" targetID="org.zamia.editors.VHDLEditor">
+            <action
+                label="Clear all selection"
+                class="org.zamia.plugin.editors.ClearAllSelectionAction"
+                definitionId="org.zamia.commands.clearAllSelection"
+                id="org.zamia.editors.ClearAllSelectionAction">
+            </action>
+     </editorContribution>
+     <editorContribution id="org.zamia.actions" targetID="org.zamia.editors.VHDLEditor">
          	<action 
          	    label="OpenDeclaration"
          		class="org.zamia.plugin.editors.OpenDeclarationAction"
@@ -433,6 +615,18 @@
        description="Compile file with GHDL to find syntax errors"
        categoryId="org.zamia.category.source"
        id="org.zamia.commands.compileWithGHDL">
+     </command>
+     <command
+       name="Show suspected conditions"
+       description="Show suspected conditions in the selected region"
+       categoryId="org.zamia.category.source"
+       id="org.zamia.commands.showSelectedConditions">
+     </command>
+     <command
+       name="Clear all selection"
+       description="Clear all selection in file"
+       categoryId="org.zamia.category.source"
+       id="org.zamia.commands.clearAllSelection">
      </command>
      <command
        name="Open Declaration"
@@ -515,7 +709,7 @@
 		   contextId="org.zamia.plugin.ZamiaEditorScope">
 	   </key>
 		 <key sequence="M1+M2+C"
-		   commandId="org.zamia.commands.compileWithGHDL"
+		   commandId="org.zamia.commands.showSelectedConditions"
 		   schemeId="org.eclipse.ui.defaultAcceleratorConfiguration"
 		   contextId="org.zamia.plugin.ZamiaEditorScope">
 	   </key>
@@ -989,4 +1183,25 @@
      	</menuContribution>
 	</extension>
    
+	<extension point="org.eclipse.ui.commands">
+	     <command
+	           id="org.zamia.plugin.ui.runScriptCommand"
+	           defaultHandler="org.zamia.plugin.ui.ScriptRunner"
+	           name="org.zamia.plugin.runscript"/>
+	</extension>
+	<extension id="add.item" point="org.eclipse.ui.menus">
+		<menuContribution locationURI="popup:org.eclipse.ui.popup.any?after=additions">
+        <command
+			commandId="org.zamia.plugin.ui.runScriptCommand"
+	        icon="share/images/process.gif"
+		    label= "Run script...">
+			<visibleWhen>
+        <iterate ifEmpty="false">
+			  <instanceof value="org.eclipse.core.resources.IProject"/>
+        </iterate>
+			</visibleWhen>
+        </command>
+        </menuContribution>
+	</extension>
+
 </plugin>
