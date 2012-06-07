@@ -52,7 +52,7 @@ public class ScriptRunner extends AbstractHandler {
 		Shell shell = ZamiaPlugin.getShell();
 
 		FileDialog dialog = new FileDialog(shell, SWT.OPEN);
-		dialog.setText("Select script file");
+		dialog.setText("Select script file to run");
 		dialog.setFilterPath(aZprj.fBasePath.toString());
 		dialog.setFilterExtensions(new String[]{"*.py"});
 		String selected = dialog.open();
