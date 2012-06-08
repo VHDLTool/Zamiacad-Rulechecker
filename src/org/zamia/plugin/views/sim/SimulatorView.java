@@ -1554,9 +1554,7 @@ public class SimulatorView extends ViewPart implements IGISimObserver {
 
 						display.syncExec(new Runnable() {
 							public void run() {
-								String filename = fConfig.getFilename();
-								File f = new File(filename);
-								fInfoLabel.setText(f.getName());
+								fInfoLabel.setText(fConfig.getToplevel().toString());
 							}
 						});
 
