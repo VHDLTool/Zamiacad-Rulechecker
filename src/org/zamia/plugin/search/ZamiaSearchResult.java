@@ -6,7 +6,7 @@
  * 
  * Created by Guenter Bartsch on Jun 22, 2008
  */
-package org.zamia.plugin.editors;
+package org.zamia.plugin.search;
 
 import java.util.HashSet;
 import java.util.Set;
@@ -36,8 +36,6 @@ public class ZamiaSearchResult extends AbstractTextSearchResult implements IEdit
 
 	final ISearchQuery fQuery;
 
-	// private final Map fElementsToParticipants;
-
 	public ZamiaSearchResult(ISearchQuery aQuery) {
 		fQuery = aQuery;
 		// fElementsToParticipants= new HashMap();
@@ -54,7 +52,7 @@ public class ZamiaSearchResult extends AbstractTextSearchResult implements IEdit
 	public String getTooltip() {
 		return getLabel();
 	}
-
+	
 	public Match[] computeContainedMatches(AbstractTextSearchResult result, IEditorPart editor) {
 
 		IEditorInput editorInput = editor.getEditorInput();

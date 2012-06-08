@@ -11,6 +11,7 @@ package org.zamia.plugin.editors;
 import org.eclipse.jface.action.IAction;
 import org.eclipse.jface.text.BadLocationException;
 import org.eclipse.search.ui.NewSearchUI;
+import org.zamia.plugin.search.ReferencesSearchQuery;
 
 /**
  * 

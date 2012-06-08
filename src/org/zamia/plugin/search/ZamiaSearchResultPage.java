@@ -6,18 +6,23 @@
  * 
  * Created by Guenter Bartsch on Jun 22, 2008
  */
-package org.zamia.plugin.editors;
+package org.zamia.plugin.search;
+
 
 import java.io.FileWriter;
 import java.io.IOException;
 import java.io.Writer;
 import java.util.ArrayList;
 import java.util.Collection;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 import org.eclipse.core.resources.IProject;
+import org.eclipse.debug.internal.ui.views.launch.ImageImageDescriptor;
 import org.eclipse.jdt.internal.ui.JavaPlugin;
 import org.eclipse.jdt.internal.ui.JavaPluginImages;
+import org.eclipse.jdt.internal.ui.callhierarchy.CallHierarchyImageDescriptor;
 import org.eclipse.jdt.internal.ui.viewsupport.ColoringLabelProvider;
 import org.eclipse.jface.action.Action;
 import org.eclipse.jface.action.IAction;
@@ -43,6 +48,8 @@ import org.eclipse.search.ui.text.Match;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.graphics.Color;
 import org.eclipse.swt.graphics.Image;
+import org.eclipse.swt.graphics.ImageData;
+import org.eclipse.swt.graphics.Point;
 import org.eclipse.swt.graphics.TextStyle;
 import org.eclipse.swt.widgets.Display;
 import org.eclipse.swt.widgets.FileDialog;
@@ -53,6 +60,7 @@ import org.eclipse.ui.PlatformUI;
 import org.eclipse.ui.internal.WorkbenchMessages;
 import org.zamia.ExceptionLogger;
 import org.zamia.SourceLocation;
+import org.zamia.Utils;
 import org.zamia.ZamiaLogger;
 import org.zamia.ZamiaProject;
 import org.zamia.analysis.ReferenceSearchResult;
@@ -64,6 +72,9 @@ import org.zamia.instgraph.IGObject.OIDir;
 import org.zamia.instgraph.interpreter.logger.IGHitCountLogger;
 import org.zamia.plugin.ZamiaPlugin;
 import org.zamia.plugin.ZamiaProjectMap;
+import org.zamia.plugin.editors.DebugReportVisualizer;
+import org.zamia.plugin.editors.ZamiaEditor;
+import org.zamia.plugin.views.sim.SimulatorView;
 
 /**
  * 
@@ -95,13 +106,15 @@ public class ZamiaSearchResultPage extends AbstractTextSearchViewPage {
 
 					Object element = elements[i];
 
-					if (element instanceof ReferenceSearchResult) {
-
+					if (element instanceof RootResult) {
+						res.add(element);
+					} else {
 						ReferenceSearchResult rss = (ReferenceSearchResult) element;
-						if (rss.getParent() != null && rss.getParent().getParent() == null) {
-							res.add(element);
+						for (Object o : rss.fChildren) {
+							res.add(o);
 						}
 					}
+						
 				}
 				return res.toArray();
 
@@ -115,6 +128,22 @@ public class ZamiaSearchResultPage extends AbstractTextSearchViewPage {
 		public void inputChanged(Viewer viewer, Object oldInput, Object newInput) {
 			fTreeViewer = (TreeViewer) viewer;
 			fSearchResult = (ZamiaSearchResult) newInput;
+
+			boolean assignmentSearch = newInput != null && (((ExtendedReferencesSearchQuery) getQuery()).fFollowAssignments);
+			exportAction.setEnabled(assignmentSearch);
+			
+			highlightAssignments.setEnabled(assignmentSearch);
+			if (!assignmentSearch) {
+				highlightAssignments.setChecked(false);
+			}
+			highlightAssignments.run();
+			expandAssignments.setEnabled(assignmentSearch);
+			if (!assignmentSearch) // I do not know how to check if it is assignment-through
+				assignmentIcon = null;
+			else
+				assignmentIcon = JavaPlugin.getImageDescriptorRegistry().get(JavaPluginImages.createImageDescriptor(JavaPlugin.getDefault().getBundle(), JavaPluginImages.ICONS_PATH.append("e" + "lcl16")
+					.append("ch_calle"+(getQuery().fReadersOnly ? "e" : "r")+"s.gif"), true));
+
 		}
 
 		public void refresh() {
@@ -141,7 +170,7 @@ public class ZamiaSearchResultPage extends AbstractTextSearchViewPage {
 
 		public Object[] getChildren(Object parentElement) {
 
-			if (parentElement instanceof RootResult && !showAssignments.isChecked()) {
+			if (parentElement instanceof RootResult && !expandAssignments.isChecked()) {
 				
 				RootResult root = (RootResult) parentElement;
 				int n = root.getNumChildren(); 
@@ -154,30 +183,6 @@ public class ZamiaSearchResultPage extends AbstractTextSearchViewPage {
 							continue l1;
 					res.add(r);
 				}
-					
-//				// Complex algorithm introduces intermediate parent node for duplicates
-				// Resulting tree may need more complex handling
-//				HashSetArray<SearchAssignment> ch = new HashSetArray<SearchAssignment>(root.fChildren);
-//				Collection<ReferenceSite> res = new ArrayList<ReferenceSite>(n);
-//				while (!ch.isEmpty()) {
-//					SearchAssignment a = ch.get(ch.size()-1);
-//					RootResult next = a.keyResult;
-//					if (next != null) {
-//						ReferenceSite intermediate = new ReferenceSite(null, next.getLocation(), 1, RefType.Declaration, next.getPath(), loadObj(next.getDBID()));
-//						for (SearchAssignment a2: ch) {
-//							if (a2.keyResult == next) {
-//								intermediate.add(a2);
-//								ch.remove(a2);
-//							}
-//						}
-//						assert intermediate.fChildren.size() > 0;
-//						res.add(intermediate.fChildren.size() == 1 ? a : intermediate);
-//					} else {
-//						res.add(a);
-//						ch.remove(a);
-//					}
-//					
-//				}
 					
 				return res.toArray(new Object[res.size()]);
 				
@@ -224,8 +229,7 @@ public class ZamiaSearchResultPage extends AbstractTextSearchViewPage {
 	private ZamiaSearchTreeContentProvider fContentProvider;
 
 	public ZamiaSearchResultPage() {
-		//		super(AbstractTextSearchViewPage.FLAG_LAYOUT_FLAT);
-		super(AbstractTextSearchViewPage.FLAG_LAYOUT_TREE);
+		super(AbstractTextSearchViewPage.FLAG_LAYOUT_TREE); // FLAG_LAYOUT_FLAT
 	}
 
 	protected void elementsChanged(Object[] objects) {
@@ -260,95 +264,125 @@ public class ZamiaSearchResultPage extends AbstractTextSearchViewPage {
     BackAction backAction = new BackAction();
     ForwardAction fwdAction = new ForwardAction();
     
-	protected void fillToolbar(final IToolBarManager tbm) {
-		tbm.appendToGroup(IContextMenuConstants.GROUP_SHOW, new Action("Highlight Assignments", IAction.AS_CHECK_BOX) {
-			{
-				setToolTipText("Highlights lines in Editor");
-			}
-			public void run() {
-				ZamiaSearchResult root = (ZamiaSearchResult) getViewer().getInput();
+    Action exportAction = new Action("Export", IAction.AS_PUSH_BUTTON) {
+		{
+			setToolTipText("Saves the graph of results as a DOT file (for further analysis of signal dependencies with external tools)");
+		}
+		
+		String exportName(ReferenceSite ref) {
+			IGObject o = loadObj(ref.getDBID());
+			String pa = ref.getPath().getPath().toString();
+			return "\"" + o.getId() + (pa.length() == 0 ? "" : " - " + pa) + "\""; 
+		}
+		
+		public void run() {
 
-				IGHitCountLogger linesLogger = new IGHitCountLogger("Lines logger");
-				if (isChecked()) {
-					logger.info("root = "  + root + " " + root.getElements());
-					for (Object o : root.getElements())
-						if (o instanceof SearchAssignment) {
-							SearchAssignment a = (SearchAssignment) o;
-							logger.info(" " + a);
-							linesLogger.logHit(a.getLocation(), 0);
-						}
-				} else
-					linesLogger = null;
+			FileDialog fd = new FileDialog(getSite().getShell(), SWT.SAVE);
+			fd.setFilterExtensions(new String[] {".gv", ".dot"});
+			final String fname = fd.open();
+			if (fname == null)
+				return;
 
-				DebugReportVisualizer.getInstance(getZamiaProject()).setStaticalLines(linesLogger);
-			}
-
-		});
-		tbm.appendToGroup(IContextMenuConstants.GROUP_GENERATE, new Action("Export", IAction.AS_PUSH_BUTTON) {
-			{
-				setToolTipText("Saves the graph as DOT file");
-			}
-			public void run() {
-				(new Runnable() {
-					
-					String exportName(RootResult ref) {
-						IGObject o = loadObj(ref.getDBID());
-						return o == null ? null : o.getId() + ref.getPath().getPath(); 
-					}
-					public void run() {
-						FileDialog fd = new FileDialog(getSite().getShell(), SWT.SAVE);
-						fd.setFilterExtensions(new String[] {".dot"});
-						String fname = fd.open();
-						Collection<RootResult> searches = new ArrayList<RootResult>();
-						for (Object e: fContentProvider.fSearchResult.getElements())
-							if (e instanceof RootResult)
-								searches.add((RootResult) e);
-						
-						try {
-							Writer out = new FileWriter(fname);
-							try {
-								out.write("graph dependencies_from_assignments {\r");
-								for (RootResult r : searches) {
-									for (Object sa : fContentProvider.getChildren(r)) {
-										SearchAssignment a = (SearchAssignment) sa;
-										out.write("\t" + exportName(r)  
-												//+ " -> " + exportName(a) 
-												+ (a.keyResult != null ? " -> " + exportName(a.keyResult) : ""));
-										out.write("\r");
-									}
-								}
-								out.write("}");
-							} finally {
-								out.close();
+			try {
+				Writer out = new FileWriter(fname);
+				try {
+					out.write("digraph dependencies_from_assignments {\r");
+					for (Object o: fContentProvider.fSearchResult.getElements()) {
+						RootResult r = (RootResult) o;
+						String first = exportName(r);
+						if (r.num_prefix == 1)
+							out.write("\t" + first + " [fillcolor=red, style=\"filled\"]\r");
+						for (Object sa : fContentProvider.getChildren(r)) {
+							final SearchAssignment a = (SearchAssignment) sa;
+							if (a.keyResult != null && a.keyResult.skippedDueToDepth) // do not show skipped nodes
+								continue;
+							if (a.getDBID() != 0) {
+								String second = a.keyResult == null ? "\"- search for ["+exportName(a).replace('"', '\'')+"] has failed -\"" : exportName(a.keyResult);
+								out.write("\t");
+								out.write(getQuery().fWritersOnly ? second  + " -> " +  first : first + " -> " + second);
+								out.write("\r");
 							}
-						} catch (IOException e) {
-							ExceptionLogger.getInstance().logException(e);
+							//graph.add( exportName(r) + " -> " + exportName(a.keyResult));
 						}
 					}
-				}).run();
+					out.write("}");
+				} finally {
+					out.close();
+				}
+			} catch (IOException e) {
+				ExceptionLogger.getInstance().logException(e);
 			}
-		});
+				
+
+			// open the graph in Eclipse
+//			Shell shell = new Shell();
+//			shell.setText(DotGraph.class.getSimpleName());
+//		    shell.setSize(10000, 10000);
+//		    shell.setLayout(new FillLayout());
+//			File f = new File(fname);
+//			try {
+//				char buf[] = new char[(int) f.length()];
+//				(new BufferedReader(new FileReader(f))).read(buf, 0, (int) f.length());
+//				String dot = new String(buf);
+//				DotGraph graph = new DotGraph(dot, shell, SWT.NONE);
+//			} catch (IOException e) {
+//				e.printStackTrace();
+//			}
+//		     shell.open();
+//		     Display display = shell.getDisplay();
+//		     while (!shell.isDisposed())
+//		       if (!display.readAndDispatch())
+//		         display.sleep();
+			
+		}
+		
+	};
+	Action highlightAssignments = new Action("Highlight Assignments", IAction.AS_CHECK_BOX) {
+		{
+			setToolTipText("Highlights lines in Editor");
+		}
+		public void run() {
+			ZamiaSearchResult root = (ZamiaSearchResult) getViewer().getInput();
+
+			IGHitCountLogger linesLogger = new IGHitCountLogger("Lines logger");
+			if (isChecked()) {
+				logger.info("root = "  + root + " " + root.getElements());
+				for (Object o : root.getElements())
+					if (o instanceof SearchAssignment) {
+						SearchAssignment a = (SearchAssignment) o;
+						logger.info(" " + a);
+						linesLogger.logHit(a.getLocation(), 0);
+					}
+			} else
+				linesLogger = null;
+
+			DebugReportVisualizer.getInstance(getZamiaProject()).setStaticalLines(linesLogger);
+		}
+		
+	};
+	protected void fillToolbar(final IToolBarManager tbm) {
+		tbm.appendToGroup(IContextMenuConstants.GROUP_SHOW, highlightAssignments);
+		tbm.appendToGroup(IContextMenuConstants.GROUP_GENERATE, exportAction);
 		tbm.appendToGroup(IContextMenuConstants.GROUP_SHOW, backAction);
 		tbm.appendToGroup(IContextMenuConstants.GROUP_SHOW, fwdAction);
 		super.fillToolbar(tbm);
-		tbm.appendToGroup(IContextMenuConstants.GROUP_VIEWER_SETUP, showAssignments);
+		tbm.appendToGroup(IContextMenuConstants.GROUP_VIEWER_SETUP, expandAssignments);
 	}
 	
-	Action showAssignments = new Action("Show Assignments", IAction.AS_CHECK_BOX) {
+	Action expandAssignments = new Action("Expand Assignments", IAction.AS_CHECK_BOX) {
 		
 		{setToolTipText("Uncollapses duplicate assignments, the cases where a signal depends on another through multiple different assignments.");}
 		
 		public void run() {
-			fContentProvider.refresh();
+			fContentProvider.fTreeViewer.getControl().setRedraw(false);
+			fContentProvider.refresh(); // calls viewer.refresh()
+			fContentProvider.fTreeViewer.getControl().setRedraw(true);
+			fContentProvider.fTreeViewer.reveal(backAction.current());
 		}
 	};
 	
 	protected void configureTableViewer(TableViewer viewer) {
 		logger.error("ZamiaSearchResultPage: TableView not supported.");
-		//		viewer.setComparator(createViewerComparator());
-		//		viewer.setLabelProvider(createLabelProvider());
-		//		fContentProvider = new ContentProvider();
-		//		viewer.setContentProvider(fContentProvider);
 	}
 
 	private ReferencesSearchQuery getQuery() {
@@ -383,57 +417,50 @@ public class ZamiaSearchResultPage extends AbstractTextSearchViewPage {
 		Object element = match.getElement();
 		showInEditor(element);
 		if (element instanceof SearchAssignment) {
-//			SearchAssignment ref = (SearchAssignment) element;
-//			Match[] def = this.getDisplayedMatches(ref.keyResult);
-//			if (def.length != 0) { // in case of reading a constant, fObj and keyResult can be null
-//				StructuredSelection sel = new StructuredSelection(def[0].getElement());
-//				getViewer().setSelection(sel);
-//			}			
 			fwdAction.run();
 		} 
 
 	}
 
+	private Image assignmentIcon;
+
 	class SearchLabelProvider extends LabelProvider implements IStyledLabelProvider {
 
-		private final Image searchIcon;
-
-		private final Image declIcon;
-
-		private final Image readIcon;
-
-		private final Image writeIcon;
-
-		private final Image rwIcon;
-
-		private final Image instantiationIcon;
-
-		private final Image fInIcon;
-		private final Image fOutIcon;
-		private final Image fInoutIcon;
-
+		private final Image searchIcon = ZamiaPlugin.getImage("/share/images/search.gif");
+		private final Image declIcon = ZamiaPlugin.getImage("/share/images/decl.gif");
+		private final Image readIcon = ZamiaPlugin.getImage("/share/images/read.gif");
+		private final Image writeIcon = ZamiaPlugin.getImage("/share/images/write.gif");
+		private final Image rwIcon = ZamiaPlugin.getImage("/share/images/rw.gif");
+		private final Image instantiationIcon = ZamiaPlugin.getImage("/share/images/decl.gif");
+		private final Image fInIcon = ZamiaPlugin.getImage("/share/images/in.gif");
+		private final Image fOutIcon = ZamiaPlugin.getImage("/share/images/out.gif");
+		private final Image fInoutIcon = ZamiaPlugin.getImage("/share/images/inout.gif");
+		
 		public SearchLabelProvider() {
 			super();
-
-			searchIcon = ZamiaPlugin.getImage("/share/images/search.gif");
-			declIcon = ZamiaPlugin.getImage("/share/images/decl.gif");
-			readIcon = ZamiaPlugin.getImage("/share/images/read.gif");
-			writeIcon = ZamiaPlugin.getImage("/share/images/write.gif");
-			rwIcon = ZamiaPlugin.getImage("/share/images/rw.gif");
-			instantiationIcon = ZamiaPlugin.getImage("/share/images/decl.gif");
-			fInIcon = ZamiaPlugin.getImage("/share/images/in.gif");
-			fOutIcon = ZamiaPlugin.getImage("/share/images/out.gif");
-			fInoutIcon = ZamiaPlugin.getImage("/share/images/inout.gif");
 		}
 
 		public Image getImage(Object element) {
+			Image image = getUndecoratedImage(element);
+			
+			// decorate with max depth
+			if (element instanceof RootResult) {
+				RootResult r = (RootResult) element;
+				if (r.skippedDueToDepth) {
+		            ImageDescriptor baseImage= new ImageImageDescriptor(image);
+		            ImageData bounds= baseImage.getImageData();
+		            image = JavaPlugin.getImageDescriptorRegistry().get(new CallHierarchyImageDescriptor(baseImage, 
+		            		CallHierarchyImageDescriptor.MAX_LEVEL, new Point(bounds.width, bounds.height)));
+				
+				}
+			}
+			return image;
+		}
+		
+		public Image getUndecoratedImage(Object element) {
 
 			if (element instanceof SearchAssignment) {
-				ImageDescriptor descr = JavaPluginImages.createImageDescriptor(JavaPlugin.getDefault().getBundle(), JavaPluginImages.ICONS_PATH.append("e" + "lcl16").append("ch_callers.gif"), true);
-				return JavaPlugin.getImageDescriptorRegistry().get(
-						//JavaPluginImages.DESC_MISC_DEFAULT
-						descr
-						);
+				return assignmentIcon;
 			}
 			else if (element instanceof ReferenceSite) {
 
@@ -489,7 +516,7 @@ public class ZamiaSearchResultPage extends AbstractTextSearchViewPage {
 		
 		@Override
 		public StyledString getStyledText(Object element) {
-			if (element instanceof ReferenceSite) {
+			if (exportAction.isEnabled()) {
 				ReferenceSite rs = (ReferenceSite) element;
 				//String icon = rs instanceof SearchAssignment ? "    => " : ""; 
 				if (rs.getDBID() == 0)
@@ -550,7 +577,7 @@ public class ZamiaSearchResultPage extends AbstractTextSearchViewPage {
     class BackAction extends Action implements ISelectionChangedListener { 
     	List hist = new ArrayList(); 
     	
-    	private Object current() {
+    	public Object current() {
     		return hist.get(hist.size()-1);
     	}
 
@@ -572,7 +599,7 @@ public class ZamiaSearchResultPage extends AbstractTextSearchViewPage {
     		
     		boolean fwdEnabled = selObj != null && selObj instanceof SearchAssignment 
     				&& ((SearchAssignment) selObj).getDBID() != 0
-    				//&& fwdAction.selection.keyResult != null
+    				&& ((SearchAssignment) selObj).keyResult != null
     				; 
     		fwdAction.setEnabled(fwdEnabled);
 

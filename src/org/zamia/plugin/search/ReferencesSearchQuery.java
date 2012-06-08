@@ -6,13 +6,15 @@
  * 
  * Created by Guenter Bartsch on Jun 22, 2008
  */
-package org.zamia.plugin.editors;
+package org.zamia.plugin.search;
 
 
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Collection;
 import java.util.Map;
+import java.util.regex.Matcher;
+
 import org.eclipse.core.runtime.IProgressMonitor;
 import org.eclipse.core.runtime.IStatus;
 import org.eclipse.core.runtime.OperationCanceledException;
@@ -41,6 +43,7 @@ import org.zamia.instgraph.IGItem;
 import org.zamia.instgraph.IGObject;
 import org.zamia.instgraph.IGOperationObject;
 import org.zamia.plugin.ZamiaPlugin;
+import org.zamia.plugin.editors.StaticAnalysisAction;
 import org.zamia.util.Pair;
 import org.zamia.vhdl.ast.DeclarativeItem;
 
@@ -107,7 +110,7 @@ public class ReferencesSearchQuery implements ISearchQuery {
 	Object fMessage = null;
 	boolean fDone = false;
 	
-	public String getLabel() {
+	protected String getLabelOptions() {
 		List options = new ArrayList();
 		Object[] pairs = new Object[] {
 				fSearchDownward, "Down",
@@ -115,14 +118,17 @@ public class ReferencesSearchQuery implements ISearchQuery {
 				fDeclOnly, "Decl",
 				fReadersOnly, "Readers",
 				fWritersOnly, "Writers",
-				fUsePath, "path=" + fTLP,
+				fUsePath, "Path=" + fTLP,
 			};
 		for (int i = 0 ; i != pairs.length ; i++) {
 			if ((Boolean) pairs[i++]) 
 				options.add(pairs[i]);
 		}
-		
-		return "Searching " + fMessage + " ("+(Utils.concatenate(options, "+")) +") for references..." + (fDone ? " Done" : "");
+
+		return Utils.concatenate(options, "+");
+	}
+	public String getLabel() {
+		return (fDone ? " Done " : " ") + "Searching " + fMessage + " ("+ getLabelOptions() +") for references..." + refCounter + " found" ;
 	}
 
 	public ZamiaSearchResult getSearchResult() {
@@ -133,6 +139,7 @@ public class ReferencesSearchQuery implements ISearchQuery {
 
 	public IStatus run(IProgressMonitor aMonitor) throws OperationCanceledException {
 
+		refCounter = 0;
 		fSearchResult = getSearchResult();
 		fSearchResult.removeAll();
 
@@ -156,13 +163,8 @@ public class ReferencesSearchQuery implements ISearchQuery {
 
 					if (item != null) {
 
-						IGObject object = null;
-
-						if (item instanceof IGOperationObject) {
-							object = ((IGOperationObject) item).getObject();
-						} else if (item instanceof IGObject) {
-							object = (IGObject) item;
-						}
+						IGObject object = IGReferencesSearch.asObject(item);
+						
 						if (object != null) {
 							fMessage = object.getId();
 							igSearch(object, path);
@@ -208,10 +210,10 @@ public class ReferencesSearchQuery implements ISearchQuery {
 								
 							}
 
-							addMatches(filteredResults);
+							addMatch(filteredResults);
 
 						} else {
-							addMatches(results);
+							addMatch(results);
 
 						}
 					} else {
@@ -230,17 +232,6 @@ public class ReferencesSearchQuery implements ISearchQuery {
 		return Status.OK_STATUS;
 	}
 
-	protected void mergeResults(Object aObject, ReferenceSearchResult aRSR) {
-		if (aRSR != null) {
-			//aRSR.dump(1, System.err);
-			addMatches(aRSR);
-		} else {
-			ZamiaPlugin.showError(null, "IG-based reference search (" + aObject + ") failed", "Search returned no result.", "");
-			System.err.println(aObject + " search returns null");
-			
-		}
-	}
-	
 	//Extended search may have more than one result to merge
 	protected void igSearch(IGObject object, ToplevelPath path) {
 		IGReferencesSearch rs = new IGReferencesSearch(fZPrj);
@@ -248,14 +239,20 @@ public class ReferencesSearchQuery implements ISearchQuery {
 		mergeResults(object, rsr);
 	}
 
-	protected void addMatches(ReferenceSearchResult aRSR) {
-
-		fSearchResult.addMatch(new Match(aRSR, 0, 1));
-
-		int n = aRSR.getNumChildren();
-		for (int i = 0; i < n; i++) {
-			ReferenceSearchResult child = aRSR.getChild(i);
-			addMatches(child);
+	protected void mergeResults(Object aObject, ReferenceSearchResult root) {
+		if (root != null) {
+			//aRSR.dump(1, System.err);
+			addMatch(root);
+		} else {
+			ZamiaPlugin.showError(null, "IG-based reference search (" + aObject + ") failed", "Search returned no result.", "");
+			System.err.println(aObject + " search returns null");
+			
 		}
+	}
+	
+	int refCounter = 0;
+	protected void addMatch(ReferenceSearchResult aRSR) {
+		refCounter += aRSR.countRefs();
+		fSearchResult.addMatch(new Match(aRSR, 0, 1));
 	}
 }

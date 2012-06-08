@@ -117,9 +117,9 @@ import org.zamia.plugin.ZamiaPlugin;
 import org.zamia.plugin.ZamiaProjectMap;
 import org.zamia.plugin.editors.DebugReportVisualizer;
 import org.zamia.plugin.editors.ReferenceSearchAction;
-import org.zamia.plugin.editors.ReferencesSearchQuery;
 import org.zamia.plugin.editors.ZamiaEditor;
 import org.zamia.plugin.launch.SimRunnerConfig;
+import org.zamia.plugin.search.ReferencesSearchQuery;
 import org.zamia.util.PathName;
 import org.zamia.vhdl.ast.DMUID;
 

@@ -6,7 +6,7 @@
  *
  */
 
-package org.zamia.plugin.editors;
+package org.zamia.plugin.search;
 
 import java.util.Map;
 
@@ -17,17 +17,18 @@ import org.eclipse.swt.widgets.Shell;
 import org.eclipse.ui.IWorkbenchWindow;
 import org.zamia.ASTNode;
 import org.zamia.ToplevelPath;
-import org.zamia.analysis.ReferenceSite;
 import org.zamia.analysis.SourceLocation2AST;
 import org.zamia.analysis.ast.ASTDeclarationSearch;
 import org.zamia.analysis.ig.IGAssignmentsSearch;
 import org.zamia.analysis.ig.IGAssignmentsSearch.RootResult;
 import org.zamia.instgraph.IGObject;
 import org.zamia.plugin.ZamiaPlugin;
-import org.zamia.plugin.editors.ShowReferencesDialog.Option;
+import org.zamia.plugin.editors.StaticAnalysisAction;
+import org.zamia.plugin.search.ShowReferencesDialog.Option;
 import org.zamia.vhdl.ast.DeclarativeItem;
 import org.zamia.vhdl.ast.InterfaceDeclaration;
 import org.zamia.vhdl.ast.SignalDeclaration;
+import org.zamia.vhdl.ast.VariableDeclaration;
 
 /**
  * 
@@ -38,6 +39,8 @@ import org.zamia.vhdl.ast.SignalDeclaration;
 public class ShowReferencesAction extends StaticAnalysisAction {
 
 	private boolean[] values;
+	private int depth = 3;
+	
 	public void run(IAction a) {
 
 		NewSearchUI.activateSearchResultView();
@@ -70,12 +73,12 @@ public class ShowReferencesAction extends StaticAnalysisAction {
 			}
 
 			String jobText = "Search for " + decl + "\nLocation: " + fLocation + "\nPath: " + fPath;
-			boolean usePath = decl instanceof SignalDeclaration || decl instanceof InterfaceDeclaration;
-			ShowReferencesDialog dlg = new ShowReferencesDialog(window.getShell(), jobText, usePath ? fPath : null, values);
-
+			boolean usePath = decl instanceof SignalDeclaration || decl instanceof InterfaceDeclaration || decl instanceof VariableDeclaration;
+			ShowReferencesDialog dlg = new ShowReferencesDialog(window.getShell(), jobText, usePath ? fPath : null, values, depth);
+			
 			if (dlg.open() == Window.OK) {
 				NewSearchUI.runQueryInBackground(new ExtendedReferencesSearchQuery(this, dlg.isSearchUp(), dlg.isSearchDown(), false, 
-						usePath && dlg.getValue(Option.UsePath), dlg.getValue(Option.WritesOnly), dlg.getValue(Option.ReadsOnly), dlg.getValue(Option.AssignThrough)));
+						dlg.getValue(Option.UsePath), dlg.getValue(Option.WritesOnly), dlg.getValue(Option.ReadsOnly), dlg.isFollowAssignments(), depth = dlg.fDepth));
 			}
 
 			values = dlg.values;
@@ -96,23 +99,26 @@ public class ShowReferencesAction extends StaticAnalysisAction {
 
 class ExtendedReferencesSearchQuery extends ReferencesSearchQuery {
 
-	private boolean fFollowAssignments;
-
+	public final boolean fFollowAssignments;
+	private int fDepth;
+	protected String getLabelOptions() {
+		return super.getLabelOptions() + (fFollowAssignments ? ", depth="+fDepth : "");
+	}
 	public ExtendedReferencesSearchQuery(StaticAnalysisAction aSAA,
 			boolean aSearchUpward, boolean aSearchDownward, boolean aDeclOnly,
-			boolean aUsePath, boolean aWritersOnly, boolean aReadersOnly, boolean aFollowAssignments) {
+			boolean aUsePath, boolean aWritersOnly, boolean aReadersOnly, boolean aFollowAssignments, int aDepth) {
 		super(aSAA, aSearchUpward, aSearchDownward, aDeclOnly, aUsePath, aWritersOnly,
 				aReadersOnly);
 		fFollowAssignments = aFollowAssignments;
+		fDepth = aDepth;
 	}
 
 	@Override
 	protected void igSearch(IGObject object, ToplevelPath path) {
 		
 		if (fFollowAssignments) {
-			IGAssignmentsSearch rs = new IGAssignmentsSearch(fZPrj);
-	
-	
+			IGAssignmentsSearch rs = new IGAssignmentsSearch(fZPrj, fDepth);
+
 			Map<Long, RootResult> searches = rs.assignmentThroughSearch(object, path, fSearchUpward, fSearchDownward, fWritersOnly, fReadersOnly);
 	
 			for (Long key : searches.keySet()) {
@@ -121,4 +127,5 @@ class ExtendedReferencesSearchQuery extends ReferencesSearchQuery {
 		} else 
 			super.igSearch(object, path);
 	}
+	
 }

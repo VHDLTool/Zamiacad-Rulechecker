@@ -1,4 +1,4 @@
-package org.zamia.plugin.editors;
+package org.zamia.plugin.search;
 
 import org.eclipse.search.ui.IQueryListener;
 import org.eclipse.search.ui.ISearchQuery;
