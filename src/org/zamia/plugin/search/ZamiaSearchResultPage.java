@@ -126,24 +126,32 @@ public class ZamiaSearchResultPage extends AbstractTextSearchViewPage {
 		}
 
 		public void inputChanged(Viewer viewer, Object oldInput, Object newInput) {
+
+			assignmentIcon = null;
 			fTreeViewer = (TreeViewer) viewer;
 			fSearchResult = (ZamiaSearchResult) newInput;
-
-			boolean assignmentSearch = newInput != null && (((ExtendedReferencesSearchQuery) getQuery()).fFollowAssignments);
-			exportAction.setEnabled(assignmentSearch);
 			
-			highlightAssignments.setEnabled(assignmentSearch);
-			if (!assignmentSearch) {
-				highlightAssignments.setChecked(false);
-			}
-			highlightAssignments.run();
+			boolean assignmentSearch = newInput != null && (((ExtendedReferencesSearchQuery) getQuery()).fFollowAssignments);
+			
+			exportAction.setEnabled(assignmentSearch);
 			expandAssignments.setEnabled(assignmentSearch);
-			if (!assignmentSearch) // I do not know how to check if it is assignment-through
-				assignmentIcon = null;
-			else
+			highlightAssignments.setEnabled(assignmentSearch);
+			
+			if (assignmentSearch) {
+				
+				//assignment statements have deep search icon 
 				assignmentIcon = JavaPlugin.getImageDescriptorRegistry().get(JavaPluginImages.createImageDescriptor(JavaPlugin.getDefault().getBundle(), JavaPluginImages.ICONS_PATH.append("e" + "lcl16")
-					.append("ch_calle"+(getQuery().fReadersOnly ? "e" : "r")+"s.gif"), true));
-
+						.append("ch_calle"+(getQuery().fReadersOnly ? "e" : "r")+"s.gif"), true));
+				
+				highlightAssignments.run(); // simulate highlight selection
+			} else if (oldInput != null) {
+			
+				clear();
+//				// clean up obsolete highlighting
+//				ExtendedReferencesSearchQuery q = (ExtendedReferencesSearchQuery) ((ZamiaSearchResult) oldInput).fQuery;
+//				DebugReportVisualizer.getInstance(q.fZPrj).setStaticalLines(null); 
+			}
+			
 		}
 
 		public void refresh() {
@@ -344,19 +352,25 @@ public class ZamiaSearchResultPage extends AbstractTextSearchViewPage {
 		public void run() {
 			ZamiaSearchResult root = (ZamiaSearchResult) getViewer().getInput();
 
-			IGHitCountLogger linesLogger = new IGHitCountLogger("Lines logger");
-			if (isChecked()) {
-				logger.info("root = "  + root + " " + root.getElements());
-				for (Object o : root.getElements())
-					if (o instanceof SearchAssignment) {
-						SearchAssignment a = (SearchAssignment) o;
-						logger.info(" " + a);
-						linesLogger.logHit(a.getLocation(), 0);
-					}
-			} else
-				linesLogger = null;
+			
+			if (isEnabled()) {
+				
+				IGHitCountLogger linesLogger = null;
+				if (isChecked()) {
+					linesLogger = new IGHitCountLogger("Lines logger");
+				 	for (Object o: fContentProvider.fSearchResult.getElements()) {
+				 		RootResult r = (RootResult) o;
+				 		for (Object sa : fContentProvider.getChildren(r)) {
+				 			final SearchAssignment a = (SearchAssignment) sa;
+							linesLogger.logHit(a.getLocation(), 0);
+				 		}
+				 	}
+			 		
+				}
+				
+				DebugReportVisualizer.getInstance(getZamiaProject()).setStaticalLines(linesLogger);
+			}
 
-			DebugReportVisualizer.getInstance(getZamiaProject()).setStaticalLines(linesLogger);
 		}
 		
 	};
@@ -378,6 +392,7 @@ public class ZamiaSearchResultPage extends AbstractTextSearchViewPage {
 			fContentProvider.refresh(); // calls viewer.refresh()
 			fContentProvider.fTreeViewer.getControl().setRedraw(true);
 			fContentProvider.fTreeViewer.reveal(backAction.current());
+			highlightAssignments.run();
 		}
 	};
 	
