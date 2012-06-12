@@ -2318,7 +2318,7 @@ public class SimulatorView extends ViewPart implements IGISimObserver {
 	}
 
 	private void paintWaveformCanvas(PaintEvent aPaintEvent) {
-		fOffscreenLock.lock();
+		if (fOffscreenLock.tryLock())
 		try {
 		GC gc = aPaintEvent.gc;
 
