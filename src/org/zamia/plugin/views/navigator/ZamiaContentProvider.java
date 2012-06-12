@@ -273,7 +273,7 @@ public class ZamiaContentProvider extends BaseWorkbenchContentProvider implement
 				oldWorkspace.removeResourceChangeListener(this);
 			}
 			if (newWorkspace != null) {
-				newWorkspace.addResourceChangeListener(this, IResourceChangeEvent.POST_CHANGE);
+				newWorkspace.addResourceChangeListener(this, IResourceChangeEvent.POST_CHANGE | IResourceChangeEvent.PRE_CLOSE | IResourceChangeEvent.PRE_DELETE);
 			}
 		}
 	}
@@ -283,7 +283,15 @@ public class ZamiaContentProvider extends BaseWorkbenchContentProvider implement
 	 */
 	public final void resourceChanged(final IResourceChangeEvent event) {
 
-		processDelta(event.getDelta());
+		if (event.getType() == IResourceChangeEvent.PRE_CLOSE || event.getType() == IResourceChangeEvent.PRE_DELETE) {
+			IProject proj = (IProject) event.getResource();
+			if (proj.isOpen()) {
+				logger.info("closing " + proj);
+				ZamiaProjectMap.close(proj);
+			}
+		} else
+			
+			processDelta(event.getDelta());
 
 	}
 

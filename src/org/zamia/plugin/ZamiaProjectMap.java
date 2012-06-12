@@ -267,9 +267,16 @@ public class ZamiaProjectMap {
 		return fIPrjs.get(aZPrj);
 	}
 
-	public static void remove(IProject aPrj) {
+	public static void close(IProject aPrj) {
+		ZamiaProject  zprj;
 		synchronized(fZPrjs) { 
-			ZamiaProject zprj = getZamiaProject(aPrj);
+			zprj = getZamiaProject(aPrj);
+		}
+		
+		zprj.shutdown();
+		
+		// TODO: synchronization is bad. While we are closing, another thread may open the project. 
+		synchronized (fZPrjs) {
 			fZPrjs.remove(aPrj);
 			fIPrjs.remove(zprj);
 		}
