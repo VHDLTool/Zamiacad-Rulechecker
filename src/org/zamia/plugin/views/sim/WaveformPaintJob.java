@@ -117,7 +117,7 @@ public class WaveformPaintJob extends Job {
 
 	public WaveformPaintJob(SimulatorView aViewer, Rectangle aClientArea) {
 		super("Paint waveform");
-
+		setSystem(true);
 		fViewer = aViewer;
 		fSim = fViewer.getSim();
 		fXOffset = fViewer.getXOffset();

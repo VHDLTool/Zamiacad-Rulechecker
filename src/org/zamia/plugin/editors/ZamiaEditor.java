@@ -694,14 +694,11 @@ public class ZamiaEditor extends ErrorMarkEditor implements IShowInTargetList {
 	public SimulatorView findSimulatorView() {
 
 		if (fSimView == null) {
-			IWorkbenchWindow window = ZamiaPlugin.getDefault().getWorkbench().getActiveWorkbenchWindow();
 
-			IWorkbenchPage page = window.getActivePage();
-
-			fSimView = (SimulatorView) page.findView("org.zamia.plugin.views.sim.SimulatorView");
+			fSimView = ZamiaPlugin.findView("org.zamia.plugin.views.sim.SimulatorView");
 			if (fSimView == null)
 				try {
-					fSimView  = (SimulatorView) page.showView("org.zamia.plugin.views.sim.SimulatorView");
+					fSimView  = (SimulatorView) ZamiaPlugin.getPage().showView("org.zamia.plugin.views.sim.SimulatorView");
 				} catch (PartInitException e) {
 					ExceptionLogger.getInstance().logException(e);
 				}
@@ -975,9 +972,8 @@ public class ZamiaEditor extends ErrorMarkEditor implements IShowInTargetList {
 
 		d.asyncExec(new Runnable() {
 			public void run() {
-				IWorkbenchPage page = ZamiaPlugin.getWorkbenchWindow().getActivePage();
 
-				IEditorPart editor = page.getActiveEditor();
+				IEditorPart editor = ZamiaPlugin.getPage().getActiveEditor();
 
 				if (editor instanceof ZamiaEditor) {
 					ZamiaEditor ze = (ZamiaEditor) editor;

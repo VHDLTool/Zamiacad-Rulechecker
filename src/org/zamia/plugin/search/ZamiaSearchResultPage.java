@@ -19,6 +19,10 @@ import java.util.List;
 import java.util.Map;
 
 import org.eclipse.core.resources.IProject;
+import org.eclipse.core.runtime.IProgressMonitor;
+import org.eclipse.core.runtime.IStatus;
+import org.eclipse.core.runtime.Status;
+import org.eclipse.core.runtime.jobs.Job;
 import org.eclipse.debug.internal.ui.views.launch.ImageImageDescriptor;
 import org.eclipse.jdt.internal.ui.JavaPlugin;
 import org.eclipse.jdt.internal.ui.JavaPluginImages;
@@ -143,19 +147,13 @@ public class ZamiaSearchResultPage extends AbstractTextSearchViewPage {
 				assignmentIcon = JavaPlugin.getImageDescriptorRegistry().get(JavaPluginImages.createImageDescriptor(JavaPlugin.getDefault().getBundle(), JavaPluginImages.ICONS_PATH.append("e" + "lcl16")
 						.append("ch_calle"+(getQuery().fReadersOnly ? "e" : "r")+"s.gif"), true));
 				
-				highlightAssignments.run(); // simulate highlight selection
-			} else if (oldInput != null) {
-			
-				clear();
-//				// clean up obsolete highlighting
-//				ExtendedReferencesSearchQuery q = (ExtendedReferencesSearchQuery) ((ZamiaSearchResult) oldInput).fQuery;
-//				DebugReportVisualizer.getInstance(q.fZPrj).setStaticalLines(null); 
 			}
 			
 		}
 
 		public void refresh() {
 			fTreeViewer.refresh();
+			highlightAssignments.run();
 		}
 
 		public void elementsChanged(Object[] updatedElements) {
@@ -184,7 +182,7 @@ public class ZamiaSearchResultPage extends AbstractTextSearchViewPage {
 				int n = root.getNumChildren(); 
 				
 				// Simple Algorithm hides all but one assignment of the duplicates
-				Collection res = new ArrayList(n);
+				Collection<ReferenceSearchResult> res = new ArrayList<ReferenceSearchResult>(n);
 				l1: for (ReferenceSearchResult r: root.fChildren) {
 					for (Object a2: res)
 						if (((SearchAssignment) a2).keyResult == ((SearchAssignment) r).keyResult)

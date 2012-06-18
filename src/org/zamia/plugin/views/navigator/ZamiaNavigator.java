@@ -19,6 +19,7 @@ import org.eclipse.core.runtime.jobs.Job;
 import org.eclipse.jface.action.IAction;
 import org.eclipse.jface.viewers.DoubleClickEvent;
 import org.eclipse.jface.viewers.IStructuredSelection;
+import org.eclipse.jface.viewers.StructuredViewer;
 import org.eclipse.swt.widgets.Composite;
 import org.eclipse.swt.widgets.Display;
 import org.eclipse.ui.IActionBars;
@@ -230,40 +231,32 @@ public class ZamiaNavigator extends CommonNavigator {
 		//cp.cleanup();
 	}
 	
-	static class NavigatorRefreshJob extends Job {
-		
-		private long fDelay;
-		
-		public NavigatorRefreshJob(long aDelay) {
-			super("Refresh zamiaCAD Navigator");
-			fDelay = aDelay;
-		}
-
-		protected IStatus run(IProgressMonitor monitor) {
-			
-			try {
-				Thread.sleep(fDelay);
-				Display d = Display.getDefault();
-				
-				d.asyncExec(new Runnable() {
-					public void run() {
-						IWorkbenchPage page = ZamiaPlugin.getWorkbenchWindow().getActivePage();
-
-						ZamiaNavigator zamiaNavigator = (ZamiaNavigator) page.findView(ZamiaNavigator.VIEW_ID);
-						zamiaNavigator.refresh();
-					}
-				});
-			} catch (Throwable t) {
-				el.logException(t);
-			}
-
-			return Status.OK_STATUS;
-		}
-	}
-
 	public static void refresh(long aDelay) {
-		NavigatorRefreshJob job = new NavigatorRefreshJob(aDelay);
+		Job job = new Job("Navigator refresh job") {
+			{
+				setSystem(true);
+			}
+			protected IStatus run(IProgressMonitor monitor) {
+				
+				try {
+					
+					Display d = Display.getDefault();
+					d.asyncExec(new Runnable() {
+						public void run() {
+							ZamiaNavigator navigator = ZamiaPlugin.findView(ZamiaNavigator.VIEW_ID); 
+							navigator.refresh();
+						}
+					});
+				} catch (Throwable t) {
+					el.logException(t);
+				}
+
+				return Status.OK_STATUS;
+			}
+			
+		};
 		job.setPriority(Job.SHORT);
-		job.schedule();
+		job.schedule(aDelay);
 	}
+
 }

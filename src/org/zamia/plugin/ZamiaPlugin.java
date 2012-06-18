@@ -745,4 +745,14 @@ public class ZamiaPlugin extends AbstractUIPlugin {
 		return window != null ? window.getShell() : new Shell();
 	}
 
+	
+	public static <T> T findView(String viewId) {
+		IWorkbenchPage page = getPage();
+		return (T)page.findView(viewId);
+	}
+
+	public static IWorkbenchPage getPage() {
+		return getWorkbenchWindow().getActivePage();
+	}
+	
 }

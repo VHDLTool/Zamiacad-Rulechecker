@@ -273,7 +273,9 @@ public class DebugReportVisualizer {
 	}
 
 	private void deleteMarkers(String aMarkerType) throws CoreException {
-		fEditor.getResource().deleteMarkers(aMarkerType, false, IResource.DEPTH_INFINITE);
+		IResource resource = fEditor.getResource();
+		if (resource != null)
+			resource.deleteMarkers(aMarkerType, false, IResource.DEPTH_INFINITE);
 	}
 
 	private void createMarkersFrom(Report aReport, String aMarkerType, Pair<Integer, Integer> aSelection, ExistingMarkers aExistingMarkers) {

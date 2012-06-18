@@ -72,18 +72,7 @@ public class ZDBImportWizard extends Wizard implements IImportWizard {
 
 			ZamiaBuilder.setAutoBuildEnabled(true);
 
-			Display d = Display.getDefault();
-
-			d.asyncExec(new Runnable() {
-
-				public void run() {
-					IWorkbenchPage page = ZamiaPlugin.getWorkbenchWindow().getActivePage();
-
-					ZamiaNavigator zamiaNavigator = (ZamiaNavigator) page.findView(ZamiaNavigator.VIEW_ID);
-					zamiaNavigator.refresh();
-				}
-			});
-			
+			ZamiaNavigator.refresh(0);
 
 			return Status.OK_STATUS;
 		}
