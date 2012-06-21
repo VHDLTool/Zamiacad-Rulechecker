@@ -310,6 +310,8 @@ public class DebugReportVisualizer {
 				off = off + colNr;
 				length = computeIdentifierLength(textWidget, lineNr, colNr);
 
+				length = extendIdentifierLengthToArrow(textWidget, lineNr, colNr, length);
+
 				if (aExistingMarkers.containsPoint(lineNr, colNr)) {
 					continue;
 				}
@@ -367,10 +369,50 @@ public class DebugReportVisualizer {
 
 			return line.split("\\W", 2)[0].length();
 
+		} else if (line.startsWith("\"")) {
+
+			return line.substring(0, line.indexOf("\"", 1) + 1).length();
+
+		} else if (line.startsWith("\'")) {
+
+			return line.substring(0, line.indexOf("\'", 1) + 1).length();
+
 		} else {
 
 			return line.split("[\\s\\(\\)'\"\\w]", 2)[0].length();
 		}
+	}
+
+	private int extendIdentifierLengthToArrow(StyledText textWidget, int aLine, int aCol, int aLength) {
+
+		String line = textWidget.getLine(aLine);
+
+		line = line.substring(aCol);
+
+		String wLine = line.substring(0, aLength);
+
+		if (!wLine.equalsIgnoreCase("when")) {
+			return aLength;
+		}
+
+		int ret = 0;
+		int n = textWidget.getLineCount();
+
+		while (true) {
+
+			if (line.contains("=>")) {
+				ret += line.indexOf("=>") + 2;
+				break;
+			}
+			ret += line.length() + 1; // + line.separator
+
+			aLine++;
+			if (aLine == n) {
+				return aLength;
+			}
+			line = textWidget.getLine(aLine);
+		}
+		return ret;
 	}
 
 	static enum MarkerType {
