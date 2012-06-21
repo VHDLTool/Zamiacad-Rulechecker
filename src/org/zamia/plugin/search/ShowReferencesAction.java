@@ -84,7 +84,7 @@ public class ShowReferencesAction extends StaticAnalysisAction {
 			values = dlg.values;
 		} catch (Exception e) {
 			el.logException(e);
-			showError("Catched exception:\n" + e + "\nSee log for details.", (Shell) null);
+			showError("Catched exception:\n" + e + "\nSee log for details.", null);
 		}
 	}
 

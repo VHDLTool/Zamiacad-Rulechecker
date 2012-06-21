@@ -43,7 +43,7 @@ public class ReferencesSearchQueryListener implements IQueryListener {
 
 		ReferencesSearchQuery rsquery = (ReferencesSearchQuery) query;
 
-		ZamiaSearchResult result = (ZamiaSearchResult) rsquery.getSearchResult();
+		ZamiaSearchResult result = rsquery.getSearchResult();
 
 		for (Object element : result.getElements()) {
 

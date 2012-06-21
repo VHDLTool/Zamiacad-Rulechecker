@@ -14,15 +14,9 @@ import java.io.IOException;
 import java.io.Writer;
 import java.util.ArrayList;
 import java.util.Collection;
-import java.util.HashMap;
 import java.util.List;
-import java.util.Map;
 
 import org.eclipse.core.resources.IProject;
-import org.eclipse.core.runtime.IProgressMonitor;
-import org.eclipse.core.runtime.IStatus;
-import org.eclipse.core.runtime.Status;
-import org.eclipse.core.runtime.jobs.Job;
 import org.eclipse.debug.internal.ui.views.launch.ImageImageDescriptor;
 import org.eclipse.jdt.internal.ui.JavaPlugin;
 import org.eclipse.jdt.internal.ui.JavaPluginImages;
@@ -64,7 +58,6 @@ import org.eclipse.ui.PlatformUI;
 import org.eclipse.ui.internal.WorkbenchMessages;
 import org.zamia.ExceptionLogger;
 import org.zamia.SourceLocation;
-import org.zamia.Utils;
 import org.zamia.ZamiaLogger;
 import org.zamia.ZamiaProject;
 import org.zamia.analysis.ReferenceSearchResult;
@@ -78,7 +71,6 @@ import org.zamia.plugin.ZamiaPlugin;
 import org.zamia.plugin.ZamiaProjectMap;
 import org.zamia.plugin.editors.DebugReportVisualizer;
 import org.zamia.plugin.editors.ZamiaEditor;
-import org.zamia.plugin.views.sim.SimulatorView;
 
 /**
  * 

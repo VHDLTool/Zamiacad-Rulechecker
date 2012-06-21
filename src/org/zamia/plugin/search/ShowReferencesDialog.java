@@ -8,7 +8,6 @@
  */
 package org.zamia.plugin.search;
 
-import org.eclipse.jface.dialogs.ControlEnableState;
 import org.eclipse.jface.dialogs.Dialog;
 import org.eclipse.jface.dialogs.IDialogConstants;
 import org.eclipse.swt.SWT;
