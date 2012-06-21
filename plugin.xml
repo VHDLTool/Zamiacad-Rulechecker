@@ -1182,7 +1182,29 @@
         </command>
      	</menuContribution>
 	</extension>
-   
+
+	<extension point="org.eclipse.ui.commands">
+	     <command
+	           id="org.zamia.plugin.ui.runSelectedScriptCommand"
+	           defaultHandler="org.zamia.plugin.ui.ScriptRunner"
+	           name="org.zamia.plugin.runselectedscript"/>
+	</extension>
+	<extension id="add.item" point="org.eclipse.ui.menus">
+		<menuContribution locationURI="popup:org.eclipse.ui.popup.any?after=additions">
+        <command
+			commandId="org.zamia.plugin.ui.runSelectedScriptCommand"
+	        icon="share/images/process.gif"
+		    label= "Run script">
+			<visibleWhen>
+        <iterate ifEmpty="false">
+			  <instanceof value="org.eclipse.core.resources.IFile"/>
+            <test property="org.eclipse.core.resources.name" value="*.py"/>
+        </iterate>
+			</visibleWhen>
+        </command>
+        </menuContribution>
+	</extension>
+
 	<extension point="org.eclipse.ui.commands">
 	     <command
 	           id="org.zamia.plugin.ui.runScriptCommand"

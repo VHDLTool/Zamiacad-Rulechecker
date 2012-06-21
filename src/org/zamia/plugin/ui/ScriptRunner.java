@@ -4,6 +4,7 @@ import org.eclipse.core.commands.AbstractHandler;
 import org.eclipse.core.commands.ExecutionEvent;
 import org.eclipse.core.commands.ExecutionException;
 import org.eclipse.core.resources.IProject;
+import org.eclipse.core.resources.IResource;
 import org.eclipse.core.runtime.IProgressMonitor;
 import org.eclipse.core.runtime.IStatus;
 import org.eclipse.core.runtime.Status;
@@ -38,27 +39,49 @@ public class ScriptRunner extends AbstractHandler {
 
 		ITreeSelection v = (ITreeSelection) HandlerUtil.getVariable(executionEvent, "selection");
 
-		IProject project = (IProject) v.getFirstElement();
+		Object firstElement = v.getFirstElement();
+
+		IProject project = null;
+		String script = null;
+
+		if (firstElement instanceof IProject) {
+
+			project = (IProject) firstElement;
+
+		} else if (firstElement instanceof IResource) {
+
+			IResource r = (IResource) firstElement;
+
+			script = r.getLocation().toString();
+
+			while (!((r = r.getParent()) instanceof IProject)) {
+			}
+
+			project = (IProject) r;
+		}
 
 		ZamiaProject zprj = ZamiaProjectMap.getZamiaProject(project);
 
-		doScript(zprj);
+		doScript(zprj, script);
 
 		return null;
 	}
 
-	private void doScript(ZamiaProject aZprj) {
+	private void doScript(ZamiaProject aZprj, String aScript) {
 
 		Shell shell = ZamiaPlugin.getShell();
 
-		FileDialog dialog = new FileDialog(shell, SWT.OPEN);
-		dialog.setText("Select script file to run");
-		dialog.setFilterPath(aZprj.fBasePath.toString());
-		dialog.setFilterExtensions(new String[]{"*.py"});
-		String selected = dialog.open();
+		if (aScript == null) {
 
-		if (selected == null) {
-			return;
+			FileDialog dialog = new FileDialog(shell, SWT.OPEN);
+			dialog.setText("Select script file to run");
+			dialog.setFilterPath(aZprj.fBasePath.toString());
+			dialog.setFilterExtensions(new String[]{"*.py"});
+			aScript = dialog.open();
+
+			if (aScript == null) {
+				return;
+			}
 		}
 
 		ZamiaPlugin.showConsole();
@@ -76,7 +99,7 @@ public class ScriptRunner extends AbstractHandler {
 			}
 		}
 
-		ScriptJob job = new ScriptJob(interpreter, selected);
+		ScriptJob job = new ScriptJob(interpreter, aScript);
 		job.setPriority(Job.LONG);
 		job.schedule();
 	}
