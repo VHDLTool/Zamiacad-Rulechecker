@@ -25,7 +25,10 @@ import org.zamia.cli.jython.ZCJInterpreter;
 import org.zamia.instgraph.interpreter.logger.Report;
 import org.zamia.plugin.ZamiaPlugin;
 import org.zamia.plugin.ZamiaProjectMap;
+import org.zamia.plugin.build.ZamiaErrorObserver;
 import org.zamia.plugin.editors.DebugReportVisualizer;
+import org.zamia.plugin.editors.ZamiaEditor;
+import org.zamia.plugin.views.navigator.ZamiaNavigator;
 
 /**
  * @author Anton Chepurov
@@ -138,6 +141,8 @@ public class ScriptRunner extends AbstractHandler {
 
 					ZamiaProject zprj = script.fInterpreter.getZprj();
 
+					ZamiaErrorObserver.updateAllMarkers(zprj);
+
 					PyObject reportObject = script.fInterpreter.getObject("reportAssignments");
 					if (reportObject != null) {
 
@@ -155,6 +160,11 @@ public class ScriptRunner extends AbstractHandler {
 					}
 
 //					reportObject = script.fInterpreter.getObject("reportBranches");
+
+					ZamiaNavigator.refresh(500);
+
+					ZamiaEditor.updateOutlineView();
+
 				}
 			});
 		}

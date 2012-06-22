@@ -135,7 +135,7 @@ public class ZamiaErrorObserver implements ErrorObserver {
 		}
 	}
 
-	static void updateAllMarkers(ZamiaProject aZPrj) {
+	public static void updateAllMarkers(ZamiaProject aZPrj) {
 		IProject prj = ZamiaProjectMap.getProject(aZPrj);
 
 		deleteAllMarkers(prj);
