@@ -36,14 +36,7 @@ public class VHDLScanner extends RuleBasedScanner {
 	static class VHDLWordDetector implements IWordDetector {
 
 		public boolean isVHDLIdentifierPart(char ch) {
-			if (Character.isLetter(ch)) {
-				return true;
-			} else {
-				if (Character.toString(ch).equals("_")) {
-					return true;
-				}
-			}
-			return false;
+			return Character.isLetterOrDigit(ch) || (ch == '_');
 		}
 
 		public boolean isVHDLIdentifierStart(char ch) {

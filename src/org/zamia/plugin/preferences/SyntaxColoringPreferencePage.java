@@ -79,17 +79,14 @@ public class SyntaxColoringPreferencePage extends FieldEditorPreferencePage impl
 	}
 
 	protected void updateColors() {
-		IWorkbenchWindow window = ZamiaPlugin.getDefault().getWorkbench().getActiveWorkbenchWindow();
-		if (window != null) {
-			IWorkbenchPage page = window.getActivePage();
-			if (page != null) {
-				IEditorReference[] editorReference = page.getEditorReferences();
-				for (int i = 0; i < editorReference.length; i++) {
-					IEditorPart editorPart = editorReference[i].getEditor(false);
-					if (editorPart instanceof ZamiaEditor) {
-						ZamiaEditor editor = (ZamiaEditor) editorPart;
-						editor.updateColors();
-					}
+		IWorkbenchPage page = ZamiaPlugin.getPage();
+		if (page != null) {
+			IEditorReference[] editorReference = page.getEditorReferences();
+			for (int i = 0; i < editorReference.length; i++) {
+				IEditorPart editorPart = editorReference[i].getEditor(false);
+				if (editorPart instanceof ZamiaEditor) {
+					ZamiaEditor editor = (ZamiaEditor) editorPart;
+					editor.updateColors();
 				}
 			}
 		}

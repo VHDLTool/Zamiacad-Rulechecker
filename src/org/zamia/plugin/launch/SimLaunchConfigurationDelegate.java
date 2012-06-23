@@ -60,9 +60,8 @@ public class SimLaunchConfigurationDelegate extends org.eclipse.debug.core.model
 
 			Display.getDefault().asyncExec(new Runnable() {
 				public void run() {
-					IWorkbenchWindow window = ZamiaPlugin.getDefault().getWorkbench().getActiveWorkbenchWindow();
 
-					IWorkbenchPage page = window.getActivePage();
+					IWorkbenchPage page = ZamiaPlugin.getPage();
 
 					try {
 						SimulatorView sview = (SimulatorView) page.showView("org.zamia.plugin.views.sim.SimulatorView");

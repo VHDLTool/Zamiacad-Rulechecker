@@ -437,15 +437,12 @@ public class DebugReportVisualizer {
 	}
 
 	private static boolean isActivePageLoaded() {
-		IWorkbenchWindow window = ZamiaPlugin.getDefault().getWorkbench().getActiveWorkbenchWindow();
-		return window.getActivePage() != null;
+		return ZamiaPlugin.getPage() != null;
 	}
 
 	private void processOpenEditors(EditorProcessor aProcessor) {
 
-		IWorkbenchWindow window = ZamiaPlugin.getDefault().getWorkbench().getActiveWorkbenchWindow();
-
-		IWorkbenchPage page = window.getActivePage();
+		IWorkbenchPage page = ZamiaPlugin.getPage();
 
 		for (IEditorReference ref : page.getEditorReferences()) {
 			IEditorPart openEditor = ref.getEditor(false);
