@@ -48,6 +48,15 @@
             id="org.zamia.editors.BuildPathEditor"
             name="Build Path Editor">
       </editor>
+      <editor
+            class="org.eclipse.ui.editors.text.TextEditor"
+            default="true"
+            extensions="py"
+            icon="share/images/python_source.gif"
+            id="org.eclipse.ui.DefaultTextEditor_python"
+            name="Python Editor">
+      </editor>
+      
    </extension>
    
    <extension point="org.eclipse.ui.perspectives">

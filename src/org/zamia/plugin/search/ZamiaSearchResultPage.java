@@ -292,7 +292,7 @@ public class ZamiaSearchResultPage extends AbstractTextSearchViewPage {
 							out.write("\t" + first + " [fillcolor=red, style=\"filled\"]\r");
 						for (Object sa : fContentProvider.getChildren(r)) {
 							final SearchAssignment a = (SearchAssignment) sa;
-							if (a.keyResult != null && a.keyResult.skippedDueToDepth) // do not show skipped nodes
+							if (a.keyResult != null && a.keyResult.truncated) // do not show skipped nodes
 								continue;
 							if (a.getDBID() != 0) {
 								String second = a.keyResult == null ? "\"- search for ["+exportName(a).replace('"', '\'')+"] has failed -\"" : exportName(a.keyResult);
@@ -451,7 +451,7 @@ public class ZamiaSearchResultPage extends AbstractTextSearchViewPage {
 			// decorate with max depth
 			if (element instanceof RootResult) {
 				RootResult r = (RootResult) element;
-				if (r.skippedDueToDepth) {
+				if (r.truncated) {
 		            ImageDescriptor baseImage= new ImageImageDescriptor(image);
 		            ImageData bounds= baseImage.getImageData();
 		            image = JavaPlugin.getImageDescriptorRegistry().get(new CallHierarchyImageDescriptor(baseImage, 
