@@ -178,9 +178,9 @@ public class ZamiaProjectMap {
 				Thread that = pendingCreation.get(aProject);
 				if (that == null)
 					break;
-				logger.warn("Thread " + Thread.currentThread() + " requests getZamiaProject(" + aProject + ") while " + that + " is creating/opening it");
+				logger.debug("Thread " + Thread.currentThread() + " requests getZamiaProject(" + aProject + ") while " + that + " is creating/opening it");
 				if (Thread.currentThread() == Display.getDefault().getThread()) {
-					logger.warn("Cannot block the GUI thread - give it a null result.");
+					logger.debug("Cannot block the GUI thread - give it a null result.");
 					return null;
 				}
 				try {
