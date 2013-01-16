@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <?pde version="3.5"?>
 
-<product name="zamiaCAD" uid="org.zamia.plugin.product" id="org.zamia.plugin.product" application="org.eclipse.ui.ide.workbench" version="0.11.0" useFeatures="false" includeLaunchers="true">
+<product name="zamiaCAD" uid="org.zamia.plugin.product" id="org.zamia.plugin.product" application="org.eclipse.ui.ide.workbench" version="0.11.1" useFeatures="false" includeLaunchers="true">
 
    <aboutInfo>
       <image path="/zamiacad/share/images/zamiacad_fern.png"/>
