@@ -23,6 +23,7 @@ import org.eclipse.jface.text.rules.SingleLineRule;
 import org.eclipse.jface.text.rules.Token;
 import org.eclipse.jface.text.rules.WordRule;
 import org.eclipse.swt.graphics.RGB;
+import org.zamia.BuildPath;
 import org.zamia.plugin.ZamiaPlugin;
 import org.zamia.plugin.editors.ColorManager;
 import org.zamia.plugin.preferences.PreferenceConstants;
@@ -61,8 +62,6 @@ public class BuildPathScanner extends RuleBasedScanner {
 		}
 	}
 
-	public static String[] fgKeywords = { "extern", "local", "toplevel", "readonly", "ignore", "include", "option", "true", "false", "topdown", "bottomup", "list", "none", "default", "exec", "recursive", "nonrecursive", "synthesize" };
-
 	public BuildPathScanner() {
 
 		ColorManager colorManager = ColorManager.getInstance();
@@ -97,8 +96,8 @@ public class BuildPathScanner extends RuleBasedScanner {
 		// Add word rule for keywords.
 		// FIXME keyword following an underscore should be taken as normal text.
 		WordRule wordRule = new WordRule(new VHDLWordDetector(), other, true);
-		for (int i = 0; i < fgKeywords.length; i++) {
-			wordRule.addWord(fgKeywords[i], keyword);
+		for (String kw: BuildPath.keyWords.keySet()) {
+			wordRule.addWord(kw, keyword);
 		}
 
 		rules.add(wordRule);
