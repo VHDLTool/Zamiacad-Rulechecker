@@ -18,7 +18,6 @@ import org.eclipse.swt.widgets.FileDialog;
 import org.eclipse.swt.widgets.MessageBox;
 import org.eclipse.swt.widgets.Shell;
 import org.eclipse.ui.handlers.HandlerUtil;
-import org.python.core.PyObject;
 import org.zamia.ExceptionLogger;
 import org.zamia.ZamiaProject;
 import org.zamia.cli.jython.ZCJInterpreter;
@@ -143,23 +142,17 @@ public class ScriptRunner extends AbstractHandler {
 
 					ZamiaErrorObserver.updateAllMarkers(zprj);
 
-					PyObject reportObject = script.fInterpreter.getObject("reportAssignments");
-					if (reportObject != null) {
-
-						Report report = (Report) reportObject.__tojava__(Report.class);
+					Report report = script.fInterpreter.getObject("reportAssignments", Report.class);
+					if (report != null) {
 
 						DebugReportVisualizer.getInstance(zprj).setAssignments(report);
 					}
 
-					reportObject = script.fInterpreter.getObject("reportConditions");
-					if (reportObject != null) {
-
-						Report report = (Report) reportObject.__tojava__(Report.class);
+					report = script.fInterpreter.getObject("reportConditions", Report.class);
+					if (report != null) {
 
 						DebugReportVisualizer.getInstance(zprj).setConditions(report);
 					}
-
-//					reportObject = script.fInterpreter.getObject("reportBranches");
 
 					ZamiaNavigator.refresh(500);
 
