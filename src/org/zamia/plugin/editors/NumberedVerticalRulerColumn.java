@@ -25,10 +25,10 @@ public class NumberedVerticalRulerColumn extends LineNumberRulerColumn {
 
 		int adjustedLine = line + 1;
 
-		if (!fLineHitLogger.hasLine(adjustedLine))
+		if (!fLineHitLogger.hasHitsAt(adjustedLine))
 			return "";
 
-		return String.valueOf(fLineHitLogger.getCount(adjustedLine));
+		return String.valueOf(fLineHitLogger.getHitsAt(adjustedLine));
 	}
 
 	@Override

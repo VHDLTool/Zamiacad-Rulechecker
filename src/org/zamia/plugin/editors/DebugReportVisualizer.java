@@ -16,7 +16,6 @@ import org.eclipse.swt.graphics.RGB;
 import org.eclipse.ui.IEditorPart;
 import org.eclipse.ui.IEditorReference;
 import org.eclipse.ui.IWorkbenchPage;
-import org.eclipse.ui.IWorkbenchWindow;
 import org.eclipse.ui.editors.text.TextFileDocumentProvider;
 import org.zamia.SourceFile;
 import org.zamia.ZamiaLogger;
@@ -137,8 +136,8 @@ public class DebugReportVisualizer {
 		int nLines = textWidget.getLineCount();
 		for (int i = 0; i < nLines; i++) {
 			int adjustedLine = i + 1;
-			boolean dynamic = aDoCoverage && coverageRanges != null && coverageRanges.hasLine(adjustedLine);
-			boolean statical = aDoStaticAnalysis && staticalRanges != null && staticalRanges.hasLine(adjustedLine);
+			boolean dynamic = aDoCoverage && coverageRanges != null && coverageRanges.hasHitsAt(adjustedLine);
+			boolean statical = aDoStaticAnalysis && staticalRanges != null && staticalRanges.hasHitsAt(adjustedLine);
 
 			String markerType;
 			String message;
@@ -148,7 +147,7 @@ public class DebugReportVisualizer {
 					message = "A bug is probably located here";
 				} else {
 					markerType = SIMULATED_LINE.id;
-					message = "This line was executed " + coverageRanges.getCount(adjustedLine) + " times during current simulation run";
+					message = "This line was executed " + coverageRanges.getHitsAt(adjustedLine) + " times during current simulation run";
 				}
 			} else {
 				if (statical) {
