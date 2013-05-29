@@ -48,6 +48,7 @@ import org.zamia.plugin.ZamiaPlugin;
 import org.zamia.plugin.ZamiaProjectMap;
 import org.zamia.plugin.editors.ZamiaEditor;
 import org.zamia.plugin.efs.ZamiaFileSystem;
+import org.zamia.plugin.ui.XilinxPrjImportWizard;
 import org.zamia.plugin.views.navigator.ZamiaNavigator;
 import org.zamia.util.HashSetArray;
 import org.zamia.util.Native;
@@ -104,6 +105,14 @@ public class ZamiaBuilder extends IncrementalProjectBuilder {
 			if (resource instanceof IFile) {
 				
 				IFile file = (IFile) resource;
+				String name = file.getName();
+
+				if ((aDelta.getKind() & (IResourceDelta.ADDED | IResourceDelta.CHANGED)) != 0 
+						&& name.toLowerCase().endsWith(".prj")) {
+					XilinxPrjImportWizard.importXilinxPrj(getProject(), file.getLocation().toOSString());
+					return false;
+				}
+				
 //				file.getProjectRelativePath()); // -- alias.vhdl
 //				file.getFullPath()); 		// -- /proj1/alias.vhdl (fullpath in Eclipse view)
 //				file.getRawLocation()); 	// -- PARENT-2-PROJECT_LOC/workspace/zamiacad - Copy/examples/alias/alias.vhdl (resource was linked using PROJECT_LOC)
@@ -113,7 +122,6 @@ public class ZamiaBuilder extends IncrementalProjectBuilder {
 				ZamiaProject zProj = ZamiaProjectMap.getZamiaProject(getProject()); 
 				SourceFile sf = ZamiaPlugin.getSourceFile(file);
 				
-				String name = file.getName();
 				((ZamiaProjectMap.EclipseProjectFileIterator)(zProj.fBasePath)).listChanged(aDelta, sf);
 						
 				
@@ -148,7 +156,10 @@ public class ZamiaBuilder extends IncrementalProjectBuilder {
 					fBPChanged = true;
 					assert sf != null;
 
-					if (!sf.getLocalPath().equals(bp.getSourceFile().getLocalPath())) {
+					// Here was an attempt to update the BP location only when it is changed
+					// But, it can be changed whether as project local or link target. So
+					// making the check is error-prone and makes code difficult
+					//if (!sf.getLocalPath().equals(bp.getSourceFile().getLocalPath())) {
 						bp.setSrc(sf);
 						getProject().setPersistentProperty(BUILDPATH_QN, sf.getLocalPath());
 						
@@ -161,7 +172,7 @@ public class ZamiaBuilder extends IncrementalProjectBuilder {
 						});
 						//ZamiaNavigator.refresh(500); // updates only navigator but not project explorer
 						
-					}
+					//}
 				}
 			}
 

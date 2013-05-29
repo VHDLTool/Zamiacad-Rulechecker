@@ -40,9 +40,9 @@ import org.zamia.zdb.ZDB;
 
 public class ZDBImportWizard extends Wizard implements IImportWizard {
 
-	private IStructuredSelection fSelection;
+	protected IStructuredSelection fSelection;
 
-	private ZDBImportWizardPage1 fMainPage;
+	protected ZDBImportWizardPage1 fMainPage;
 
 	static class ImportZDBJob extends Job {
 
@@ -81,9 +81,13 @@ public class ZDBImportWizard extends Wizard implements IImportWizard {
 	public ZDBImportWizard() {
 	}
 
+	protected ZDBImportWizardPage1 createZDBImportWizardPage1() {
+		return new ZDBImportWizardPage1(fSelection);
+	}
+	
 	public void addPages() {
 		super.addPages();
-		fMainPage = new ZDBImportWizardPage1(fSelection);
+		fMainPage = createZDBImportWizardPage1();
 		addPage(fMainPage);
 	}
 
@@ -119,9 +123,13 @@ public class ZDBImportWizard extends Wizard implements IImportWizard {
 			fSelection = new StructuredSelection(selectedResources);
 		}
 
-		setWindowTitle("ZDB Import");
+		setWindowTitle(getWindowTitle());
 		//setDefaultPageImageDescriptor(IDEWorkbenchPlugin.getIDEImageDescriptor("wizban/importzip_wiz.png"));
 		setNeedsProgressMonitor(true);
+	}
+
+	public String getWindowTitle() {
+		return "ZDB Import";
 	}
 
 }

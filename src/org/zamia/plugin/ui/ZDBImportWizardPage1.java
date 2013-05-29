@@ -49,10 +49,15 @@ public class ZDBImportWizardPage1 extends WizardPage {
 
 	private IProject fPrj;
 
+	public String getTitle() {return "Import ZDB File";}
+	public String getDescription() {return "This wizard imports a ZDB dump file."; }
+	protected String getFileOpenDialogTitle() {return "Import ZDB...";}
+	protected String getFileOpenDialogFilter() {return "*.zdb";}
+	
 	public ZDBImportWizardPage1(ISelection aSelection) {
 		super("wizardPage");
-		setTitle("Import ZDB File");
-		setDescription("This wizard imports a ZDB dump file.");
+		setTitle(getTitle());
+		setDescription(getDescription());
 		fSelection = aSelection;
 	}
 
@@ -151,8 +156,8 @@ public class ZDBImportWizardPage1 extends WizardPage {
 	private void handleBrowseFile() {
 		
 		FileDialog dialog = new FileDialog(ZamiaPlugin.getShell(), SWT.OPEN);
-		dialog.setText("Import ZDB...");
-		dialog.setFilterExtensions(new String[] { "*.zdb" });
+		dialog.setText(getFileOpenDialogTitle());
+		dialog.setFilterExtensions(new String[] { getFileOpenDialogFilter() });
 
 		String fileName = dialog.open();
 		if (fileName != null) {

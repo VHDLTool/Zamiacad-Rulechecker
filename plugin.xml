@@ -1138,6 +1138,18 @@
       </wizard> 
    </extension> 
    
+   <extension point="org.eclipse.ui.importWizards"> 
+      <wizard id="XilinxPrjImportWizard" 
+         name="Import Xilinx PRJ" 
+         class="org.zamia.plugin.ui.XilinxPrjImportWizard" 
+         icon="share/images/zamia.gif">
+         <description> 
+            Import Xilinx prj (file to lib mapping)
+         </description>
+         <selection class="org.eclipse.core.resources.IResource"/> 
+      </wizard> 
+   </extension> 
+   
    <extension point="org.eclipse.ui.exportWizards"> 
       <wizard id="org.zamia.plugin.ui.ZDBExportWizard" 
          name="ZDB Export Wizard" 
