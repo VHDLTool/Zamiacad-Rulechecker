@@ -15,7 +15,11 @@ import org.eclipse.core.resources.IMarker;
 import org.eclipse.core.resources.IProject;
 import org.eclipse.core.resources.IResource;
 import org.eclipse.core.resources.IResourceVisitor;
+import org.eclipse.core.resources.WorkspaceJob;
 import org.eclipse.core.runtime.CoreException;
+import org.eclipse.core.runtime.IProgressMonitor;
+import org.eclipse.core.runtime.IStatus;
+import org.eclipse.core.runtime.Status;
 import org.zamia.ERManager;
 import org.zamia.ErrorObserver;
 import org.zamia.ExceptionLogger;
@@ -108,15 +112,23 @@ public class ZamiaErrorObserver implements ErrorObserver {
 
 		logger.debug("ZamiaErrorObserver: notifyErrorsChanged() %s : %s", aZPrj, aSF);
 
-		IFile file = ZamiaPlugin.getIFile(aSF, fProject);
+		final IFile file = ZamiaPlugin.getIFile(aSF, fProject);
 
 		if (file != null && file.exists()) { // file will not exist if it was renamed. By the time this called, errors are removed from ZDB. But, I do not know about eclipse markers, linked to the old file name. How to remove them?
 
-			try {
-				file.deleteMarkers(null, true, IResource.DEPTH_ZERO);
-			} catch (CoreException e) {
-				el.logException(e);
-			}
+			new WorkspaceJob("Delete marker notification") {
+
+				@Override
+				public IStatus runInWorkspace(IProgressMonitor monitor) throws CoreException {
+					try {
+						file.deleteMarkers(null, true, IResource.DEPTH_ZERO);
+					} catch (CoreException e) {
+						el.logException(e);
+					}
+					return Status.OK_STATUS;
+				}
+				
+			}; 
 
 			ERManager erm = aZPrj.getERM();
 
