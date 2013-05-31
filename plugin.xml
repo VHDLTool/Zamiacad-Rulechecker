@@ -32,6 +32,14 @@
             id="org.zamia.editors.VHDLEditor">
       </editor>
       <editor
+            name="Verilog Editor"
+            extensions="v"
+            icon="share/images/verilog_source.gif"
+            class="org.zamia.plugin.editors.VerilogEditor"
+            contributorClass="org.eclipse.ui.editors.text.TextEditorActionContributor"
+            id="org.zamia.editors.VerilogEditor">
+      </editor>
+      <editor
             default="true"
             name="Zamia FSM Editor"
             extensions="fsm"
@@ -536,6 +544,14 @@
    
    <extension point="org.eclipse.ui.editorActions">
      <editorContribution id="org.zamia.actions" targetID="org.zamia.editors.VHDLEditor">
+         	<action
+         	    label="Toggle Comment"
+         		class="org.zamia.plugin.editors.ToggleCommentAction"
+         		definitionId="org.zamia.commands.comment"
+         		id="org.zamia.editors.ToggleCommentAction">
+       		</action>
+     </editorContribution>
+     <editorContribution id="org.zamia.actions" targetID="org.zamia.editors.VerilogEditor">
          	<action 
          	    label="Toggle Comment"
          		class="org.zamia.plugin.editors.ToggleCommentAction"

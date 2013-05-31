@@ -131,8 +131,8 @@ public class NewFileWizardPage extends WizardPage {
 		}
 		int dotLoc = fileName.lastIndexOf('.');
 		if (dotLoc != -1) {
-			String ext = fileName.substring(dotLoc + 1);
-			if ((ext.equalsIgnoreCase("vhdl") == false) && (ext.equalsIgnoreCase("vhd") == false) && ext.equalsIgnoreCase("bench") == false) {
+			String ext = fileName.substring(dotLoc + 1).toLowerCase();
+			if (!java.util.Arrays.asList(new String[]{"vhdl", "vhd", "bench", "v"}).contains(ext)) {
 				updateStatus("File extension must be either \"vhdl\" or \"vhd\" or \"bench\"");
 				return;
 			}

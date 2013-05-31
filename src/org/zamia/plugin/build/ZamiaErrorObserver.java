@@ -89,7 +89,7 @@ public class ZamiaErrorObserver implements ErrorObserver {
 	static void addMarker(IProject aProject, ZamiaException aError) {
 		SourceLocation location = aError.getLocation();
 
-		if (location != null) {
+		if (location != null && location.fSF != null) {
 			SourceFile sf = location.fSF;
 
 			IFile file = ZamiaPlugin.getIFile(sf, aProject);

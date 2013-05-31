@@ -109,7 +109,7 @@ public class ZamiaSourceViewerConfiguration extends SourceViewerConfiguration {
 		presenter.setDocumentPartitioning(getConfiguredDocumentPartitioning(sourceViewer));
 		
 		// Register information provider
-		IInformationProvider provider= createVhdlInfoProvider();
+		IInformationProvider provider= createInfoProvider();
 		String[] contentTypes= getConfiguredContentTypes(sourceViewer);
 		for (int i= 0; i < contentTypes.length; i++)
 			presenter.setInformationProvider(provider, contentTypes[i]);
@@ -119,8 +119,9 @@ public class ZamiaSourceViewerConfiguration extends SourceViewerConfiguration {
 		return presenter;
 	}
 
-	private IInformationProvider createVhdlInfoProvider() {
-		return new VHDLInformationProvider(getEditor());
+	private VHDLInformationProvider createInfoProvider() {
+		ITextEditor editor = getEditor();
+		return (editor instanceof VHDLEditor) ? new VHDLInformationProvider(editor) : null ;
 	}
 
 	protected ITextEditor getEditor() {
@@ -164,8 +165,8 @@ public class ZamiaSourceViewerConfiguration extends SourceViewerConfiguration {
 	}
 	
 	@Override
-	public ITextHover getTextHover(ISourceViewer sourceViewer, String contentType) {
-		return new VHDLInformationProvider(getEditor()); 
+	public VHDLInformationProvider getTextHover(ISourceViewer sourceViewer, String contentType) {
+		return createInfoProvider();
 	}
 	
 	@Override
