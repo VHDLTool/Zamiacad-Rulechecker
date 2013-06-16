@@ -323,6 +323,10 @@ public class TraceLineSignal extends TraceLine {
 			oldYPos = h - 1;
 			break;
 		case IGStaticValue.BIT_1:
+			aGC.setBackground(fViewer.getColor(fColor));
+			aGC.setAlpha(200);
+			aGC.fillRectangle(x1, aYPos, x2-x1, h);
+			aGC.setAlpha(255);			
 			if (oldYPos >= 0) {
 				aGC.drawLine(x1, aYPos + oldYPos, x1, aYPos);
 			}

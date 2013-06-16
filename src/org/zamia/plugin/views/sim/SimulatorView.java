@@ -14,6 +14,7 @@ import java.awt.datatransfer.StringSelection;
 import java.io.File;
 import java.math.BigInteger;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Iterator;
@@ -63,6 +64,8 @@ import org.eclipse.swt.events.SelectionListener;
 import org.eclipse.swt.events.TreeEvent;
 import org.eclipse.swt.events.TreeListener;
 import org.eclipse.swt.graphics.Color;
+import org.eclipse.swt.graphics.Font;
+import org.eclipse.swt.graphics.FontData;
 import org.eclipse.swt.graphics.FontMetrics;
 import org.eclipse.swt.graphics.GC;
 import org.eclipse.swt.graphics.Image;
@@ -311,6 +314,12 @@ public class SimulatorView extends ViewPart implements IGISimObserver {
 	Color getBlack() {
 		return fBlack;
 	}
+	
+	public Font setBold(Font font, boolean bold) {
+		FontData[] fD = font.getFontData();
+		fD[0].setStyle(bold ? SWT.BOLD : 0);
+		return new Font(fDisplay,fD[0]);
+	}
 
 	public void createPartControl(Composite aParent) {
 
@@ -319,8 +328,8 @@ public class SimulatorView extends ViewPart implements IGISimObserver {
 
 		fYellow = fDisplay.getSystemColor(SWT.COLOR_YELLOW);
 		fBlack = fDisplay.getSystemColor(SWT.COLOR_BLACK);
-		fWhite = fDisplay.getSystemColor(SWT.COLOR_WHITE);
-
+		fWhite = new Color(fDisplay, 50, 50, 50);
+		
 		fMinusIcon = ZamiaPlugin.getImage("/share/images/minus.gif");
 
 		fColors = new Color[16];
@@ -711,7 +720,7 @@ public class SimulatorView extends ViewPart implements IGISimObserver {
 
 		treeComposite.setLayout(treeColumnLayout);
 
-		fTree = new Tree(treeComposite, SWT.MULTI | SWT.H_SCROLL | SWT.V_SCROLL);
+		fTree = new Tree(treeComposite, SWT.MULTI | SWT.H_SCROLL | SWT.V_SCROLL | SWT.FULL_SELECTION);
 		fTree.setLinesVisible(true);
 
 		if (Util.isMotif()) {
@@ -721,7 +730,7 @@ public class SimulatorView extends ViewPart implements IGISimObserver {
 		} else {
 			fTree.setBackground(fBlack);
 		}
-		fTree.setForeground(fWhite);
+		fTree.setForeground(fDisplay.getSystemColor(SWT.COLOR_WHITE));
 
 		TreeColumn column1 = new TreeColumn(fTree, SWT.LEFT);
 		column1.setText("Signal");
@@ -1217,6 +1226,23 @@ public class SimulatorView extends ViewPart implements IGISimObserver {
 		vertical.addSelectionListener(new SelectionAdapter() {
 			public void widgetSelected(SelectionEvent event) {
 				scrollVertically((ScrollBar) event.widget);
+			}
+		});
+		
+		fTree.addSelectionListener(new SelectionAdapter() {
+			
+			void bold(TreeItem[] items) {
+				for (TreeItem item : items) {
+					boolean bold = Arrays.asList(fTree.getSelection()).contains(item);
+					item.setFont(setBold(item.getFont(), bold));
+					item.setBackground(bold ? fWhite : fBlack);
+					bold(item.getItems());
+				}
+			}
+			
+			public void widgetSelected(SelectionEvent e) {
+				super.widgetSelected(e);
+				bold(fTree.getItems());
 			}
 		});
 		handleResize();
@@ -2341,23 +2367,27 @@ public class SimulatorView extends ViewPart implements IGISimObserver {
 			/*
 			 * Highlight selected traces
 			 */
-
+			
 			TreeItem[] sitems = fTree.getSelection();
 			HashSet<TraceLine> selectedTraces = new HashSet<TraceLine>();
 			for (int i = 0; i < sitems.length; i++) {
 				TraceLine tl = (TraceLine) sitems[i].getData();
 				selectedTraces.add(tl);
 			}
-
+			
 			gc.setAlpha(100);
-
+			
 			TreeItem items[] = fTree.getItems();
+			Color white = new Color(fDisplay, 255, 255, 255);
+			gc.setForeground(white);
+			gc.setBackground(white);
+			
 			for (int i = 0; i < items.length; i++) {
-
+			
 				drawHighlight(items[i], selectedTraces, gc);
-
+			
 			}
-
+			
 			gc.setAlpha(255);
 
 			/*
@@ -2406,7 +2436,7 @@ public class SimulatorView extends ViewPart implements IGISimObserver {
 	}
 
 	private void drawHighlight(TreeItem aTreeItem, HashSet<TraceLine> aSelectedTraces, GC aGC) {
-
+		
 		if (aTreeItem.getExpanded()) {
 			int n = aTreeItem.getItemCount();
 			for (int i = 0; i < n; i++) {
@@ -2414,24 +2444,21 @@ public class SimulatorView extends ViewPart implements IGISimObserver {
 				drawHighlight(child, aSelectedTraces, aGC);
 			}
 		}
-
+	
 		if (aSelectedTraces.contains(aTreeItem.getData())) {
 			int hh = Util.isMotif() ? 0 : fTree.getHeaderHeight();
 			Rectangle clientArea = fWaveformCanvas.getClientArea();
-
+	
 			Rectangle r = aTreeItem.getBounds(0);
 			int ypos = r.y + hh;
 			if (ypos < 0 || ypos > clientArea.height) {
 				return;
 			}
-
-			aGC.setForeground(fWhite);
-			aGC.setBackground(fWhite);
-
+	
 			aGC.fillRectangle(0, ypos, clientArea.width, r.height);
 		}
 	}
-
+	
 	public String getSignalValueStr(PathName aSignalPath, BigInteger aTime) {
 		try {
 
