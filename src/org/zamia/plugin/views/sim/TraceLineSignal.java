@@ -232,12 +232,10 @@ public class TraceLineSignal extends TraceLine {
 		BigInteger nextTime = gotoNextTransition(aCursor, aEndTime);
 		IGStaticValue nv = getCurrentValue(aCursor);
 
-		int y = -1;
-
 		while (time.compareTo(aEndTime) < 0) {
 
 			if (!nv.equals(cv) || nextTime.compareTo(aEndTime) >= 0) {
-				y = drawValueBlock(aGC, cv, fTDM, time, nextTime, aYOffset, y);
+				drawValueBlock(aGC, cv, fTDM, time, nextTime, aYOffset);
 
 				time = nextTime;
 				cv = nv;
@@ -256,7 +254,7 @@ public class TraceLineSignal extends TraceLine {
 			}
 		}
 		if (!isCanceled()) {
-			drawValueBlock(aGC, cv, fTDM, time, aEndTime, aYOffset, y);
+			drawValueBlock(aGC, cv, fTDM, time, aEndTime, aYOffset);
 		}
 	}
 
@@ -267,23 +265,20 @@ public class TraceLineSignal extends TraceLine {
 		return false;
 	}
 
-	private int drawValueBlock(GC aGC, IGStaticValue aValue, TraceDisplayMode aDisplayMode, BigInteger aStartTime, BigInteger aStopTime, int aYPos, int aOldYPos) {
+	private void drawValueBlock(GC aGC, IGStaticValue aValue, TraceDisplayMode aDisplayMode, BigInteger aStartTime, BigInteger aStopTime, int aYPos) {
 
 		IGTypeStatic t = aValue.getStaticType();
 		if (t.isLogic() && !t.isArray()) {
-			return drawValueBlock(aGC, aValue.getCharLiteral(), aStartTime, aStopTime, aYPos, aOldYPos);
+			drawValueBlock(aGC, aValue.getCharLiteral(), aStartTime, aStopTime, aYPos);
 		} else {
 
 			String str = formatSignalValue(aValue, aDisplayMode);
 			drawValueBlock(aGC, str, aStartTime, aStopTime, aYPos);
 			
 		}
-		return 0;
 	}
 
-	private int drawValueBlock(GC aGC, char aValue, BigInteger aStartTime, BigInteger aStopTime, int aYPos, int aOldYPos) {
-
-		int oldYPos = aOldYPos;
+	private void drawValueBlock(GC aGC, char aValue, BigInteger aStartTime, BigInteger aStopTime, int aYPos) {
 
 		int x1, x2, h;
 		x1 = fViewer.tX(aStartTime) - fXOffset;
@@ -316,29 +311,19 @@ public class TraceLineSignal extends TraceLine {
 
 		switch (aValue) {
 		case IGStaticValue.BIT_0:
-			if (oldYPos >= 0) {
-				aGC.drawLine(x1, aYPos + oldYPos, x1, aYPos + h);
-			}
 			aGC.drawLine(x1, aYPos + h, x2, aYPos + h);
-			oldYPos = h - 1;
 			break;
 		case IGStaticValue.BIT_1:
 			aGC.setBackground(fViewer.getColor(fColor));
 			aGC.setAlpha(200);
 			aGC.fillRectangle(x1, aYPos, x2-x1, h);
-			aGC.setAlpha(255);			
-			if (oldYPos >= 0) {
-				aGC.drawLine(x1, aYPos + oldYPos, x1, aYPos);
-			}
+			aGC.setAlpha(255);
 			aGC.drawLine(x1, aYPos, x2, aYPos);
-			oldYPos = 1;
 			break;
 		default:
 			drawValueBlock(aGC, "" + aValue, aStartTime, aStopTime, aYPos);
-			oldYPos = 1;
 			break;
 		}
-		return oldYPos;
 	}
 
 	private void drawValueBlock(GC aGC, String aValue, BigInteger aStartTime, BigInteger aStopTime, int aYPos) {
