@@ -122,10 +122,7 @@ public class FindSignalDialog extends SelectionStatusDialog {
 							continue;
 						}
 
-						int n = bp.getNumToplevels();
-						for (int i = 0; i < n; i++) {
-
-							Toplevel tl = bp.getToplevel(i);
+						for (Toplevel tl : bp.toplevels()) {
 
 							IGModule module = fIGM.findModule(tl);
 

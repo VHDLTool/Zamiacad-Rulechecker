@@ -289,10 +289,7 @@ public class IGModuleWrapper implements Comparable<IGModuleWrapper> {
 		ArrayList<IGModuleWrapper> res = new ArrayList<IGModuleWrapper>();
 
 		if (aContainer != null) {
-			int n = aContainer.getNumLocalItems();
-			for (int i = 0; i < n; i++) {
-
-				IGContainerItem item = aContainer.getLocalItem(i);
+			for (IGContainerItem item : aContainer.localItems()) {
 
 				if (isLocal(item) == aLocals) {
 					ToplevelPath tp = fPath.append(item.getId());
@@ -301,7 +298,7 @@ public class IGModuleWrapper implements Comparable<IGModuleWrapper> {
 			}
 
 			if (!aLocals) {
-				n = aContainer.getNumPackageImports();
+				int n = aContainer.getNumPackageImports();
 				for (int i = 0; i < n; i++) {
 					IGPackageImport pi = aContainer.getPackageImport(i);
 					res.add(new IGModuleWrapper(pi, fPath, fCache));
@@ -317,10 +314,7 @@ public class IGModuleWrapper implements Comparable<IGModuleWrapper> {
 
 		ToplevelPath basePath = aPrefix != null ? fPath.append(aPrefix) : fPath;
 
-		int n = aStructure.getNumStatements();
-		for (int i = 0; i < n; i++) {
-
-			IGConcurrentStatement stmt = aStructure.getStatement(i);
+		for (IGConcurrentStatement stmt : aStructure.getStatements()) {
 
 			if (stmt instanceof IGInstantiation) {
 
@@ -352,12 +346,9 @@ public class IGModuleWrapper implements Comparable<IGModuleWrapper> {
 
 	private ArrayList<IGModuleWrapper> getChildren(IGStructure aStructure) {
 
-		int n = aStructure.getNumStatements();
+		ArrayList<IGModuleWrapper> res = new ArrayList<IGModuleWrapper>(aStructure.getNumStatements());
 
-		ArrayList<IGModuleWrapper> res = new ArrayList<IGModuleWrapper>(n);
-
-		for (int i = 0; i < n; i++) {
-			IGConcurrentStatement stmt = aStructure.getStatement(i);
+		for (IGConcurrentStatement stmt : aStructure.getStatements()) {
 
 			if (stmt instanceof IGInstantiation) {
 

@@ -108,11 +108,7 @@ public class UnitPathDialog extends SelectionStatusDialog {
 
 						if (bp != null) {
 
-							int n = bp.getNumToplevels();
-							for (int i = 0; i < n; i++) {
-
-								Toplevel tl = bp.getToplevel(i);
-
+							for (Toplevel tl : bp.toplevels()) {
 								ToplevelPath tlp = new ToplevelPath(tl, new PathName(""));
 								res.add(new ItemTLPathTuple(tlp, null));
 							}
@@ -128,10 +124,7 @@ public class UnitPathDialog extends SelectionStatusDialog {
 								IGModule  module = (IGModule) item;
 								
 								IGStructure struct = module.getStructure();
-								int m = struct.getNumStatements();
-								for (int j = 0; j < m; j++) {
-
-									IGConcurrentStatement stmt = struct.getStatement(j);
+								for (IGConcurrentStatement stmt : struct.getStatements()) {
 
 									String label = stmt.getLabel();
 									if (label != null) {
@@ -143,10 +136,7 @@ public class UnitPathDialog extends SelectionStatusDialog {
 								}
 							} else if (item instanceof IGStructure) {
 								IGStructure struct = (IGStructure) item;
-								int m = struct.getNumStatements();
-								for (int j = 0; j < m; j++) {
-
-									IGConcurrentStatement stmt = struct.getStatement(j);
+								for (IGConcurrentStatement stmt : struct.getStatements()) {
 
 									String label = stmt.getLabel();
 									if (label != null) {
@@ -157,10 +147,7 @@ public class UnitPathDialog extends SelectionStatusDialog {
 									}
 								}
 								IGContainer container = struct.getContainer();
-								m = container.getNumLocalItems();
-								for (int j = 0; j < m; j++) {
-
-									IGContainerItem decl = container.getLocalItem(j);
+								for (IGContainerItem decl : container.localItems()) {
 
 									String label = decl.getId();
 									if (label != null) {

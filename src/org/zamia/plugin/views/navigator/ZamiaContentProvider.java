@@ -98,11 +98,7 @@ public class ZamiaContentProvider extends BaseWorkbenchContentProvider implement
 				BuildPath bp = zprj.getBuildPath();
 				if (bp != null) {
 
-					int n = bp.getNumToplevels();
-
-					for (int i = 0; i < n; i++) {
-
-						Toplevel tl = bp.getToplevel(i);
+					for (Toplevel tl : bp.toplevels()) {
 
 						DMUID duuid = dum.getArchDUUID(tl);
 
@@ -112,7 +108,7 @@ public class ZamiaContentProvider extends BaseWorkbenchContentProvider implement
 						}
 					}
 
-					n = bp.getNumSynthTLs();
+					int n = bp.getNumSynthTLs();
 
 					for (int i = 0; i < n; i++) {
 
@@ -183,13 +179,9 @@ public class ZamiaContentProvider extends BaseWorkbenchContentProvider implement
 
 		if (info != null) {
 
-			int n = info.getNumDMUIDs();
-
 			ArrayList<IDesignModule> dms = new ArrayList<IDesignModule>();
 
-			for (int i = 0; i < n; i++) {
-
-				DMUID dmuid = info.getDMUID(i);
+			for (DMUID dmuid : info) {
 
 				try {
 					IDesignModule dm = aDUM.getDM(dmuid);

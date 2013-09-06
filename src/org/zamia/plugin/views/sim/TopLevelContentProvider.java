@@ -60,15 +60,7 @@ public class TopLevelContentProvider implements ITreeContentProvider {
 			return null;
 		}
 		
-		ArrayList<Toplevel> toplevels = new ArrayList<Toplevel>();
-		int n = bp.getNumToplevels();
-		for (int i = 0; i<n; i++) {
-			Toplevel tl = bp.getToplevel(i);
-			
-			toplevels.add(tl);
-		}
-		
-		return toplevels.toArray();
+		return bp.toplevels().toArray();
 	}
 
 	public void dispose() {

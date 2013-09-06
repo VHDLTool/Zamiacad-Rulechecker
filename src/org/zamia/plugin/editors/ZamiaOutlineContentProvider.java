@@ -20,6 +20,8 @@ import org.zamia.vhdl.ast.ConcurrentStatement;
 import org.zamia.vhdl.ast.Entity;
 import org.zamia.vhdl.ast.GenerateStatement;
 import org.zamia.vhdl.ast.InstantiatedUnit;
+import org.zamia.vhdl.ast.InterfaceDeclaration;
+import org.zamia.vhdl.ast.InterfaceList;
 import org.zamia.vhdl.ast.PackageBody;
 import org.zamia.vhdl.ast.SequentialProcess;
 import org.zamia.vhdl.ast.SubProgram;
@@ -67,16 +69,13 @@ public class ZamiaOutlineContentProvider implements ITreeContentProvider {
 			if (fHierarchicalMode) {
 				ZamiaOutlineHierarchyGen hier = new ZamiaOutlineHierarchyGen();
 
-				int n = entity.getNumDeclarations();
-
-				for (int i = 0; i < n; i++) {
-					BlockDeclarativeItem decl = entity.getDeclaration(i);
+				for (BlockDeclarativeItem decl : entity.fDeclarations) {
 					hier.add(decl);
 				}
 
-				n = entity.getNumInterfaceDeclarations();
-				for (int i = 0; i < n; i++) {
-					hier.add(entity.getInterfaceDeclaration(i));
+				InterfaceList ports = entity.getPorts();
+				if (ports != null) for (InterfaceDeclaration idecl : ports) {
+					hier.add(idecl);
 				}
 
 				return hier.toArray();
@@ -98,14 +97,11 @@ public class ZamiaOutlineContentProvider implements ITreeContentProvider {
 			if (fHierarchicalMode) {
 				ZamiaOutlineHierarchyGen hier = new ZamiaOutlineHierarchyGen();
 
-				int n = arch.getNumDeclarations();
-
-				for (int i = 0; i < n; i++) {
-					BlockDeclarativeItem decl = arch.getDeclaration(i);
+				for (BlockDeclarativeItem decl : arch.fDeclarations) {
 					hier.add(decl);
 				}
 
-				n = arch.getNumConcurrentStatements();
+				int n = arch.getNumConcurrentStatements();
 				for (int i = 0; i < n; i++) {
 					ConcurrentStatement cs = arch.getConcurrentStatement(i);
 					extractCS(cs, hier);
@@ -113,16 +109,14 @@ public class ZamiaOutlineContentProvider implements ITreeContentProvider {
 
 				return hier.toArray();
 			} else {
-				int n = arch.getNumDeclarations();
 
-				ArrayList l = new ArrayList(n);
+				ArrayList<BlockDeclarativeItem> l = new ArrayList<>(arch.getNumDeclarations());
 
-				for (int i = 0; i < n; i++) {
-					BlockDeclarativeItem decl = arch.getDeclaration(i);
+				for (BlockDeclarativeItem decl : arch.fDeclarations) {
 					l.add(decl);
 				}
 
-				n = arch.getNumConcurrentStatements();
+				int n = arch.getNumConcurrentStatements();
 				for (int i = 0; i < n; i++) {
 					ConcurrentStatement cs = arch.getConcurrentStatement(i);
 					extractCS(cs, l);
@@ -140,21 +134,16 @@ public class ZamiaOutlineContentProvider implements ITreeContentProvider {
 			if (fHierarchicalMode) {
 				ZamiaOutlineHierarchyGen hier = new ZamiaOutlineHierarchyGen();
 
-				int n = pkg.getNumDeclarations();
-
-				for (int i = 0; i < n; i++) {
-					BlockDeclarativeItem decl = pkg.getDeclaration(i);
+				for (BlockDeclarativeItem decl : pkg.fDeclarations) {
 					hier.add(decl);
 				}
 
 				return hier.toArray();
 			} else {
-				int m = pkg.getNumDeclarations();
 
-				ArrayList l = new ArrayList(m);
+				ArrayList<BlockDeclarativeItem> l = new ArrayList<>(pkg.getNumDeclarations());
 
-				for (int i = 0; i < m; i++) {
-					BlockDeclarativeItem decl = pkg.getDeclaration(i);
+				for (BlockDeclarativeItem decl : pkg.fDeclarations) {
 					l.add(decl);
 				}
 				if (fDoSort) {
@@ -191,11 +180,9 @@ public class ZamiaOutlineContentProvider implements ITreeContentProvider {
 		} else if (aElement instanceof PackageBody) {
 			PackageBody pkg = (PackageBody) aElement;
 
-			int m = pkg.getNumDeclarations();
-			Object ret[] = new Object[m];
+			Object ret[] = new Object[pkg.getNumDeclarations()];
 			int j = 0;
-			for (int i = 0; i < m; i++) {
-				BlockDeclarativeItem decl = pkg.getDeclaration(i);
+			for (BlockDeclarativeItem decl : pkg.fDeclarations) {
 				ret[j++] = decl;
 			}
 			return ret;

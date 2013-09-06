@@ -2755,8 +2755,8 @@ public class SimulatorView extends ViewPart implements IGISimObserver {
 
 			IGStaticValue leftValue = new IGStaticValueBuilder(rangeLeft, null).setNum(left).buildConstant();
 			IGStaticValue rightValue = new IGStaticValueBuilder(rangeRight, null).setNum(right).buildConstant();
-			IGStaticValue sliceRange = new IGStaticValueBuilder(range, null).setLeft(leftValue).setRight(rightValue).buildConstant();
-			//IGStaticValue sliceRange = new IGStaticValue.RANGE.Builder(range).setLeft(leftValue).setRight(rightValue).buildConstant();
+			//IGStaticValue sliceRange = new IGStaticValueBuilder(range, null).setLeft(leftValue).setRight(rightValue).buildConstant();
+			IGStaticValue sliceRange = new IGStaticValue.RANGE.Builder(range).setLeft(leftValue).setRight(rightValue).buildConstant();
 
 			subtype = type.createSubtype(sliceRange, null);
 

@@ -30,6 +30,7 @@ import org.zamia.ZamiaLogger;
 import org.zamia.ZamiaProject;
 import org.zamia.plugin.ZamiaPlugin;
 import org.zamia.plugin.ZamiaProjectMap;
+import org.zamia.vhdl.ast.DMUID;
 
 
 /**
@@ -539,14 +540,12 @@ public class ZamiaReconcilingStrategy implements IReconcilingStrategy {
 			return empty;
 		}
 
-		int n = fSFDUInfo.getNumDMUIDs();
+		ArrayList<IDesignModule> dua = new ArrayList<IDesignModule>(fSFDUInfo.getNumDMUIDs());
 
-		ArrayList<IDesignModule> dua = new ArrayList<IDesignModule>(n);
-
-		for (int i = 0; i < n; i++) {
+		for (DMUID duuid : fSFDUInfo) {
 			try {
 
-				IDesignModule dm = fDUM.getDM(fSFDUInfo.getDMUID(i));
+				IDesignModule dm = fDUM.getDM(duuid);
 
 				if (dm != null) {
 					dua.add(dm);

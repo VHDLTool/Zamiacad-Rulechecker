@@ -63,7 +63,6 @@ import org.eclipse.ui.IEditorPart;
 import org.eclipse.ui.IEditorSite;
 import org.eclipse.ui.IWorkbenchPage;
 import org.eclipse.ui.IWorkbenchPart;
-import org.eclipse.ui.IWorkbenchWindow;
 import org.eclipse.ui.PartInitException;
 import org.eclipse.ui.editors.text.TextEditor;
 import org.eclipse.ui.ide.ResourceUtil;
@@ -217,10 +216,8 @@ public class ZamiaEditor extends ErrorMarkEditor implements IShowInTargetList {
 					if (info != null) {
 						// use first architecture we can find that provides a path
 
-						int n = info.getNumDMUIDs();
-						for (int i = 0; i < n; i++) {
+						for (DMUID duuid : info) {
 
-							DMUID duuid = info.getDMUID(i);
 							if (duuid.getType() != LUType.Architecture) {
 								continue;
 							}
@@ -434,7 +431,7 @@ public class ZamiaEditor extends ErrorMarkEditor implements IShowInTargetList {
 			CompositeRuler compositeRuler = (CompositeRuler) verticalRuler;
 
 			TreeSet<Integer> toBeRemoved = new TreeSet<Integer>();
-			Iterator decoratorIterator = compositeRuler.getDecoratorIterator();
+			Iterator<?> decoratorIterator = compositeRuler.getDecoratorIterator();
 			int count = 0;
 			while (decoratorIterator.hasNext()) {
 				Object decorator = decoratorIterator.next();
@@ -930,22 +927,15 @@ public class ZamiaEditor extends ErrorMarkEditor implements IShowInTargetList {
 
 				if (bp != null) {
 
-					int n = bp.getNumToplevels();
-					boolean foundIt = false;
-					for (int i = 0; i < n; i++) {
+					for (Toplevel toplevel : bp.toplevels()) {
 
-						tl = bp.getToplevel(i);
-
-						IGItem item = igm.findItem(tl, path);
+						IGItem item = igm.findItem(toplevel, path);
 						if (item != null) {
-							foundIt = true;
+							tl = toplevel;
 							break;
 						}
 					}
 
-					if (!foundIt) {
-						tl = null;
-					}
 				}
 
 			}
