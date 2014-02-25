@@ -76,7 +76,7 @@ Feedback of any kind is very welcome.
    </configIni>
 
    <launcherArgs>
-      <vmArgs>-Xmx1024m -Xms128m -Xss16m -server</vmArgs>
+      <vmArgs>-Xmx1024m -Xms128m -Xss16m -server -XX:MaxPermSize=256m</vmArgs>
       <vmArgsMac>-XstartOnFirstThread -Dorg.eclipse.swt.internal.carbon.smallFonts</vmArgsMac>
    </launcherArgs>
 
