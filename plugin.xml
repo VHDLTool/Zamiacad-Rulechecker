@@ -100,6 +100,33 @@
       </builder>
    </extension>
    
+   
+   
+   <!-- begin Suspiciousness score Marker View -->
+	<extension point="org.eclipse.ui.views">
+		<view
+	    	class="org.zamia.plugin.views.DebugMarkerView"
+	        id="org.zamia.plugin.views.DebugMarkerView"
+	        category="org.zamia.plugin"
+	        name="Suspiciousness Scores">
+	    </view>
+	</extension>
+	<extension point="org.eclipse.ui.ide.markerSupport">
+	   <markerContentGenerator id="org.zamia.debugMarkerView.contentGenerator" name="My Marker Generator">
+	        <markerTypeReference id="org.zamia.plugin.debugmarkerpoint"/>
+		    <markerFieldReference id="org.eclipse.ui.ide.severityAndDescriptionField"/>
+		    <markerFieldReference id="org.zamia.ScoreField"/>
+		    <markerFieldReference id="org.eclipse.ui.ide.resourceField"/>
+		    <markerFieldReference id="org.eclipse.ui.ide.locationField"/>
+		    <markerFieldReference id="org.eclipse.ui.ide.pathField"/>
+		    <markerFieldReference id="org.eclipse.ui.ide.markerType"/>
+       </markerContentGenerator>
+		<markerField name="Score" class="org.zamia.plugin.views.ScoreMarkerField" id="org.zamia.ScoreField"/>
+	</extension>
+   <!-- end Suspiciousness score Marker View -->
+
+
+
    <extension point="org.eclipse.core.resources.markers"
          id="syntaxProblem"
          name="Syntax Problem">

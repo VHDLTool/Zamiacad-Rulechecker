@@ -207,7 +207,16 @@ public class DebugReportVisualizer {
 					int pointOff = document.getLineOffset(lineNr) + line.getCol() - 1;
 
 					// put it into Markers view + "debugmarkerpoint" as marker extension id (not "org.zamia.plugin.debugmarkerpoint"!!!)
-					createWarningMarker(POINT.id, line.getMarkerMessage(), lineNr, pointOff, 1, iFile);
+					String msg = ""; String score = "";
+					
+					if (line.isSuspect()) {
+						msg = line.getMarkerMessage();
+						score = String.format("%.3f", line.getV1());
+					}
+
+					IMarker marker = createMarker(POINT.id, IMarker.SEVERITY_WARNING, msg, lineNr, pointOff, 1, iFile);
+					marker.setAttribute(SUSP_SCORE_ID, score);
+					
 				}
 			}
 
@@ -328,15 +337,11 @@ public class DebugReportVisualizer {
 		}
 	}
 
-	private void createWarningMarker(String aMarkerType, String aMessage, int aLineNr, int aOff, int aLength, IResource aResource) {
-		createMarker(aMarkerType, IMarker.SEVERITY_WARNING, aMessage, aLineNr, aOff, aLength, aResource);
-	}
-
 	private void createInfoMarker(String aMarkerType, String aMessage, int aLineNr, int aOff, int aLength, IResource aResource) {
 		createMarker(aMarkerType, IMarker.SEVERITY_INFO, aMessage, aLineNr, aOff, aLength, aResource);
 	}
 
-	private void createMarker(String aMarkerType, int aSeverity, String aMessage, int aLineNr, int aOff, int aLength, IResource aResource) {
+	private IMarker createMarker(String aMarkerType, int aSeverity, String aMessage, int aLineNr, int aOff, int aLength, IResource aResource) {
 		try {
 			IMarker marker = aResource.createMarker(aMarkerType);
 			marker.setAttribute(IMarker.SEVERITY, aSeverity);
@@ -347,9 +352,11 @@ public class DebugReportVisualizer {
 			if (aMessage != null) {
 				marker.setAttribute(IMarker.MESSAGE, aMessage);
 			}
+			return marker;
 		} catch (CoreException e) {
 			logger.debug("DebugReportVisualizer: failed to add marker", e);
 		}
+		return null;
 	}
 
 	private boolean isOutsideSelection(int aLineNr, Pair<Integer, Integer> aSelection) {
@@ -414,6 +421,7 @@ public class DebugReportVisualizer {
 		return ret;
 	}
 
+	public final static String SUSP_SCORE_ID = "suspiciousness score";
 	static enum MarkerType {
 		SIMULATED_LINE("org.zamia.plugin.coveragemarker"),
 		STATIC_LINE("org.zamia.plugin.staticanalysismarker"),

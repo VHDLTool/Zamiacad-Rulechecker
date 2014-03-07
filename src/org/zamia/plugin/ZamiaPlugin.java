@@ -589,7 +589,7 @@ public class ZamiaPlugin extends AbstractUIPlugin {
 
 					IWorkbenchPage page = window.getActivePage();
 
-					page.showView("org.eclipse.ui.views.AllMarkersView");
+					page.showView("org.zamia.plugin.views.DebugMarkerView");
 				} catch (Throwable e) {
 					el.logException(e);
 				}
