@@ -898,6 +898,24 @@
                 </enablement>
             </contextualLaunch>
         </shortcut>
+        <shortcut
+            class="org.zamia.plugin.launch.LaunchShortcut"
+            icon="share/images/python_source.gif"
+            id="org.zamia.plugin.LaunchShortcut"
+            label="Python script"
+            modes="run">
+
+            <contextualLaunch>
+                <enablement>
+                    <with variable="selection">
+                        <count value="1" />
+                        <iterate>
+                             <test property="org.eclipse.debug.ui.matchesPattern" value="*.py" />
+                        </iterate>
+                    </with>
+                </enablement>
+            </contextualLaunch>
+        </shortcut>
     </extension>
     
     <!--
@@ -1280,47 +1298,5 @@
      	</menuContribution>
 	</extension>
 
-	<extension point="org.eclipse.ui.commands">
-	     <command
-	           id="org.zamia.plugin.ui.runSelectedScriptCommand"
-	           defaultHandler="org.zamia.plugin.ui.ScriptRunner"
-	           name="org.zamia.plugin.runselectedscript"/>
-	</extension>
-	<extension id="add.item" point="org.eclipse.ui.menus">
-		<menuContribution locationURI="popup:org.eclipse.ui.popup.any?after=additions">
-        <command
-			commandId="org.zamia.plugin.ui.runSelectedScriptCommand"
-	        icon="share/images/process.gif"
-		    label= "Run script">
-			<visibleWhen>
-        <iterate ifEmpty="false">
-			  <instanceof value="org.eclipse.core.resources.IFile"/>
-            <test property="org.eclipse.core.resources.name" value="*.py"/>
-        </iterate>
-			</visibleWhen>
-        </command>
-        </menuContribution>
-	</extension>
-
-	<extension point="org.eclipse.ui.commands">
-	     <command
-	           id="org.zamia.plugin.ui.runScriptCommand"
-	           defaultHandler="org.zamia.plugin.ui.ScriptRunner"
-	           name="org.zamia.plugin.runscript"/>
-	</extension>
-	<extension id="add.item" point="org.eclipse.ui.menus">
-		<menuContribution locationURI="popup:org.eclipse.ui.popup.any?after=additions">
-        <command
-			commandId="org.zamia.plugin.ui.runScriptCommand"
-	        icon="share/images/process.gif"
-		    label= "Run script...">
-			<visibleWhen>
-        <iterate ifEmpty="false">
-			  <instanceof value="org.eclipse.core.resources.IProject"/>
-        </iterate>
-			</visibleWhen>
-        </command>
-        </menuContribution>
-	</extension>
 
 </plugin>

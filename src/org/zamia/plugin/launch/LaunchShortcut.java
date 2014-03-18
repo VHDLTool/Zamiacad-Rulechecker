@@ -15,6 +15,7 @@ import org.eclipse.jface.viewers.ISelection;
 import org.eclipse.jface.viewers.IStructuredSelection;
 import org.eclipse.ui.IEditorPart;
 import org.eclipse.ui.part.FileEditorInput;
+import org.zamia.plugin.ui.ScriptRunner;
 
 /**
  * Simple launch shortcut for intermediate files
@@ -45,7 +46,12 @@ public class LaunchShortcut implements ILaunchShortcut {
 //			DebugUITools.launch(config, mode);
 //		}
 		
-		System.out.println ("Launching: "+bin+" mode: "+mode);
+		System.out.println (mode + " " + bin);
+		if (bin.toString().toLowerCase().endsWith(".py")) {
+			ScriptRunner.execute(bin);
+		} else {
+		
+		}
 		
 	}
 

@@ -32,16 +32,11 @@ import org.zamia.plugin.views.navigator.ZamiaNavigator;
 /**
  * @author Anton Chepurov
  */
-public class ScriptRunner extends AbstractHandler {
+public class ScriptRunner {
 
 	public final static ExceptionLogger el = ExceptionLogger.getInstance();
 
-	@Override
-	public Object execute(ExecutionEvent executionEvent) throws ExecutionException {
-
-		ITreeSelection v = (ITreeSelection) HandlerUtil.getVariable(executionEvent, "selection");
-
-		Object firstElement = v.getFirstElement();
+	public static Object execute(Object firstElement) {
 
 		IProject project = null;
 		String script = null;
@@ -69,7 +64,7 @@ public class ScriptRunner extends AbstractHandler {
 		return null;
 	}
 
-	private void doScript(ZamiaProject aZprj, String aScript) {
+	private static void doScript(ZamiaProject aZprj, String aScript) {
 
 		Shell shell = ZamiaPlugin.getShell();
 
@@ -106,7 +101,7 @@ public class ScriptRunner extends AbstractHandler {
 		job.schedule();
 	}
 
-	private class ScriptJob extends Job {
+	private static class ScriptJob extends Job {
 
 		private final ZCJInterpreter fInterpreter;
 		private final String fScriptFile;
