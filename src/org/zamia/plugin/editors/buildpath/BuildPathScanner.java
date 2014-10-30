@@ -26,6 +26,7 @@ import org.eclipse.swt.graphics.RGB;
 import org.zamia.BuildPath;
 import org.zamia.plugin.ZamiaPlugin;
 import org.zamia.plugin.editors.ColorManager;
+import org.zamia.plugin.editors.VHDLScanner;
 import org.zamia.plugin.preferences.PreferenceConstants;
 
 
@@ -64,24 +65,12 @@ public class BuildPathScanner extends RuleBasedScanner {
 
 	public BuildPathScanner() {
 
-		ColorManager colorManager = ColorManager.getInstance();
-
-		IPreferenceStore store = ZamiaPlugin.getDefault().getPreferenceStore();
-
-		RGB colorComment = PreferenceConverter.getColor(store, PreferenceConstants.P_COMMENT);
-		RGB colorKeyword = PreferenceConverter.getColor(store, PreferenceConstants.P_KEYWORD);
-		RGB colorString = PreferenceConverter.getColor(store, PreferenceConstants.P_STRING);
-		RGB colorDefault = PreferenceConverter.getColor(store, PreferenceConstants.P_DEFAULT);
 		//RGB colorBackground = PreferenceConverter.getColor(store, PreferenceConstants.P_BACKGROUND);
 
-		//IToken keyword = new Token(new TextAttribute(colorManager.getColor(colorKeyword), colorManager.getColor(colorBackground), 0));
-		//IToken string = new Token(new TextAttribute(colorManager.getColor(colorString), colorManager.getColor(colorBackground), 0));
-		//IToken other = new Token(new TextAttribute(colorManager.getColor(colorDefault), colorManager.getColor(colorBackground), 0));
-		//IToken comment = new Token(new TextAttribute(colorManager.getColor(colorComment), colorManager.getColor(colorBackground), 0));
-		IToken keyword = new Token(new TextAttribute(colorManager.getColor(colorKeyword)));
-		IToken string = new Token(new TextAttribute(colorManager.getColor(colorString)));
-		IToken other = new Token(new TextAttribute(colorManager.getColor(colorDefault)));
-		IToken comment = new Token(new TextAttribute(colorManager.getColor(colorComment)));
+		IToken keyword = VHDLScanner.getKeywordToken();
+		IToken string = VHDLScanner.getStringToken();
+		IToken comment = VHDLScanner.getCommentToken();
+		IToken other = VHDLScanner.getDefaultToken();
 
 		setDefaultReturnToken(other);
 		List<IRule> rules = new ArrayList<IRule>();

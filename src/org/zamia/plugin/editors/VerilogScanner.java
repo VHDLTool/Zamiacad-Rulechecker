@@ -171,25 +171,14 @@ public class VerilogScanner extends RuleBasedScanner {
 
 	public VerilogScanner() {
 
-		ColorManager colorManager = ColorManager.getInstance();
-
-		IPreferenceStore store = ZamiaPlugin.getDefault().getPreferenceStore();
-
-		RGB colorComment = PreferenceConverter.getColor(store, PreferenceConstants.P_COMMENT);
-		RGB colorKeyword = PreferenceConverter.getColor(store, PreferenceConstants.P_KEYWORD);
-		RGB colorString = PreferenceConverter.getColor(store, PreferenceConstants.P_STRING);
-		RGB colorDefault = PreferenceConverter.getColor(store, PreferenceConstants.P_DEFAULT);
-
-		IToken keyword = new Token(new TextAttribute(colorManager.getColor(colorKeyword)));
-		IToken string = new Token(new TextAttribute(colorManager.getColor(colorString)));
-		IToken other = new Token(new TextAttribute(colorManager.getColor(colorDefault)));
-		IToken comment = new Token(new TextAttribute(colorManager.getColor(colorComment)));
+		IToken string = VHDLScanner.getStringToken();
+		IToken other = VHDLScanner.getDefaultToken();
 
         setDefaultReturnToken(other);
         List<IRule> rules = new ArrayList<IRule>();
 
         // Add rule for single line comments.
-        rules.add(new EndOfLineRule("//", comment));
+        rules.add(new EndOfLineRule("//", VHDLScanner.getCommentToken()));
 
 		// Add rule for strings and character constants.
 		rules.add(new SingleLineRule("\"", "\"", string, '\\')); 
@@ -199,7 +188,7 @@ public class VerilogScanner extends RuleBasedScanner {
 		// FIXME keyword following an underscore should be taken as normal text.
 		WordRule wordRule= new WordRule(new VerilogWordDetector(), other);
 		for (int i= 0; i < fgKeywords.length; i++)
-			wordRule.addWord(fgKeywords[i], keyword);
+			wordRule.addWord(fgKeywords[i], VHDLScanner.getKeywordToken());
 		rules.add(wordRule);
 		
 		IRule[] result= new IRule[rules.size()];

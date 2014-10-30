@@ -57,12 +57,12 @@
             name="Build Path Editor">
       </editor>
       <editor
-            class="org.eclipse.ui.editors.text.TextEditor"
+            class="org.zamia.plugin.editors.PythonEditor"
             default="true"
             extensions="py"
             icon="share/images/python_source.gif"
-            id="org.eclipse.ui.DefaultTextEditor_python"
-            name="Python Editor">
+            id="org.zamia.editors.PythonEditor"
+            name="Zamiacad Naiive Python Editor">
       </editor>
       
    </extension>
@@ -472,18 +472,8 @@
    </extension>
    
    <extension point="org.eclipse.ui.popupMenus">
-         <viewerContribution
-         	targetID="#ZamiaTextEditorContext"
-         	id="org.zamia.editors.TextEditorContext">
-         	<menu
-               label="Static Analysis"
-               path="additions"
-               id="staticAnalysisMenu">
-               <separator
-                  name="staticAnalysisGroup">
-               </separator>
-            </menu>
-         	
+   
+         <viewerContribution targetID="#BlockCommentTextEditorContext" id="org.zamia.editors.TextEditorContext">
          	<action label="Toggle Comment"
          		class="org.zamia.plugin.editors.ToggleCommentAction"
          		menubarPath="additions"
@@ -493,6 +483,27 @@
        			<selection class="org.eclipse.jface.text.ITextSelection">
        			</selection>
        		</action>
+       	</viewerContribution>
+       		
+         <viewerContribution targetID="#ZamiaTextEditorContext" id="org.zamia.editors.VhdlEditorContext">
+         	<menu
+               label="Static Analysis"
+               path="additions"
+               id="staticAnalysisMenu">
+               <separator
+                  name="staticAnalysisGroup">
+               </separator>
+            </menu>
+         	<action label="Toggle Comment"
+         		class="org.zamia.plugin.editors.ToggleCommentAction"
+         		menubarPath="additions"
+         		definitionId="org.zamia.commands.comment"
+         		enablesFor="1"
+         		id="org.zamia.editors.ToggleCommentAction">
+       			<selection class="org.eclipse.jface.text.ITextSelection">
+       			</selection>
+       		</action>
+         	
             <action label="Compile with GHDL"
                 class="org.zamia.plugin.editors.CompileWithGHDLAction"
                 menubarPath="additions"
@@ -579,6 +590,23 @@
        		</action>
      </editorContribution>
      <editorContribution id="org.zamia.actions" targetID="org.zamia.editors.VerilogEditor">
+         	<action 
+         	    label="Toggle Comment"
+         		class="org.zamia.plugin.editors.ToggleCommentAction"
+         		definitionId="org.zamia.commands.comment"
+         		id="org.zamia.editors.ToggleCommentAction">
+       		</action>
+     </editorContribution>
+     <editorContribution id="org.zamia.actions" targetID="org.zamia.editors.PythonEditor">
+         	<action 
+			         tooltip="Tooltip for Editor Action 1"
+         	    label="Toggle Comment"
+         		class="org.zamia.plugin.editors.ToggleCommentAction"
+         		definitionId="org.zamia.commands.comment"
+         		id="org.zamia.editors.ToggleCommentAction">
+       		</action>
+     </editorContribution>
+     <editorContribution id="org.zamia.actions" targetID="org.zamia.editors.BuildPathEditor">
          	<action 
          	    label="Toggle Comment"
          		class="org.zamia.plugin.editors.ToggleCommentAction"
@@ -755,7 +783,12 @@
    -->
    
    <extension point="org.eclipse.ui.bindings">
-		 <key sequence="Ctrl+/" 
+		 <key sequence="Ctrl+/"
+		   commandId="org.zamia.commands.comment" 
+		   schemeId="org.eclipse.ui.defaultAcceleratorConfiguration" 
+		   contextId="org.zamia.plugin.TextEditorScope">
+	   </key>
+		 <key sequence="Ctrl+/"
 		   commandId="org.zamia.commands.comment" 
 		   schemeId="org.eclipse.ui.defaultAcceleratorConfiguration" 
 		   contextId="org.zamia.plugin.ZamiaEditorScope">

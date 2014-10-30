@@ -203,7 +203,7 @@ public class ZamiaEditor extends ErrorMarkEditor implements IShowInTargetList {
 				try {
 					/*
 					 * try to use the default path of a IGModule corresponding to our DUUID
-					 *  
+					 * 
 					 */
 					//IProject prj = null;
 					//SourceFile sf = new SourceFile(new File(filename));
@@ -478,14 +478,6 @@ public class ZamiaEditor extends ErrorMarkEditor implements IShowInTargetList {
 		return viewer;
 	}
 
-	public SourceViewerConfiguration getSourceViewerCfg() {
-		return getSourceViewerConfiguration();
-	}
-
-	public ISourceViewer getMySourceViewer() {
-		return getSourceViewer();
-	}
-
 	public void updateFoldingStructure(ArrayList<Position> aPositions) {
 		Annotation[] annotations = new Annotation[aPositions.size()];
 
@@ -658,11 +650,11 @@ public class ZamiaEditor extends ErrorMarkEditor implements IShowInTargetList {
 				IPath rawLocation = file.getRawLocation();
 
 				//				IPath rp = file.getProjectRelativePath();
-				//				
+				//
 				//				if (rp != null) {
 				//					ZamiaPlugin.showSource(
 				//				}
-				//				
+				//
 				filename = rawLocation != null ? rawLocation.toOSString() : file.toString();
 
 				prj = file.getProject();

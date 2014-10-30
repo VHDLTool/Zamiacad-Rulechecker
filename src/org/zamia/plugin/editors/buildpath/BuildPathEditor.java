@@ -57,12 +57,6 @@ public class BuildPathEditor extends ErrorMarkEditor {
 		setSourceViewerConfiguration(new BuildPathSourceViewerConfiguration(new BuildPathScanner(), new String[] {"#", ""}, this));
 	}
 
-	@Override
-	protected void initializeEditor() {
-		super.initializeEditor();
-		setEditorContextMenuId("#ZamiaTextEditorContext"); //$NON-NLS-1$
-	}
-
 	protected ISourceViewer createSourceViewer(Composite aParent, IVerticalRuler aRuler, int aStyles) {
 		ISourceViewer viewer = new ProjectionViewer(aParent, aRuler, getOverviewRuler(), isOverviewRulerVisible(), aStyles);
 		// ensure decoration support has been created and configured.
@@ -82,57 +76,35 @@ public class BuildPathEditor extends ErrorMarkEditor {
 		fPaintManager.addPainter(fBracketPainter);
 	}
 	
-	public SourceViewerConfiguration getSourceViewerCfg() {
-		return getSourceViewerConfiguration();
-	}
-
-	public ISourceViewer getMySourceViewer() {
-		return getSourceViewer();
-	}
-
-	public IDocument getDocument() {
-		IDocument doc = this.getSourceViewer().getDocument();
-		return doc;
-	}
-
-	public void selectionChanged(IWorkbenchPart aPart, ISelection aSelection) {
-
-	}
-
 	class OutlineSelectionChangedListener extends AbstractSelectionChangedListener {
 
 		public void selectionChanged(SelectionChangedEvent aEvent) {
-			doSelectionChanged(aEvent);
-		}
-	}
+			Object selectedObject;
 
-	protected void doSelectionChanged(SelectionChangedEvent aEvent) {
+			ISelection selection = aEvent.getSelection();
+			selectedObject = ((IStructuredSelection) selection).getFirstElement();
 
-		Object selectedObject;
+			if (selectedObject instanceof VHDLNode) {
+				VHDLNode io = (VHDLNode) selectedObject;
 
-		ISelection selection = aEvent.getSelection();
-		selectedObject = ((IStructuredSelection) selection).getFirstElement();
+				SourceLocation location = io.getLocation();
+				if (location != null) {
 
-		if (selectedObject instanceof VHDLNode) {
-			VHDLNode io = (VHDLNode) selectedObject;
-
-			SourceLocation location = io.getLocation();
-			if (location != null) {
-
-				try {
-					int offset = getDocument().getLineOffset(location.fLine - 1) + location.fCol - 1;
-					selectAndReveal(offset, 1);
-				} catch (BadLocationException e) {
-					// TODO Auto-generated catch block
-					e.printStackTrace();
+					try {
+						int offset = getSourceViewer().getDocument().getLineOffset(location.fLine - 1) + location.fCol - 1;
+						selectAndReveal(offset, 1);
+					} catch (BadLocationException e) {
+						// TODO Auto-generated catch block
+						e.printStackTrace();
+					}
 				}
-			}
 
+			}
 		}
 	}
 
-	public void updateColors() {
-		// FIXME: implement
-	}
+//	public void updateColors() {
+//		// FIXME: implement
+//	}
 
 }

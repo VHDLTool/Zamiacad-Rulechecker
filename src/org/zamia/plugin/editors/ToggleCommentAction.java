@@ -307,8 +307,8 @@ public class ToggleCommentAction extends Action implements IUpdate, IEditorActio
 		fOperationTarget = null;
 		update();
 		
-		if (fTextEditor instanceof ZamiaEditor) {
-			ZamiaEditor editor = (ZamiaEditor) fTextEditor;
+		if (fTextEditor instanceof ErrorMarkEditor) {
+			ErrorMarkEditor editor = (ErrorMarkEditor) fTextEditor;
 			configure(editor.getMySourceViewer(), editor.getSourceViewerCfg());
 		}
 	}

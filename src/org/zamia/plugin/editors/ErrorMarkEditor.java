@@ -6,6 +6,8 @@ import org.eclipse.core.resources.IResourceChangeListener;
 import org.eclipse.core.resources.IResourceDelta;
 import org.eclipse.core.resources.ResourcesPlugin;
 import org.eclipse.jdt.ui.ProblemsLabelDecorator;
+import org.eclipse.jface.text.source.ISourceViewer;
+import org.eclipse.jface.text.source.SourceViewerConfiguration;
 import org.eclipse.swt.graphics.Image;
 import org.eclipse.swt.widgets.Display;
 import org.eclipse.ui.IWorkbenchPart;
@@ -13,6 +15,17 @@ import org.eclipse.ui.editors.text.TextEditor;
 import org.eclipse.ui.ide.ResourceUtil;
 
 public class ErrorMarkEditor extends TextEditor {
+
+	@Override
+	protected void initializeEditor() {
+		super.initializeEditor();
+		setEditorContextMenuId("#BlockCommentTextEditorContext"); //$NON-NLS-1$
+	}
+	
+	@Override
+	protected void initializeKeyBindingScopes() {
+		setKeyBindingScopes(new String[] { "org.zamia.plugin.TextEditorScope" });
+	}
 
 	IResource getResource() {
 		return ResourceUtil.getResource(getEditorInput());
@@ -44,4 +57,12 @@ public class ErrorMarkEditor extends TextEditor {
     	return (file != null) ? new ProblemsLabelDecorator().decorateImage(image, file) : image;  
     }
     
+	public ISourceViewer getMySourceViewer() {
+		return getSourceViewer();
+	}
+
+	public SourceViewerConfiguration getSourceViewerCfg() {
+		return getSourceViewerConfiguration();
+	}
+
 }
