@@ -213,9 +213,7 @@ public class IGModuleWrapper implements Comparable<IGModuleWrapper> {
 		case INSTANTIATION:
 			res = new ArrayList<IGModuleWrapper>();
 
-			String signature = fInstantiation.getSignature();
-
-			module = igm.findModule(signature);
+			module = fInstantiation.findModule();
 
 			if (module != null) {
 

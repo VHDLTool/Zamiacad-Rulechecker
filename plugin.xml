@@ -1003,6 +1003,15 @@
           menubarPath="group.edit"
           tooltip="Elaborate this design unit and run simulator on it"/>
       </objectContribution>
+      <objectContribution adaptable="false" id="org.zamia.plugin.views.navigator.IGModuleWrapper" objectClass="org.zamia.plugin.views.navigator.IGModuleWrapper">
+        <action 
+          class="org.zamia.plugin.launch.EdifModuleAction"
+          enablesFor="1"
+          id="org.zamia.plugin.EdifIGNodeAction"
+          label="Export EDIF"
+          menubarPath="group.edit"
+          />
+      </objectContribution>
     </extension>
     
     

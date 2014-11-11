@@ -304,10 +304,7 @@ public class ZamiaEditor extends ErrorMarkEditor implements IShowInTargetList {
 
 				IGManager igm = fZPrj.getIGM();
 
-				Toplevel tl = tlp.getToplevel();
-				PathName path = tlp.getPath();
-
-				IGItem item = igm.findItem(tl, path);
+				IGItem item = igm.findItem(tlp);
 
 				if (item != null) {
 

@@ -142,9 +142,7 @@ public class OpenUnitAction implements IWorkbenchWindowActionDelegate {
 
 					if (archDUUID != null) {
 
-						String signature = IGInstantiation.computeSignature(archDUUID, null);
-
-						IGModule module = igm.findModule(signature);
+						IGModule module = igm.findModule(archDUUID);
 						if (module != null) {
 							path = module.getStructure().getPath();
 						}

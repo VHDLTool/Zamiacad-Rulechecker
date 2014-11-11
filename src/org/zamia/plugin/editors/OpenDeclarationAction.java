@@ -100,8 +100,7 @@ public class OpenDeclarationAction extends StaticAnalysisAction {
 
 							IGInstantiation inst = (IGInstantiation) item;
 
-							IGManager igm = fZPrj.getIGM();
-							IGModule module = igm.findModule(inst.getSignature());
+							IGModule module = inst.findModule();
 							if (module != null) {
 								return igTarget(module, tlp.append(inst.getLabel()));
 							}
