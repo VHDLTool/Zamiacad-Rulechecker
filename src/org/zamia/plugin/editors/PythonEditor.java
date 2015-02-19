@@ -1,10 +1,16 @@
 package org.zamia.plugin.editors;
 
 import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Collection;
+import java.util.Iterator;
 import java.util.List;
+import java.util.function.BiFunction;
+import java.util.function.Function;
 
-import org.eclipse.jface.action.IContributionItem;
 import org.eclipse.jface.text.IDocument;
+import org.eclipse.jface.text.Position;
+import org.eclipse.jface.text.TextSelection;
 import org.eclipse.jface.text.presentation.IPresentationReconciler;
 import org.eclipse.jface.text.presentation.PresentationReconciler;
 import org.eclipse.jface.text.rules.DefaultDamagerRepairer;
@@ -18,9 +24,22 @@ import org.eclipse.jface.text.rules.SingleLineRule;
 import org.eclipse.jface.text.rules.WordRule;
 import org.eclipse.jface.text.source.ISourceViewer;
 import org.eclipse.jface.text.source.SourceViewerConfiguration;
+import org.eclipse.swt.widgets.Composite;
+import org.zamia.plugin.ZamiaPlugin;
 import org.zamia.plugin.preferences.PreferenceConstants;
 
 public class PythonEditor extends ErrorMarkEditor {
+	
+	static IWordDetector wd = new IWordDetector() {
+
+		public boolean isWordPart(char character) {
+			return Character.isLetterOrDigit(character) || character == '_';
+		}
+	
+		public boolean isWordStart(char character) {
+			return isWordPart(character);
+		}
+	};
 	
 	static class Scanner extends RuleBasedScanner {
 
@@ -28,17 +47,6 @@ public class PythonEditor extends ErrorMarkEditor {
 			IToken keyword = VHDLScanner.token(PreferenceConstants.P_KEYWORD);
 			IToken others = VHDLScanner.token(PreferenceConstants.P_DEFAULT);
 			setDefaultReturnToken(others);
-
-			IWordDetector wd = new IWordDetector() {
-
-				public boolean isWordPart(char character) {
-					return Character.isLetterOrDigit(character);
-				}
-			
-				public boolean isWordStart(char character) {
-					return Character.isLetterOrDigit(character);
-				}
-			};
 
 			List<IRule> rules = new ArrayList<IRule>();
 //			rules[1] = new WhitespaceRule(new XMLWhitespaceDetector());
@@ -79,12 +87,6 @@ public class PythonEditor extends ErrorMarkEditor {
 			return new String[] {"#", ""};
 		}
 		
-//		public ITextDoubleClickStrategy getDoubleClickStrategy(ISourceViewer sourceViewer, String contentType) {
-//			if (doubleClickStrategy == null)
-//				doubleClickStrategy = new XMLDoubleClickStrategy();
-//			return doubleClickStrategy;
-//		}
-
 		public IPresentationReconciler getPresentationReconciler(ISourceViewer sourceViewer) {
 			PresentationReconciler reconciler = new PresentationReconciler();
 
@@ -100,5 +102,15 @@ public class PythonEditor extends ErrorMarkEditor {
 	public PythonEditor() {
 		setSourceViewerConfiguration(new PythonConfiguration());
 	}
+
 	
+	@Override
+	public void createPartControl(Composite aParent) {
+		super.createPartControl(aParent);
+		(new SelectionChangedListener(wd)).install(getSelectionProvider());
+	}
+
+
 }
+
+
