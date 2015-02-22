@@ -43,7 +43,7 @@ import org.zamia.ZamiaLogger;
 import org.zamia.ZamiaProject;
 import org.zamia.analysis.SourceLocation2AST;
 import org.zamia.plugin.ZamiaPlugin;
-import org.zamia.plugin.editors.VHDLScanner;
+import org.zamia.plugin.editors.VHDLEditor;
 import org.zamia.plugin.editors.ZamiaEditor;
 import org.zamia.plugin.editors.ZamiaReconcilingStrategy;
 import org.zamia.util.HashSetArray;
@@ -292,9 +292,9 @@ public class VHDLCompletionProcessor implements IContentAssistProcessor {
 			}
 		}
 
-		for (int i = 0; i < VHDLScanner.fgKeywords.length; i++) {
+		for (int i = 0; i < VHDLEditor.Scanner.keywords.length; i++) {
 
-			String kw = VHDLScanner.fgKeywords[i];
+			String kw = VHDLEditor.Scanner.keywords[i];
 
 			if (prefix != null) {
 				if (kw.toLowerCase().startsWith(prefix)) {

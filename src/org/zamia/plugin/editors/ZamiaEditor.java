@@ -93,6 +93,7 @@ import org.zamia.instgraph.sim.annotations.IGSimAnnotator;
 import org.zamia.plugin.ZamiaPlugin;
 import org.zamia.plugin.ZamiaProjectMap;
 import org.zamia.plugin.editors.annotations.AnnotatedDocument;
+import org.zamia.plugin.editors.buildpath.BasicViewerConfiguration.BasicIdentifierScanner;
 import org.zamia.plugin.views.sim.SimulatorView;
 import org.zamia.util.HashSetArray;
 import org.zamia.util.PathName;
@@ -162,7 +163,7 @@ public class ZamiaEditor extends ErrorMarkEditor implements IShowInTargetList {
 
 	private SourceFile fSF;
 
-	public ZamiaEditor(ITokenScanner aScanner, String[] fDefaultPrefixes) {
+	public ZamiaEditor(BasicIdentifierScanner aScanner, String[] fDefaultPrefixes) {
 		super();
 		fReconcilingStrategy = new ZamiaReconcilingStrategy(this);
 		setSourceViewerConfiguration(new ZamiaSourceViewerConfiguration(aScanner, fReconcilingStrategy, fDefaultPrefixes, this));
