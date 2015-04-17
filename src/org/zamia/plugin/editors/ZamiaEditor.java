@@ -27,7 +27,7 @@ import org.eclipse.jface.text.IDocument;
 import org.eclipse.jface.text.ITextSelection;
 import org.eclipse.jface.text.PaintManager;
 import org.eclipse.jface.text.Position;
-import org.eclipse.jface.text.rules.ITokenScanner;
+import org.eclipse.jface.text.TextSelection;
 import org.eclipse.jface.text.source.Annotation;
 import org.eclipse.jface.text.source.CompositeRuler;
 import org.eclipse.jface.text.source.ISourceViewer;
@@ -71,6 +71,7 @@ import org.eclipse.ui.part.FileEditorInput;
 import org.eclipse.ui.part.IShowInTargetList;
 import org.eclipse.ui.texteditor.ITextEditorActionDefinitionIds;
 import org.eclipse.ui.texteditor.TextOperationAction;
+import org.eclipse.ui.views.contentoutline.ContentOutline;
 import org.eclipse.ui.views.contentoutline.IContentOutlinePage;
 import org.zamia.BuildPath;
 import org.zamia.DMManager;
@@ -83,6 +84,7 @@ import org.zamia.ToplevelPath;
 import org.zamia.ZamiaException;
 import org.zamia.ZamiaLogger;
 import org.zamia.ZamiaProject;
+import org.zamia.analysis.SourceLocation2AST;
 import org.zamia.instgraph.IGInstantiation;
 import org.zamia.instgraph.IGItem;
 import org.zamia.instgraph.IGManager;
@@ -92,6 +94,7 @@ import org.zamia.instgraph.sim.annotations.IGSimAnnotation;
 import org.zamia.instgraph.sim.annotations.IGSimAnnotator;
 import org.zamia.plugin.ZamiaPlugin;
 import org.zamia.plugin.ZamiaProjectMap;
+import org.zamia.plugin.editors.OpenDeclarationAction.LocatedDeclaration;
 import org.zamia.plugin.editors.annotations.AnnotatedDocument;
 import org.zamia.plugin.editors.buildpath.BasicViewerConfiguration.BasicIdentifierScanner;
 import org.zamia.plugin.views.sim.SimulatorView;
@@ -130,8 +133,6 @@ public class ZamiaEditor extends ErrorMarkEditor implements IShowInTargetList {
 	private static final RGB BRACKETS_COLOR = new RGB(160, 160, 160);
 
 	private final static char[] BRACKETS = { '{', '}', '(', ')', '[', ']' };
-
-	protected AbstractSelectionChangedListener fOutlineSelectionChangedListener = new OutlineSelectionChangedListener();
 
 	private Text fPathEdit;
 
@@ -506,8 +507,18 @@ public class ZamiaEditor extends ErrorMarkEditor implements IShowInTargetList {
 		if (aClass.equals(IContentOutlinePage.class)) {
 			if ((fOutlinePage == null) || fOutlinePage.isDisposed()) {
 				fOutlinePage = new ZamiaOutlinePage(this);
-				fOutlineSelectionChangedListener.install(fOutlinePage);
-
+				
+				new AbstractSelectionChangedListener() {
+					public void selectionChanged(SelectionChangedEvent event) {
+						IWorkbenchPart part= getSite().getWorkbenchWindow().getPartService().getActivePart();
+						boolean outlineIsActive = part instanceof ContentOutline && ((ContentOutline)part).getCurrentPage() == fOutlinePage;
+						if (!outlineIsActive) {
+							computeCursorPos(getDocument(), (TextSelection) event.getSelection());
+							fOutlinePage.select(new SourceLocation(fSF, fLine + 1, fCol+1));
+						}
+					}
+				}.install(getSelectionProvider());
+				
 				if (getEditorInput() != null) {
 					fOutlinePage.setInput(getEditorInput());
 				}
@@ -559,19 +570,9 @@ public class ZamiaEditor extends ErrorMarkEditor implements IShowInTargetList {
 		return findSimulatorView().doShowCoverage();
 	}
 
-	class OutlineSelectionChangedListener extends AbstractSelectionChangedListener {
-
-		public void selectionChanged(SelectionChangedEvent aEvent) {
-			doSelectionChanged(aEvent);
-		}
-	}
-
-	protected void doSelectionChanged(SelectionChangedEvent aEvent) {
-
-		Object selectedObject;
-
-		ISelection selection = aEvent.getSelection();
-		selectedObject = ((IStructuredSelection) selection).getFirstElement();
+	public void outlineSelectionChanged(ISelection selection) {
+		
+		Object selectedObject = ((IStructuredSelection) selection).getFirstElement();
 
 		if (selectedObject instanceof VHDLNode) {
 			VHDLNode io = (VHDLNode) selectedObject;
@@ -589,6 +590,7 @@ public class ZamiaEditor extends ErrorMarkEditor implements IShowInTargetList {
 					
 					int offset = getDocument().getLineOffset(line) + location.fCol - 1;
 					selectAndReveal(offset, 1);
+					
 				} catch (BadLocationException e) {
 					// TODO Auto-generated catch block
 					e.printStackTrace();
@@ -804,24 +806,27 @@ public class ZamiaEditor extends ErrorMarkEditor implements IShowInTargetList {
 		
 	}
 
-	private void computeCursorPos(IDocument originalDocument) {
-		ITextSelection selection = (ITextSelection) getSelectionProvider().getSelection();
+	private void computeCursorPos(IDocument doc, ITextSelection selection) {
 		fCaretPos = selection.getOffset();
 		fLine = 0;
 		try {
-			fLine = originalDocument.getLineOfOffset(fCaretPos);
+			fLine = doc.getLineOfOffset(fCaretPos);
 		} catch (BadLocationException e1) {
 			el.logException(e1);
 		}
 		fCol = 0;
 		try {
-			fCol = fCaretPos - originalDocument.getLineOffset(fLine);
+			fCol = fCaretPos - doc.getLineOffset(fLine);
 			if (fCol < 0) {
 				fCol = 0;
 			}
 		} catch (BadLocationException e1) {
 			el.logException(e1);
 		}
+	}
+	
+	private void computeCursorPos(IDocument originalDocument) {
+		computeCursorPos(originalDocument, (ITextSelection) getSelectionProvider().getSelection());
 	}
 
 	public boolean isAnnotated() {

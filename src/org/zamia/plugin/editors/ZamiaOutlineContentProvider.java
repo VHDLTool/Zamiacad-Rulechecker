@@ -8,8 +8,11 @@
 package org.zamia.plugin.editors;
 
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.Collections;
 import java.util.Comparator;
+import java.util.function.Function;
+import java.util.function.Supplier;
 
 import org.eclipse.jface.viewers.ITreeContentProvider;
 import org.eclipse.jface.viewers.Viewer;
@@ -23,8 +26,10 @@ import org.zamia.vhdl.ast.InstantiatedUnit;
 import org.zamia.vhdl.ast.InterfaceDeclaration;
 import org.zamia.vhdl.ast.InterfaceList;
 import org.zamia.vhdl.ast.PackageBody;
+import org.zamia.vhdl.ast.Range;
 import org.zamia.vhdl.ast.SequentialProcess;
 import org.zamia.vhdl.ast.SubProgram;
+import org.zamia.vhdl.ast.VHDLNode;
 import org.zamia.vhdl.ast.VHDLPackage;
 
 
@@ -38,9 +43,9 @@ import org.zamia.vhdl.ast.VHDLPackage;
 
 public class ZamiaOutlineContentProvider implements ITreeContentProvider {
 
-	private boolean fHierarchicalMode = true;
+	private boolean fHierarchicalMode = false;
 
-	private boolean fDoSort = true;
+	private boolean fDoSort = false;
 
 	private ZamiaEditor fEditor;
 
@@ -82,7 +87,7 @@ public class ZamiaOutlineContentProvider implements ITreeContentProvider {
 			} else {
 
 				int n = entity.getNumInterfaceDeclarations();
-				ArrayList l = new ArrayList(n);
+				ArrayList<InterfaceDeclaration> l = new ArrayList<>(n);
 				for (int i = 0; i < n; i++) {
 					l.add(entity.getInterfaceDeclaration(i));
 				}
@@ -108,27 +113,30 @@ public class ZamiaOutlineContentProvider implements ITreeContentProvider {
 				}
 
 				return hier.toArray();
+				
 			} else {
 
-				ArrayList<BlockDeclarativeItem> l = new ArrayList<>(arch.getNumDeclarations());
+				ArrayList<Object> l = new ArrayList<>(arch.getNumDeclarations());
 
-				for (BlockDeclarativeItem decl : arch.fDeclarations) {
-					l.add(decl);
-				}
+				for (BlockDeclarativeItem decl : arch.fDeclarations) l.add(decl);
 
 				int n = arch.getNumConcurrentStatements();
-				for (int i = 0; i < n; i++) {
-					ConcurrentStatement cs = arch.getConcurrentStatement(i);
-					extractCS(cs, l);
-				}
+				for (int i = 0; i < n; i++) filterCS(arch.getConcurrentStatement(i), l);
 
-				if (fDoSort) {
-					sort(l);
-				}
+				if (fDoSort) sort(l);
+				
 				return l.toArray();
 			}
 
-		} else if (aElement instanceof VHDLPackage) {
+		} else if (aElement instanceof Block || aElement instanceof GenerateStatement) {
+			ConcurrentStatement parent = (ConcurrentStatement) aElement;
+			int n = parent.getNumChildren(); ArrayList<Object> list = new ArrayList<>(n); 
+			for (int i = 0; i < n; i++) filterCS(parent.getChild(i), list);
+			return list.toArray();
+		} 
+
+		
+		else if (aElement instanceof VHDLPackage) {
 			VHDLPackage pkg = (VHDLPackage) aElement;
 
 			if (fHierarchicalMode) {
@@ -195,6 +203,15 @@ public class ZamiaOutlineContentProvider implements ITreeContentProvider {
 		return null;
 	}
 
+	void filterCS(VHDLNode item, Collection<Object> col) {
+		Supplier<Boolean> invisibleSmt = () -> {
+			String name = ((ConcurrentStatement) item).getLabel();
+			return name == null || name.length() == 0;
+		};
+		if (!(item == null || item instanceof Range || (item instanceof ConcurrentStatement && invisibleSmt.get()))) 
+			col.add(item);
+	}
+	
 	private void extractCS(ConcurrentStatement aCS, ZamiaOutlineHierarchyGen aHier) {
 		if (aCS instanceof SequentialProcess) {
 			aHier.add(aCS);
@@ -220,55 +237,20 @@ public class ZamiaOutlineContentProvider implements ITreeContentProvider {
 		} 
 	}
 
-	@SuppressWarnings("unchecked")
-	private void extractCS(ConcurrentStatement aCS, ArrayList aResult) {
-		if (aCS instanceof SequentialProcess) {
-			aResult.add(aCS);
-		} else if (aCS instanceof InstantiatedUnit) {
-			aResult.add(aCS);
-		} else if (aCS instanceof GenerateStatement) {
-
-			GenerateStatement gs = (GenerateStatement) aCS;
-
-			int n = gs.getNumConcurrentStatements();
-			for (int i = 0; i < n; i++) {
-				ConcurrentStatement cs2 = gs.getConcurrentStatement(i);
-				extractCS(cs2, aResult);
-			}
-		} else if (aCS instanceof Block) {
-			Block block = (Block) aCS;
-			int n = block.getNumConcurrentStatements();
-			for (int i = 0; i < n; i++) {
-				ConcurrentStatement cs2 = block.getConcurrentStatement(i);
-				extractCS(cs2, aResult);
-			}
-			
-		} 
-	}
-
 	public boolean hasChildren(Object aElement) {
 
-		if (aElement instanceof Entity)
-			return true;
-		if (aElement instanceof Architecture)
-			return true;
-		if (aElement instanceof SequentialProcess) {
-			SequentialProcess proc = (SequentialProcess) aElement;
-			return proc.getNumDeclarations() > 0;
-		}
-		if (aElement instanceof SubProgram)
-			return true;
-		if (aElement instanceof VHDLPackage)
-			return true;
-		if (aElement instanceof PackageBody)
-			return true;
-		if (aElement instanceof ZamiaOutlineFolder)
-			return true;
-		return false;
+		if (aElement instanceof SequentialProcess)
+			return ((SequentialProcess) aElement).getNumDeclarations() > 0;
+		if (aElement instanceof Block) return getChildren(aElement).length > 0;
+		if (aElement instanceof GenerateStatement) return getChildren(aElement).length > 0;
+		return aElement instanceof Entity || aElement instanceof Architecture
+				|| aElement instanceof VHDLPackage || aElement instanceof PackageBody 
+				|| aElement instanceof ZamiaOutlineFolder || aElement instanceof SubProgram;
 	}
 
 	public Object[] getElements(Object aInputElement) {
 
+		if (fEditor.isDirty()) return new Object[] {};
 		ZamiaReconcilingStrategy strategy = fEditor.getReconcilingStrategy();
 		return strategy.getRootElements();
 	}

@@ -530,14 +530,12 @@ public class ZamiaReconcilingStrategy implements IReconcilingStrategy {
 		return null;
 	}
 
-	public Object[] getRootElements() {
+	public IDesignModule[] getRootElements() {
 
 		if (fSFDUInfo == null) {
 			logger.error("ZamiaReconcilingStrategie: getRootElements() called, but not parsed yet.");
 
-			Object[] empty = new Object[0];
-
-			return empty;
+			return new IDesignModule[0];
 		}
 
 		ArrayList<IDesignModule> dua = new ArrayList<IDesignModule>(fSFDUInfo.getNumDMUIDs());
@@ -555,7 +553,7 @@ public class ZamiaReconcilingStrategy implements IReconcilingStrategy {
 			}
 		}
 
-		return dua.toArray();
+		return dua.toArray(new IDesignModule[dua.size()]);
 	}
 
 	public ZamiaProject getZPrj() {

@@ -15,14 +15,18 @@ import org.zamia.plugin.ZamiaPlugin;
 import org.zamia.vhdl.ast.AliasDeclaration;
 import org.zamia.vhdl.ast.Architecture;
 import org.zamia.vhdl.ast.AttributeDeclaration;
+import org.zamia.vhdl.ast.Block;
 import org.zamia.vhdl.ast.BlockDeclarativeItem;
 import org.zamia.vhdl.ast.ComponentDeclaration;
+import org.zamia.vhdl.ast.ConcurrentStatement;
 import org.zamia.vhdl.ast.ConstantDeclaration;
 import org.zamia.vhdl.ast.DesignUnit;
 import org.zamia.vhdl.ast.Entity;
 import org.zamia.vhdl.ast.InstantiatedUnit;
 import org.zamia.vhdl.ast.InterfaceDeclaration;
+import org.zamia.vhdl.ast.Name;
 import org.zamia.vhdl.ast.PackageBody;
+import org.zamia.vhdl.ast.Range;
 import org.zamia.vhdl.ast.SequentialProcess;
 import org.zamia.vhdl.ast.SignalDeclaration;
 import org.zamia.vhdl.ast.SubProgram;
@@ -90,12 +94,11 @@ public class ZamiaOutlineLabelProvider extends LabelProvider {
 		if (aElement instanceof InterfaceDeclaration) {
 			InterfaceDeclaration isd = (InterfaceDeclaration) aElement;
 			switch (isd.getDir()) {
-			case IN:
-				return fInIcon;
-			case OUT:
-				return fOutIcon;
-			case INOUT:
-				return fInoutIcon;
+				case IN: return fInIcon;
+				case OUT: return fOutIcon;
+				case BUFFER:
+				case LINKAGE:
+				case INOUT: return fInoutIcon;
 			}
 		}
 
@@ -125,6 +128,7 @@ public class ZamiaOutlineLabelProvider extends LabelProvider {
 			return fAttributeIcon;
 		if (aElement instanceof AliasDeclaration)
 			return fAliasIcon;
+		if (aElement instanceof Block) return fFolderIcon;
 		return fUnknownIcon;
 	}
 
@@ -151,6 +155,8 @@ public class ZamiaOutlineLabelProvider extends LabelProvider {
 		} else if (aElement instanceof BlockDeclarativeItem) {
 			BlockDeclarativeItem bdi = (BlockDeclarativeItem) aElement;
 			return bdi.getId();
+		} else if (aElement instanceof ConcurrentStatement) {
+			return ((ConcurrentStatement) aElement).getLabel();
 		} else if (aElement instanceof ZamiaOutlineFolder) {
 			ZamiaOutlineFolder folder = (ZamiaOutlineFolder) aElement;
 			return folder.id;
