@@ -85,8 +85,6 @@ public class OpenDeclarationAction extends StaticAnalysisAction {
 					IGItem item = res.getFirst();
 					tlp = res.getSecond();
 
-					logger.info("OpenDeclaration: nearest item: %s, path: %s", item, tlp);
-
 					if (item != null) {
 
 						//IGSequentialProcedureCall seems to duplicate IGSequentialProcedureCall functionality. Should we keep both?
@@ -96,7 +94,6 @@ public class OpenDeclarationAction extends StaticAnalysisAction {
 						}
 
 						if (item instanceof IGInstantiation) {
-							logger.info("OpenDeclaration: this is an instantiation.");
 
 							IGInstantiation inst = (IGInstantiation) item;
 
@@ -123,10 +120,6 @@ public class OpenDeclarationAction extends StaticAnalysisAction {
 				}
 			} 
 			
-			logger.info("Open Declaration Action");
-			logger.info("=======================");
-			logger.info("SourceLocation: %s", fLocation);
-
 			ASTNode nearest = SourceLocation2AST.findNearestASTNode(fLocation, true, fZPrj);
 
 			if (nearest != null) {
