@@ -42,7 +42,7 @@ public class LaunchIGModuleAction extends org.eclipse.ui.actions.ActionDelegate 
 	public final static ZamiaLogger logger = ZamiaLogger.getInstance();
 	public final static ExceptionLogger el = ExceptionLogger.getInstance();
 	
-	protected IGModuleWrapper fWrapper;
+	private IGModuleWrapper fWrapper;
 
 	@Override
 	public void selectionChanged(IAction aAction, ISelection aSelection) {

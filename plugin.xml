@@ -750,6 +750,89 @@
        categoryId="org.eclipse.ui.category.navigate"
        id="org.zamia.commands.findSignal">
      </command>
+     <!-- ALTRAN <<<<<<<<<<<<<<<<-->
+     <command
+       name="Audit code..."
+       description="Audit regarding rules"
+       categoryId="org.eclipse.ui.category.project"
+       id="org.zamia.commands.audit">
+     </command>
+     <command
+       name="unnamed process..."
+       description="located unnamed process"
+       categoryId="org.eclipse.ui.category.project"
+       id="org.zamia.commands.locateUnnamedProcess">
+     </command>
+     <command
+       name="find clock..."
+       description="Find clock"
+       categoryId="org.eclipse.ui.category.project"
+       id="org.zamia.commands.findClock">
+     </command>
+     <command
+       name="browse file..."
+       description="Browse file"
+       categoryId="org.eclipse.ui.category.project"
+       id="org.zamia.commands.browseFile">
+     </command>
+
+     <command
+       name="process..."
+       description="process"
+       categoryId="org.eclipse.ui.category.project"
+       id="org.zamia.commands.process">
+     </command>
+     <command
+       name="archi..."
+       description="archi"
+       categoryId="org.eclipse.ui.category.project"
+       id="org.zamia.commands.archi">
+     </command>
+     <command
+       name="FileStructureManager..."
+       description="FileStructureManager"
+       categoryId="org.eclipse.ui.category.project"
+       id="org.zamia.commands.fileStructureManager">
+     </command>
+     <command
+       name="sourceClock..."
+       description="ClockSignalSourceManager"
+       categoryId="org.eclipse.ui.category.project"
+       id="org.zamia.commands.sourceclock">
+     </command>
+     <command
+       name="readClock..."
+       description="ClockSignalReadManager"
+       categoryId="org.eclipse.ui.category.project"
+       id="org.zamia.commands.readclock">
+     </command>
+    <command
+       name="sourceReset..."
+       description="ResetSignalSourceManager"
+       categoryId="org.eclipse.ui.category.project"
+       id="org.zamia.commands.sourcereset">
+     </command>
+     <command
+       name="FileStructureEntityManager..."
+       description="FileStructureEntityManager"
+       categoryId="org.eclipse.ui.category.project"
+       id="org.zamia.commands.fileStructureEntityManager">
+     </command>
+     <command
+       name="find Reset Signal"
+       description="ResetSignalManager"
+       categoryId="org.eclipse.ui.category.project"
+       id="org.altran.commands.resetSignalManager">
+     </command>
+     <command
+       name="entity"
+       description="Entity"
+       categoryId="org.eclipse.ui.category.project"
+       id="org.zamia.commands.entity">
+     </command>
+     
+     <!-- ALTRAN >>>>>>>>>>>>>>>>>>-->
+    
      <command
        name="Clear Cache"
        description="Clear Cached Data"
@@ -957,6 +1040,13 @@
                definitionId="org.zamia.commands.findSignal"
                enablesFor="*">
          </action>
+ 
+     <!--
+    
+    Action sets
+    
+    -->
+     
          <action
                id="clearCache"
                class="org.zamia.plugin.ClearCacheAction"
@@ -985,8 +1075,366 @@
                enablesFor="*">
          </action>
        </actionSet>
+       
+    <!--
+    
+    Menu Altran
+    
+    -->
+       
+      <actionSet
+            id="org.zamia.plugin.actionSet"
+            label="Sample Action Set"
+            visible="true">
+            
+         <menu
+               id="ruleChecker"
+               label="Rule &amp;Checher">
+            <separator
+                  name="vhdlToolDebug">
+            </separator>
+            <separator
+                  name="coreGroup">
+            </separator>
+            <separator
+                  name="vhdlToolHelp">
+            </separator>
+            
+         </menu>
+		 <menu
+			label="&amp;Help"
+			path="ruleChecker/vhdlToolHelp"
+			id="helpVhdlToolMenu">
+			<separator
+				name="helpSampleGroup">
+			</separator>
+		</menu>
+         <menu
+			label="&amp;Tools"
+			path="ruleChecker/coreGroup"
+			id="coreVhdlToolMenu">
+			<separator
+				name="sampleGroup">
+			</separator>
+		</menu>
+
+	 	
+    <menu
+			label="&amp;Debug"
+			path="ruleChecker/vhdlToolDebug"
+			id="debugVhdlToolMenu">
+			<separator
+				name="debugSampleGroup">
+			</separator>
+		</menu>
+	
+
+     <!--
+    
+    Menu HELP VHDL TOOL
+    
+    -->
+         <action
+               id="aboutRuleChecker"
+               class="org.zamia.plugin.tool.vhdl.help.OpenAboutRuleChecker"
+               label="About Rule Checker"
+               menubarPath="ruleChecker/helpVhdlToolMenu/helpSampleGroup"
+               tooltip="about Rule Checker"
+               definitionId="org.zamia.commands.aboutRuleChecker"
+               enablesFor="*">
+         </action>
+       
+         <action
+               id="userGuide"
+               class="org.zamia.plugin.tool.vhdl.help.OpenUserGuide"
+               label="User Guide"
+               menubarPath="ruleChecker/helpVhdlToolMenu/helpSampleGroup"
+               tooltip="User Guide"
+               definitionId="org.zamia.commands.userguide"
+               enablesFor="*">
+         </action>
+         
+      	<action
+               id="features"
+               class="org.zamia.plugin.tool.vhdl.help.OpenFeatures"
+               label="Features"
+               menubarPath="ruleChecker/helpVhdlToolMenu/helpSampleGroup"
+               tooltip="Features"
+               definitionId="org.zamia.commands.features"
+               enablesFor="*">
+         </action>
+    
+       <!--
+    Menu  VHDL TOOL Select rules
+    
+ -->
+ 
+         <action
+               class="org.zamia.plugin.tool.vhdl.rules.SelectLaunchRules"
+               icon="icons/sample.gif"
+               id="org.zamia.plugin.tool.vhdl.rules.SelectLaunchRules"
+               label="Rules &amp;Selector"
+                menubarPath="ruleChecker/vhdlToolGroup"
+               toolbarPath="sampleGroup"
+               tooltip="Rules Selection">
+         </action>
+         
+         <action
+               class="org.zamia.plugin.tool.vhdl.tools.SelectLaunchTools"
+               icon="icons/sample.gif"
+               id="org.zamia.plugin.tool.vhdl.tools.SelectLaunchTools"
+               label="Tools &amp;Selector"
+                menubarPath="ruleChecker/vhdlToolGroup"
+               toolbarPath="sampleGroup"
+               tooltip="Tools Selection">
+         </action>
+         
+     
+ <!--
+    
+    Menu DEBUG VHDL TOOL
+    
+   
+       
+         <action
+               id="audit"
+               class="org.zamia.plugin.AuditAction"
+               label="Audit code"
+               menubarPath="ruleChecker/debugVhdlToolMenu/debugSampleGroup"
+               tooltip="Audit code"
+               definitionId="org.zamia.commands.audit"
+               enablesFor="*">
+         </action>
+         
+         <action
+               id="sourceClock"
+               class="org.zamia.plugin.tool.vhdl.ClockSignalSourceManager"
+               label="source Clock"
+               menubarPath="ruleChecker/debugVhdlToolMenu/debugSampleGroup"
+               tooltip="source Clock"
+               definitionId="org.zamia.commands.sourceclock"
+               enablesFor="*">
+         </action>
+        <action
+               id="readClock"
+               class="org.zamia.plugin.tool.vhdl.ClockSignalReadManager"
+               label="read Clock"
+               menubarPath="ruleChecker/debugVhdlToolMenu/debugSampleGroup"
+               tooltip="read Clock"
+               definitionId="org.zamia.commands.readclock"
+               enablesFor="*">
+         </action>
+        <action
+               id="sourceReset"
+               class="org.zamia.plugin.tool.vhdl.ResetSignalSourceManager"
+               label="source Reset"
+               menubarPath="ruleChecker/debugVhdlToolMenu/debugSampleGroup"
+               tooltip="source Reset"
+               definitionId="org.zamia.commands.sourcereset"
+               enablesFor="*">
+         </action>
+         
+      	<action
+               id="unnamedProcess"
+               class="org.zamia.plugin.tool.vhdl.UnnamedProcess"
+               label="Unnamed process"
+               menubarPath="ruleChecker/debugVhdlToolMenu/debugSampleGroup"
+               tooltip="Unnamed process"
+               definitionId="org.zamia.commands.locateUnnamedProcess"
+               enablesFor="*">
+         </action>
+     
+      	<action
+               id="browseFile"
+               class="org.zamia.plugin.BrowseFile"
+               label="browse file"
+               menubarPath="ruleChecker/debugVhdlToolMenu/debugSampleGroup"
+               tooltip="Find clock"
+               definitionId="org.zamia.commands.browseFile"
+               enablesFor="*">
+         </action>
+
+     	 <action
+               id="process"
+               class="org.zamia.plugin.tool.vhdl.manager.ProcessManager"
+               label="process"
+               menubarPath="ruleChecker/debugVhdlToolMenu/debugSampleGroup"
+               tooltip="process"
+               definitionId="org.zamia.commands.process"
+               enablesFor="*">
+         </action>
+    	 <action
+               id="registersource"
+               class="org.zamia.plugin.tool.vhdl.manager.RegisterSourceManager"
+               label="register source"
+               menubarPath="ruleChecker/debugVhdlToolMenu/debugSampleGroup"
+               tooltip="register source"
+               definitionId="org.zamia.commands.registersource"
+               enablesFor="*">
+         </action>
+    	 <action
+               id="input output"
+               class="org.zamia.plugin.tool.vhdl.manager.InputOutputManager"
+               label="input output"
+               menubarPath="ruleChecker/debugVhdlToolMenu/debugSampleGroup"
+               tooltip="input output"
+               definitionId="org.zamia.commands.inputoutput"
+               enablesFor="*">
+         </action>
+   	 <action
+               id="logicalcone"
+               class="org.zamia.plugin.tool.vhdl.manager.LogicalConeManager"
+               label="logical cone"
+               menubarPath="ruleChecker/debugVhdlToolMenu/debugSampleGroup"
+               tooltip="logical cone"
+               definitionId="org.zamia.commands.logicalcone"
+               enablesFor="*">
+         </action>
+    	 <action
+               id="logicalconeread"
+               class="org.zamia.plugin.tool.vhdl.manager.LogicalConeReadManager"
+               label="logical cone read"
+               menubarPath="ruleChecker/debugVhdlToolMenu/debugSampleGroup"
+               tooltip="logical cone read"
+               definitionId="org.zamia.commands.logicalconeread"
+               enablesFor="*">
+         </action>
+   	 <action
+               id="process"
+               class="org.zamia.plugin.tool.vhdl.manager.CombinatoryInputManager"
+               label="CombinatoryInputManager"
+               menubarPath="ruleChecker/debugVhdlToolMenu/debugSampleGroup"
+               tooltip="CombinatoryInputManager"
+               definitionId="org.zamia.commands.combinatoryInputManager"
+               enablesFor="*">
+         </action>
+         
+    	 <action
+               id="register"
+               class="org.zamia.plugin.tool.vhdl.manager.RegisterAffectationManager"
+               label="register"
+               menubarPath="ruleChecker/debugVhdlToolMenu/debugSampleGroup"
+               tooltip="register"
+               definitionId="org.zamia.commands.register"
+               enablesFor="*">
+         </action>
+         
+      	<action
+               id="archi"
+               class="org.zamia.plugin.tool.vhdl.manager.ArchitectureManager"
+               label="archi"
+               menubarPath="ruleChecker/debugVhdlToolMenu/debugSampleGroup"
+               tooltip="archi"
+               definitionId="org.zamia.commands.archi"
+               enablesFor="*">
+         </action>
+         
+   		<action
+               id="FileStructureManager"
+               class="org.zamia.plugin.tool.vhdl.manager.FileStructureManager"
+               label="FileStructureManager"
+               menubarPath="ruleChecker/debugVhdlToolMenu/debugSampleGroup"
+               tooltip="FileStructureManager"
+               definitionId="org.zamia.commands.fileStructureManager"
+               enablesFor="*">
+         </action>
+         
+    	 <action
+               id="FileStructureEntityManager"
+               class="org.zamia.plugin.tool.vhdl.manager.FileStructureEntityManager"
+               label="FileStructureEntityManager"
+                menubarPath="ruleChecker/debugVhdlToolMenu/debugSampleGroup"
+               tooltip="FileStructureEntityManager"
+               definitionId="org.zamia.commands.fileStructureEntityManager"
+               enablesFor="*">
+         </action>
+
+         <action
+               id="entity"
+               class="org.zamia.plugin.tool.vhdl.manager.EntityManager"
+               label="entity"
+               menubarPath="ruleChecker/debugVhdlToolMenu/debugSampleGroup"
+               tooltip="Entity"
+               definitionId="org.zamia.commands.entity"
+               enablesFor="*">
+         </action>
+
+s
+    
+    END  Menu DEBUG VHDL TOOL
+    
+    -->
+    <!--
+    
+    Menu CORE VHDL TOOL
+    
+    -->
+     <!--      <action
+               id="Primitive isolation"
+               class="org.zamia.plugin.tool.vhdl.PrimitiveManager"
+               label="Primitive isolation (REQ_STD_01800)"
+               menubarPath="ruleChecker/coreVhdlToolMenu/sampleGroup"
+               tooltip="Primitive isolation"
+               definitionId="org.altran.commands.primitiveManager"
+               enablesFor="*">
+         </action>
+    
+         <action
+               id="Line counter"
+               class="org.zamia.plugin.tool.vhdl.HdlFileManager"
+               label="Line counter (REQ_FEAT_FN20)"
+               menubarPath="ruleChecker/coreVhdlToolMenu/sampleGroup"
+               tooltip="Line counter"
+               definitionId="org.altran.commands.hdlFileManager"
+               enablesFor="*">
+         </action>
+    
+         <action
+               id="Package/library identification"
+               class="org.zamia.plugin.tool.vhdl.LibraryManager"
+               label="Package/library identification (REQ_FEAT_FN19)"
+               menubarPath="ruleChecker/coreVhdlToolMenu/sampleGroup"
+               tooltip="Package/library identification"
+               definitionId="org.altran.commands.libraryManager"
+               enablesFor="*">
+         </action>
+    
+         <action
+               id="reset signal"
+               class="org.zamia.plugin.tool.vhdl.ResetSignalManager"
+               label="Reset identification (REQ_FEAT_FN18)"
+               menubarPath="ruleChecker/coreVhdlToolMenu/sampleGroup"
+               tooltip="ResetSignalManager"
+               definitionId="org.altran.commands.resetSignalManager"
+               enablesFor="*">
+         </action>
+ 
+          <action
+               id="findClock"
+               class="org.zamia.plugin.tool.vhdl.ClockSignalManager"
+               label="Clocks identification (REQ_FEAT_FN15)"
+               menubarPath="ruleChecker/coreVhdlToolMenu/sampleGroup"
+               tooltip="Find clock"
+               definitionId="org.zamia.commands.findClock"
+               enablesFor="*">
+         </action>
+         -->
+     <!--
+    
+    END  Menu CORE VHDL TOOL
+    
+    -->
+
+      </actionSet>
     </extension>
     
+     <!--
+    
+    Menu Altran END
+    
+    -->
+  
+  
     <!--
     
     Popup menu items
@@ -1002,15 +1450,6 @@
           label="Elaborate and Launch Simulator"
           menubarPath="group.edit"
           tooltip="Elaborate this design unit and run simulator on it"/>
-      </objectContribution>
-      <objectContribution adaptable="false" id="org.zamia.plugin.views.navigator.IGModuleWrapper" objectClass="org.zamia.plugin.views.navigator.IGModuleWrapper">
-        <action 
-          class="org.zamia.plugin.launch.EdifModuleAction"
-          enablesFor="1"
-          id="org.zamia.plugin.EdifIGNodeAction"
-          label="Export EDIF"
-          menubarPath="group.edit"
-          />
       </objectContribution>
     </extension>
     
@@ -1306,6 +1745,5 @@
         </command>
      	</menuContribution>
 	</extension>
-
 
 </plugin>

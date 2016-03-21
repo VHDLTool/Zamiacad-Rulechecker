@@ -44,7 +44,6 @@ import org.eclipse.swt.widgets.Shell;
 import org.eclipse.ui.editors.text.EditorsUI;
 import org.eclipse.ui.texteditor.ITextEditor;
 import org.zamia.plugin.ZamiaPlugin;
-import org.zamia.plugin.editors.buildpath.BasicViewerConfiguration;
 import org.zamia.plugin.editors.completion.VHDLCompletionProcessor;
 import org.zamia.plugin.preferences.PreferenceConstants;
 
@@ -55,13 +54,43 @@ import org.zamia.plugin.preferences.PreferenceConstants;
  *
  */
 
-public class ZamiaSourceViewerConfiguration extends BasicViewerConfiguration {
+public class ZamiaSourceViewerConfiguration extends SourceViewerConfiguration {
 
+	final static String COMMENT_CONTENT_TYPE = "__comment_partition_content_type";
+
+	//private final ISharedTextColors fColors;
+	private ITextEditor fEditor;
+	private ITokenScanner scanner;
 	private ZamiaReconcilingStrategy strategy;
+
+
+	private String[] defaultPrefixes;
+
 	
-	public ZamiaSourceViewerConfiguration(BasicIdentifierScanner scanner_, ZamiaReconcilingStrategy strategy_, String[] defaultPrefixes_, ITextEditor editor_) {
-		super(scanner_, defaultPrefixes_, editor_);
+	public ZamiaSourceViewerConfiguration(ITokenScanner scanner_, ZamiaReconcilingStrategy strategy_, String[] defaultPrefixes_, ITextEditor editor_) {
+		fEditor= editor_;
+		//fColors= colors;
+		scanner = scanner_;
 		strategy = strategy_;
+		defaultPrefixes = defaultPrefixes_;
+	}
+
+	public IPresentationReconciler getPresentationReconciler(ISourceViewer sourceViewer) {
+		PresentationReconciler reconciler = new PresentationReconciler();
+
+		DefaultDamagerRepairer dr = new DefaultDamagerRepairer(scanner);
+		reconciler.setDamager(dr, IDocument.DEFAULT_CONTENT_TYPE);
+		reconciler.setRepairer(dr, IDocument.DEFAULT_CONTENT_TYPE);
+		
+	    IPreferenceStore store = ZamiaPlugin.getDefault().getPreferenceStore();
+		
+		RGB colorComment = PreferenceConverter.getColor(store, PreferenceConstants.P_COMMENT);
+		
+		NonRuleBasedDamagerRepairer ndr = new NonRuleBasedDamagerRepairer(new TextAttribute(ColorManager.getInstance().getColor(colorComment)));
+		reconciler.setDamager(ndr, COMMENT_CONTENT_TYPE);
+		reconciler.setRepairer(ndr, COMMENT_CONTENT_TYPE);
+
+		return reconciler;
 	}
 
 	private IInformationControlCreator getInformationPresenterControlCreator(ISourceViewer sourceViewer) {
@@ -95,6 +124,15 @@ public class ZamiaSourceViewerConfiguration extends BasicViewerConfiguration {
 		return (editor instanceof VHDLEditor) ? new VHDLInformationProvider(editor) : null ;
 	}
 
+	protected ITextEditor getEditor() {
+		return fEditor;
+	}
+
+	@Override
+	public String[] getDefaultPrefixes(ISourceViewer sourceViewer, String contentType) {
+		return defaultPrefixes;
+	}
+
 	@Override
 	public IReconciler getReconciler(ISourceViewer sourceViewer) {
 		MonoReconciler reconciler = new MonoReconciler(strategy, false);
@@ -121,6 +159,11 @@ public class ZamiaSourceViewerConfiguration extends BasicViewerConfiguration {
 		return assistant;
 	}
 
+	@Override
+	public IAnnotationHover getAnnotationHover(ISourceViewer sourceViewer) {
+		return new DefaultAnnotationHover();
+	}
+	
 	@Override
 	public VHDLInformationProvider getTextHover(ISourceViewer sourceViewer, String contentType) {
 		return createInfoProvider();

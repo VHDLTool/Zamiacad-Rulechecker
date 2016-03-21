@@ -1,0 +1,10 @@
+
+	<verifiers_parameters>\rule_checker\rc_handbook_parameters.xml</verifiers_parameters>
+	
+	<log>
+		<tool_directory>\rule_checker\reporting\tool\</tool_directory>
+		<tool_fileName>rc_report_tool.xml</tool_fileName>
+		<rule_directory>\rule_checker\reporting\rule\</rule_directory>
+		<rule_fileName>rc_report_rule.xml</rule_fileName>
+	</log>
+</vhdlTool>

@@ -8,29 +8,20 @@
 
 package org.zamia.plugin.editors;
 
-import java.util.function.Function;
-
 import org.eclipse.jface.action.IToolBarManager;
 import org.eclipse.jface.resource.ImageDescriptor;
-import org.eclipse.jface.text.BadLocationException;
-import org.eclipse.jface.text.TextSelection;
-import org.eclipse.jface.viewers.ISelection;
 import org.eclipse.jface.viewers.StructuredSelection;
 import org.eclipse.jface.viewers.TreeViewer;
 import org.eclipse.swt.widgets.Composite;
 import org.eclipse.swt.widgets.Control;
-import org.eclipse.ui.OpenAndLinkWithEditorHelper;
 import org.eclipse.ui.plugin.AbstractUIPlugin;
 import org.eclipse.ui.views.contentoutline.ContentOutlinePage;
-import org.zamia.ASTNode;
 import org.zamia.ExceptionLogger;
-import org.zamia.IDesignModule;
-import org.zamia.SourceLocation;
 import org.zamia.ZamiaLogger;
 import org.zamia.ZamiaProject;
 import org.zamia.plugin.ZamiaPlugin;
 import org.zamia.plugin.ZamiaProjectMap;
-import org.zamia.vhdl.ast.VHDLNode; // shouldn't it be ASTNode?
+import org.zamia.vhdl.ast.VHDLNode;
 
 
 /**
@@ -149,27 +140,6 @@ public class ZamiaOutlinePage extends ContentOutlinePage {
 		fIsDisposed = false;
 
 		update();
-		
-		new OpenAndLinkWithEditorHelper(fTreeViewer) {
-			
-			{setLinkWithEditor(true);}
-			
-			@Override protected void activate(ISelection selection) {
-				open(selection, true);
-			}
-
-			@Override protected void linkToEditor(ISelection selection) {
-				//fEditor.doSelectionChanged(selection);
-				fEditor.outlineSelectionChanged(selection);
-			}
-
-			@Override protected void open(ISelection selection, boolean activate) {
-				linkToEditor(selection);
-				if (activate) getSite().getPage().activate(fEditor);
-			}
-
-		};
-
 	}
 
 	public void setInput(Object aInput) {
@@ -200,29 +170,4 @@ public class ZamiaOutlinePage extends ContentOutlinePage {
 		return fIsDisposed;
 	}
 
-	public void select(SourceLocation target) {
-		ZamiaOutlineContentProvider cp = (ZamiaOutlineContentProvider) fTreeViewer.getContentProvider();
-		
-		
-		IDesignModule[] modules = fEditor.getReconcilingStrategy().getRootElements();
-		
-		if (modules.length == 0) return;
-		Object sm = null; for (int i = 0 ; i != modules.length; i++) 
-			if (modules[i].getLocation().compareTo(target) <= 0) sm = modules[i];
-		
-		class Helper {void selectLastChild(Object parent) {
-			Object lastChild = null; Object[] elements = cp.getChildren(parent)  ;
-			if (elements != null) for (int i = 0 ; i != elements.length; i++)
-				if (elements[i] instanceof ASTNode) {
-					ASTNode astEl = (ASTNode) elements[i];
-					if (astEl.getLocation().compareTo(target) <= 0) lastChild = astEl;
-				};
-			
-			if (lastChild == null) fTreeViewer.setSelection(new StructuredSelection(parent), true);
-			else selectLastChild(lastChild);
-
-		}}
-		new Helper().selectLastChild(sm);
-	}
-	
 }

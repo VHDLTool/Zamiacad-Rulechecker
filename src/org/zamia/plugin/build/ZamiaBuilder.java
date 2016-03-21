@@ -9,10 +9,7 @@
 package org.zamia.plugin.build;
 
 import java.io.File;
-import java.io.IOException;
 import java.net.URI;
-import java.net.URISyntaxException;
-import java.net.URL;
 import java.util.HashSet;
 import java.util.Map;
 
@@ -23,10 +20,7 @@ import org.eclipse.core.resources.IResource;
 import org.eclipse.core.resources.IResourceDelta;
 import org.eclipse.core.resources.IResourceDeltaVisitor;
 import org.eclipse.core.resources.IncrementalProjectBuilder;
-import org.eclipse.core.resources.ResourceAttributes;
 import org.eclipse.core.runtime.CoreException;
-import org.eclipse.core.runtime.FileLocator;
-import org.eclipse.core.runtime.IPath;
 import org.eclipse.core.runtime.IProgressMonitor;
 import org.eclipse.core.runtime.NullProgressMonitor;
 import org.eclipse.core.runtime.QualifiedName;
@@ -40,7 +34,6 @@ import org.zamia.BuildPathEntry;
 import org.zamia.ERManager;
 import org.zamia.ExceptionLogger;
 import org.zamia.SourceFile;
-import org.zamia.ZamiaException;
 import org.zamia.ZamiaLogger;
 import org.zamia.ZamiaProject;
 import org.zamia.ZamiaProjectBuilder;
@@ -50,6 +43,7 @@ import org.zamia.plugin.editors.ZamiaEditor;
 import org.zamia.plugin.efs.ZamiaFileSystem;
 import org.zamia.plugin.ui.XilinxPrjImportWizard;
 import org.zamia.plugin.views.navigator.ZamiaNavigator;
+import org.zamia.tool.vhdl.BuildMakeE;
 import org.zamia.util.HashSetArray;
 import org.zamia.util.Native;
 
@@ -187,6 +181,7 @@ public class ZamiaBuilder extends IncrementalProjectBuilder {
 	 * We could make the cleanup safer by catching the exceptions in the ERManager. But, lets do the 
 	 * clean up first, right here, where it is supposed to be. */
 	protected void clean(IProgressMonitor monitor) throws CoreException {
+		System.out.println("clean");
 		try {
 			ZamiaProjectMap.getZamiaProject(getProject()).clean();
 		} catch (Exception e) {
@@ -330,7 +325,7 @@ public class ZamiaBuilder extends IncrementalProjectBuilder {
 		}
 
 		logger.info("ZamiaBuilder: all done.");
-
+		zprj.getToolVhdlMgr().setBuildMake(BuildMakeE.YES);
 		return null;
 	}
 

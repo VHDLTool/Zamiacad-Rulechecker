@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <?pde version="3.5"?>
 
-<product name="zamiaCAD" uid="org.zamia.plugin.product" id="org.zamia.plugin.product" application="org.eclipse.ui.ide.workbench" version="0.11.4" useFeatures="false" includeLaunchers="true">
+<product name="zamiaCAD" uid="org.zamia.plugin.product" id="org.zamia.plugin.product" application="org.eclipse.ui.ide.workbench" version="0.11.3" useFeatures="false" includeLaunchers="true">
 
    <aboutInfo>
       <image path="/zamiacad/share/images/zamiacad_fern.png"/>
@@ -76,10 +76,8 @@ Feedback of any kind is very welcome.
    </configIni>
 
    <launcherArgs>
-      <vmArgs>-Xmx1024m -Xms128m -Xss16m -server -XX:MaxPermSize=256m
-      </vmArgs>
-      <vmArgsMac>-XstartOnFirstThread -Dorg.eclipse.swt.internal.carbon.smallFonts
-      </vmArgsMac>
+      <vmArgs>-Xmx1024m -Xms128m -Xss16m -server -XX:MaxPermSize=256m</vmArgs>
+      <vmArgsMac>-XstartOnFirstThread -Dorg.eclipse.swt.internal.carbon.smallFonts</vmArgsMac>
    </launcherArgs>
 
    <windowImages i16="/zamiacad/share/images/zamia.gif"/>
@@ -947,10 +945,8 @@ zamiaCAD uses 3rd Party software covered by these licenses:
       <plugin id="org.eclipse.core.filesystem.aix.ppc" fragment="true"/>
       <plugin id="org.eclipse.core.filesystem.aix.ppc64" fragment="true"/>
       <plugin id="org.eclipse.core.filesystem.hpux.ia64" fragment="true"/>
-      <plugin id="org.eclipse.core.filesystem.java7" fragment="true"/>
       <plugin id="org.eclipse.core.filesystem.linux.ppc" fragment="true"/>
       <plugin id="org.eclipse.core.filesystem.linux.ppc64" fragment="true"/>
-      <plugin id="org.eclipse.core.filesystem.linux.ppc64le" fragment="true"/>
       <plugin id="org.eclipse.core.filesystem.linux.x86" fragment="true"/>
       <plugin id="org.eclipse.core.filesystem.linux.x86_64" fragment="true"/>
       <plugin id="org.eclipse.core.filesystem.macosx" fragment="true"/>
@@ -1008,7 +1004,6 @@ zamiaCAD uses 3rd Party software covered by these licenses:
       <plugin id="org.eclipse.equinox.launcher.gtk.hpux.ia64" fragment="true"/>
       <plugin id="org.eclipse.equinox.launcher.gtk.linux.ppc" fragment="true"/>
       <plugin id="org.eclipse.equinox.launcher.gtk.linux.ppc64" fragment="true"/>
-      <plugin id="org.eclipse.equinox.launcher.gtk.linux.ppc64le" fragment="true"/>
       <plugin id="org.eclipse.equinox.launcher.gtk.linux.s390" fragment="true"/>
       <plugin id="org.eclipse.equinox.launcher.gtk.linux.s390x" fragment="true"/>
       <plugin id="org.eclipse.equinox.launcher.gtk.linux.x86" fragment="true"/>
@@ -1044,7 +1039,6 @@ zamiaCAD uses 3rd Party software covered by these licenses:
       <plugin id="org.eclipse.ltk.core.refactoring"/>
       <plugin id="org.eclipse.ltk.ui.refactoring"/>
       <plugin id="org.eclipse.osgi"/>
-      <plugin id="org.eclipse.osgi.compatibility.state" fragment="true"/>
       <plugin id="org.eclipse.osgi.services"/>
       <plugin id="org.eclipse.search"/>
       <plugin id="org.eclipse.swt"/>
@@ -1055,7 +1049,6 @@ zamiaCAD uses 3rd Party software covered by these licenses:
       <plugin id="org.eclipse.swt.gtk.hpux.ia64" fragment="true"/>
       <plugin id="org.eclipse.swt.gtk.linux.ppc" fragment="true"/>
       <plugin id="org.eclipse.swt.gtk.linux.ppc64" fragment="true"/>
-      <plugin id="org.eclipse.swt.gtk.linux.ppc64le" fragment="true"/>
       <plugin id="org.eclipse.swt.gtk.linux.s390" fragment="true"/>
       <plugin id="org.eclipse.swt.gtk.linux.s390x" fragment="true"/>
       <plugin id="org.eclipse.swt.gtk.linux.x86" fragment="true"/>
@@ -1068,7 +1061,6 @@ zamiaCAD uses 3rd Party software covered by these licenses:
       <plugin id="org.eclipse.team.ui"/>
       <plugin id="org.eclipse.text"/>
       <plugin id="org.eclipse.ui"/>
-      <plugin id="org.eclipse.ui.cocoa" fragment="true"/>
       <plugin id="org.eclipse.ui.console"/>
       <plugin id="org.eclipse.ui.editors"/>
       <plugin id="org.eclipse.ui.forms"/>
@@ -1082,7 +1074,6 @@ zamiaCAD uses 3rd Party software covered by these licenses:
       <plugin id="org.eclipse.ui.workbench"/>
       <plugin id="org.eclipse.ui.workbench.texteditor"/>
       <plugin id="org.w3c.css.sac"/>
-      <plugin id="org.w3c.dom.events"/>
       <plugin id="org.w3c.dom.smil"/>
       <plugin id="org.w3c.dom.svg"/>
       <plugin id="org.zamia.cad"/>

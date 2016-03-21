@@ -1,0 +1,7 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?> 
+<vhdlTool>
+<author>Niesner Christophe</author>
+<creation_date>07/06/15</creation_date>
+<description>The user shall configure Rule Checker with handbook files location, verifiers parameters, file location and log files location.</description>
+<version_revision>creation</version_revision>
+

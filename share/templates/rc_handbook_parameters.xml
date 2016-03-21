@@ -1,0 +1,149 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no" ?>
+
+<handbook_parameters xmlns:hb="HANDBOOK">
+	<author>Niesner Christophe</author>
+	<creation_date>07/06/15</creation_date>
+	<description>Handbook rules may rely on existing generic rules. A
+		generic rule is composed of an algorithm and some generic parameters.
+		The generic rule and parameters values are configured through the
+		verifiers parameters file. In case that some parameters are missing in
+		the parameters file, then they are replaced with default values that
+		are hard coded.</description>
+	<version_revision>creation</version_revision>
+
+
+
+	<hb:Rule UID="CNE_01200">
+		<hb:RuleUID>CNE_01200</hb:RuleUID>
+		<hb:RuleGEN>GEN_01200</hb:RuleGEN>
+		<hb:RuleParameter>
+			<name>position</name>
+			<type>PositionE</type>
+			<value>prefix</value>
+		</hb:RuleParameter>
+		<hb:RuleParameter>
+			<name>partName</name>
+			<type>String</type>
+			<value>p_</value>
+		</hb:RuleParameter>
+	</hb:Rule>
+	<hb:Rule UID="CNE_02300">
+		<hb:RuleUID>CNE_02300</hb:RuleUID>
+		<hb:RuleGEN>GEN_02300</hb:RuleGEN>
+	</hb:Rule>
+	<hb:Rule UID="CNE_02400">
+		<hb:RuleUID>CNE_02400</hb:RuleUID>
+		<hb:RuleGEN>GEN_02400</hb:RuleGEN>
+	</hb:Rule>
+	<hb:Rule UID="CNE_04900">
+		<hb:RuleUID>CNE_04900</hb:RuleUID>
+		<hb:RuleGEN>GEN_04900</hb:RuleGEN>
+	</hb:Rule>
+	
+	
+	<hb:Rule UID="STD_00200">
+		<hb:RuleUID>STD_00200</hb:RuleUID>
+		<hb:RuleGEN>STD_00200</hb:RuleGEN>
+		<hb:RuleParameter>
+			<name>position</name>
+			<type>PositionE</type>
+			<value>contain</value>
+		</hb:RuleParameter>
+		<hb:RuleParameter>
+			<name>partName</name>
+			<type>String</type>
+			<value>clk</value>
+			<value>clock</value>
+		</hb:RuleParameter>
+	</hb:Rule>
+	<hb:Rule UID="STD_00300">
+		<hb:RuleUID>STD_00300</hb:RuleUID>
+		<hb:RuleGEN>STD_00300</hb:RuleGEN>
+		<hb:RuleParameter>
+			<name>position</name>
+			<type>PositionE</type>
+			<value>contain</value>
+		</hb:RuleParameter>
+		<hb:RuleParameter>
+			<name>partName</name>
+			<type>String</type>
+			<value>rst</value>
+			<value>reset</value>
+			<value>clr</value>
+		</hb:RuleParameter>
+	</hb:Rule>
+	<hb:Rule UID="STD_00400">
+		<hb:RuleUID>STD_00400</hb:RuleUID>
+		<hb:RuleGEN>STD_00400</hb:RuleGEN>
+	</hb:Rule>
+	<hb:Rule UID="STD_01800">
+		<hb:RuleUID>STD_01800</hb:RuleUID>
+		<hb:RuleGEN>STD_01800</hb:RuleGEN>
+	</hb:Rule>
+	<hb:Rule UID="STD_03600">
+		<hb:RuleUID>STD_03600</hb:RuleUID>
+		<hb:RuleGEN>STD_03600</hb:RuleGEN>
+	</hb:Rule>
+	<hb:Rule UID="STD_03700">
+		<hb:RuleUID>STD_03700</hb:RuleUID>
+		<hb:RuleGEN>STD_03700</hb:RuleGEN>
+	</hb:Rule>
+	<hb:Rule UID="STD_03800">
+		<hb:RuleUID>STD_03800</hb:RuleUID>
+		<hb:RuleGEN>STD_03800</hb:RuleGEN>
+	</hb:Rule>
+	<hb:Rule UID="STD_04500">
+		<hb:RuleUID>STD_04500</hb:RuleUID>
+		<hb:RuleGEN>STD_04500</hb:RuleGEN>
+	</hb:Rule>
+	<hb:Rule UID="STD_04600">
+		<hb:RuleUID>STD_04600</hb:RuleUID>
+		<hb:RuleGEN>STD_04600</hb:RuleGEN>
+		<hb:RuleParameter>
+			<name>nbClockDomain</name>
+			<type>Integer</type>
+			<value>1</value>
+		</hb:RuleParameter>
+	</hb:Rule>
+	<hb:Rule UID="STD_04700">
+		<hb:RuleUID>STD_04700</hb:RuleUID>
+		<hb:RuleGEN>STD_04700</hb:RuleGEN>
+		<hb:RuleParameter>
+			<name>nbClockDomain</name>
+			<type>Integer</type>
+			<value>1</value>
+		</hb:RuleParameter>
+	</hb:Rule>
+	<hb:Rule UID="STD_04800">
+		<hb:RuleUID>STD_04800</hb:RuleUID>
+		<hb:RuleGEN>STD_04800</hb:RuleGEN>
+	</hb:Rule>
+	<hb:Rule UID="STD_05000">
+		<hb:RuleUID>STD_05000</hb:RuleUID>
+		<hb:RuleGEN>STD_05000</hb:RuleGEN>
+	</hb:Rule>
+	<hb:Rule UID="STD_05300">
+		<hb:RuleUID>STD_05300</hb:RuleUID>
+		<hb:RuleGEN>STD_05300</hb:RuleGEN>
+	</hb:Rule>
+
+
+
+
+
+	<hb:Rule UID="REQ_FEAT_LOGICAL_CONE">
+		<hb:RuleUID>REQ_FEAT_LOGICAL_CONE</hb:RuleUID>
+		<hb:RuleGEN>REQ_FEAT_LOGICAL_CONE</hb:RuleGEN>
+		<hb:RuleParameter>
+			<name>nbStage</name>
+			<type>Integer</type>
+			<value>10</value>
+		</hb:RuleParameter>
+		<hb:RuleParameter>
+			<name>signalTag</name>
+			<type>String</type>
+			<value>INPUT_COMB_1</value>
+		</hb:RuleParameter>
+	</hb:Rule>
+
+</handbook_parameters>

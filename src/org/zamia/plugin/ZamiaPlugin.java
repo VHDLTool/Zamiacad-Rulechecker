@@ -108,6 +108,10 @@ public class ZamiaPlugin extends AbstractUIPlugin {
 
 	public String fVersion;
 
+	public String ruleCheckerVersion;
+	
+	public String ruleCheckerDate;
+
 	// Resource bundle.
 	private ResourceBundle fResourceBundle;
 
@@ -141,6 +145,10 @@ public class ZamiaPlugin extends AbstractUIPlugin {
 
 		Dictionary dictionary = context.getBundle().getHeaders();
 		fVersion = (String) dictionary.get("Bundle-Version");
+
+		ruleCheckerVersion = (String) dictionary.get("Bundle-RuleCheckerVersion");
+
+		ruleCheckerDate = (String) dictionary.get("Bundle-RuleCheckerDate");
 
 		Display.getDefault().asyncExec(new Runnable() {
 
@@ -177,7 +185,12 @@ public class ZamiaPlugin extends AbstractUIPlugin {
 				logger.info("Online documentation: http://zamiacad.sourceforge.net/");
 				logger.info("Bug tracking: http://sourceforge.net/projects/zamiacad/");
 				logger.info("");
+				logger.info("Rule Checker V"+ruleCheckerVersion + " date "+ruleCheckerDate);
+				logger.info("");
 
+				logger.info("Logfile: " + logger.getLogFileName());
+				logger.info("");
+				
 				el = ExceptionLogger.getInstance();
 
 			}

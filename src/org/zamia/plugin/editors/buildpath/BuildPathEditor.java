@@ -8,18 +8,9 @@
 
 package org.zamia.plugin.editors.buildpath;
 
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.List;
-import java.util.Set;
-
 import org.eclipse.jface.text.BadLocationException;
 import org.eclipse.jface.text.IDocument;
 import org.eclipse.jface.text.PaintManager;
-import org.eclipse.jface.text.rules.EndOfLineRule;
-import org.eclipse.jface.text.rules.IRule;
-import org.eclipse.jface.text.rules.SingleLineRule;
-import org.eclipse.jface.text.rules.Token;
 import org.eclipse.jface.text.source.ISourceViewer;
 import org.eclipse.jface.text.source.IVerticalRuler;
 import org.eclipse.jface.text.source.MatchingCharacterPainter;
@@ -32,14 +23,12 @@ import org.eclipse.swt.graphics.RGB;
 import org.eclipse.swt.widgets.Composite;
 import org.eclipse.ui.IWorkbenchPart;
 import org.eclipse.ui.editors.text.TextEditor;
-import org.zamia.BuildPath;
 import org.zamia.ExceptionLogger;
 import org.zamia.SourceLocation;
 import org.zamia.ZamiaLogger;
 import org.zamia.plugin.editors.ColorManager;
 import org.zamia.plugin.editors.ErrorMarkEditor;
 import org.zamia.plugin.editors.ZamiaPairMatcher;
-import org.zamia.plugin.editors.buildpath.BasicViewerConfiguration.BasicIdentifierScanner;
 import org.zamia.vhdl.ast.VHDLNode;
 
 
@@ -65,32 +54,7 @@ public class BuildPathEditor extends ErrorMarkEditor {
 	protected AbstractSelectionChangedListener fOutlineSelectionChangedListener = new OutlineSelectionChangedListener();
 
 	public BuildPathEditor() {
-		
-		class Scanner extends BasicIdentifierScanner {
-
-			public String[] getKeywords() {
-				Set<String> keyWords = BuildPath.keyWords.keySet();
-				return new ArrayList<>(keyWords)
-						.toArray(new String[keyWords.size()]);
-			}
-			public boolean ignoreCase() { return true; }
-
-			@Override
-			public void addStrComment(List<IRule> rules, Token string, Token comment) {
-				// Add rule for single line comments.
-				rules.add(new EndOfLineRule("#", comment));
-
-				// Add rule for strings and character constants.
-				rules.add(new SingleLineRule("\"", "\"", string, '\\'));
-				// FIXME between ' and ' should only one character to be scanned as string
-				//rules.add(new SingleLineRule("\'", "\'", string, '\\')); 
-				// Add word rule for keywords.
-				// FIXME keyword following an underscore should be taken as normal text.
-			}
-
-		}
-		
-		setSourceViewerConfiguration(new BasicViewerConfiguration(new Scanner(), new String[] {"#", ""}, this));
+		setSourceViewerConfiguration(new BuildPathSourceViewerConfiguration(new BuildPathScanner(), new String[] {"#", ""}, this));
 	}
 
 	protected ISourceViewer createSourceViewer(Composite aParent, IVerticalRuler aRuler, int aStyles) {
