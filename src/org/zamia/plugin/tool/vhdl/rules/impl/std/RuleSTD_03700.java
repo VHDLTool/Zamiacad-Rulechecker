@@ -1,75 +1,59 @@
 package org.zamia.plugin.tool.vhdl.rules.impl.std;
 
+import java.util.List;
+
 import org.w3c.dom.Element;
+import org.zamia.SourceLocation;
 import org.zamia.ZamiaProject;
-import org.zamia.plugin.tool.vhdl.EntityException;
-import org.zamia.plugin.tool.vhdl.ListResetSource;
-import org.zamia.plugin.tool.vhdl.NodeInfo;
-import org.zamia.plugin.tool.vhdl.NodeType;
-import org.zamia.plugin.tool.vhdl.ResetSignal;
+import org.zamia.plugin.tool.vhdl.ReportFile;
 import org.zamia.plugin.tool.vhdl.ResetSource;
-import org.zamia.plugin.tool.vhdl.manager.ResetSignalSourceManager;
 import org.zamia.plugin.tool.vhdl.rules.RuleE;
-import org.zamia.plugin.tool.vhdl.rules.impl.RuleManager;
+import org.zamia.plugin.tool.vhdl.rules.RuleResult;
+import org.zamia.plugin.tool.vhdl.rules.impl.Rule;
 import org.zamia.util.Pair;
 
-public class RuleSTD_03700 extends RuleManager {
+/*
+ * Reset Assertion and De-assertion.
+ * Internal reset is asserted asynchronously and deasserted synchronously. 
+ * No parameters.
+ */
+public class RuleSTD_03700 extends Rule {
 
-	// Reset Assertion and Deassertion
-	
-	RuleE rule = RuleE.STD_03700;
-	ZamiaProject zPrj;
-	ResetSignal currentResetSignal;
-	
-	public Pair<Integer, String> Launch(ZamiaProject zPrj, String ruleId) {
-		this.zPrj = zPrj;
-		String fileName = "";
-		
-		ListResetSource listResetSource;
-		
-		try {
-			listResetSource = ResetSignalSourceManager.getResetSourceSignal();
-		} catch (EntityException e) {
-			logger.error("some exception message RuleSTD_03700", e);
-			return new Pair<Integer, String> (RuleManager.NO_BUILD,"");
-		}
-
-		Element racine = initReportFile(ruleId, rule.getType(), rule.getRuleName());
-
-		for (ResetSource resetSource : listResetSource.getListResetSource()) {
-			addReport(racine, resetSource);
-		}
-		
-		
-		fileName = createReportFile(ruleId, rule.getRuleName(), rule.getType());
-		
-		//		ZamiaErrorObserver.updateAllMarkers(zPrj);
-		return new Pair<Integer, String> (0, fileName);
-
+	public RuleSTD_03700() {
+		super(RuleE.STD_03700);
 	}
 
-	private void addReport(Element racine, ResetSource resetSource) {
-		Element resetSourceElement = document.createElement(NodeType.RESET_SOURCE.toString());
-		racine.appendChild(resetSourceElement);
+	@Override
+	public Pair<Integer, RuleResult> Launch(ZamiaProject zPrj, String ruleId, ParameterSource parameterSource) {
+		
+		initializeRule(parameterSource, ruleId);
+		
+		//// Make reset signal list
+		
+		List<ResetSource> resetSources = getAllResetSources();
+		if (resetSources == null) {
+			return new Pair<Integer, RuleResult> (NO_BUILD, null);
+		}
 
-		resetSourceElement.appendChild(NewElement(document, NodeType.FILE.toString()+NodeInfo.NAME.toString()
-				, resetSource.getSignalDeclaration().getLocation().fSF.getLocalPath()));
+		//// Write report
 
-		resetSourceElement.appendChild(NewElement(document, NodeType.ENTITY.toString()+NodeInfo.NAME.toString()
-				, resetSource.getEntity()));
-
-		resetSourceElement.appendChild(NewElement(document, NodeType.ARCHITECTURE.toString()+NodeInfo.NAME.toString()
-				, resetSource.getArchitecture()));
-
-		resetSourceElement.appendChild(NewElement(document, NodeType.RESET_SOURCE.toString()+NodeInfo.NAME.toString()
-				, resetSource.toString()));
-
-		resetSourceElement.appendChild(NewElement(document, NodeType.RESET_SOURCE.toString()+NodeInfo.TYPE.toString()
-				, resetSource.getType()));
-
-		resetSourceElement.appendChild(NewElement(document, NodeType.RESET_SOURCE.toString()+NodeInfo.LOCATION.toString()
-				, String.valueOf(resetSource.getSignalDeclaration().getLocation().fLine)));
-
+		Pair<Integer, RuleResult> result = null;
+		
+		ReportFile reportFile = new ReportFile(this);
+		if (reportFile.initialize()) {
+			for (ResetSource resetSource : resetSources) {	
+				SourceLocation location = resetSource.getSignalDeclaration().getLocation();
+				String entityId = resetSource.getEntity();
+				String architectureId = resetSource.getArchitecture();
+				Element info = reportFile.addViolation(location, entityId, architectureId);
+				
+				reportFile.addElement(ReportFile.TAG_RESET, resetSource.toString(), info);
+				reportFile.addElement(ReportFile.TAG_SIGNAL_TYPE, resetSource.getType(), info);
+			}
+			
+			result = reportFile.save();
+		}
+		
+		return result;
 	}
-
 }

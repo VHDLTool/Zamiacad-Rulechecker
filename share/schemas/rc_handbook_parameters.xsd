@@ -1,0 +1,88 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<xs:schema targetNamespace="HANDBOOK" xmlns:xs="http://www.w3.org/2001/XMLSchema" xmlns:hb="HANDBOOK" elementFormDefault="qualified">
+
+  <xs:element name="handbook_parameters">
+    <xs:complexType>
+      <xs:sequence>
+        <xs:element name="author" type="xs:string" minOccurs="0" />
+        <xs:element name="creation_date" type="xs:string" minOccurs="0" />
+        <xs:element name="description" type="xs:string" minOccurs="0" />
+        <xs:element name="version_revision" type="xs:string" minOccurs="0" />
+        <xs:element name="Rule" type="hb:ruleType" minOccurs="1" maxOccurs="unbounded" />
+      </xs:sequence>
+    </xs:complexType>
+  </xs:element>
+
+  <xs:complexType name="ruleType">
+      <xs:sequence>
+        <xs:element name="RuleUID" type="xs:string" maxOccurs="1" minOccurs="1"/>
+        <xs:element name="RuleGEN" type="xs:string" maxOccurs="1" minOccurs="1"/>
+		<xs:element name="RuleParams" type="hb:TRuleParams" minOccurs="0" maxOccurs="1"/>
+      </xs:sequence>
+	  <xs:attribute name="UID" type="xs:string" use="required"/>
+  </xs:complexType>
+
+    <xs:complexType name="TRuleParams">
+        <xs:sequence>
+            <xs:element name="IntParam" type="hb:TIntParam" maxOccurs="unbounded" minOccurs="0" />
+            <xs:element name="StringParam" type="hb:TStringParam" maxOccurs="unbounded" minOccurs="0"/>
+            <xs:element name="RangeParam" type="hb:TRangeParam" maxOccurs="unbounded" minOccurs="0"/>
+        </xs:sequence>
+    </xs:complexType>
+    <xs:complexType name="TIntParam">
+        <xs:sequence>
+            <xs:element name="ParamID" type="hb:TParamID" maxOccurs="1" minOccurs="1"/>
+            <xs:element name="Relation" type="hb:EnumRelation" maxOccurs="1" minOccurs="1"/>
+            <xs:element name="Value" type="xs:positiveInteger" maxOccurs="1" minOccurs="1"/>
+        </xs:sequence>
+    </xs:complexType>
+    <xs:complexType name="TStringParam">
+        <xs:sequence>
+            <xs:element name="ParamID" type="hb:TParamID" maxOccurs="1" minOccurs="1"/>
+            <xs:element name="Position" type="hb:EnumPosition" maxOccurs="1" minOccurs="1"/>
+            <xs:element name="Value" type="xs:string" maxOccurs="1" minOccurs="1"/>
+        </xs:sequence>
+    </xs:complexType>
+    <xs:complexType name="TRangeParam">
+        <xs:sequence>
+            <xs:element name="ParamID" type="hb:TParamID" maxOccurs="1" minOccurs="1"/>
+            <xs:element name="Range" type="hb:EnumRange" maxOccurs="1" minOccurs="1"/>
+            <xs:element name="ValueMin" type="xs:integer" maxOccurs="1" minOccurs="1"/>
+            <xs:element name="ValueMax" type="xs:integer" maxOccurs="1" minOccurs="1"/>
+        </xs:sequence>
+    </xs:complexType>
+   
+       <xs:simpleType name="TParamID">
+        <xs:restriction base="xs:string">
+            <xs:pattern value="P[0-9]+"/>
+        </xs:restriction>
+    </xs:simpleType>
+
+   
+       <xs:simpleType name="EnumRelation">
+        <xs:restriction base="xs:string">
+            <xs:enumeration value="LT"/>
+            <xs:enumeration value="LET"/>
+            <xs:enumeration value="E"/>
+            <xs:enumeration value="GET"/>
+            <xs:enumeration value="GT"/>
+        </xs:restriction>
+    </xs:simpleType>
+    <xs:simpleType name="EnumPosition">
+        <xs:restriction base="xs:string">
+            <xs:enumeration value="Prefix"/>
+            <xs:enumeration value="Contain"/>
+            <xs:enumeration value="Equal"/>
+            <xs:enumeration value="Suffix"/>
+        </xs:restriction>
+    </xs:simpleType>
+    <xs:simpleType name="EnumRange">
+        <xs:restriction base="xs:string">
+            <xs:enumeration value="LT_GT"/>
+            <xs:enumeration value="LET_GT"/>
+            <xs:enumeration value="LET_GET"/>
+            <xs:enumeration value="LT_GET"/>
+        </xs:restriction>
+    </xs:simpleType>
+   
+</xs:schema>

@@ -1,0 +1,43 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<xs:schema targetNamespace="RULECHECKER" xmlns:xs="http://www.w3.org/2001/XMLSchema" xmlns:rc="RULECHECKER" elementFormDefault="qualified">
+
+<!-- ======================= -->
+<!-- root type definition  -->
+<!-- ======================= -->
+
+<xs:element name="toolReporting" type="rc:toolReportingType"/> 
+
+<xs:complexType name="toolReportingType">
+	  <xs:sequence>
+		<xs:element name="ruleCheckerVersion" type="xs:string" minOccurs="1" maxOccurs="1" />
+		<xs:element name="executionDate" type="xs:string"  minOccurs="1" maxOccurs="1"/>
+
+		<xs:element name="Tool" type="rc:toolStatusType" minOccurs="0" maxOccurs="unbounded" />
+		
+      </xs:sequence>
+</xs:complexType>
+
+<!-- ====================================== -->
+<!-- tool report type definition  -->
+<!-- ====================================== -->
+
+<xs:complexType name="toolStatusType">
+	<xs:sequence>
+		<xs:element name="status" type="rc:EnumReportStatus" minOccurs="1" maxOccurs="1" />
+		<xs:element name="fileName" type="xs:string" minOccurs="0" maxOccurs="1" />
+	</xs:sequence>	
+	<xs:attribute name="UID" type="xs:string" use="required"/>
+</xs:complexType>
+
+<xs:simpleType name="EnumReportStatus">
+	<xs:restriction base="xs:string">
+		<xs:enumeration value="Reported"/>
+		<xs:enumeration value="Not executed"/>
+		<xs:enumeration value="Not implemented"/>
+		<xs:enumeration value="Passed"/>
+		<xs:enumeration value="Failed"/>
+	</xs:restriction>
+</xs:simpleType>
+
+</xs:schema>
+  

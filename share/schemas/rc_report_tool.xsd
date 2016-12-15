@@ -1,0 +1,442 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<xs:schema targetNamespace="RULECHECKER" xmlns:xs="http://www.w3.org/2001/XMLSchema" xmlns:rc="RULECHECKER" elementFormDefault="qualified">
+
+<!-- ======================= -->
+<!-- root type definition  -->
+<!-- ======================= -->
+
+<xs:element name="Feature" type="rc:featureType"/> 
+
+<!-- ======================= -->
+<!-- feature type definition  -->
+<!-- ======================= -->
+
+<xs:complexType name="featureType">
+	  <xs:sequence>
+		<xs:element name="ruleCheckerVersion" type="xs:string" minOccurs="1" maxOccurs="1" />
+		<xs:element name="featureName" type="xs:string" minOccurs="1" maxOccurs="1"/>
+		<xs:element name="executionDate" type="xs:string"  minOccurs="1" maxOccurs="1"/>
+
+		<xs:choice>
+			
+			<xs:element name="REQ_FEAT_AR3_T1" type="rc:REQ_FEAT_AR3_T1_Type" minOccurs="0" maxOccurs="unbounded" />
+			<xs:element name="REQ_FEAT_AR3_T2" type="rc:REQ_FEAT_AR3_T2_Type" minOccurs="0" maxOccurs="unbounded" />
+			
+			<xs:element name="REQ_FEAT_AR6_T1" type="rc:REQ_FEAT_AR6_T1_Type" minOccurs="0" maxOccurs="unbounded" />
+			<xs:element name="REQ_FEAT_AR6_T2" type="rc:REQ_FEAT_AR6_T2_Type" minOccurs="0" maxOccurs="unbounded" />
+			<xs:element name="REQ_FEAT_AR6_T3" type="rc:REQ_FEAT_AR6_T3_Type" minOccurs="0" maxOccurs="unbounded" />
+
+			<xs:element name="REQ_FEAT_AR7_T1" type="rc:REQ_FEAT_AR7_T1_Type" minOccurs="0" maxOccurs="unbounded" />
+			<xs:element name="REQ_FEAT_AR7_T2" type="rc:REQ_FEAT_AR7_T2_Type" minOccurs="0" maxOccurs="unbounded" />
+			<xs:element name="REQ_FEAT_AR7_T3" type="rc:REQ_FEAT_AR7_T3_Type" minOccurs="0" maxOccurs="unbounded" />
+
+			<xs:element name="REQ_FEAT_RST_PRJ" type="rc:REQ_FEAT_RST_PRJ_Type" minOccurs="0" maxOccurs="unbounded" />
+			<xs:element name="REQ_FEAT_CLK_PRJ" type="rc:REQ_FEAT_CLK_PRJ_Type" minOccurs="0" maxOccurs="unbounded" />
+
+			<xs:element name="REQ_FEAT_FN15" type="rc:REQ_FEAT_FN15_Type" minOccurs="0" maxOccurs="unbounded" />
+			<xs:element name="REQ_FEAT_FN18" type="rc:REQ_FEAT_FN18_Type" minOccurs="0" maxOccurs="unbounded" />
+			<xs:element name="REQ_FEAT_FN19" type="rc:REQ_FEAT_FN19_Type" minOccurs="0" maxOccurs="unbounded" />
+			<xs:element name="REQ_FEAT_FN20" type="rc:REQ_FEAT_FN20_Type" minOccurs="0" maxOccurs="unbounded" />
+			<xs:element name="REQ_FEAT_FN22" type="rc:REQ_FEAT_FN22_Type" minOccurs="0" maxOccurs="unbounded" />
+
+			<xs:element name="REQ_FEAT_IO_PRJ" type="rc:REQ_FEAT_IO_PRJ_Type" minOccurs="0" maxOccurs="unbounded" />
+			<xs:element name="REQ_FEAT_OBJ_ID" type="rc:REQ_FEAT_OBJ_ID_Type" minOccurs="0" maxOccurs="unbounded" />
+			<xs:element name="REQ_FEAT_CNT_PROC" type="rc:REQ_FEAT_CNT_PROC_Type" minOccurs="0" maxOccurs="unbounded" />
+			<xs:element name="REQ_FEAT_COMB_INPUT" type="rc:REQ_FEAT_COMB_INPUT_Type" minOccurs="0" maxOccurs="unbounded" />
+			<xs:element name="REQ_FEAT_REG_PRJ" type="rc:REQ_FEAT_REG_PRJ_Type" minOccurs="0" maxOccurs="unbounded" />
+			
+		
+		</xs:choice>
+      </xs:sequence>
+</xs:complexType>
+
+<!-- ====================================== -->
+<!-- feature types definition  -->
+<!-- ====================================== -->
+
+<xs:complexType name="REQ_FEAT_FN20_Type">
+	<xs:sequence>
+		<xs:element name="file" type="rc:fileType" minOccurs="1" maxOccurs="1" />
+	</xs:sequence>	
+</xs:complexType>
+
+<xs:complexType name="REQ_FEAT_FN19_Type">
+	<xs:sequence >
+		<xs:element name="file" type="rc:fileType" minOccurs="1" maxOccurs="1" />
+		<xs:element name="library" type="rc:libType" minOccurs="1" maxOccurs="1" />
+	</xs:sequence>	
+</xs:complexType>
+
+<xs:complexType name="REQ_FEAT_IO_PRJ_Type">
+	<xs:sequence>
+		<xs:element name="file" type="rc:fileType" minOccurs="1" maxOccurs="1"/>
+		<xs:element name="entity" type="rc:entityType" minOccurs="1" maxOccurs="1"/>
+		<xs:element name="IO" type="rc:IOType" minOccurs="1" maxOccurs="1" />
+	</xs:sequence>	
+</xs:complexType>
+
+<xs:complexType name="REQ_FEAT_OBJ_ID_Type">
+	<xs:sequence>
+		<xs:element name="file" type="rc:fileType" minOccurs="1" maxOccurs="1"/>
+		<xs:element name="entity" type="rc:entityType" minOccurs="1" maxOccurs="1"/>
+		<xs:element name="signal" type="rc:signalType" minOccurs="1" maxOccurs="1" />
+	</xs:sequence>	
+</xs:complexType>
+
+<xs:complexType name="REQ_FEAT_CNT_PROC_Type">
+	<xs:sequence>
+		<xs:element name="file" type="rc:fileType" minOccurs="1" maxOccurs="1"/>
+		<xs:element name="entity" type="rc:entityType" minOccurs="1" maxOccurs="1"/>
+		<xs:element name="architecture" type="rc:architectureType" minOccurs="1" maxOccurs="1"/>
+		<xs:element name="process" type="rc:processType" minOccurs="1" maxOccurs="1" />
+	</xs:sequence>	
+</xs:complexType>
+
+<xs:complexType name="REQ_FEAT_COMB_INPUT_Type">
+	<xs:sequence>
+		<xs:element name="file" type="rc:fileType" minOccurs="1" maxOccurs="1"/>
+		<xs:element name="entity" type="rc:entityType" minOccurs="1" maxOccurs="1"/>
+		<xs:element name="architecture" type="rc:architectureType" minOccurs="1" maxOccurs="1"/>
+		<xs:element name="process" type="rc:processType" minOccurs="1" maxOccurs="1"/>
+		<xs:element name="input" type="rc:inputType" minOccurs="1" maxOccurs="1" />
+	</xs:sequence>	
+</xs:complexType>
+
+<xs:complexType name="REQ_FEAT_FN22_Type">
+	<xs:sequence>
+		<xs:element name="file" type="rc:fileType" minOccurs="1" maxOccurs="1"/>
+		<xs:element name="entity" type="rc:entityType" minOccurs="1" maxOccurs="1"/>
+		<xs:element name="architecture" type="rc:architectureType" minOccurs="1" maxOccurs="1"/>
+		<xs:element name="process" type="rc:processType" minOccurs="1" maxOccurs="1"/>
+		<xs:element name="register" type="rc:registerClockDomainType" minOccurs="1" maxOccurs="1" />
+	</xs:sequence>	
+</xs:complexType>
+
+<xs:complexType name="REQ_FEAT_FN15_Type">
+	<xs:sequence>
+		<xs:element name="file" type="rc:fileType" minOccurs="1" maxOccurs="1"/>
+		<xs:element name="entity" type="rc:entityType" minOccurs="1" maxOccurs="1"/>
+		<xs:element name="architecture" type="rc:architectureType" minOccurs="1" maxOccurs="1"/>
+		<xs:element name="process" type="rc:processType" minOccurs="1" maxOccurs="1"/>
+        <xs:element name="clockSignal" type="rc:clockSignalType" minOccurs="1" maxOccurs="1"/>
+	</xs:sequence>	
+</xs:complexType>
+
+<xs:complexType name="REQ_FEAT_FN18_Type">
+	<xs:sequence>
+		<xs:element name="file" type="rc:fileType" minOccurs="1" maxOccurs="1"/>
+		<xs:element name="entity" type="rc:entityType" minOccurs="1" maxOccurs="1"/>
+		<xs:element name="architecture" type="rc:architectureType" minOccurs="1" maxOccurs="1"/>
+		<xs:element name="process" type="rc:processType" minOccurs="1" maxOccurs="1"/>
+        <xs:element name="clockSignal" type="rc:clockSignalType" minOccurs="1" maxOccurs="1"/>
+		<xs:element name="resetSignal" type="rc:resetSignalType" minOccurs="1" maxOccurs="1"/>	
+	</xs:sequence>	
+</xs:complexType>
+
+<xs:complexType name="REQ_FEAT_REG_PRJ_Type">
+	<xs:sequence>
+		<xs:element name="file" type="rc:fileType" minOccurs="1" maxOccurs="1"/>
+		<xs:element name="entity" type="rc:entityType" minOccurs="1" maxOccurs="1"/>
+		<xs:element name="architecture" type="rc:architectureType" minOccurs="1" maxOccurs="1"/>
+		<xs:element name="process" type="rc:processType" minOccurs="1" maxOccurs="1"/>
+        <xs:element name="clockSignal" type="rc:clockSignalType" minOccurs="1" maxOccurs="1"/>
+   	    <xs:element name="register" type="rc:registerIDType" minOccurs="1" maxOccurs="1" />
+	</xs:sequence>	
+</xs:complexType>
+
+<xs:complexType name="REQ_FEAT_AR3_T1_Type">
+	<xs:sequence>
+	  <xs:element name="sourceName" type="xs:string" minOccurs="1" maxOccurs="1"/>
+	  <xs:element name="sourceID" type="xs:string" minOccurs="1" maxOccurs="1"/>
+	  <xs:element name="sinkName" type="xs:string"  minOccurs="1" maxOccurs="1"/>
+	  <xs:element name="sinkID" type="xs:string" minOccurs="1" maxOccurs="1" />
+	  <xs:element name="sinkfileName" type="xs:string" minOccurs="1" maxOccurs="1" />
+	  <xs:element name="sinkLoc" type="xs:string" minOccurs="1" maxOccurs="1"/>
+	  <xs:element name="sinkType" type="xs:string"  minOccurs="1" maxOccurs="1"/>
+	  <xs:element name="stageLevel" type="xs:string"  minOccurs="1" maxOccurs="1"/>
+	  <xs:element name="stopCondition" type="xs:string" minOccurs="1" maxOccurs="1"/>
+	</xs:sequence>	
+</xs:complexType>
+
+<xs:complexType name="REQ_FEAT_AR3_T2_Type">
+	<xs:sequence>
+	  <xs:element name="sinkName" type="xs:string" minOccurs="1" maxOccurs="1" />
+	  <xs:element name="sinkID" type="xs:string" minOccurs="1" maxOccurs="1" />
+	  <xs:element name="sourceName" type="xs:string" minOccurs="1" maxOccurs="1" />
+	  <xs:element name="sourceID" type="xs:string" minOccurs="1" maxOccurs="1" />
+	  <xs:element name="sourcefileName" type="xs:string" minOccurs="1" maxOccurs="1" />
+	  <xs:element name="sourceLoc" type="xs:string" minOccurs="1" maxOccurs="1" />
+	  <xs:element name="sourceType" type="xs:string" minOccurs="1" maxOccurs="1" />
+	  <xs:element name="stageLevel" type="xs:string" minOccurs="1" maxOccurs="1" />
+	  <xs:element name="stopCondition" type="xs:string" minOccurs="1" maxOccurs="1"/>
+	</xs:sequence>	
+</xs:complexType>
+
+<xs:complexType name="REQ_FEAT_AR6_T1_Type">
+	<xs:sequence>
+	  <xs:element name="entity" type="rc:file_entity_architectureType" minOccurs="1" maxOccurs="1"/>
+	  <xs:element name="processSignal" type="rc:process_SignalType" minOccurs="1" maxOccurs="1"/>
+	  <xs:element name="clockSignalName" type="xs:string" minOccurs="1" maxOccurs="1"/>
+	  <xs:element name="clockSignalLoc" type="xs:string" minOccurs="1" maxOccurs="1"/>
+	  <xs:element name="clockSourceEdgeInfo" type="rc:clockSourceEdgeType" minOccurs="1" maxOccurs="1"/>
+	</xs:sequence>	
+</xs:complexType>
+
+<xs:complexType name="REQ_FEAT_AR6_T2_Type">
+	<xs:sequence>
+	  <xs:element name="fileName" type="xs:string" minOccurs="1" maxOccurs="1"/>
+	  <xs:element name="entityName" type="xs:string" minOccurs="1" maxOccurs="1" />
+	  <xs:element name="clockSourceEdgeInfo" type="rc:clockSourceEdgeType" minOccurs="1" maxOccurs="1"/>
+	</xs:sequence>	
+</xs:complexType>
+
+<xs:complexType name="REQ_FEAT_AR6_T3_Type">
+	<xs:sequence>
+	  <xs:element name="clockSourceEdgeInfo" type="rc:clockSourceEdgeType" minOccurs="1" maxOccurs="1"/>
+	</xs:sequence>	
+</xs:complexType>
+
+<xs:complexType name="REQ_FEAT_AR7_T1_Type">
+	<xs:sequence>
+	  <xs:element name="entity" type="rc:file_entity_architectureType" minOccurs="1" maxOccurs="1"/>
+	  <xs:element name="processSignal" type="rc:process_SignalType" minOccurs="1" maxOccurs="1"/>
+	  <xs:element name="resetSignalName" type="xs:string" minOccurs="1" maxOccurs="1"/>
+	  <xs:element name="resetSignalLoc" type="xs:string" minOccurs="1" maxOccurs="1"/>
+	  <xs:element name="resetSourceLevelInfo" type="rc:resetSourceLevelType" minOccurs="1" maxOccurs="1"/>
+	</xs:sequence>	
+</xs:complexType>
+
+<xs:complexType name="REQ_FEAT_AR7_T2_Type">
+	<xs:sequence>
+	  <xs:element name="fileName" type="xs:string" minOccurs="1" maxOccurs="1"/>
+	  <xs:element name="entityName" type="xs:string" minOccurs="1" maxOccurs="1" />
+	  <xs:element name="resetSourceLevelInfo" type="rc:resetSourceLevelType" minOccurs="1" maxOccurs="1"/>
+	</xs:sequence>	
+</xs:complexType>
+
+<xs:complexType name="REQ_FEAT_AR7_T3_Type">
+	<xs:sequence>
+	  <xs:element name="resetSourceLevelInfo" type="rc:resetSourceLevelType" minOccurs="1" maxOccurs="1"/>
+	</xs:sequence>	
+</xs:complexType>
+
+<xs:complexType name="REQ_FEAT_RST_PRJ_Type">
+	<xs:sequence>
+	  <xs:element name="resetSourceTag" type="xs:string" minOccurs="1" maxOccurs="1"/> 
+	  <xs:element name="entity" type="rc:file_entity_architectureType" minOccurs="1" maxOccurs="1"/>
+	  <xs:element name="resetSourceName" type="xs:string"  minOccurs="1" maxOccurs="1"/>
+	  <xs:element name="resetSourceType" type="rc:EnumSignalType"  minOccurs="1" maxOccurs="1"/>
+	  <xs:element name="resetSourceLoc" type="xs:string"  minOccurs="1" maxOccurs="1"/>
+	  <xs:element name="resetSourceDeclaration" type="xs:string"  minOccurs="1" maxOccurs="1"/>
+	</xs:sequence>	
+</xs:complexType>
+
+<xs:complexType name="REQ_FEAT_CLK_PRJ_Type">
+	<xs:sequence>
+	  <xs:element name="clockSourceTag" type="xs:string" minOccurs="1" maxOccurs="1"/> 
+	  <xs:element name="entity" type="rc:file_entity_architectureType" minOccurs="1" maxOccurs="1"/>
+	  <xs:element name="clockSourceName" type="xs:string"  minOccurs="1" maxOccurs="1"/>
+	  <xs:element name="clockSourceType" type="rc:EnumSignalType"  minOccurs="1" maxOccurs="1"/>
+	  <xs:element name="clockSourceLoc" type="xs:string"  minOccurs="1" maxOccurs="1"/>
+	</xs:sequence>	
+</xs:complexType>
+
+<!-- ====================================== -->
+<!-- Specific types definition  -->
+<!-- ====================================== -->
+
+<xs:complexType name="file_entity_architectureType">
+	<xs:sequence>
+	  <xs:element name="fileName" type="xs:string" minOccurs="1" maxOccurs="1"/>
+	  <xs:element name="entityName" type="xs:string" minOccurs="1" maxOccurs="1" />
+	  <xs:element name="architectureName" type="xs:string"  minOccurs="1" maxOccurs="1"/>
+	</xs:sequence>
+</xs:complexType>
+
+<xs:complexType name="process_SignalType">
+	<xs:sequence>
+	  <xs:element name="processName" type="xs:string" minOccurs="1" maxOccurs="1"/>
+	  <xs:element name="processLoc" type="xs:string"  minOccurs="1" maxOccurs="1"/>
+	</xs:sequence>
+</xs:complexType>
+
+<xs:complexType name="resetSourceLevelType"> 
+	<xs:sequence>
+	  <xs:element name="resetSource" type="xs:string" minOccurs="1" maxOccurs="1"/> 
+	  <xs:element name="resetSourceLevel" type="rc:EnumLevel"  minOccurs="1" maxOccurs="1"/>
+	</xs:sequence>
+</xs:complexType>
+
+<xs:complexType name="clockSourceEdgeType"> 
+	<xs:sequence>
+	  <xs:element name="clockSource" type="xs:string" minOccurs="1" maxOccurs="1"/> 
+	  <xs:element name="clockSourceEdge" type="rc:EnumEdge"  minOccurs="1" maxOccurs="1"/>
+	</xs:sequence>
+</xs:complexType>
+
+<!-- ======================================== -->
+<!-- Generic file tree types definition  -->
+<!-- ======================================== -->
+
+<xs:complexType name="fileType">
+	<xs:sequence>
+	  <xs:element name="fileName" type="xs:string" minOccurs="1" maxOccurs="1" />
+	  <xs:element name="fileNbLine" type="xs:integer" minOccurs="1" maxOccurs="1" />
+	</xs:sequence>
+</xs:complexType>
+
+<xs:complexType name="entityType">
+    <xs:sequence>
+		<xs:element name="entityName" type="xs:string" minOccurs="1" maxOccurs="1"/>
+		<xs:element name="entityLoc" type="xs:string" minOccurs="1" maxOccurs="1"/>
+	</xs:sequence>
+</xs:complexType>
+
+<xs:complexType name="architectureType">
+    <xs:sequence>
+	  <xs:element name="architectureName" type="xs:string"  minOccurs="1" maxOccurs="1"/>
+	  <xs:element name="architectureLoc" type="xs:string" minOccurs="1" maxOccurs="1"/>
+	</xs:sequence>
+</xs:complexType>
+
+<xs:complexType name="processType">
+    <xs:sequence>
+	  <xs:element name="processName" type="xs:string" minOccurs="1" maxOccurs="1" />
+	  <xs:element name="processLoc" type="xs:string" minOccurs="1" maxOccurs="1" />
+	  <xs:element name="processNbLine" type="xs:integer" minOccurs="1" maxOccurs="1"/>
+      <xs:element name="processIsSynchronous" type="rc:EnumYN" minOccurs="1" maxOccurs="1"/>
+	</xs:sequence>
+</xs:complexType>
+
+<xs:complexType name="clockSignalType">
+	<xs:sequence>
+	  <xs:element name="clockSignalName" type="xs:string" minOccurs="1" maxOccurs="1" />
+	  <xs:element name="clockSignalLoc" type="xs:string" minOccurs="1" maxOccurs="1" />
+	  <xs:element name="clockSignalEdge" type="rc:EnumEdge"  minOccurs="1" maxOccurs="1"/>
+	  <xs:element name="processHasAsynchronousReset" type="rc:EnumYN" minOccurs="1" maxOccurs="1"/>
+	</xs:sequence>
+</xs:complexType>
+
+<xs:complexType name="registerClockDomainType">
+	<xs:sequence>
+	  <xs:element name="registerName" type="xs:string" minOccurs="1" maxOccurs="1"/>
+	  <xs:element name="registerClockSourceTag" type="xs:string" minOccurs="1" maxOccurs="1" />
+	  <xs:element name="registerLoc" type="xs:string" minOccurs="1" maxOccurs="1"/>
+	  <xs:element name="violationType" type="xs:string" minOccurs="1" maxOccurs="1"/>
+	  <xs:element name="registerSourceName" type="xs:string"  minOccurs="0" maxOccurs="1"/> 
+	  <xs:element name="registerSourceLoc" type="xs:string" minOccurs="0" maxOccurs="1" />
+	  <xs:element name="registerSourceClockSourceTag" type="xs:string" minOccurs="0" maxOccurs="1" />
+	</xs:sequence>
+</xs:complexType>
+
+<xs:complexType name="resetSignalType">
+  <xs:sequence>
+	<xs:element name="resetSignalName" type="xs:string" minOccurs="1" maxOccurs="1" />
+	<xs:element name="resetSignalLoc" type="xs:string" minOccurs="1" maxOccurs="1" />
+	<xs:element name="resetSignalLevel" type="rc:EnumLevel" minOccurs="1" maxOccurs="1" />
+  </xs:sequence>
+</xs:complexType>
+
+<xs:complexType name="registerIDType">
+  <xs:sequence>
+	<xs:element name="registerTag" type="xs:string" minOccurs="1" maxOccurs="1" />
+	<xs:element name="registerName" type="xs:string" minOccurs="1" maxOccurs="1" />
+	<xs:element name="registerLoc" type="xs:string" minOccurs="1" maxOccurs="1" />
+	<xs:element name="registerTypeDeclaration" type="xs:string" minOccurs="1" maxOccurs="1" />
+	<xs:element name="registerType" type="xs:string" minOccurs="1" maxOccurs="1" />
+	<xs:element name="registerRange" type="xs:string" minOccurs="1" maxOccurs="1" />
+	<xs:element name="registerSource" type="xs:string" minOccurs="0" maxOccurs="1" /> 
+	<xs:element name="registerSourceLOC" type="xs:string" minOccurs="0" maxOccurs="1" />
+	<xs:element name="registerClockSource" type="xs:string"  minOccurs="0" maxOccurs="1"/>
+  </xs:sequence>
+</xs:complexType>
+
+<xs:complexType name="inputType">
+	<xs:sequence>
+	  <xs:element name="inputTag" type="xs:string" minOccurs="1" maxOccurs="1"  /> 
+	  <xs:element name="inputName" type="xs:string" minOccurs="1" maxOccurs="1"  />
+	  <xs:element name="inputLoc" type="xs:string" minOccurs="1" maxOccurs="1"  />
+	  <xs:element name="inputTypeDeclaration" type="xs:string" minOccurs="1" maxOccurs="1"  />
+	  <xs:element name="inputType" type="xs:string" minOccurs="1" maxOccurs="1"  />
+	  <xs:element name="inputRange" type="xs:string" minOccurs="1" maxOccurs="1"  />
+	</xs:sequence>
+</xs:complexType>
+
+<xs:complexType name="IOType">
+	<xs:sequence>
+	  <xs:element name="IOTag" type="xs:string" minOccurs="1" maxOccurs="1" />
+	  <xs:element name="IOName" type="xs:string" minOccurs="1" maxOccurs="1" />
+	  <xs:element name="IOType" type="rc:EnumIO" minOccurs="1" maxOccurs="1"  />
+	</xs:sequence>
+</xs:complexType>
+
+<xs:complexType name="signalType">
+	<xs:sequence>
+	  <xs:element name="signalTag" type="xs:string" minOccurs="1" maxOccurs="1"  />
+	  <xs:element name="signalName" type="xs:string" minOccurs="1" maxOccurs="1"  />
+	  <xs:element name="signalType" type="xs:string" minOccurs="1" maxOccurs="1"  />
+	  <xs:element name="signalLoc" type="xs:string" minOccurs="1" maxOccurs="1"  />
+	</xs:sequence>
+</xs:complexType>
+
+<xs:complexType name="libType">
+  <xs:sequence>
+	<xs:element name="libraryName" type="xs:string" minOccurs="1" maxOccurs="1" />
+	<xs:element name="libraryLoc" type="xs:string" minOccurs="1" maxOccurs="1" />
+  </xs:sequence>
+</xs:complexType>
+
+<!-- ======================= -->
+<!-- Simple type definition  -->
+<!-- ======================= -->
+
+<xs:simpleType name="EnumSignalType">
+	<xs:restriction base="xs:string">
+		<xs:enumeration value="None"/>
+		<xs:enumeration value="Instance Output"/>
+		<xs:enumeration value="Signal Assignment"/>
+		<xs:enumeration value="Input Port"/>
+	</xs:restriction>
+</xs:simpleType>
+
+<xs:simpleType name="EnumEdge">
+	<xs:restriction base="xs:string">
+		<xs:enumeration value=""/>
+		<xs:enumeration value="none"/>
+		<xs:enumeration value="rising"/>
+		<xs:enumeration value="falling"/>
+		<xs:enumeration value="both"/>
+	</xs:restriction>
+</xs:simpleType>
+			
+<xs:simpleType name="EnumLevel">
+	<xs:restriction base="xs:string">
+		<xs:enumeration value=""/>
+		<xs:enumeration value="none"/>
+		<xs:enumeration value="high"/>
+		<xs:enumeration value="low"/>
+		<xs:enumeration value="both"/>
+	</xs:restriction>
+</xs:simpleType>
+
+<xs:simpleType name="EnumIO">
+	<xs:restriction base="xs:string">
+		<xs:enumeration value="NONE"/>
+		<xs:enumeration value="OUT"/>
+		<xs:enumeration value="IN"/>
+		<xs:enumeration value="INOUT"/>
+		<xs:enumeration value="BUFFER"/>
+		<xs:enumeration value="LINKAGE"/>
+		<xs:enumeration value="APPEND"/>
+	</xs:restriction>
+</xs:simpleType>
+
+<xs:simpleType name="EnumYN">
+	<xs:restriction base="xs:string">
+		<xs:enumeration value="Yes"/>
+		<xs:enumeration value="No"/>
+	</xs:restriction>
+</xs:simpleType>
+
+</xs:schema>
+  

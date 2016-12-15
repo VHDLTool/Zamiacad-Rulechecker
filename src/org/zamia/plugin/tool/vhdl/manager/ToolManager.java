@@ -12,6 +12,7 @@ import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.FileWriter;
 import java.io.IOException;
+import java.nio.file.Files;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
@@ -46,30 +47,19 @@ import org.zamia.ZamiaLogger;
 import org.zamia.ZamiaProject;
 import org.zamia.instgraph.IGObject.OIDir;
 import org.zamia.plugin.ZamiaPlugin;
-import org.zamia.plugin.tool.vhdl.ClockSignal;
 import org.zamia.plugin.tool.vhdl.EntityException;
 import org.zamia.plugin.tool.vhdl.HdlArchitecture;
 import org.zamia.plugin.tool.vhdl.HdlComponentInstantiation;
 import org.zamia.plugin.tool.vhdl.HdlEntity;
 import org.zamia.plugin.tool.vhdl.HdlFile;
 import org.zamia.plugin.tool.vhdl.HdlSignalAssignment;
-import org.zamia.plugin.tool.vhdl.InputOutput;
 import org.zamia.plugin.tool.vhdl.ListClockSource;
 import org.zamia.plugin.tool.vhdl.ListResetSource;
 import org.zamia.plugin.tool.vhdl.ListUpdateE;
-import org.zamia.plugin.tool.vhdl.NodeInfo;
-import org.zamia.plugin.tool.vhdl.NodeType;
-import org.zamia.plugin.tool.vhdl.NumberReportE;
-import org.zamia.plugin.tool.vhdl.PathReport;
-import org.zamia.plugin.tool.vhdl.Process;
-import org.zamia.plugin.tool.vhdl.Register;
-import org.zamia.plugin.tool.vhdl.RegisterInput;
-import org.zamia.plugin.tool.vhdl.ResetSignal;
 import org.zamia.plugin.tool.vhdl.SignalSource;
 import org.zamia.plugin.tool.vhdl.VhdlSignalDeclaration;
 import org.zamia.plugin.tool.vhdl.rules.RuleTypeE;
 import org.zamia.plugin.tool.vhdl.rules.StatusE;
-import org.zamia.plugin.tool.vhdl.tools.ToolE;
 import org.zamia.tool.vhdl.BuildMakeE;
 import org.zamia.util.Pair;
 import org.zamia.vhdl.ast.Architecture;
@@ -91,7 +81,6 @@ import org.zamia.vhdl.ast.Range;
 import org.zamia.vhdl.ast.SequentialIf;
 import org.zamia.vhdl.ast.SequentialSignalAssignment;
 import org.zamia.vhdl.ast.SignalDeclaration;
-import org.zamia.vhdl.ast.Use;
 import org.zamia.vhdl.ast.VHDLNode;
 
 
@@ -135,6 +124,8 @@ public abstract class ToolManager implements IWorkbenchWindowActionDelegate {
 
 	protected static ListUpdateE infoComponent = ListUpdateE.NO;
 
+	private static boolean _fromPlugin = true;
+	
 	/**
 	 * init log   don't forget call method close 
 	 * @param _log
@@ -157,9 +148,12 @@ public abstract class ToolManager implements IWorkbenchWindowActionDelegate {
 
 	public static void init(ZamiaProject zPrj_) {
 		zPrj = zPrj_;
-
 	}
 
+	public static void setFromPlugin(boolean fromPlugin) {
+		_fromPlugin = fromPlugin;
+	}
+	
 	protected void close() {
 		try {
 			fichier.close();
@@ -167,6 +161,75 @@ public abstract class ToolManager implements IWorkbenchWindowActionDelegate {
 			logger.error("some exception message ToolManager close", e);
 		}
 
+	}
+
+	public static String getZamiaProjectPath() {
+		String zamiaProjectPath = "";
+		
+		if (_fromPlugin) {
+			zamiaProjectPath = ResourcesPlugin.getWorkspace().getRoot().findMember("/"+ zPrj.getId()).getLocation().toString();
+			// the returned path is separated with slash convert to antislash for windows
+			if (File.separatorChar == '\\') {
+				zamiaProjectPath = zamiaProjectPath.replace('/', File.separatorChar);
+			}
+		} else {
+		    File[] files = null;
+		    try {
+		    	files = zPrj.fBasePath.getFiles();
+			    if (files.length > 0) {
+			    	String filePath = files[0].getAbsolutePath();
+			    	int indexChar = filePath.lastIndexOf(File.separatorChar);
+			    	zamiaProjectPath = filePath.substring(0, indexChar);
+			    }
+		    } catch (Exception e) {
+		    	logger.error("Could not get Zamia project path.", e);
+		    }
+		}
+		
+	    return zamiaProjectPath;
+	}
+	
+	public static String getConfigFilePath(String fileName) {
+		String relativePath = "rule_checker" + File.separator + fileName;
+		String absolutePath = getZamiaProjectPath() + File.separator + relativePath;
+		return absolutePath;
+	}
+
+	public static String getRuleReportDirectory() {
+
+		String path = getConfigFilePath("reporting") + File.separatorChar + "rule";
+		return path;
+	}
+	
+	public static String getToolReportDirectory() {
+
+		String path = getConfigFilePath("reporting") + File.separatorChar + "tool";
+		return path;
+	}
+	
+	public static void deleteDirectory(String ruleTool) {
+		List<String> xmlLogReport = ToolManager.getXmlLogReport(ruleTool.toLowerCase(), RuleTypeE.NA);
+		if (xmlLogReport == null) { return;}
+		String directory = xmlLogReport.get(0);
+		if (directory == null) {return;}
+		
+		File rep = new File(directory);
+		
+		deleteSubDirectory(rep);
+	}
+
+	private static void deleteSubDirectory(File rep) {
+		for (File file : rep.listFiles()) {
+			if (file.isDirectory()) {
+				deleteSubDirectory(file);
+			}
+			
+			try {
+				Files.delete(file.toPath());
+			} catch (IOException e) {
+				logger.error(String.format("Could not delete %s.", file.getPath()), e);
+			}
+		}
 	}
 
 	/**
@@ -259,9 +322,7 @@ public abstract class ToolManager implements IWorkbenchWindowActionDelegate {
 		boolean fileIsEmpty = true;
 		listFileToWork = new ArrayList<>();
 		listPathToWork = new ArrayList<>();
-		String fichierName = ResourcesPlugin.getWorkspace().getRoot().findMember("/"+ zPrj.getId()).getLocation().toString()
-				+File.separator+"rule_checker"+File.separator+"rc_config.txt";
-
+		String fichierName = getConfigFilePath("rc_config.txt");
 		java.io.File fichier = new java.io.File(fichierName);
 		try {
 			java.util.Scanner lecteur ;
@@ -374,13 +435,11 @@ public abstract class ToolManager implements IWorkbenchWindowActionDelegate {
 		return listHandbookFile;
 	}
 
-
 	private static Element parseXmlFile(ZamiaProject zPrj) throws ParserConfigurationException, SAXException, IOException {
 		final DocumentBuilderFactory factory = DocumentBuilderFactory.newInstance();
 		final DocumentBuilder builder = factory.newDocumentBuilder();
 		// parse xml file in a document
-		String fichierName = ResourcesPlugin.getWorkspace().getRoot().findMember("/"+ zPrj.getId()).getLocation().toString()
-				+File.separator+"rule_checker"+File.separator+"rc_config.xml";
+		String fichierName = ToolManager.getConfigFilePath("rc_config.xml");
 		try {
 
 			final Document document= builder.parse(fichierName);
@@ -483,131 +542,35 @@ public abstract class ToolManager implements IWorkbenchWindowActionDelegate {
 		return pathFileNameLogReport;
 	}
 
-
-	/**
-	 * report IDE rule in xml file
-	 * @param hdlFiles
-	 * @param ruleId
-	 */
-	public static String dumpXml(Map<String, HdlFile> hdlFiles, ToolE tool) {
-
-		/*
-		 * Etape 1 : r�cup�ration d'une instance de la classe "DocumentBuilderFactory"
-		 */
-		final DocumentBuilderFactory factory = DocumentBuilderFactory.newInstance();
-		try {
-			/*
-			 * Etape 2 : cr�ation d'un parseur
-			 */
-			final DocumentBuilder builder = factory.newDocumentBuilder();
-
-			/*
-			 * Etape 3 : cr�ation d'un Document
-			 */
-			document= builder.newDocument();
-
-			/*
-			 * Etape 4 : cr�ation de l'Element racine
-			 */
-			final Element racine = document.createElement(tool.getIdReq());
-			document.appendChild(racine);		
-
-			addHeader(document,racine, tool.getIdReq(), tool.getType(), "");
-
-			Element fileElement = null;
-			Element fileNameElement = null;
-			Element nblineElement = null;
-
-			for(Entry<String, HdlFile> entry : listHdlFile.entrySet()) {
-				String cle = entry.getKey();
-				HdlFile hdlFile = entry.getValue();
-
-				fileElement = document.createElement(NodeType.FILE.toString());
-				racine.appendChild(fileElement);
-
-				fileNameElement = document.createElement(NodeType.FILE.toString()+NodeInfo.NAME.toString());
-				fileNameElement.setTextContent(hdlFile.getLocalPath());
-				fileElement.appendChild(fileNameElement);
-
-				nblineElement = document.createElement(NodeType.FILE.toString()+NodeInfo.NB_LINE.toString());
-				nblineElement.setTextContent(hdlFile.getNbLine().toString());
-				fileElement.appendChild(nblineElement);
-				switch (tool) {
-				case REQ_FEAT_FN19:
-					// add libraries
-					addLibrairies(hdlFile, fileElement);
-					break;
-
-				case REQ_FEAT_FN15:
-				case REQ_FEAT_FN18:
-				case REQ_FEAT_FN22:
-				case REQ_FEAT_REG_PRJ:
-				case REQ_FEAT_CNT_PROC:
-				case REQ_FEAT_COMB_INPUT:
-				case REQ_FEAT_IO_PRJ:
-				case REQ_FEAT_OBJ_ID:
-					// add entity, archi, process, clock, reset
-					addEntity(hdlFile, fileElement, tool);
-					break;
-
-				default:
-					break;
-				}
-
-			}
-
-
-			/*
-			 *  affichage
-			 */
-			final TransformerFactory transformerFactory = TransformerFactory.newInstance();
-			final Transformer transformer = transformerFactory.newTransformer();
-			final DOMSource source = new DOMSource(document);
-
-			List<String> xmlLogReport = getXmlLogReport("tool");
-			if (xmlLogReport.size() != 2) {return "";}
-			// fileName for xml log report
-			PathReport pathReport = ReportManager.getPathReport(NumberReportE.NAN, xmlLogReport, tool.getIdReq(), tool.getRuleName());
-
-			final StreamResult sortie = new StreamResult(pathReport.getReportPath());
-
-			//prologue
-			transformer.setOutputProperty(OutputKeys.VERSION, "1.0");
-			transformer.setOutputProperty(OutputKeys.ENCODING, "UTF-8");
-			transformer.setOutputProperty(OutputKeys.STANDALONE, "yes");			
-
-			//format
-			transformer.setOutputProperty(OutputKeys.INDENT, "yes");
-			transformer.setOutputProperty("{http://xml.apache.org/xslt}indent-amount", "2");
-
-			transformer.transform(source, sortie);	
-			
-			return pathReport.getReportPath();
+	public static void updateConfigSelectedRules(Map<String, String> selectedRuleList) {
+		String pathFileName = ToolManager.getPathFileName("/rule_checker/rc_config_selected_rules.xml");
+		
+		File file = new File(pathFileName);
+		if (file.exists()) {
+			file.delete();
 		}
-		catch (final ParserConfigurationException e) {
-			e.printStackTrace();
+		
+		Element racine = initReportXml("config_selected_rules", RuleTypeE.NA);
+		
+		for (String ruleId : selectedRuleList.keySet()) {
+			String paramSource = selectedRuleList.get(ruleId);
+			addRuleSelectedXml(racine, ruleId, paramSource);
 		}
-		catch (TransformerConfigurationException e) {
-			e.printStackTrace();
-		}
-		catch (TransformerException e) {
-			e.printStackTrace();
-		}			
-
-		return "";
+		
+		finishReportXml(pathFileName);
 	}
-
+	
 	public static void addHeader(Document document, Element racine, String ruleId, RuleTypeE ruleType, String ruleName) {
 
-		Element authorElement = document.createElement("author");
-		authorElement.setTextContent("rule checker");
-		racine.appendChild(authorElement);
+		Element versionElement = document.createElement("rc:ruleCheckerVersion");
+		versionElement.setTextContent(ReportManager.getRuleCheckerVersion());
+		racine.appendChild(versionElement);
 
-		Element automaticGenerationElement = document.createElement("automaticGeneration");
-		automaticGenerationElement.setTextContent("YES");
-		racine.appendChild(automaticGenerationElement);
+		Element dateElement = document.createElement("rc:executionDate");
+		dateElement.setTextContent((new Date()).toString());
+		racine.appendChild(dateElement);
 
-		Element descriptionElement = document.createElement("description");
+/*		Element descriptionElement = document.createElement("description");
 		if (ruleType == null) {
 			descriptionElement.setTextContent("config rules selected");
 		} else {
@@ -628,590 +591,14 @@ public abstract class ToolManager implements IWorkbenchWindowActionDelegate {
 				break;
 			}
 		}
-		racine.appendChild(descriptionElement);
+		racine.appendChild(descriptionElement);*/
 
 		if (ruleName.length() != 0) {
 			Element nameElement = document.createElement("ruleName");
 			nameElement.setTextContent(ruleName);
 			racine.appendChild(nameElement);
 		}
-		Element dateElement = document.createElement("creationDate");
 
-		dateElement.setTextContent((new Date()).toString());
-		racine.appendChild(dateElement);
-
-	}
-
-	/**
-	 * add entity in xml file
-	 * @param hdlFile
-	 * @param fileElement
-	 * @param ruleId 
-	 */
-	private static void addEntity(HdlFile hdlFile, Element fileElement, ToolE tool) {
-		if (hdlFile.getListHdlEntity() == null) {
-			return;
-		}
-
-		if (!hdlFile.getListHdlEntity().isEmpty()) {
-			for (HdlEntity entity : hdlFile.getListHdlEntity()) {
-				Element entityElement = document.createElement(NodeType.ENTITY.toString());
-				fileElement.appendChild(entityElement);
-
-				Element entityNameElement = document.createElement(NodeType.ENTITY.toString()+NodeInfo.NAME.toString());
-				entityNameElement.setTextContent(entity.getEntity().getId());
-				entityElement.appendChild(entityNameElement);
-
-				Element entityLocationElement = document.createElement(NodeType.ENTITY.toString()+NodeInfo.LOCATION.toString());
-				entityLocationElement.setTextContent(String.valueOf(entity.getEntity().getStartLine()));
-				entityElement.appendChild(entityLocationElement);
-
-				switch (tool) {
-				case REQ_FEAT_FN15:
-				case REQ_FEAT_FN18:
-				case REQ_FEAT_FN22:
-				case REQ_FEAT_REG_PRJ:
-				case REQ_FEAT_CNT_PROC:
-				case REQ_FEAT_COMB_INPUT:
-					// add archi, process, clock, reset
-					addArchitecture(entity, entityElement, tool);
-					break;
-				case REQ_FEAT_IO_PRJ:
-					addInputOutput(entity, entityElement, tool);
-					break;
-				case REQ_FEAT_OBJ_ID:
-					addAll(entity, entityElement, tool);
-				default:
-					break;
-				}
-
-			}
-		}
-	}
-
-	private static void addAll(HdlEntity entity, Element entityElement,
-			ToolE tool) {
-		if (entity.getListIO() != null && !entity.getListIO().isEmpty()) {
-			for (InputOutput inputOutput : entity.getListIO()) {
-				Element inputOutputElement = document.createElement(NodeType.ALL.toString());
-				entityElement.appendChild(inputOutputElement);
-
-				Element inputOutputTagElement = document.createElement(NodeType.ALL.toString()+NodeInfo.TAG.toString());
-				inputOutputTagElement.setTextContent(inputOutput.getTag());
-				inputOutputElement.appendChild(inputOutputTagElement);
-
-				Element inputOutputNameElement = document.createElement(NodeType.ALL.toString()+NodeInfo.NAME.toString());
-				inputOutputNameElement.setTextContent(inputOutput.getNameS());
-				inputOutputElement.appendChild(inputOutputNameElement);
-
-				Element inputOutputTypeElement = document.createElement(NodeType.ALL.toString()+NodeInfo.DIRECTION.toString());
-				inputOutputTypeElement.setTextContent(inputOutput.getDirection());
-				inputOutputElement.appendChild(inputOutputTypeElement);
-
-				Element inputOutputLocationElement = document.createElement(NodeType.ALL.toString()+NodeInfo.LOCATION.toString());
-				inputOutputLocationElement.setTextContent(String.valueOf(inputOutput.getLocation().fLine));
-				inputOutputElement.appendChild(inputOutputLocationElement);
-
-			}
-		}
-
-		if (entity.getListHdlArchitecture() != null && !entity.getListHdlArchitecture().isEmpty()) {
-			for (HdlArchitecture architecture : entity.getListHdlArchitecture()) {
-				if (architecture.getListProcess() != null && !architecture.getListProcess().isEmpty()) {
-					for (Process process : architecture.getListProcess()) {
-						if (process.getListClockSignal() != null && !process.getListClockSignal().isEmpty()) {
-							for (ClockSignal clockSignal : process.getListClockSignal()) {
-								if (clockSignal.getListRegister() != null && !clockSignal.getListRegister().isEmpty()) {
-									for (RegisterInput register : clockSignal.getListRegister()) {
-										Element registerElement = document.createElement(NodeType.ALL.toString());
-										entityElement.appendChild(registerElement);
-
-										Element registerTagElement = document.createElement(NodeType.ALL.toString()+NodeInfo.TAG.toString());
-										registerTagElement.setTextContent(register.getTag());
-										registerElement.appendChild(registerTagElement);
-
-										Element registerNameElement = document.createElement(NodeType.ALL.toString()+NodeInfo.NAME.toString());
-										registerNameElement.setTextContent(register.toString());
-										registerElement.appendChild(registerNameElement);
-
-										Element registerTypeElement = document.createElement(NodeType.ALL.toString()+NodeInfo.DIRECTION.toString());
-										registerTypeElement.setTextContent(register.getTypeS());
-										registerElement.appendChild(registerTypeElement);
-
-										Element registerLocationElement = document.createElement(NodeType.ALL.toString()+NodeInfo.LOCATION.toString());
-										registerLocationElement.setTextContent(String.valueOf(register.getLocation().fLine));
-										registerElement.appendChild(registerLocationElement);
-
-									}
-								}
-
-							}
-						} else if (process.getListInput() != null && !process.getListInput().isEmpty()) {
-							for (RegisterInput input : process.getListInput()) {
-								Element registerElement = document.createElement(NodeType.ALL.toString());
-								entityElement.appendChild(registerElement);
-
-								Element registerTagElement = document.createElement(NodeType.ALL.toString()+NodeInfo.TAG.toString());
-								registerTagElement.setTextContent(input.getTag());
-								registerElement.appendChild(registerTagElement);
-
-								Element registerNameElement = document.createElement(NodeType.ALL.toString()+NodeInfo.NAME.toString());
-								registerNameElement.setTextContent(input.toString());
-								registerElement.appendChild(registerNameElement);
-
-								Element registerTypeElement = document.createElement(NodeType.ALL.toString()+NodeInfo.DIRECTION.toString());
-								registerTypeElement.setTextContent(input.getTypeS());
-								registerElement.appendChild(registerTypeElement);
-
-								Element registerLocationElement = document.createElement(NodeType.ALL.toString()+NodeInfo.LOCATION.toString());
-								registerLocationElement.setTextContent(String.valueOf(input.getLocation().fLine));
-								registerElement.appendChild(registerLocationElement);
-
-							}
-						}
-
-					}
-				}
-
-			}
-		}
-		
-	}
-
-	private static void addInputOutput(HdlEntity entity, Element entityElement,
-			ToolE tool) {
-		if (entity.getListIO() == null) {
-			return;
-		}
-
-		if (!entity.getListIO().isEmpty()) {
-			for (InputOutput inputOutput : entity.getListIO()) {
-				Element inputOutputElement = document.createElement(NodeType.IO.toString());
-				entityElement.appendChild(inputOutputElement);
-
-				Element inputOutputTagElement = document.createElement(NodeType.IO.toString()+NodeInfo.TAG.toString());
-				inputOutputTagElement.setTextContent(inputOutput.getTag());
-				inputOutputElement.appendChild(inputOutputTagElement);
-
-				Element inputOutputNameElement = document.createElement(NodeType.IO.toString()+NodeInfo.NAME.toString());
-				inputOutputNameElement.setTextContent(inputOutput.getNameS());
-				inputOutputElement.appendChild(inputOutputNameElement);
-
-				Element entityLocationElement = document.createElement(NodeType.IO.toString()+NodeInfo.DIRECTION.toString());
-				entityLocationElement.setTextContent(String.valueOf(inputOutput.getDirection()));
-				inputOutputElement.appendChild(entityLocationElement);
-
-			}
-		}
-	}
-
-	/**
-	 * add architecture in xml file
-	 * @param entity
-	 * @param entityElement
-	 * @param tool 
-	 */
-	private static void addArchitecture(HdlEntity entity, Element entityElement, ToolE tool) {
-		if (entity.getListHdlArchitecture() == null) {
-			return;
-		}
-
-		if (!entity.getListHdlArchitecture().isEmpty()) {
-			for (HdlArchitecture architecture : entity.getListHdlArchitecture()) {
-				Element architectureElement = document.createElement(NodeType.ARCHITECTURE.toString());
-				entityElement.appendChild(architectureElement);
-
-				Element entityNameElement = document.createElement(NodeType.ARCHITECTURE.toString()+NodeInfo.NAME.toString());
-				entityNameElement.setTextContent(architecture.getArchitecture().getId());
-				architectureElement.appendChild(entityNameElement);
-
-				Element entityLocationElement = document.createElement(NodeType.ARCHITECTURE.toString()+NodeInfo.LOCATION.toString());
-				entityLocationElement.setTextContent(String.valueOf(architecture.getArchitecture().getStartLine()));
-				architectureElement.appendChild(entityLocationElement);
-
-				switch (tool) {
-				case REQ_FEAT_FN15:
-				case REQ_FEAT_FN18:
-				case REQ_FEAT_FN22:
-				case REQ_FEAT_REG_PRJ:
-				case REQ_FEAT_CNT_PROC:
-				case REQ_FEAT_COMB_INPUT:
-				case REQ_FEAT_OBJ_ID:
-					// add process, clock, reset
-					addProcess(architecture, architectureElement, tool);
-					break;
-
-				default:
-					break;
-				}
-			}
-		}
-	}
-
-	/**
-	 * add process in xml file
-	 * @param architecture
-	 * @param architectureElement
-	 * @param tool 
-	 */
-	private static void addProcess(HdlArchitecture architecture,
-			Element architectureElement, ToolE tool) {
-		if (architecture.getListProcess() == null) {
-			return;
-		}
-
-		if (!architecture.getListProcess().isEmpty()) {
-			for (Process process : architecture.getListProcess()) {
-				Element processElement = document.createElement(NodeType.PROCESS.toString());
-				architectureElement.appendChild(processElement);
-
-				Element processNameElement = document.createElement(NodeType.PROCESS.toString()+NodeInfo.NAME.toString());
-				processNameElement.setTextContent(process.getLabel());
-				processElement.appendChild(processNameElement);
-
-				Element processLocationElement = document.createElement(NodeType.PROCESS.toString()+NodeInfo.LOCATION.toString());
-				processLocationElement.setTextContent(String.valueOf(process.getSequentialProcess().getStartLine()));
-				processElement.appendChild(processLocationElement);
-
-				Element processNbLineElement = document.createElement(NodeType.PROCESS.toString()+NodeInfo.NB_LINE.toString());
-				processNbLineElement.setTextContent(String.valueOf(process.getNbLine()));
-				processElement.appendChild(processNbLineElement);
-				
-				
-				Element processIsSynchronousElement = document.createElement(NodeType.PROCESS.toString()+NodeInfo.IS_SYNCHRONOUS.toString());
-				processIsSynchronousElement.setTextContent(process.isSynchronous() ? "yes" : "no");
-				
-				switch (tool) {
-				case REQ_FEAT_FN15:
-				case REQ_FEAT_FN18:
-				case REQ_FEAT_REG_PRJ:
-					// add clock, reset
-					processElement.appendChild(processIsSynchronousElement);
-					addClockSignal(process, processElement, tool);
-					break;
-				case REQ_FEAT_COMB_INPUT:
-					processElement.appendChild(processIsSynchronousElement);
-					addInput(process, processElement);
-					break;
-				case REQ_FEAT_FN22:
-					processElement.appendChild(processIsSynchronousElement);
-					addClockDomainChange(process, processElement);
-					break;
-				default:
-					break;
-				}
-			}
-
-		}
-
-	}
-
-	private static void addClockDomainChange(Process process,
-			Element processElement) {
-		if (process.getListClockSignal() == null) {
-			return;
-		}
-
-		if (!process.getListClockSignal().isEmpty()) {
-			for (ClockSignal clockSignal : process.getListClockSignal()) {
-				for (RegisterInput register : clockSignal.getListRegister()) {
-					addRegisterInClockDomainChange(processElement, register);
-				}
-				if (clockSignal.getListResetSignal() == null) {
-					continue;
-				}
-
-				if (!clockSignal.getListResetSignal().isEmpty()) {
-					for (ResetSignal resetSignal : clockSignal.getListResetSignal()) {
-						for (RegisterInput register : resetSignal.getListRegister()) {
-							addRegisterInClockDomainChange(processElement, register);
-						}
-
-					}
-				}
-
-			}
-		}
-	}
-
-	private static void addRegisterInClockDomainChange(Element processElement, RegisterInput register) {
-		Element registerElement = document.createElement(NodeType.REGISTER.toString());
-		processElement.appendChild(registerElement);
-
-		Element registerNameElement = document.createElement(NodeType.REGISTER.toString()+NodeInfo.NAME.toString());
-		registerNameElement.setTextContent(register.toString());
-		registerElement.appendChild(registerNameElement);
-
-		if (register instanceof Register){
-			Element registerClockSourceElement = document.createElement(NodeType.REGISTER.toString()+NodeInfo.CLOCK_SOURCE.toString()+NodeInfo.TAG.toString());
-			registerClockSourceElement.setTextContent(register.getClockSource().getTag());
-			registerElement.appendChild(registerClockSourceElement);
-		}
-
-		Element registerLocElement = document.createElement(NodeType.REGISTER.toString()+NodeInfo.LOCATION.toString());
-		registerLocElement.setTextContent(String.valueOf(register.getLocation().fLine));
-		registerElement.appendChild(registerLocElement);
-
-		Element registerViolationElement = document.createElement("violationType");
-		registerViolationElement.setTextContent(String.valueOf(register.getLocation().fLine));
-		if (!register.checkClockDomainChange()) {
-			registerViolationElement.setTextContent("clockDomainChange");
-		} else {
-			registerViolationElement.setTextContent("");
-		}
-		registerElement.appendChild(registerViolationElement);
-		
-		if (register instanceof Register){
-			int cmpt = 1;
-			for (SignalSource registerSource : register.getListRegisterSource()) {
-				Element registerSourceNameElement = document.createElement(NodeType.REGISTER_SOURCE.toString()+NodeInfo.NAME.toString()+cmpt);
-				registerSourceNameElement.setTextContent(registerSource.toString());
-				registerElement.appendChild(registerSourceNameElement);
-	
-	
-				Element registerSourceLocElement = document.createElement(NodeType.REGISTER_SOURCE.toString()+NodeInfo.LOCATION.toString()+cmpt);
-				registerSourceLocElement.setTextContent(registerSource.getLocation().toString());
-				registerElement.appendChild(registerSourceLocElement);
-	
-				Element registerSourceClockSourceElement = document.createElement(NodeType.REGISTER_SOURCE.toString()+NodeInfo.CLOCK_SOURCE.toString()+NodeInfo.TAG.toString()+cmpt);
-				registerSourceClockSourceElement.setTextContent(registerSource.getClockSource().getTag());
-				registerElement.appendChild(registerSourceClockSourceElement);
-	
-				cmpt++;
-			}
-		}
-	
-	}
-
-
-	private static void addInput(Process process, Element processElement) {
-			if (process.getListInput() == null) {
-				return;
-			}
-
-			if (!process.getListInput().isEmpty()) {
-				for (RegisterInput input : process.getListInput()) {
-					dumpRegister(input, processElement, NodeType.INPUT.toString());
-				}
-
-			}
-			
-		}
-
-		private static void dumpRegister(RegisterInput register, Element clockSignalElement, String nodeType) {
-
-			Element registerElement = document.createElement(nodeType);
-			clockSignalElement.appendChild(registerElement);
-
-			Element registerTagElement = document.createElement(nodeType+NodeInfo.TAG.toString());
-			registerTagElement.setTextContent(register.getTag());
-			registerElement.appendChild(registerTagElement);
-
-			Element registerNameElement = document.createElement(nodeType+NodeInfo.NAME.toString());
-			registerNameElement.setTextContent(register.toString());
-			registerElement.appendChild(registerNameElement);
-
-			Element registerLocationElement = document.createElement(nodeType+NodeInfo.LOCATION.toString());
-			registerLocationElement.setTextContent(String.valueOf(register.getLocation().fLine));
-			registerElement.appendChild(registerLocationElement);
-
-			Element registerTypeElement = document.createElement(nodeType+NodeInfo.TYPE.toString()+"Declaration");
-			registerTypeElement.setTextContent(register.getTypeS());
-			registerElement.appendChild(registerTypeElement);
-
-			Element registerTypeSElement = document.createElement(nodeType+NodeInfo.TYPE.toString());
-			registerTypeSElement.setTextContent(register.getType().toString());
-			registerElement.appendChild(registerTypeSElement);
-
-			Element registerRangeElement = document.createElement(nodeType+NodeInfo.RANGE.toString());
-			registerRangeElement.setTextContent(String.valueOf(register.getRangeNb()));
-			registerElement.appendChild(registerRangeElement);
-		
-			int cmpt = 0;
-			for (SignalSource signalSource : register.getListRegisterSource()) {
-				
-				Element registerSourceElement = document.createElement(nodeType+"Source"+cmpt);
-				registerSourceElement.setTextContent(signalSource != null ? signalSource.toString() : "NULL");
-				registerElement.appendChild(registerSourceElement);
-				Element registerSourceLocElement = document.createElement(nodeType+"SourceLOC"+cmpt);
-				registerSourceLocElement.setTextContent(signalSource != null ? signalSource.getLocation().toString() : "NULL");
-				registerElement.appendChild(registerSourceLocElement);
-				Element registerClockSourceElement = document.createElement(nodeType+"ClockSource"+cmpt);
-				registerClockSourceElement.setTextContent(signalSource.getClockSource() != null ? signalSource.getClockSource().toString() : "NULL");
-				registerElement.appendChild(registerClockSourceElement);
-				cmpt++;
-			}
-		
-		}// TODO Auto-generated method stub
-		
-
-	/**
-	 * add clokSignal in xml file
-	 * @param process
-	 * @param processElement
-	 * @param tool 
-	 */
-	private static void addClockSignal(Process process, Element processElement, ToolE tool) {
-		if (process.getListClockSignal() == null) {
-			return;
-		}
-
-		if (!process.getListClockSignal().isEmpty()) {
-			for (ClockSignal clockSignal : process.getListClockSignal()) {
-				Element clockSignalElement = document.createElement(NodeType.CLOCK_SIGNAL.toString());
-				processElement.appendChild(clockSignalElement);
-
-				Element processNameElement = document.createElement(NodeType.CLOCK_SIGNAL.toString()+NodeInfo.NAME.toString());
-				processNameElement.setTextContent(clockSignal.toString());
-				clockSignalElement.appendChild(processNameElement);
-
-				Element processLocationElement = document.createElement(NodeType.CLOCK_SIGNAL.toString()+NodeInfo.LOCATION.toString());
-				processLocationElement.setTextContent(String.valueOf(clockSignal.getLocation().fLine));
-				clockSignalElement.appendChild(processLocationElement);
-
-				Element processEdgeElement = document.createElement(NodeType.CLOCK_SIGNAL.toString()+NodeInfo.EDGE.toString());
-				processEdgeElement.setTextContent(String.valueOf(clockSignal.getEdge()));
-				clockSignalElement.appendChild(processEdgeElement);
-
-//				if (clockSignal.getClockSource() != null) {
-//					Element resetSourceElement = document.createElement(NodeType.CLOCK_SOURCE.toString()+NodeInfo.NAME.toString());
-//					resetSourceElement.setTextContent(clockSignal.getClockSource().toString());
-//					clockSignalElement.appendChild(resetSourceElement);
-//
-//				} else {
-//					Element resetSourceElement = document.createElement(NodeType.CLOCK_SOURCE.toString()+NodeInfo.NAME.toString());
-//					resetSourceElement.setTextContent("NULL");
-//					clockSignalElement.appendChild(resetSourceElement);
-//				}
-
-				switch (tool) {
-				case REQ_FEAT_FN18:
-					// add reset
-					Element processHasSynchroniousResetElement = document.createElement(NodeType.PROCESS.toString()+NodeInfo.HAS_ASYNCHRONOUS_RESET.toString());
-					processHasSynchroniousResetElement.setTextContent(clockSignal.hasSynchronousReset() ? "yes" : "no");
-					clockSignalElement.appendChild(processHasSynchroniousResetElement);
-					addResetSignal(clockSignal, clockSignalElement);
-					break;
-				case REQ_FEAT_REG_PRJ:
-					addRegister(clockSignal, clockSignalElement);
-				default:
-					break;
-				}
-			}
-
-		}
-
-	}
-
-
-	private static void addRegister(ClockSignal clockSignal,
-			Element clockSignalElement) {
-		if (clockSignal.getListRegister() == null) {
-			return;
-		}
-
-		if (!clockSignal.getListRegister().isEmpty()) {
-			for (RegisterInput register : clockSignal.getListRegister()) {
-					dumpRegister(register, clockSignalElement, NodeType.REGISTER.toString());
-			}
-
-		}
-		
-	}
-
-
-	/**
-	 * add resetSignal in xml file
-	 * @param clockSignal
-	 * @param clockSignalElement
-	 */
-	private static void addResetSignal(ClockSignal clockSignal,
-			Element clockSignalElement) {
-		if (clockSignal.getListResetSignal() == null) {
-
-			return;
-		}
-
-		if (!clockSignal.getListResetSignal().isEmpty()) {
-			for (ResetSignal resetSignal : clockSignal.getListResetSignal()) {
-				Element resetSignalElement = document.createElement(NodeType.RESET_SIGNAL.toString());
-				clockSignalElement.appendChild(resetSignalElement);
-
-				Element resetSignalNameElement = document.createElement(NodeType.RESET_SIGNAL.toString()+NodeInfo.NAME.toString());
-				resetSignalNameElement.setTextContent(resetSignal.toString());
-				resetSignalElement.appendChild(resetSignalNameElement);
-
-				Element resetSignalLocationElement = document.createElement(NodeType.RESET_SIGNAL.toString()+NodeInfo.LOCATION.toString());
-				resetSignalLocationElement.setTextContent(String.valueOf(resetSignal.getNode().getLocation().fLine));
-				resetSignalElement.appendChild(resetSignalLocationElement);
-
-				Element processLevelElement = document.createElement(NodeType.RESET_SIGNAL.toString()+NodeInfo.LEVEL.toString());
-				processLevelElement.setTextContent(String.valueOf(resetSignal.getLevel()));
-				resetSignalElement.appendChild(processLevelElement);
-
-//				if (resetSignal.getResetSource() != null) {
-//				Element resetSourceElement = document.createElement(NodeType.RESET_SOURCE.toString()+NodeInfo.NAME.toString());
-//				resetSourceElement.setTextContent(resetSignal.getResetSource().toString());
-//				resetSignalElement.appendChild(resetSourceElement);
-//
-//				Element resetSourceLocElement = document.createElement(NodeType.RESET_SOURCE.toString()+NodeInfo.LOCATION.toString());
-//				resetSourceLocElement.setTextContent(String.valueOf(resetSignal.getResetSource().getSignalDeclaration().getLocation().fLine));
-//				resetSignalElement.appendChild(resetSourceLocElement);
-//				}
-
-//				for (Register register : resetSignal.getListRegister()) {
-//					Element registerElement = document.createElement(NodeType.REGISTER.toString()+NodeType.RESET_SIGNAL.toString());
-//					clockSignalElement.appendChild(registerElement);
-//
-//					Element registerNameElement = document.createElement(NodeType.REGISTER.toString()+NodeType.RESET_SIGNAL.toString()+NodeInfo.NAME.toString());
-//					registerNameElement.setTextContent(register.toString());
-//					registerElement.appendChild(registerNameElement);
-//
-//					Element registerLocationElement = document.createElement(NodeType.REGISTER.toString()+NodeType.RESET_SIGNAL.toString()+NodeInfo.LOCATION.toString());
-//					registerLocationElement.setTextContent(String.valueOf(register.getLocation().fLine));
-//					registerElement.appendChild(registerLocationElement);
-//
-//					Element registerTypeElement = document.createElement(NodeType.REGISTER.toString()+NodeType.RESET_SIGNAL.toString()+NodeInfo.TYPE.toString());
-//					registerTypeElement.setTextContent(register.getType().toString());
-//					registerElement.appendChild(registerTypeElement);
-//
-//					if (register.getType() == RegisterTypeE.INPUT_PORT_VECTOR ||
-//							register.getType() == RegisterTypeE.STD_LOGIC_VECTOR) {
-//						Element registerRangeElement = document.createElement(NodeType.REGISTER.toString()+NodeInfo.RANGE.toString());
-//						registerRangeElement.setTextContent(register.getRange());
-//						registerElement.appendChild(registerRangeElement);
-//					}
-//				}
-
-			
-			}
-
-		}
-	}
-
-	/**
-	 * add library in xml file
-	 * @param hdlFile
-	 * @param fileElement
-	 */
-	private static void addLibrairies(HdlFile hdlFile, Element fileElement) {
-		if (hdlFile.getLibraries() == null) {
-
-			return;
-		}
-		if (!hdlFile.getLibraries().isEmpty()) {
-			for (Use useItem : hdlFile.getLibraries()) {
-				Element libraryElement = document.createElement(NodeType.LIBRARY.toString());
-				fileElement.appendChild(libraryElement);
-
-				Element libraryNameElement = document.createElement(NodeType.LIBRARY.toString()+NodeInfo.NAME.toString());
-				libraryNameElement.setTextContent(useItem.getLibId() +"."+ useItem.getPackageId() +(useItem.getItemId() != null ? "."+useItem.getItemId() : ""));
-				libraryElement.appendChild(libraryNameElement);
-				Element libraryLocElement = document.createElement(NodeType.LIBRARY.toString()+NodeInfo.LOCATION.toString());
-				libraryLocElement.setTextContent(String.valueOf(useItem.getStartLine()));
-				libraryElement.appendChild(libraryLocElement);
-			}
-		}
 	}
 
 
@@ -1237,7 +624,7 @@ public abstract class ToolManager implements IWorkbenchWindowActionDelegate {
 			fileName = getRootDirectory(alias)+fileName.replace("$"+alias, "");
 		} else if (fileName.startsWith("/") || fileName.startsWith("\\")) {
 			// relative path
-			String defaultRootPath = ResourcesPlugin.getWorkspace().getRoot().findMember("/"+ zPrj.getId()).getLocation().toString();
+			String defaultRootPath = ToolManager.getZamiaProjectPath(); 
 			fileName = defaultRootPath + fileName;
 		} else {
 			// absolute path
@@ -1246,7 +633,6 @@ public abstract class ToolManager implements IWorkbenchWindowActionDelegate {
 	}
 
 	private static String getAliasRootDirectory(String fileName) {
-//		if (!fileName.contains("\\")) {
 		if (!fileName.contains(File.separator)) {
 			return fileName;
 		}
@@ -1256,7 +642,7 @@ public abstract class ToolManager implements IWorkbenchWindowActionDelegate {
 
 	private static String getRootDirectory(String alias) {
 
-		String defaultRootPath = ResourcesPlugin.getWorkspace().getRoot().findMember("/"+ zPrj.getId()).getLocation().toString();
+		String defaultRootPath =  ToolManager.getZamiaProjectPath(); 
 		try {
 
 			final Element racine = parseXmlFile(zPrj);
@@ -1343,7 +729,7 @@ public abstract class ToolManager implements IWorkbenchWindowActionDelegate {
 			 * Etape 4 : cr�ation de l'Element racine
 			 */
 			final Element racine = documentReport.createElement(racineName);
-			racine.setAttribute("xmlns:hb", "HANDBOOK");
+			racine.setAttribute("xmlns:rc", "RULECHECKER");
 			documentReport.appendChild(racine);		
 
 			addHeader(documentReport, racine, "", ruleType, "");
@@ -1412,48 +798,66 @@ public abstract class ToolManager implements IWorkbenchWindowActionDelegate {
 		return fileName;
 	}
 
-	public static void addReportStatusXml(Element racine, String ruleId, StatusE statusE, Integer nbFailed,
-			String fileName) {
-		Element ruleElement = documentReport.createElement("hb:Rule");
+	public static void addReportToolStatusXml(Element racine, String ruleId, StatusE statusE, String fileName) {
+		Element ruleElement = documentReport.createElement("rc:Tool");
 		ruleElement.setAttribute("UID", ruleId);
 		racine.appendChild(ruleElement);
 
-		Element statusElement = documentReport.createElement("status");
+		Element statusElement = documentReport.createElement("rc:status");
+		statusElement.setTextContent(statusE.toString());
+		ruleElement.appendChild(statusElement);
+
+		if (statusE == StatusE.REPORTED) {
+			Element fileNameElement = documentReport.createElement("rc:fileName");
+			fileNameElement.setTextContent(fileName);
+			ruleElement.appendChild(fileNameElement);
+		}
+	}
+
+	public static void addReportRuleStatusXml(Element racine, String ruleId, StatusE statusE, Integer nbFailed,
+			String fileName) {
+		Element ruleElement = documentReport.createElement("rc:Rule");
+		ruleElement.setAttribute("UID", ruleId);
+		racine.appendChild(ruleElement);
+
+		Element statusElement = documentReport.createElement("rc:status");
 		statusElement.setTextContent(statusE.toString());
 		ruleElement.appendChild(statusElement);
 
 		if (nbFailed > 0) {
-			Element nbFailedElement = documentReport.createElement("nbFailed");
+			Element nbFailedElement = documentReport.createElement("rc:nbFailed");
 			nbFailedElement.setTextContent(nbFailed.toString());
 			ruleElement.appendChild(nbFailedElement);
-			Element fileNameElement = documentReport.createElement("fileName");
+			Element fileNameElement = documentReport.createElement("rc:fileName");
 			fileNameElement.setTextContent(fileName);
 			ruleElement.appendChild(fileNameElement);
 		}
+		
 		if (statusE == StatusE.REPORTED) {
-			Element fileNameElement = documentReport.createElement("fileName");
+			Element fileNameElement = documentReport.createElement("rc:fileName");
 			fileNameElement.setTextContent(fileName);
 			ruleElement.appendChild(fileNameElement);
 		}
 	}
-
-	public static void addReportStatusXml(Element racine, String ruleId, StatusE statusE) {
-		addReportStatusXml(racine, ruleId, statusE, 0, "");
-
-	}
-
-	public static void addItemSelectedXml(Element racine, String selectedRule, String item) {
+	
+	public static void addItemSelectedXml(Element racine, String selectedRule, String paramSource, String item) {
 		Element ruleElement = documentReport.createElement("hb:"+item);
 		ruleElement.setAttribute("UID", selectedRule);
+		
+		if (!paramSource.isEmpty())
+		{
+			ruleElement.setAttribute("ParameterSource", paramSource);
+		}
+		
 		racine.appendChild(ruleElement);
 	}
 
-	public static void addRuleSelectedXml(Element racine, String selectedRule) {
-		addItemSelectedXml(racine, selectedRule, "Rule");
+	public static void addRuleSelectedXml(Element racine, String selectedRule, String paramSource) {
+		addItemSelectedXml(racine, selectedRule, paramSource, "Rule");
 	}
 
-	public static void addToolSelectedXml(Element racine, String selectedTool) {
-		addItemSelectedXml(racine, selectedTool, "Tool");
+	public static void addToolSelectedXml(Element racine, String selectedTool, String paramSource) {
+		addItemSelectedXml(racine, selectedTool, paramSource, "Tool");
 	}
 
 	protected static ListUpdateE updateInfo(ListUpdateE info) throws EntityException {
@@ -1461,39 +865,46 @@ public abstract class ToolManager implements IWorkbenchWindowActionDelegate {
 	}
 
 	protected static ListUpdateE updateInfo(ListUpdateE info, boolean fileManager) throws EntityException {
-		if (zPrj.getToolVhdlMgr().getBuildMake() == BuildMakeE.USED) {
-			if (info == null) {
+		if (_fromPlugin) {
+			if (zPrj.getToolVhdlMgr().getBuildMake() == BuildMakeE.USED) {
+				if (info == null) {
+					info = ListUpdateE.NO;
+				}
+			} else if (zPrj.getToolVhdlMgr().getBuildMake() == BuildMakeE.NO) {
+				JOptionPane.showMessageDialog(null, "<html>A full project build was requested tu used Rule Checker</html>", "Error",
+						JOptionPane.ERROR_MESSAGE);
+				throw new EntityException();
+			} else {
+				updateInfoImpl(fileManager);
 				info = ListUpdateE.NO;
 			}
-		} else if (zPrj.getToolVhdlMgr().getBuildMake() == BuildMakeE.NO) {
-			JOptionPane.showMessageDialog(null, "<html>A full project build was requested tu used Rule Checker</html>", "Error",
-					JOptionPane.ERROR_MESSAGE);
-			throw new EntityException();
-		} else {
-			info = ListUpdateE.NO;
-			if(fileManager) {
-				zPrj.getToolVhdlMgr().setBuildMake(BuildMakeE.USED);
-				ArchitectureManager.resetInfo();
-				ClockSignalReadManager.resetInfo();
-				ClockSignalManager.resetInfo();
-				ClockSignalSourceManager.resetInfo();
-				EntityManager.resetInfo();
-				InputCombinationalProcessManager.resetInfo();
-				InputOutputManager.resetInfo();
-				LogicalConeManager.resetInfo();
-				LogicalConeReadManager.resetInfo();
-				ProcessManager.resetInfo();
-				RegisterAffectationManager.resetInfo();
-				RegisterSourceManager.resetInfo();
-				ResetSignalReadManager.resetInfo();
-				ResetSignalManager.resetInfo();
-				ResetSignalSourceManager.resetInfo();
-				infoComponent = ListUpdateE.NO;
-			}
-		}
+		} 
+		
 		return info;
 	}
 
+	protected static void updateInfoImpl(boolean fileManager) {
+		if (fileManager) {
+			zPrj.getToolVhdlMgr().setBuildMake(BuildMakeE.USED);
+			ArchitectureManager.resetInfo();
+			ClockSignalReadManager.resetInfo();
+			ClockSignalManager.resetInfo();
+			ClockSignalSourceManager.resetInfo();
+			EntityManager.resetInfo();
+			InputCombinationalProcessManager.resetInfo();
+			InputOutputManager.resetInfo();
+			LogicalConeManager.resetInfo();
+			LogicalConeReadManager.resetInfo();
+			ProcessManager.resetInfo();
+			RegisterAffectationManager.resetInfo();
+			RegisterSourceManager.resetInfo();
+			ResetSignalReadManager.resetInfo();
+			ResetSignalManager.resetInfo();
+			ResetSignalSourceManager.resetInfo();
+			infoComponent = ListUpdateE.NO;
+		}
+	}
+	
 //	public static Map<String, HdlFile> searchCompoment() throws EntityException {
 //		
 //		ArchitectureManager.getArchitecture();
@@ -1856,44 +1267,8 @@ public abstract class ToolManager implements IWorkbenchWindowActionDelegate {
 		
 		return 0;
 	}
-	private static int getInt(Operation operation, AssociationList generic, AssociationList genericInstantiation) {
-		if (operation instanceof OperationLiteral) {
-			return Integer.parseInt(operation.toString());
-		} else if (operation instanceof OperationMath) {
-			OperationMath opMath = (OperationMath) operation;
-			int operandA = operandeToInt(opMath.getOperandA(), generic, genericInstantiation);
-			int operandB = operandeToInt(opMath.getOperandB(), generic, genericInstantiation);
-			
-			switch (opMath.getOp()) {
-//			case ABS:
-//				return "\"ABS\"";
-			case ADD:
-				return operandA+operandB;
-			case DIV:
-				return operandA/operandB;
-//			case MOD:
-//				return "\"MOD\"";
-			case MUL:
-				return operandA*operandB;
-//			case NEG:
-//				return "\"-\"";
-//			case POS:
-//				return "\"+\"";
-			case POWER:
-				return (int) Math.pow(operandA,operandB);
-//			case REM:
-//				return "\"REM\"";
-			case SUB:
-				return operandA-operandB;
-			default :
-					return 1;
-			}
-			
-		}
-		
-		
-		return 0;
-	}
+	
+
 
 	private static int operandeToInt(Operation operand, AssociationList generic, InterfaceList genericInstantiation) {
 		int numChildren = genericInstantiation.getNumChildren();
@@ -1907,27 +1282,7 @@ public abstract class ToolManager implements IWorkbenchWindowActionDelegate {
 		}
 		return Integer.parseInt(operand.toString());
 	}
-	private static int operandeToInt(Operation operand, AssociationList generic, AssociationList genericInstantiation) {
-		int numAssociations = generic.getNumAssociations();
-		for (int j = 0; j < numAssociations; j++) {
-			AssociationElement associationElement = generic.getAssociation(j);
-//			if (operand.toString().equalsIgnoreCase(associationElement.getId())) {
-//				if (genericInstantiation == null) {return 0;}
-//				return Integer.parseInt(genericInstantiation.getChild(j).toString());
-//			}
-		}
-		numAssociations = genericInstantiation.getNumAssociations();
-		for (int j = 0; j < numAssociations; j++) {
-			AssociationElement associationElement = genericInstantiation.getAssociation(j);
-//			if (operand.toString().equalsIgnoreCase(associationElement.getId())) {
-//				if (genericInstantiation == null) {return 0;}
-//				return Integer.parseInt(genericInstantiation.getChild(j).toString());
-//			}
-		}
-		int a =1/0;
-		return Integer.parseInt(operand.toString());
-	}
-
+	
 	public static String getVectorName(String name) {
 		int indexOf = name.indexOf("(");
 		if (indexOf == -1) { return name;}
@@ -2011,8 +1366,5 @@ public abstract class ToolManager implements IWorkbenchWindowActionDelegate {
 		}
 		return 0;
 	}
-	
-	
-	
 
 }

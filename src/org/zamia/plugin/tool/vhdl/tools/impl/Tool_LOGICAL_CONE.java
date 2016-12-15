@@ -28,6 +28,10 @@ import org.zamia.plugin.tool.vhdl.manager.InputCombinationalProcessManager;
 import org.zamia.plugin.tool.vhdl.manager.InputOutputManager;
 import org.zamia.plugin.tool.vhdl.manager.RegisterAffectationManager;
 import org.zamia.plugin.tool.vhdl.manager.ToolManager;
+import org.zamia.plugin.tool.vhdl.manager.ReportManager.ParameterSource;
+import org.zamia.plugin.tool.vhdl.rules.IHandbookParam;
+import org.zamia.plugin.tool.vhdl.rules.IntParam;
+import org.zamia.plugin.tool.vhdl.rules.StringParam;
 import org.zamia.plugin.tool.vhdl.tools.ToolE;
 import org.zamia.plugin.tool.vhdl.tools.ToolSelectorManager;
 import org.zamia.util.Pair;
@@ -53,98 +57,166 @@ public class Tool_LOGICAL_CONE extends ToolSelectorManager {
 	private Map<String, HdlFile> listHdlFile = null;
 	
 	@Override
-	public Pair<Integer, String> Launch(ZamiaProject zPrj, String ruleId) {
+	public Pair<Integer, String> Launch(ZamiaProject zPrj, String ruleId, ParameterSource parameterSource) {
 		String fileName = "";
 
-		try {
-			listHdlFile = RegisterAffectationManager.getRegisterAffectation();
-			listHdlFile = InputOutputManager.getInputOutputComponent();
-			listHdlFile = InputCombinationalProcessManager.getInputCombinationalProcess();
-			
-		} catch (EntityException e) {
-			logger.error("some exception message Tool_REG_INPUT_COMB_IO_PRJ", e);
-		}
-
-		List<List<Object>> listParam = new ArrayList<List<Object>>();
-		List<Object> param = new ArrayList<Object>(); 
-		param.add("nbStage");
-		param.add(Integer.class);
-		listParam.add(param);
-
-		param = new ArrayList<Object>(); 
-		param.add("signalTag");
-		param.add(String.class);
-		listParam.add(param);
-
-
-		List<List<Object>> xmlParameterFileConfig = getXmlParameterFileConfig(zPrj, ruleId, listParam);
-		if (xmlParameterFileConfig == null || xmlParameterFileConfig.isEmpty()) {
+		racineFirst = null;
+		racineSecond = null;
+		
+		List<IHandbookParam> paramList = getXmlParameterFileConfig(zPrj, ruleId, ParameterSource.RULE_CHECKER);
+		if (paramList == null)
+		{
 			// wrong param
 			logger.info("Rule Checker: wrong parameter for rules "+tool.getIdReq()+ ".");
 			return new Pair<Integer, String> (WRONG_PARAM, "");
 		}
 
-		// get param
-		List<Object> listParam1 = xmlParameterFileConfig.get(0);
-
-		nbHierarchie = 0;
-		try {
-			nbHierarchie = Integer.valueOf((String)listParam1.get(2));
-		} catch (Exception e) {
-			logger.error("some exception message Tool_LOGICAL_CONE", e);
-			logger.info("Rule Checker: wrong parameter for rules "+tool.getIdReq()+ ".");
-			return new Pair<Integer, String> (WRONG_PARAM, "");
+		// Specific use of params for tools
+		for (IHandbookParam param : paramList)
+		{
+			if (param instanceof IntParam)
+			{
+				Integer value = ((IntParam)param).getValue();
+				nbHierarchie = value != null? value.intValue(): 0;
+			}
+			else if (param instanceof StringParam)
+			{
+				signalTag = ((StringParam) param).getValue();
+			}
 		}
 		
+		// Retrieve specific data for xml report generation
+		try {
+			listHdlFile = RegisterAffectationManager.getRegisterAffectation();
+			listHdlFile = InputOutputManager.getInputOutputComponent();
+			listHdlFile = InputCombinationalProcessManager.getInputCombinationalProcess();
 
-		List<Object> listParam2 = xmlParameterFileConfig.get(1);
-		signalTag = (String) listParam2.get(2);
-		racineFirst = initReportFile(ruleId, tool.getType(), tool.getRuleName(), NumberReportE.FIRST);
-		racineSecond = initReportFile(ruleId, tool.getType(), tool.getRuleName(), NumberReportE.SECOND);
+			if (signalTag.startsWith(HdlEntity.IO)) 
+			{
+				logger.info("IO");
+				try 
+				{
+					getIO(signalTag);
+				} 
+				catch (EntityException e) 
+				{
+					logger.error("some exception message Tool_LOGICAL_CONE logicalConeIO", e);
+				}
+			} 
+			else if (signalTag.startsWith(RegisterAffectationManager.REG)) 
+			{
+				logger.info("REG");
+				try 
+				{
+					getRegister(signalTag);
+				} 
+				catch (EntityException e) 
+				{
+					logger.error("some exception message Tool_LOGICAL_CONE logicalConeREG", e);
+				}
+			} 
+			else if (signalTag.startsWith(InputCombinationalProcessManager.INPUT)) 
+			{
+				logger.info("INPUT");
+				try 
+				{
+					getInputComb(signalTag);
+				} 
+				catch (EntityException e) 
+				{
+					logger.error("some exception message Tool_LOGICAL_CONE logicalConeINPUT", e);
+				}
+			}		
+			
+		} catch (EntityException e) {
+			logger.error("some exception message Tool_LOGICAL_CONE logicalCone", e);
+		}
 
-		if (signalTag.startsWith(HdlEntity.IO)) {
-			logger.info("IO");
-			try {
-				logicalConeIO(signalTag);
-			} catch (EntityException e) {
-				logger.error("some exception message Tool_LOGICAL_CONE logicalConeIO", e);
-				return new Pair<Integer, String> (NO_BUILD, fileName);
-			}
-		} else if (signalTag.startsWith(RegisterAffectationManager.REG)) {
-			logger.info("REG");
-			try {
-				logicalConeREG(signalTag);
-			} catch (EntityException e) {
-				logger.error("some exception message Tool_LOGICAL_CONE logicalConeREG", e);
-				return new Pair<Integer, String> (NO_BUILD, fileName);
-			}
-		} else if (signalTag.startsWith(InputCombinationalProcessManager.INPUT)) {
-			logger.info("INPUT");
-			try {
-				logicalConeINPUT(signalTag);
-			} catch (EntityException e) {
-				logger.error("some exception message Tool_LOGICAL_CONE logicalConeINPUT", e);
-				return new Pair<Integer, String> (NO_BUILD, fileName);
-			}
-		}		
-		//		ZamiaErrorObserver.updateAllMarkers(zPrj);
-		
-		fileName = createReportFile(ruleId, tool.getRuleName(), tool.getType(), "tool", NumberReportE.FIRST);
+		try {
+			// dump File 1
+			fileName = dumpXml(tool, parameterSource, NumberReportE.FIRST);
+		} catch (Exception e) {
+			logger.error("some exception message Tool_LOGICAL_CONE", e);
+			return new Pair<Integer, String> (NO_BUILD, "");
+		}
 
-		fileName = createReportFile(ruleId, tool.getRuleName(), tool.getType(), "tool", NumberReportE.SECOND);
+		try {
+			// dump File 2
+			fileName = dumpXml(tool, parameterSource, NumberReportE.SECOND);
+		} catch (Exception e) {
+			logger.error("some exception message Tool_LOGICAL_CONE", e);
+			return new Pair<Integer, String> (NO_BUILD, "");
+		}
 
 		return new Pair<Integer, String> (0, fileName);
 	}
-
-	private void logicalConeIO(String signalTag)  throws EntityException {
-		getIO(signalTag);
-		if (io != null) {
-			
-			logicalConeSourceIO();
-			logicalConeReadIO();
+	
+	
+	protected void addLogContent(Element racine, ParameterSource parameterSource) throws Exception
+	{
+		if (racineFirst == null)
+		{
+			racineFirst = racine;
 		}
-	}
+		else
+		{
+			racineSecond = racine;
+		}
 
+		if (signalTag.startsWith(HdlEntity.IO)) 
+		{
+			logger.info("IO");
+			if (io != null) 
+			{
+				if (racineSecond == null)
+				{
+					// File 1
+					logicalConeReadIO();
+				}
+				else
+				{
+					// File 2
+					logicalConeSourceIO();
+				}
+			}
+
+		} 
+		else if (signalTag.startsWith(RegisterAffectationManager.REG)) 
+		{
+			logger.info("REG");
+			if (register != null) 
+			{
+				if (racineSecond == null)
+				{
+					// File 1
+					logicalConeReadREG();
+				}
+				else
+				{
+					// File 2
+					logicalConeSourceREG();
+				}
+			}
+		} 
+		else if (signalTag.startsWith(InputCombinationalProcessManager.INPUT)) 
+		{
+			logger.info("INPUT");
+			if (input != null) 
+			{
+				if (racineSecond == null)
+				{
+					// File 1
+					logicalConeReadInputComb();
+				}
+				else
+				{
+					// File 2
+					logicalConeSourceInputComb();
+				}
+			}
+		}		
+	}
+	
 	private String searchID(String fileName, String signalName) {
 		String id = "";
 		fileName = File.separator+fileName;
@@ -199,24 +271,6 @@ public class Tool_LOGICAL_CONE extends ToolSelectorManager {
 		
 		return id;
 	}
-
-	private void logicalConeREG(String signalTag) throws EntityException {
-		getRegister(signalTag);
-		if (register != null) {
-	
-			logicalConeSourceREG();
-			logicalConeReadREG();
-		}
-	}
-
-	private void logicalConeINPUT(String signalTag)  throws EntityException {
-		getInputComb(signalTag);
-		if (input != null) {
-			logicalConeSourceInputComb();
-			logicalConeReadInputComb();
-		}
-	}
-
 
 	private void getIO(String signalTag) throws EntityException {
 		Map<String, HdlFile> listHdlFile = InputOutputManager.getInputOutputComponent();
@@ -319,401 +373,377 @@ public class Tool_LOGICAL_CONE extends ToolSelectorManager {
 
 	private void logicalConeSourceREG() {
 		hdlEntity.searchSourceSignal(register, hdlEntity, hdlArchitecture, 0, nbHierarchie);
-		addElementSource(register, racineSecond, documentSecond, 0);
+		addElementSource(register, 0);
 		for (RegisterInputSource registerInputSource : register.getListSourceRegisterInput()) {
-			addElementSource(registerInputSource, register, racineSecond, documentSecond, 1);
-			dumpSource( registerInputSource, racineSecond, documentSecond, 1);
+			addElementSource(registerInputSource, register, 1);
+			dumpSource( registerInputSource, 1);
 		}
-		
-
 	}
 
-
-	private void addElement(RegisterInputSource registerInputSource,
-			Element racine, Document document, int level) {
-
-		Element element = document.createElement(NodeType.REGISTER.toString());
-		racine.appendChild(element);
+	private void addElementSource(RegisterInputSource registerInputSource, RegisterInput register, int level) 
+	{
+		Element logEntry = document.createElement(NAMESPACE_PREFIX + tool.getIdReq() + "_T2");
 		
-		element.appendChild(NewElement(document, NodeType.SOURCE.toString()+NodeInfo.NAME.toString()
+		logEntry.appendChild(NewElement(document, NAMESPACE_PREFIX + NodeType.SINK.toString()+NodeInfo.NAME.toString()
 				, register.toString()));
-		String sinkName = "" ;
-		if (registerInputSource.getTarget() != null) {
-			sinkName = registerInputSource.getTarget().getName().toString();
-		} else if (registerInputSource.getRead() instanceof InterfaceDeclaration) {
-			InterfaceDeclaration interDec = (InterfaceDeclaration) registerInputSource.getRead();
-			sinkName = interDec.getId();
-		} else if (registerInputSource.getRead() instanceof AssociationElement) {
-			AssociationElement interDec = (AssociationElement) registerInputSource.getRead();
-			sinkName = interDec.getFormalPart() != null ? interDec.getFormalPart().toString() : (interDec.getActualPart() != null ? interDec.getActualPart().toString() : "NULL");
-		} else {
-			sinkName = registerInputSource.toString();
-		}
-
-		element.appendChild(NewElement(document, NodeType.SINK.toString()+NodeInfo.NAME.toString()
-				, sinkName));
-
-		element.appendChild(NewElement(document, NodeType.SINK.toString()+NodeType.FILE.toString()+NodeInfo.NAME.toString()
-				, registerInputSource.getLocation().fSF.getLocalPath()));
-
-		element.appendChild(NewElement(document, NodeType.SINK.toString()+NodeInfo.LOCATION.toString()
-				, String.valueOf(registerInputSource.getLocation().fLine)));
-
-		element.appendChild(NewElement(document, NodeType.SINK.toString()+NodeInfo.TYPE.toString()
-				, registerInputSource.getType()));
-
-		element.appendChild(NewElement(document, NodeType.STAGE.toString()+NodeInfo.LEVEL.toString()
-				, String.valueOf(level)));
-
-//		if (registerInputSource.getListSourceRegisterInput().isEmpty()) {
-			element.appendChild(NewElement(document, NodeType.STOP_CONDITION.toString()
-					, registerInputSource.getStopCondition().toString()));
-//		}
-
-		
-	}
-
-	private void addElementSource(RegisterInputSource registerInputSource, RegisterInput register,
-			Element racine, Document document, int level) {
-
-		Element element = document.createElement(NodeType.REGISTER.toString());
-		racine.appendChild(element);
-		
-		element.appendChild(NewElement(document, NodeType.SINK.toString()+NodeInfo.NAME.toString()
-				, register.toString()));
-		element.appendChild(NewElement(document, NodeType.SINK.toString()+NodeInfo.ID.toString()
+		logEntry.appendChild(NewElement(document, NAMESPACE_PREFIX + NodeType.SINK.toString()+NodeInfo.ID.toString()
 				, searchID(registerInputSource.getLocation().fSF.getLocalPath(), register.toString())));
 		String sinkName = "" ;
-		if (registerInputSource.getTarget() != null) {
+		if (registerInputSource.getTarget() != null) 
+		{
 			sinkName = registerInputSource.getTarget().getName().toString();
-		} else if (registerInputSource.getRead() instanceof InterfaceDeclaration) {
+		} 
+		else if (registerInputSource.getRead() instanceof InterfaceDeclaration) 
+		{
 			InterfaceDeclaration interDec = (InterfaceDeclaration) registerInputSource.getRead();
 			sinkName = interDec.getId();
-		} else if (registerInputSource.getRead() instanceof AssociationElement) {
+		}
+		else if (registerInputSource.getRead() instanceof AssociationElement) 
+		{
 			AssociationElement interDec = (AssociationElement) registerInputSource.getRead();
 			sinkName = interDec.getFormalPart() != null ? interDec.getFormalPart().toString() : (interDec.getActualPart() != null ? interDec.getActualPart().toString() : "NULL");
-		} else {
+		} 
+		else
+		{
 			sinkName = registerInputSource.toString();
 		}
 
-		element.appendChild(NewElement(document, NodeType.SOURCE.toString()+NodeInfo.NAME.toString()
+		logEntry.appendChild(NewElement(document, NAMESPACE_PREFIX + NodeType.SOURCE.toString()+NodeInfo.NAME.toString()
 				, sinkName));
-		element.appendChild(NewElement(document, NodeType.SOURCE.toString()+NodeInfo.ID.toString()
+		logEntry.appendChild(NewElement(document, NAMESPACE_PREFIX + NodeType.SOURCE.toString()+NodeInfo.ID.toString()
 				, searchID(registerInputSource.getLocation().fSF.getLocalPath(), sinkName)));
 
-		element.appendChild(NewElement(document, NodeType.SOURCE.toString()+NodeType.FILE.toString()+NodeInfo.NAME.toString()
+		logEntry.appendChild(NewElement(document, NAMESPACE_PREFIX + NodeType.SOURCE.toString()+NodeType.FILE.toString()+NodeInfo.NAME.toString()
 				, registerInputSource.getLocation().fSF.getLocalPath()));
 
-		element.appendChild(NewElement(document, NodeType.SOURCE.toString()+NodeInfo.LOCATION.toString()
+		logEntry.appendChild(NewElement(document, NAMESPACE_PREFIX + NodeType.SOURCE.toString()+NodeInfo.LOCATION.toString()
 				, String.valueOf(registerInputSource.getLocation().fLine)));
 
-		element.appendChild(NewElement(document, NodeType.SOURCE.toString()+NodeInfo.TYPE.toString()
+		logEntry.appendChild(NewElement(document, NAMESPACE_PREFIX + NodeType.SOURCE.toString()+NodeInfo.TYPE.toString()
 				, registerInputSource.getType()));
 
-		element.appendChild(NewElement(document, NodeType.STAGE.toString()+NodeInfo.LEVEL.toString()
+		logEntry.appendChild(NewElement(document, NAMESPACE_PREFIX + NodeType.STAGE.toString()+NodeInfo.LEVEL.toString()
 				, String.valueOf(-level)));
 
-//		if (registerInputSource.getListSourceRegisterInput().isEmpty()) {
-			element.appendChild(NewElement(document, NodeType.STOP_CONDITION.toString()
-					, registerInputSource.getStopCondition().toString()));
-//		}
+		logEntry.appendChild(NewElement(document, NAMESPACE_PREFIX + NodeType.STOP_CONDITION.toString()
+					, registerInputSource.getListSourceRegisterInput().isEmpty()? registerInputSource.getStopCondition().toString(): "None"));
 
-		
+		racineSecond.appendChild(logEntry);
 	}
 
 	private void logicalConeSourceInputComb() {
 		hdlEntity.searchSourceSignal(input, hdlEntity, hdlArchitecture, 0, nbHierarchie);
-		addElementSource(input, racineSecond, documentSecond, 0);
+		addElementSource(input, 0);
 		for (RegisterInputSource registerInputSource : input.getListSourceRegisterInput()) {
-			addElementSource(registerInputSource, input,  racineSecond, documentSecond, 1);
-			dumpSource( registerInputSource, racineSecond, documentSecond, 1);
+			addElementSource(registerInputSource, input, 1);
+			dumpSource( registerInputSource, 1);
 		}
-
 	}
 	
 	private void logicalConeReadREG() {
 		hdlEntity.searchReadSignalSource(register, ToolManager.getVectorName(register.toString()), 1, nbHierarchie);
-		addElement(register, racineFirst, document, 0);
+		addElement(register, 0);
 		for (RegisterInputRead registerInputRead : register.getListReadRegisterInput()) {
-			addElement(register, registerInputRead, racineFirst, document, 1);
-			dump( registerInputRead, racineFirst, 1);
+			addElement(register, registerInputRead, 1);
+			dump( registerInputRead, 1);
 		}
-
 	}
 
-
-	private void addElement(RegisterInput register,
-			Element racine, Document document, int level) {
-		Element element = document.createElement(NodeType.REGISTER.toString());
-		racine.appendChild(element);
+	private void addElement(RegisterInput register, int level) 
+	{
+		Element logEntry = document.createElement(NAMESPACE_PREFIX + tool.getIdReq() + "_T1");
 		
-		element.appendChild(NewElement(document, NodeType.SOURCE.toString()+NodeInfo.NAME.toString()
+		logEntry.appendChild(NewElement(document, NAMESPACE_PREFIX + NodeType.SOURCE.toString()+NodeInfo.NAME.toString()
 				, ""));
-		element.appendChild(NewElement(document, NodeType.SOURCE.toString()+NodeInfo.ID.toString()
+		logEntry.appendChild(NewElement(document, NAMESPACE_PREFIX + NodeType.SOURCE.toString()+NodeInfo.ID.toString()
 				, ""/*searchID(fileName, signalName)*/));
 
-		element.appendChild(NewElement(document, NodeType.SINK.toString()+NodeInfo.NAME.toString()
+		logEntry.appendChild(NewElement(document, NAMESPACE_PREFIX + NodeType.SINK.toString()+NodeInfo.NAME.toString()
 				, register.toString()));
-		element.appendChild(NewElement(document, NodeType.SINK.toString()+NodeInfo.ID.toString()
+		logEntry.appendChild(NewElement(document, NAMESPACE_PREFIX + NodeType.SINK.toString()+NodeInfo.ID.toString()
 				, searchID(register.getLocation().fSF.getLocalPath(),  register.toString())));
 
-		element.appendChild(NewElement(document, NodeType.SINK.toString()+NodeType.FILE.toString()+NodeInfo.NAME.toString()
+		logEntry.appendChild(NewElement(document, NAMESPACE_PREFIX + NodeType.SINK.toString()+NodeType.FILE.toString()+NodeInfo.NAME.toString()
 				, register.getLocation().fSF.getLocalPath()));
 
-		element.appendChild(NewElement(document, NodeType.SINK.toString()+NodeInfo.LOCATION.toString()
+		logEntry.appendChild(NewElement(document, NAMESPACE_PREFIX + NodeType.SINK.toString()+NodeInfo.LOCATION.toString()
 				, String.valueOf(register.getLocation().fLine)));
 
-//		element.appendChild(NewElement(document, NodeType.ALL.toString()+NodeInfo.TAG.toString()
-//				, ));
-
-		element.appendChild(NewElement(document, NodeType.SINK.toString()+NodeInfo.TYPE.toString()
+		logEntry.appendChild(NewElement(document, NAMESPACE_PREFIX + NodeType.SINK.toString()+NodeInfo.TYPE.toString()
 				, ""));
 
-		element.appendChild(NewElement(document, NodeType.STAGE.toString()+NodeInfo.LEVEL.toString()
+		logEntry.appendChild(NewElement(document, NAMESPACE_PREFIX + NodeType.STAGE.toString()+NodeInfo.LEVEL.toString()
 				, String.valueOf(level)));
 
-		if (register.getListReadRegisterInput().isEmpty()) {
-			element.appendChild(NewElement(document, NodeType.STOP_CONDITION.toString()
-					, register.getStopCondition().toString()));
-		}
+		logEntry.appendChild(NewElement(document, NAMESPACE_PREFIX + NodeType.STOP_CONDITION.toString()
+					, register.getListReadRegisterInput().isEmpty()? register.getStopCondition().toString(): "None"));
 
+		racineFirst.appendChild(logEntry);
 	}
 
-	private void addElementSource(RegisterInput register,
-			Element racine, Document document, int level) {
-		Element element = document.createElement(NodeType.REGISTER.toString());
-		racine.appendChild(element);
+	private void addElementSource(RegisterInput register, int level) 
+	{
+		Element logEntry = document.createElement(NAMESPACE_PREFIX + tool.getIdReq() + "_T2");
 		
-		element.appendChild(NewElement(document, NodeType.SINK.toString()+NodeInfo.NAME.toString()
+		logEntry.appendChild(NewElement(document, NAMESPACE_PREFIX + NodeType.SINK.toString()+NodeInfo.NAME.toString()
 				, ""));
-		element.appendChild(NewElement(document, NodeType.SINK.toString()+NodeInfo.ID.toString()
+		logEntry.appendChild(NewElement(document, NAMESPACE_PREFIX + NodeType.SINK.toString()+NodeInfo.ID.toString()
 				, ""/*searchID(fileName, signalName)*/));
 
-		element.appendChild(NewElement(document, NodeType.SOURCE.toString()+NodeInfo.NAME.toString()
+		logEntry.appendChild(NewElement(document, NAMESPACE_PREFIX + NodeType.SOURCE.toString()+NodeInfo.NAME.toString()
 				, register.toString()));
-		element.appendChild(NewElement(document, NodeType.SOURCE.toString()+NodeInfo.ID.toString()
+		logEntry.appendChild(NewElement(document, NAMESPACE_PREFIX + NodeType.SOURCE.toString()+NodeInfo.ID.toString()
 				, signalTag));
 
-		element.appendChild(NewElement(document, NodeType.SOURCE.toString()+NodeType.FILE.toString()+NodeInfo.NAME.toString()
+		logEntry.appendChild(NewElement(document, NAMESPACE_PREFIX + NodeType.SOURCE.toString()+NodeType.FILE.toString()+NodeInfo.NAME.toString()
 				, register.getLocation().fSF.getLocalPath()));
 
-		element.appendChild(NewElement(document, NodeType.SOURCE.toString()+NodeInfo.LOCATION.toString()
+		logEntry.appendChild(NewElement(document, NAMESPACE_PREFIX + NodeType.SOURCE.toString()+NodeInfo.LOCATION.toString()
 				, String.valueOf(register.getLocation().fLine)));
 
-//		element.appendChild(NewElement(document, NodeType.ALL.toString()+NodeInfo.TAG.toString()
-//				, signalTag));
-
-		element.appendChild(NewElement(document, NodeType.SOURCE.toString()+NodeInfo.TYPE.toString()
+		logEntry.appendChild(NewElement(document, NAMESPACE_PREFIX + NodeType.SOURCE.toString()+NodeInfo.TYPE.toString()
 				, ""));
 
-		element.appendChild(NewElement(document, NodeType.STAGE.toString()+NodeInfo.LEVEL.toString()
+		logEntry.appendChild(NewElement(document, NAMESPACE_PREFIX + NodeType.STAGE.toString()+NodeInfo.LEVEL.toString()
 				, String.valueOf(-level)));
 
-		if (register.getListSourceRegisterInput().isEmpty()) {
-			element.appendChild(NewElement(document, NodeType.STOP_CONDITION.toString()
-					, register.getStopCondition().toString()));
-		}
+		logEntry.appendChild(NewElement(document, NAMESPACE_PREFIX + NodeType.STOP_CONDITION.toString()
+				, register.getListSourceRegisterInput().isEmpty()? register.getStopCondition().toString(): "None"));
+		
+		racineSecond.appendChild(logEntry);
 	}
 
-	private void addElement(RegisterInputRead registerInputRead,
-			RegisterInputRead registerRead, Element racineFirst, Document document, int level) {
-		Element element = document.createElement(NodeType.REGISTER.toString());
-		racineFirst.appendChild(element);
+	private void addElement(RegisterInputRead registerInputRead, RegisterInputRead registerRead, int level) 
+	{
+		Element logEntry = document.createElement(NAMESPACE_PREFIX + tool.getIdReq() + "_T1");
 		
 		String signalName = registerInputRead.getTarget() != null ? registerInputRead.getTarget().getName().toString() : "NULL";
-		element.appendChild(NewElement(document, NodeType.SOURCE.toString()+NodeInfo.NAME.toString()
+		logEntry.appendChild(NewElement(document, NAMESPACE_PREFIX + NodeType.SOURCE.toString()+NodeInfo.NAME.toString()
 				, signalName));
-		element.appendChild(NewElement(document, NodeType.SOURCE.toString()+NodeInfo.ID.toString()
+		logEntry.appendChild(NewElement(document, NAMESPACE_PREFIX + NodeType.SOURCE.toString()+NodeInfo.ID.toString()
 				, searchID(registerRead.getLocation().fSF.getLocalPath(), signalName)));
 
 		String sinkName = "" ;
-		if (registerRead.getTarget() != null) {
+		if (registerRead.getTarget() != null) 
+		{
 			sinkName = registerRead.getTarget().getName().toString();
-		} else if (registerRead.getRead() instanceof InterfaceDeclaration) {
+		} 
+		else if (registerRead.getRead() instanceof InterfaceDeclaration) 
+		{
 			InterfaceDeclaration interDec = (InterfaceDeclaration) registerRead.getRead();
 			sinkName = interDec.getId();
-		} else {
+		} 
+		else 
+		{
 			sinkName = "NULL";
 		}
-		element.appendChild(NewElement(document, NodeType.SINK.toString()+NodeInfo.NAME.toString()
+		
+		logEntry.appendChild(NewElement(document, NAMESPACE_PREFIX + NodeType.SINK.toString()+NodeInfo.NAME.toString()
 				, sinkName));
-		element.appendChild(NewElement(document, NodeType.SINK.toString()+NodeInfo.ID.toString()
+		logEntry.appendChild(NewElement(document, NAMESPACE_PREFIX + NodeType.SINK.toString()+NodeInfo.ID.toString()
 				, searchID(registerRead.getLocation().fSF.getLocalPath(), sinkName)));
 
-		element.appendChild(NewElement(document, NodeType.SINK.toString()+NodeType.FILE.toString()+NodeInfo.NAME.toString()
+		logEntry.appendChild(NewElement(document, NAMESPACE_PREFIX + NodeType.SINK.toString()+NodeType.FILE.toString()+NodeInfo.NAME.toString()
 				, registerRead.getLocation().fSF.getLocalPath()));
 
-		element.appendChild(NewElement(document, NodeType.SINK.toString()+NodeInfo.LOCATION.toString()
+		logEntry.appendChild(NewElement(document, NAMESPACE_PREFIX + NodeType.SINK.toString()+NodeInfo.LOCATION.toString()
 				, String.valueOf(registerRead.getLocation().fLine)));
 
-		element.appendChild(NewElement(document, NodeType.SINK.toString()+NodeInfo.TYPE.toString()
+		logEntry.appendChild(NewElement(document, NAMESPACE_PREFIX + NodeType.SINK.toString()+NodeInfo.TYPE.toString()
 				, registerRead.getType()));
 
-		element.appendChild(NewElement(document, NodeType.STAGE.toString()+NodeInfo.LEVEL.toString()
+		logEntry.appendChild(NewElement(document, NAMESPACE_PREFIX + NodeType.STAGE.toString()+NodeInfo.LEVEL.toString()
 				, String.valueOf(level)));
 
-		if (registerRead.getListReadRegisterInput().isEmpty()) {
-			if (registerRead.getStopCondition().toString().equalsIgnoreCase("") && registerRead.getType().equalsIgnoreCase("IO")) {
-				element.appendChild(NewElement(document, NodeType.STOP_CONDITION.toString()
+		if (registerRead.getListReadRegisterInput().isEmpty()) 
+		{
+			if (registerRead.getStopCondition().toString().equalsIgnoreCase("") && registerRead.getType().equalsIgnoreCase("IO")) 
+			{
+				logEntry.appendChild(NewElement(document, NAMESPACE_PREFIX + NodeType.STOP_CONDITION.toString()
 						, StopConditionE.IO_PAD.toString()));
-			} else if (registerRead.getStopCondition().toString().equalsIgnoreCase("") && registerRead.getType().equalsIgnoreCase("process")) {
-				element.appendChild(NewElement(document, NodeType.STOP_CONDITION.toString()
+			} 
+			else if (registerRead.getStopCondition().toString().equalsIgnoreCase("") && registerRead.getType().equalsIgnoreCase("process")) 
+			{
+				logEntry.appendChild(NewElement(document, NAMESPACE_PREFIX + NodeType.STOP_CONDITION.toString()
 						, StopConditionE.CONSTANT_ASSIGNMENT.toString()));
-			} else {
-				element.appendChild(NewElement(document, NodeType.STOP_CONDITION.toString()
+			} 
+			else 
+			{
+				logEntry.appendChild(NewElement(document, NAMESPACE_PREFIX + NodeType.STOP_CONDITION.toString()
 						, registerRead.getStopCondition().toString()));
 			}
 		}
+		else
+		{
+			logEntry.appendChild(NewElement(document, NAMESPACE_PREFIX + NodeType.STOP_CONDITION.toString()
+					, "None"));
+		}
 
+		racineFirst.appendChild(logEntry);
 	}
-	private void addElement(RegisterInput registerInput,
-			RegisterInputRead registerRead, Element racineFirst, Document document, int level) {
-		Element element = document.createElement(NodeType.REGISTER.toString());
-		racineFirst.appendChild(element);
+	
+	private void addElement(RegisterInput registerInput, RegisterInputRead registerRead, int level) 
+	{
+		Element logEntry = document.createElement(NAMESPACE_PREFIX + tool.getIdReq() + "_T1");
 		
-		element.appendChild(NewElement(document, NodeType.SOURCE.toString()+NodeInfo.NAME.toString()
+		logEntry.appendChild(NewElement(document, NAMESPACE_PREFIX + NodeType.SOURCE.toString()+NodeInfo.NAME.toString()
 				, registerInput.toString() ));
-		element.appendChild(NewElement(document, NodeType.SOURCE.toString()+NodeInfo.ID.toString()
+		logEntry.appendChild(NewElement(document, NAMESPACE_PREFIX + NodeType.SOURCE.toString()+NodeInfo.ID.toString()
 				, searchID(registerRead.getLocation().fSF.getLocalPath(), registerInput.toString()) ));
 
 		String sinkName = "" ;
-		if (registerRead.getTarget() != null) {
+		if (registerRead.getTarget() != null) 
+		{
 			sinkName = registerRead.getTarget().getName().toString();
-		} else if (registerRead.getRead() instanceof InterfaceDeclaration) {
+		} 
+		else if (registerRead.getRead() instanceof InterfaceDeclaration) 
+		{
 			InterfaceDeclaration interDec = (InterfaceDeclaration) registerRead.getRead();
 			sinkName = interDec.getId();
-		} else {
+		} 
+		else 
+		{
 			sinkName = "NULL";
 		}
-		element.appendChild(NewElement(document, NodeType.SINK.toString()+NodeInfo.NAME.toString()
+		
+		logEntry.appendChild(NewElement(document, NAMESPACE_PREFIX + NodeType.SINK.toString()+NodeInfo.NAME.toString()
 				, sinkName));
-		element.appendChild(NewElement(document, NodeType.SINK.toString()+NodeInfo.ID.toString()
+		logEntry.appendChild(NewElement(document, NAMESPACE_PREFIX + NodeType.SINK.toString()+NodeInfo.ID.toString()
 				, searchID(registerRead.getLocation().fSF.getLocalPath(), sinkName)));
 
-		element.appendChild(NewElement(document, NodeType.SINK.toString()+NodeType.FILE.toString()+NodeInfo.NAME.toString()
+		logEntry.appendChild(NewElement(document, NAMESPACE_PREFIX + NodeType.SINK.toString()+NodeType.FILE.toString()+NodeInfo.NAME.toString()
 				, registerRead.getLocation().fSF.getLocalPath()));
 
-		element.appendChild(NewElement(document, NodeType.SINK.toString()+NodeInfo.LOCATION.toString()
+		logEntry.appendChild(NewElement(document, NAMESPACE_PREFIX + NodeType.SINK.toString()+NodeInfo.LOCATION.toString()
 				, String.valueOf(registerRead.getLocation().fLine)));
 
-		element.appendChild(NewElement(document, NodeType.SINK.toString()+NodeInfo.TYPE.toString()
+		logEntry.appendChild(NewElement(document, NAMESPACE_PREFIX + NodeType.SINK.toString()+NodeInfo.TYPE.toString()
 				, registerRead.getType()));
 
-		element.appendChild(NewElement(document, NodeType.STAGE.toString()+NodeInfo.LEVEL.toString()
+		logEntry.appendChild(NewElement(document, NAMESPACE_PREFIX + NodeType.STAGE.toString()+NodeInfo.LEVEL.toString()
 				, String.valueOf(level)));
 
-		if (registerRead.getListReadRegisterInput().isEmpty()) {
+		if (registerRead.getListReadRegisterInput().isEmpty()) 
+		{
 			if (registerRead.getStopCondition().toString().equalsIgnoreCase("") && registerRead.getType().equalsIgnoreCase("IO")) {
-				element.appendChild(NewElement(document, NodeType.STOP_CONDITION.toString()
+				logEntry.appendChild(NewElement(document, NAMESPACE_PREFIX + NodeType.STOP_CONDITION.toString()
 						, StopConditionE.IO_PAD.toString()));
-			} else {
-				element.appendChild(NewElement(document, NodeType.STOP_CONDITION.toString()
+			} 
+			else 
+			{
+				logEntry.appendChild(NewElement(document, NAMESPACE_PREFIX + NodeType.STOP_CONDITION.toString()
 						, registerRead.getStopCondition().toString()));
 			}
 		}
+		else
+		{
+			logEntry.appendChild(NewElement(document, NAMESPACE_PREFIX + NodeType.STOP_CONDITION.toString()
+					, "None"));
+		}
 
+		racineFirst.appendChild(logEntry);
 	}
 	
 	private void addElementSource(RegisterInputSource registerInputSource,
-			RegisterInputSource registerSource, Element racine, Document document, int level) {
-		Element element = document.createElement(NodeType.REGISTER.toString());
-		racine.appendChild(element);
+			RegisterInputSource registerSource, int level) 
+	{
+		
+		Element logEntry = document.createElement(NAMESPACE_PREFIX + tool.getIdReq() + "_T2");
 		
 		String signalName = registerInputSource.getTarget() != null ? registerInputSource.getTarget().getName().toString() :registerInputSource.toString();
-		element.appendChild(NewElement(document, NodeType.SINK.toString()+NodeInfo.NAME.toString()
+		logEntry.appendChild(NewElement(document, NAMESPACE_PREFIX + NodeType.SINK.toString()+NodeInfo.NAME.toString()
 				, signalName));
-		element.appendChild(NewElement(document, NodeType.SINK.toString()+NodeInfo.ID.toString()
+		logEntry.appendChild(NewElement(document, NAMESPACE_PREFIX + NodeType.SINK.toString()+NodeInfo.ID.toString()
 				, searchID(registerSource.getLocation().fSF.getLocalPath(), signalName)));
 
 		String sinkName = "" ;
-		if (registerSource.getTarget() != null) {
+		if (registerSource.getTarget() != null) 
+		{
 			sinkName = registerSource.getTarget().getName().toString();
-		} else if (registerSource.getRead() instanceof InterfaceDeclaration) {
+		} 
+		else if (registerSource.getRead() instanceof InterfaceDeclaration) 
+		{
 			InterfaceDeclaration interDec = (InterfaceDeclaration) registerSource.getRead();
 			sinkName = interDec.getId();
-		} else if (registerSource.getRead() instanceof AssociationElement) {
+		} 
+		else if (registerSource.getRead() instanceof AssociationElement) 
+		{
 			AssociationElement assoElem = (AssociationElement) registerSource.getRead();
 			sinkName = assoElem.getFormalPart().toString();
-		} else {
+		} 
+		else 
+		{
 			sinkName = registerSource.toString();
 		}
 		
-		element.appendChild(NewElement(document, NodeType.SOURCE.toString()+NodeInfo.NAME.toString()
+		logEntry.appendChild(NewElement(document, NAMESPACE_PREFIX + NodeType.SOURCE.toString()+NodeInfo.NAME.toString()
 				, sinkName));
-		element.appendChild(NewElement(document, NodeType.SOURCE.toString()+NodeInfo.ID.toString()
+		logEntry.appendChild(NewElement(document, NAMESPACE_PREFIX + NodeType.SOURCE.toString()+NodeInfo.ID.toString()
 				, searchID(registerSource.getLocation().fSF.getLocalPath(), sinkName)));
 
-		element.appendChild(NewElement(document, NodeType.SOURCE.toString()+NodeType.FILE.toString()+NodeInfo.NAME.toString()
+		logEntry.appendChild(NewElement(document, NAMESPACE_PREFIX + NodeType.SOURCE.toString()+NodeType.FILE.toString()+NodeInfo.NAME.toString()
 				, registerSource.getLocation().fSF.getLocalPath()));
 
-		element.appendChild(NewElement(document, NodeType.SOURCE.toString()+NodeInfo.LOCATION.toString()
+		logEntry.appendChild(NewElement(document, NAMESPACE_PREFIX + NodeType.SOURCE.toString()+NodeInfo.LOCATION.toString()
 				, String.valueOf(registerSource.getLocation().fLine)));
 
-		element.appendChild(NewElement(document, NodeType.SOURCE.toString()+NodeInfo.TYPE.toString()
+		logEntry.appendChild(NewElement(document, NAMESPACE_PREFIX + NodeType.SOURCE.toString()+NodeInfo.TYPE.toString()
 				, registerSource.getType()));
 
-		element.appendChild(NewElement(document, NodeType.STAGE.toString()+NodeInfo.LEVEL.toString()
+		logEntry.appendChild(NewElement(document, NAMESPACE_PREFIX + NodeType.STAGE.toString()+NodeInfo.LEVEL.toString()
 				, String.valueOf(-level)));
 
-		if (registerSource.getListSourceRegisterInput().isEmpty()) {
-			element.appendChild(NewElement(document, NodeType.STOP_CONDITION.toString()
-					, registerSource.getStopCondition().toString()));
+		if (registerSource.getListSourceRegisterInput().isEmpty()) 
+		{
+			logEntry.appendChild(NewElement(document, NAMESPACE_PREFIX + NodeType.STOP_CONDITION.toString()
+					, registerSource.getListSourceRegisterInput().isEmpty()? registerSource.getStopCondition().toString(): "None"));
 		}
 
+		racineSecond.appendChild(logEntry);
 	}
 
 	private void logicalConeReadInputComb() {
 		hdlEntity.searchReadSignalSource(input, ToolManager.getVectorName(input.toString()), 0, nbHierarchie);
-		addElement(input, racineFirst, document, 0);
+		addElement(input, 0);
 		for (RegisterInputRead registerInputRead : input.getListReadRegisterInput()) {
-			dump( registerInputRead, racineFirst, 0);
+			dump( registerInputRead, 0);
 		}
 	}
 	
 	private void logicalConeSourceIO() {
-//		if (io.getDir() == OIDir.IN) {
-//			return;
-//		}
 		hdlEntity.searchSourceSignal(io, hdlEntity, hdlArchitecture, 0, nbHierarchie);
-		addElementSource(io, racineSecond, documentSecond, 0);
+		addElementSource(io, 0);
 		for (RegisterInputSource registerInputSource : io.getListSourceRegisterInput()) {
-			addElementSource(registerInputSource, io, racineSecond, documentSecond, 1);
-			dumpSource( registerInputSource, racineSecond, documentSecond, 1);
+			addElementSource(registerInputSource, io, 1);
+			dumpSource( registerInputSource, 1);
 		}
-		
-
 	}
 
-	private void logicalConeReadIO() {
-//		if (io.getDir() == OIDir.OUT) {
-//			return;
-//		}
+	private void logicalConeReadIO() 
+	{
 		hdlEntity.searchReadSignalSource(io, ToolManager.getVectorName(io.toString()), 0, nbHierarchie);
-		addElement(io, racineFirst, document, 0);
+		addElement(io, 0);
 		for (RegisterInputRead registerInputRead : io.getListReadRegisterInput()) {
-			dump(registerInputRead, racineFirst,  0);
+			dump(registerInputRead,  0);
 		}
-
 	}
 
 
-	private void dump(RegisterInputRead registerInputRead, Element racineFirst, int incr) {
+	private void dump(RegisterInputRead registerInputRead, int incr) {
 		incr++;
 		for (RegisterInputRead registerRead : registerInputRead.getListReadRegisterInput()) {
-			addElement(registerInputRead, registerRead, racineFirst, document, incr);
-			dump(registerRead, racineFirst, incr);
+			addElement(registerInputRead, registerRead, incr);
+			dump(registerRead, incr);
 		}
 		
 	}
 
-	private void dumpSource(RegisterInputSource registerInputSource, Element racine, Document document, int incr) {
+	private void dumpSource(RegisterInputSource registerInputSource, int incr) {
 		incr++;
 		for (RegisterInputSource registerSource : registerInputSource.getListSourceRegisterInput()) {
-			addElementSource(registerInputSource, registerSource, racine, document, incr);
-			dumpSource(registerSource, racine, document, incr);
+			addElementSource(registerInputSource, registerSource, incr);
+			dumpSource(registerSource, incr);
 		}
-		
 	}
-
 
 }

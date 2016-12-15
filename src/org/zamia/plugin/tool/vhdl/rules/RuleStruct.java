@@ -1,5 +1,7 @@
 package org.zamia.plugin.tool.vhdl.rules;
 
+import org.zamia.plugin.tool.vhdl.manager.ReportManager.ParameterSource;
+
 public class RuleStruct {
 
 	//rule Name
@@ -17,6 +19,9 @@ public class RuleStruct {
 	// if the rule is parametrizable
 	private String parameter;
 	
+	// if the rule is parametrizable the source of the parameters
+	private ParameterSource parameterSource;
+
 	// if the rule is implemented
 	private String implemented;
 
@@ -36,13 +41,14 @@ public class RuleStruct {
 	private String logFilename;
 
 	
-	public RuleStruct(String id, String idImpl, String name, String type, String parameter,
+	public RuleStruct(String id, String idImpl, String name, String type, String parameter, ParameterSource parameterSource,
 			String implemented, boolean select, String status, String logFile, boolean enable, String logFilename) {
 		this.setName(name);
 		this.setId(id);
 		this.setIdImpl(idImpl);
 		this.setType(type);
 		this.setParameter(parameter);
+		this.setParameterSource(parameterSource);
 		this.setImplemented(implemented);
 		this.setSelect(select);
 		this.setStatus(status);
@@ -54,7 +60,7 @@ public class RuleStruct {
 	@Override
 	public String toString() {
 		return "name "+name+" id "+id+" idImpl "+idImpl+" Type "+Type
-				+" parameter "+parameter+" status "+status+" logFile "+logFile + " logFilename "+logFilename;
+				+" parameter "+parameter+" parameterSource "+parameterSource+" status "+status+" logFile "+logFile + " logFilename "+logFilename;
 	}
 
 	public String getName() {
@@ -105,12 +111,20 @@ public class RuleStruct {
 		this.enable = enable;
 	}
 
+	public ParameterSource getParameterSource() {
+		return parameterSource;
+	}
+
 	public String getParameter() {
 		return parameter;
 	}
 
 	public void setParameter(String parameter) {
 		this.parameter = parameter;
+	}
+
+	public void setParameterSource(ParameterSource parameterSource) {
+		this.parameterSource = parameterSource;
 	}
 
 	public String getIdImpl() {

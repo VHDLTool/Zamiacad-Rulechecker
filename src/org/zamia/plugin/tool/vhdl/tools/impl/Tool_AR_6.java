@@ -3,7 +3,6 @@ package org.zamia.plugin.tool.vhdl.tools.impl;
 import java.util.Map;
 import java.util.Map.Entry;
 
-import org.w3c.dom.Document;
 import org.w3c.dom.Element;
 import org.zamia.ZamiaProject;
 import org.zamia.plugin.tool.vhdl.ClockSignal;
@@ -28,39 +27,86 @@ public class Tool_AR_6 extends ToolSelectorManager {
 
 	// Clock Mix Edges
 	
+	private Element racineFirst;
+	private Element racineSecond;
+	private Element racineThird;
+
+	private ListClockSource listClockSource;
+	private Map<String, HdlFile> listHdlFile;
+	
 	ToolE tool = ToolE.REQ_FEAT_AR6;
 
-	public Pair<Integer, String> Launch(ZamiaProject zPrj, String toolId) {
+	public Pair<Integer, String> Launch(ZamiaProject zPrj, String toolId, ParameterSource parameterSource) {
 		String fileName = "";
 		
-		ListClockSource listClockSource;
-		Map<String, HdlFile> listHdlFile;
+		racineFirst = null;
+		racineSecond = null;
+		racineThird = null;
 		
-		try {
+		try 
+		{
+			// Retrieve data
 			listHdlFile = ClockSignalManager.getClockSignal();
 			listClockSource = ClockSignalSourceManager.getClockSourceSignal();
-		} catch (EntityException e) {
+		} 
+		catch (EntityException e) 
+		{
 			logger.error("some exception message Tool_AR_6", e);
 			return new Pair<Integer, String> (NO_BUILD, "");
 		}
-		
-		Element racineFirst1 = initReportFile(toolId, tool.getType(), tool.getRuleName(), NumberReportE.FIRST);
-		Element racineSecond = initReportFile(toolId, tool.getType(), tool.getRuleName(), NumberReportE.SECOND);
-		Element racineThird1 = initReportFile(toolId, tool.getType(), tool.getRuleName(), NumberReportE.THIRD);
 
-		for(Entry<String, HdlFile> entry : listHdlFile.entrySet()) {
-			HdlFile hdlFile = entry.getValue();
-			if (hdlFile.getListHdlEntity() != null) {
-				for (HdlEntity hdlEntityItem : hdlFile.getListHdlEntity()) {
-					addReport(documentSecond, racineSecond, hdlFile, hdlEntityItem, listClockSource);
-					if (hdlEntityItem.getListHdlArchitecture() != null) {
-						for (HdlArchitecture hdlArchitectureItem : hdlEntityItem.getListHdlArchitecture()) {
-							if (hdlArchitectureItem.getListProcess() != null) {
-								for (Process processItem : hdlArchitectureItem.getListProcess()) {
-									if (processItem.isSynchronous()) {
-										for (ClockSignal clockSignal : processItem.getListClockSignal()) {
-											addReport(document, racineFirst1, hdlFile, hdlEntityItem, hdlArchitectureItem,
-													processItem, listClockSource, clockSignal);
+		try 
+		{
+			// Dump report file 1
+			fileName = dumpXml(tool, parameterSource, NumberReportE.FIRST);
+		} catch (Exception e) {
+			logger.error("some exception message Tool_AR_6", e);
+			return new Pair<Integer, String> (NO_BUILD, "");
+		}
+
+		try 
+		{
+			// Dump report file 2
+			fileName = dumpXml(tool, parameterSource, NumberReportE.SECOND);
+		} catch (Exception e) {
+			logger.error("some exception message Tool_AR_6", e);
+			return new Pair<Integer, String> (NO_BUILD, "");
+		}
+
+		try 
+		{
+			// Dump report file 3
+			fileName = dumpXml(tool, parameterSource, NumberReportE.THIRD);
+		} catch (Exception e) {
+			logger.error("some exception message Tool_AR_6", e);
+			return new Pair<Integer, String> (NO_BUILD, "");
+		}
+
+		//		ZamiaErrorObserver.updateAllMarkers(zPrj);
+		return new Pair<Integer, String> (0, fileName);
+	}
+	
+	protected void addLogContent(Element racine, ParameterSource parameterSource) throws Exception
+	{
+		if (racineFirst == null)
+		{
+			racineFirst = racine;
+			
+			for(Entry<String, HdlFile> entry : listHdlFile.entrySet()) {
+				HdlFile hdlFile = entry.getValue();
+				if (hdlFile.getListHdlEntity() != null) {
+					for (HdlEntity hdlEntityItem : hdlFile.getListHdlEntity()) 
+					{
+						if (hdlEntityItem.getListHdlArchitecture() != null) {
+							for (HdlArchitecture hdlArchitectureItem : hdlEntityItem.getListHdlArchitecture()) {
+								if (hdlArchitectureItem.getListProcess() != null) {
+									for (Process processItem : hdlArchitectureItem.getListProcess()) {
+										if (processItem.isSynchronous()) {
+											for (ClockSignal clockSignal : processItem.getListClockSignal()) 
+											{
+												addReport(hdlFile, hdlEntityItem, hdlArchitectureItem,
+														processItem, listClockSource, clockSignal);
+											}
 										}
 									}
 								}
@@ -69,43 +115,60 @@ public class Tool_AR_6 extends ToolSelectorManager {
 					}
 				}
 			}
+
 		}
-		
-		for (ClockSource clockSource : listClockSource.getListClockSource()) {
-			EdgeE edge = EdgeE.NAN;
-			for (ClockSignal clockSignal : clockSource.getListClockSignal()) {
-				if (clockSource.equals(clockSignal.getClockSource())) {
-					edge = update(edge, clockSignal.getEdge());
+		else if (racineSecond == null)
+		{
+			racineSecond = racine;
+			
+			for(Entry<String, HdlFile> entry : listHdlFile.entrySet()) {
+				HdlFile hdlFile = entry.getValue();
+				if (hdlFile.getListHdlEntity() != null) {
+					for (HdlEntity hdlEntityItem : hdlFile.getListHdlEntity()) {
+						addReport(hdlFile, hdlEntityItem, listClockSource);
+					}
 				}
 			}
-			addReport(documentThird, racineThird1, clockSource, edge);
 		}
+		else
+		{
+			racineThird = racine;
 
+			for (ClockSource clockSource : listClockSource.getListClockSource()) {
+				EdgeE edge = EdgeE.NAN;
+				for (ClockSignal clockSignal : clockSource.getListClockSignal()) {
+					if (clockSource.equals(clockSignal.getClockSource())) {
+						edge = update(edge, clockSignal.getEdge());
+					}
+				}
+				
+				Element logEntry = document.createElement(NAMESPACE_PREFIX + tool.getIdReq() + "_T3");
 
-		fileName = createReportFile(toolId, tool.getRuleName(), tool.getType(), "tool", NumberReportE.FIRST);
-		fileName = createReportFile(toolId, tool.getRuleName(), tool.getType(), "tool", NumberReportE.SECOND);
-		fileName = createReportFile(toolId, tool.getRuleName(), tool.getType(), "tool", NumberReportE.THIRD);
+				Element clockSourceEdgeElement = createClockSourceEdgeInfoTypeElement(clockSource, edge);
+				logEntry.appendChild(clockSourceEdgeElement);
+				
+				racineThird.appendChild(logEntry);
+			}
 
-		return new Pair<Integer, String> (0, fileName);
+		}
 	}
 	
 	
-	private void addReport(Document document, Element racineSecond, HdlFile hdlFile,
+	private void addReport(HdlFile hdlFile,
 			HdlEntity hdlEntityItem, ListClockSource listClockSource) {
 
-		Element processElement = document.createElement(NodeType.ENTITY.toString());
-		racineSecond.appendChild(processElement);
+		for (ClockSource clockSource : listClockSource.getListClockSource()) 
+		{
+			Element logEntry = document.createElement(NAMESPACE_PREFIX + tool.getIdReq() + "_T2");
 
-		Element fileNameElement = document.createElement(NodeType.FILE.toString()+NodeInfo.NAME.toString());
-		fileNameElement.setTextContent(hdlFile.getLocalPath());
-		processElement.appendChild(fileNameElement);
+			Element fileNameElement = document.createElement(NAMESPACE_PREFIX + NodeType.FILE.toString()+NodeInfo.NAME.toString());
+			fileNameElement.setTextContent(hdlFile.getLocalPath());
+			logEntry.appendChild(fileNameElement);
 
-		Element entityNameElement = document.createElement(NodeType.ENTITY.toString()+NodeInfo.NAME.toString());
-		entityNameElement.setTextContent(hdlEntityItem.getEntity().getId());
-		processElement.appendChild(entityNameElement);
-
-
-		for (ClockSource clockSource : listClockSource.getListClockSource()) {
+			Element entityNameElement = document.createElement(NAMESPACE_PREFIX + NodeType.ENTITY.toString()+NodeInfo.NAME.toString());
+			entityNameElement.setTextContent(hdlEntityItem.getEntity().getId());
+			logEntry.appendChild(entityNameElement);
+			
 			EdgeE edge = EdgeE.NAN;
 			if (hdlEntityItem.getListHdlArchitecture() != null) {
 				for (HdlArchitecture hdlArchitectureItem : hdlEntityItem.getListHdlArchitecture()) {
@@ -122,90 +185,49 @@ public class Tool_AR_6 extends ToolSelectorManager {
 					}
 				}
 			}
-			Element clockSourceElement = document.createElement(clockSource.getTag());
-			clockSourceElement.setTextContent(clockSource.toString());
-			processElement.appendChild(clockSourceElement);
-
-			Element clockSourceEdgeElement = document.createElement(clockSource.getTag()+NodeInfo.EDGE);
-			clockSourceEdgeElement.setTextContent(edge.toString());
-			processElement.appendChild(clockSourceEdgeElement);
-
+			
+			Element clockSourceEdgeElement = createClockSourceEdgeInfoTypeElement(clockSource, edge);
+			logEntry.appendChild(clockSourceEdgeElement);
+			
+			racineSecond.appendChild(logEntry);
 		}
 		
 	
 	}
 
-
-	private void addReport(Document document, Element racineThird, ClockSource clockSource,
-			EdgeE edge) {
-		Element processElement = document.createElement(NodeType.CLOCK_SOURCE.toString());
-		racineThird.appendChild(processElement);
-		
-		Element clockSourceElement = document.createElement(clockSource.getTag());
-		clockSourceElement.setTextContent(clockSource.toString());
-		processElement.appendChild(clockSourceElement);
-
-		Element clockSourceEdgeElement = document.createElement(clockSource.getTag()+NodeInfo.EDGE);
-		clockSourceEdgeElement.setTextContent(edge.toString());
-		processElement.appendChild(clockSourceEdgeElement);
-
-	}
-
-
-	private void addReport(Document document, Element racine, HdlFile hdlFile,
+	private void addReport(HdlFile hdlFile,
 			HdlEntity hdlEntityItem, HdlArchitecture hdlArchitectureItem,
 			Process processItem, ListClockSource listClockSource, ClockSignal clockSignal) {
 
-		Element processElement = document.createElement(NodeType.CLOCK_SIGNAL.toString());
-		racine.appendChild(processElement);
+		for (ClockSource clockSource : listClockSource.getListClockSource()) 
+		{
+			Element logEntry = document.createElement(NAMESPACE_PREFIX + tool.getIdReq() + "_T1");
 
-		Element fileNameElement = document.createElement(NodeType.FILE.toString()+NodeInfo.NAME.toString());
-		fileNameElement.setTextContent(hdlFile.getLocalPath());
-		processElement.appendChild(fileNameElement);
+			Element entityArchitecture = createEntityArchitectureTypeElement(hdlFile.getLocalPath(), hdlEntityItem.getEntity().getId(), hdlArchitectureItem.getArchitecture().getId());
+			logEntry.appendChild(entityArchitecture);
 
-		Element entityNameElement = document.createElement(NodeType.ENTITY.toString()+NodeInfo.NAME.toString());
-		entityNameElement.setTextContent(hdlEntityItem.getEntity().getId());
-		processElement.appendChild(entityNameElement);
+			Element processSignal = createProcessSignalTypeElement(processItem);
+			logEntry.appendChild(processSignal);
 
-		Element archiNameElement = document.createElement(NodeType.ARCHITECTURE.toString()+NodeInfo.NAME.toString());
-		archiNameElement.setTextContent(hdlArchitectureItem.getArchitecture().getId());
-		processElement.appendChild(archiNameElement);
+			Element clockNameElement = document.createElement(NAMESPACE_PREFIX + NodeType.CLOCK_SIGNAL.toString()+NodeInfo.NAME.toString());
+			clockNameElement.setTextContent(clockSignal.toString());
+			logEntry.appendChild(clockNameElement);
 
-		Element processNameElement = document.createElement(NodeType.PROCESS.toString()+NodeInfo.NAME.toString());
-		processNameElement.setTextContent(processItem.getLabel());
-		processElement.appendChild(processNameElement);
-
-		Element processLocElement = document.createElement(NodeType.PROCESS.toString()+NodeInfo.LOCATION.toString());
-		processLocElement.setTextContent(String.valueOf(processItem.getLocation().fLine));
-		processElement.appendChild(processLocElement);
-
-		Element clockNameElement = document.createElement(NodeType.CLOCK_SIGNAL.toString()+NodeInfo.NAME.toString());
-		clockNameElement.setTextContent(clockSignal.toString());
-		processElement.appendChild(clockNameElement);
-
-		Element clockLocElement = document.createElement(NodeType.CLOCK_SIGNAL.toString()+NodeInfo.LOCATION.toString());
-		clockLocElement.setTextContent(String.valueOf(clockSignal.getLocation().fLine));
-		processElement.appendChild(clockLocElement);
-
-		for (ClockSource clockSource : listClockSource.getListClockSource()) {
+			Element clockLocElement = document.createElement(NAMESPACE_PREFIX + NodeType.CLOCK_SIGNAL.toString()+NodeInfo.LOCATION.toString());
+			clockLocElement.setTextContent(String.valueOf(clockSignal.getLocation().fLine));
+			logEntry.appendChild(clockLocElement);
+			
 			EdgeE edge = EdgeE.NAN;
-			if (clockSource.equals(clockSignal.getClockSource())) {
+			if (clockSource.equals(clockSignal.getClockSource())) 
+			{
 				edge = clockSignal.getEdge();
 			}
+
+			Element clockSourceEdgeElement = createClockSourceEdgeInfoTypeElement(clockSource, edge);
+			logEntry.appendChild(clockSourceEdgeElement);
 			
-			Element clockSourceElement = document.createElement(clockSource.getTag());
-			clockSourceElement.setTextContent(clockSource.toString());
-			processElement.appendChild(clockSourceElement);
-
-			Element clockSourceEdgeElement = document.createElement(clockSource.getTag()+NodeInfo.EDGE);
-			clockSourceEdgeElement.setTextContent(edge.toString());
-			processElement.appendChild(clockSourceEdgeElement);
-
+			racineFirst.appendChild(logEntry);
 		}
 		
 	}
-
-
-
-
 }

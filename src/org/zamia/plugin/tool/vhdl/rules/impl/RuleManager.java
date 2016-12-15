@@ -40,33 +40,6 @@ public abstract class RuleManager extends ReportManager {
 	}
 	
 
-	protected static boolean nameValide(String name, List<String> partName, PositionE position) {
-
-		for (String prefix : partName) {
-			switch (position) {
-			case PREFIX:
-				if(name.startsWith(prefix.toUpperCase())) 
-					return true;
-				break;
-			case SUFFIX:
-				if(name.endsWith(prefix.toUpperCase())) 
-					return true;
-				break;
-
-			case CONTAIN:
-				if(name.contains(prefix.toUpperCase())) 
-					return true;
-				break;
-
-			default:
-
-				return false;
-			}
-		}
-
-		return false;
-	}
-
 	protected boolean isSignal(String portName, HdlArchitecture hdlArchitectureItem) {
 		Architecture architecture = hdlArchitectureItem.getArchitecture();
 		int numChildren = architecture .getNumChildren();

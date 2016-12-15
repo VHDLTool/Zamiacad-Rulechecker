@@ -1,85 +1,62 @@
 
 package org.zamia.plugin.tool.vhdl.rules.impl.gen;
 
+import java.util.List;
+
 import org.w3c.dom.Element;
+import org.zamia.SourceLocation;
 import org.zamia.ZamiaProject;
 import org.zamia.plugin.tool.vhdl.ClockSource;
-import org.zamia.plugin.tool.vhdl.EntityException;
-import org.zamia.plugin.tool.vhdl.ListClockSource;
-import org.zamia.plugin.tool.vhdl.NodeInfo;
-import org.zamia.plugin.tool.vhdl.NodeType;
+import org.zamia.plugin.tool.vhdl.ReportFile;
 import org.zamia.plugin.tool.vhdl.ViolationPreservationName;
-import org.zamia.plugin.tool.vhdl.manager.ClockSignalReadManager;
 import org.zamia.plugin.tool.vhdl.rules.RuleE;
-import org.zamia.plugin.tool.vhdl.rules.impl.RuleManager;
+import org.zamia.plugin.tool.vhdl.rules.RuleResult;
+import org.zamia.plugin.tool.vhdl.rules.impl.Rule;
 import org.zamia.util.Pair;
 
-public class RuleGEN_02300 extends RuleManager {
-
-	// Preservation of Clock Name
+/*
+ * Preservation of Clock Name.
+ * Clock signal keeps its name through hierarchy levels.
+ * No parameters.
+ */
+public class RuleGEN_02300 extends Rule {
 	
-	RuleE rule = RuleE.GEN_02300;
+	public RuleGEN_02300() {
+		super(RuleE.GEN_02300);
+	}
 
-	public Pair<Integer, String> Launch(ZamiaProject zPrj, String ruleId) {
-		String fileName = "";
+	public Pair<Integer, RuleResult> Launch(ZamiaProject zPrj, String ruleId, ParameterSource parameterSource) {
 		
-		ListClockSource listClockSource;
-		try {
-			listClockSource = ClockSignalReadManager.getClockReadSignal();
-		} catch (EntityException e) {
-			logger.error("some exception message RuleGEN_02300", e);
-			return new Pair<Integer, String> (RuleManager.NO_BUILD,"");
+		initializeRule(parameterSource, ruleId);
+		
+		//// Makes the clock source list. 
+		
+		List<ClockSource> clockSources = getAllClockSources();
+		if (clockSources == null) {
+			return new Pair<Integer, RuleResult> (NO_BUILD, null);
 		}
 
-		Element racine = initReportFile(ruleId, rule.getType(), rule.getRuleName());
-
-		Integer cmptViolation = 0;
+		//// Write report
 		
-		for (ClockSource clockSource : listClockSource.getListClockSource()) {
-			for (ViolationPreservationName violation : clockSource.getViolationPreservationName()) {
-				cmptViolation++;
-				addViolation(racine, violation);
+		Pair<Integer, RuleResult> result = null;
+		
+		ReportFile reportFile = new ReportFile(this);
+		if (reportFile.initialize()) {
+			for (ClockSource clockSource : clockSources) {
+				for (ViolationPreservationName violation : clockSource.getViolationPreservationName()) {
+					SourceLocation location = violation.getLocation(); 
+					String entityId = violation.getEntityName();
+					String architectureId = violation.getArchiName();
+					Element info = reportFile.addViolation(location, entityId, architectureId);
+					reportFile.addElement(ReportFile.TAG_INSTANCE, violation.getComposantName(), info);
+					reportFile.addElement(ReportFile.TAG_CLOCK_BEFORE, violation.getSignalNameBefore(), info); 
+					reportFile.addElement(ReportFile.TAG_CLOCK_AFTER, violation.getSignalNameAfter(), info);
+				}
 			}
+
+			result = reportFile.save();
 		}
 		
-		if (cmptViolation != 0) {
-			fileName = createReportFile(ruleId, rule.getRuleName(), rule.getType());
-		}
-		//		ZamiaErrorObserver.updateAllMarkers(zPrj);
-		return new Pair<Integer, String> (cmptViolation, fileName);
+		return result;
 	}
-
-
-	private void addViolation(Element racine, ViolationPreservationName violation) {
-		Element clockSignalElement = document.createElement(NodeType.CLOCK_SIGNAL.toString()+NodeInfo.NAME.toString());
-		racine.appendChild(clockSignalElement);
-		
-		clockSignalElement.appendChild(NewElement(document, "violationType"
-				, "noPreservationName"));
-
-		clockSignalElement.appendChild(NewElement(document, NodeType.ENTITY.toString()+NodeInfo.NAME.toString()
-				, violation.getEntityName()));
-
-		clockSignalElement.appendChild(NewElement(document, NodeType.ARCHITECTURE.toString()+NodeInfo.NAME.toString()
-				, violation.getArchiName()));
-
-		clockSignalElement.appendChild(NewElement(document, NodeType.FILE.toString()+NodeInfo.NAME.toString()
-				, violation.getFileName()));
-
-		clockSignalElement.appendChild(NewElement(document, NodeType.CLOCK_SIGNAL.toString()+NodeInfo.NAME.toString()+NodeInfo.BEFORE.toString()
-				, violation.getSignalNameBefore()));
-
-		clockSignalElement.appendChild(NewElement(document, NodeType.CLOCK_SIGNAL.toString()+NodeInfo.NAME.toString()+NodeInfo.AFTER.toString()
-				, violation.getSignalNameAfter()));
-
-		clockSignalElement.appendChild(NewElement(document, NodeType.COMPONENT.toString()+NodeInfo.NAME.toString()
-				, violation.getComposantName()));
-
-		clockSignalElement.appendChild(NewElement(document, NodeType.MAP.toString()+NodeInfo.LOCATION.toString()
-				, String.valueOf(violation.getLocation().fLine)));
-
-	}
-
-
 }
-

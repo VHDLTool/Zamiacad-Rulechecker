@@ -68,7 +68,7 @@ public class SelectAllHeader extends JCheckBox implements TableCellRenderer {
             boolean state = e.getStateChange() == ItemEvent.SELECTED;
             setText((state) ? NONE : ALL);
             for (int r = 0; r < table.getRowCount(); r++) {
-               table.setValueAt(state && ((String)table.getValueAt(r, RuleObject.COL_ENABLE)).equalsIgnoreCase("Implemented"), r, 5);
+               table.setValueAt(state && ((String)table.getValueAt(r, RuleObject.COL_ENABLE)).equalsIgnoreCase("Implemented"), r, RuleObject.COL_SELECTED);
             }
         }
     }

@@ -1,0 +1,30 @@
+<?xml version="1.0"?>
+<xs:schema xmlns:xs="http://www.w3.org/2001/XMLSchema">
+<!-- 
+  This schema is based on the SonarQube Coverage schema.
+  It allows SonarQube to highlight for each VHDL file 
+  the lines where a violation has been detected.
+-->
+  <xs:element name="coverage">
+    <xs:complexType>
+      <xs:sequence>
+        <xs:element name="file" minOccurs="0" maxOccurs="unbounded">
+          <xs:complexType>
+            <xs:sequence>
+              <xs:element name="lineToCover" minOccurs="0" maxOccurs="unbounded">
+                <xs:complexType>
+                  <xs:attribute name="lineNumber" type="xs:positiveInteger" use="required"/>
+                  <xs:attribute name="covered" type="xs:boolean" use="required"/>
+				  <xs:attribute name="rule" type="xs:string" use="required"/>
+                </xs:complexType>
+              </xs:element>
+            </xs:sequence>
+            <xs:attribute name="path" type="xs:string" use="required"/>
+          </xs:complexType>
+        </xs:element>
+      </xs:sequence>
+      <xs:attribute name="version" type="xs:positiveInteger" use="required"/>
+    </xs:complexType>
+  </xs:element>
+
+</xs:schema>

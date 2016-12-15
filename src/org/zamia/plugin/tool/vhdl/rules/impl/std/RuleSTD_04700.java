@@ -14,49 +14,64 @@ import org.zamia.plugin.tool.vhdl.HdlArchitecture;
 import org.zamia.plugin.tool.vhdl.HdlEntity;
 import org.zamia.plugin.tool.vhdl.HdlFile;
 import org.zamia.plugin.tool.vhdl.ListClockSource;
-import org.zamia.plugin.tool.vhdl.NodeInfo;
-import org.zamia.plugin.tool.vhdl.NodeType;
 import org.zamia.plugin.tool.vhdl.Process;
+import org.zamia.plugin.tool.vhdl.ReportFile;
 import org.zamia.plugin.tool.vhdl.manager.ClockSignalManager;
 import org.zamia.plugin.tool.vhdl.manager.ClockSignalSourceManager;
+import org.zamia.plugin.tool.vhdl.rules.IHandbookParam;
 import org.zamia.plugin.tool.vhdl.rules.RuleE;
+import org.zamia.plugin.tool.vhdl.rules.RuleResult;
+import org.zamia.plugin.tool.vhdl.rules.impl.Rule;
 import org.zamia.plugin.tool.vhdl.rules.impl.RuleManager;
 import org.zamia.util.Pair;
 
-public class RuleSTD_04700 extends RuleManager {
+/*
+ * Number of clock domains per modules.
+ * Each module in the design handle only one clock.
+ * One Parameter: nbClockDomain (integer)
+ */
+public class RuleSTD_04700 extends Rule {
 
-	// Number of clock domains per modules
-	RuleE rule = RuleE.STD_04700;
-	private int cmptViolation;
+	private class Violation {
+		private String _fileName;
+		private String _entityId;
+		private String _architectureId;
+		private ClockSource _clockSource;
+		
+		public Violation(String fileName, String entityId, String architectureId, ClockSource clockSource) {
+			_fileName = fileName;
+			_entityId = entityId;
+			_architectureId = architectureId;
+			_clockSource = clockSource;
+		}
+		
+		public void generate(ReportFile reportFile) {
+			int line = _clockSource.getSignalDeclaration().getLocation().fLine;
+			Element info = reportFile.addViolation(_fileName, line, _entityId, _architectureId);
+			
+			reportFile.addElement(ReportFile.TAG_SOURCE_TAG, _clockSource.getTag(), info); 
+			reportFile.addElement(ReportFile.TAG_CLOCK, _clockSource.toString(), info); 
+			reportFile.addElement(ReportFile.TAG_SIGNAL_TYPE, _clockSource.getType(), info); 
+		}
+	}
+
+	public RuleSTD_04700() {
+		super(RuleE.STD_04700);
+	}
 	
 	@Override
-	public Pair<Integer, String> Launch(ZamiaProject zPrj, String ruleId) {
-		String fileName = "";
+	public Pair<Integer, RuleResult> Launch(ZamiaProject zPrj, String ruleId, ParameterSource parameterSource) {
 		
-		List<List<Object>> listParam = new ArrayList<List<Object>>();
-		List<Object> param = new ArrayList<Object>(); 
-		param.add("nbClockDomain");
-		param.add(Integer.class);
-		listParam.add(param);
-
-		List<List<Object>> xmlParameterFileConfig = getXmlParameterFileConfig(zPrj, ruleId, listParam);
-		if (xmlParameterFileConfig == null) {
-			// wrong param
-			logger.info("Rule Checker: wrong parameter for rules "+rule.getIdReq()+ ".");
-			return new Pair<Integer, String> (WRONG_PARAM, "");
+		initializeRule(parameterSource, ruleId);
+		
+		//// Initialize parameter NbClockDomain from rule configuration.
+		
+		List<IHandbookParam> parameterList = getParameterList(zPrj);
+		if (parameterList == null) {
+			return new Pair<Integer, RuleResult> (WRONG_PARAM, null);
 		}
-
-		// get param
-		List<Object> listParam1 = xmlParameterFileConfig.get(0);
-
-		Integer nbMaxClockDomaine = 0;
-		try {
-			nbMaxClockDomaine = Integer.valueOf((String)listParam1.get(2));
-		} catch (Exception e) {
-			logger.error("some exception message RuleSTD_04700", e);
-			logger.info("Rule Checker: wrong parameter for rules "+rule.getIdReq()+ ".");
-			return new Pair<Integer, String> (WRONG_PARAM, "");
-		}
+		
+		//// Make the clock source list.
 
 		ListClockSource listClockSource;
 		Map<String, HdlFile> listHdlFile;
@@ -64,23 +79,35 @@ public class RuleSTD_04700 extends RuleManager {
 			listClockSource = ClockSignalSourceManager.getClockSourceSignal();
 			listHdlFile = ClockSignalManager.getClockSignal();
 		} catch (EntityException e) {
-			logger.error("some exception message RuleSTD_04700 ClockSignalSourceManager.getClockSourceSignal", e);
-			return new Pair<Integer, String> (RuleManager.NO_BUILD,"");
+			LogNeedBuild();
+			return new Pair<Integer, RuleResult> (RuleManager.NO_BUILD, null);
 		}
 
-		Element racine = initReportFile(ruleId, rule.getType(), rule.getRuleName());
-
-		cmptViolation = 0;
+		//// Check rule
 		
-		for(Entry<String, HdlFile> entry : listHdlFile.entrySet()) {
+		ArrayList<Violation> violations = new ArrayList<Violation>();
+		
+		for (Entry<String, HdlFile> entry : listHdlFile.entrySet()) {
 			HdlFile hdlFile = entry.getValue();
 			if (hdlFile.getListHdlEntity() != null) {
 				for (HdlEntity hdlEntityItem : hdlFile.getListHdlEntity()) {
 					if (hdlFile.getListHdlEntity() != null) {
 						for (HdlArchitecture hdlArchitectureItem : hdlEntityItem.getListHdlArchitecture()) {
 							ListClockSource listClockSourceEntity = createListClockSource(listClockSource, hdlEntityItem, hdlArchitectureItem);
-							if (listClockSourceEntity.getListClockSource().size() > nbMaxClockDomaine) {
-								addViolation(racine, hdlFile, hdlEntityItem, hdlArchitectureItem, listClockSourceEntity);
+
+							boolean isValid = false;
+							for (IHandbookParam param : parameterList)
+							{
+								isValid |= param.isValid(listClockSourceEntity.getListClockSource().size());
+							}
+
+							if (!isValid) 
+							{
+								String entityId = hdlEntityItem.getEntity().getId();
+								String architectureId = hdlArchitectureItem.getArchitecture().getId();
+								for (ClockSource clockSource : listClockSourceEntity.getListClockSource()) {
+									violations.add(new Violation(hdlFile.getLocalPath(), entityId, architectureId, clockSource));
+								}
 							}
 						}
 					}
@@ -88,16 +115,23 @@ public class RuleSTD_04700 extends RuleManager {
 			}
 		}
 
-		if (cmptViolation != 0) {
-			fileName = createReportFile(ruleId, rule.getRuleName(), rule.getType());
+		//// Write report
+		
+		Pair<Integer, RuleResult> result = null;
+		
+		ReportFile reportFile = new ReportFile(this);
+		if (reportFile.initialize()) {
+			for (Violation violation : violations) {
+				violation.generate(reportFile);
+			}
+			
+			result = reportFile.save();
 		}
-		return new Pair<Integer, String> (cmptViolation, fileName);
-
+		
+		return result;
 	}
 	
-	
-	private ListClockSource createListClockSource(
-			ListClockSource listClockSource, HdlEntity hdlEntityItem, HdlArchitecture hdlArchitectureItem) {
+	private ListClockSource createListClockSource(ListClockSource listClockSource, HdlEntity hdlEntityItem, HdlArchitecture hdlArchitectureItem) {
 		ListClockSource listClockSourceEntity = new ListClockSource();
 		
 		for (ClockSource clockSource : listClockSource.getListClockSource()) {
@@ -113,51 +147,7 @@ public class RuleSTD_04700 extends RuleManager {
 				}
 			}
 		}
+		
 		return listClockSourceEntity;
 	}
-
-
-	private void addViolation(Element racine, HdlFile hdlFile, HdlEntity hdlEntityItem,
-			HdlArchitecture hdlArchitectureItem, ListClockSource listClockSourceEntity) {
-
-		for (ClockSource clockSource : listClockSourceEntity.getListClockSource()) {
-			cmptViolation++;
-			
-			Element entityElement = document.createElement(NodeType.ENTITY.toString());
-			racine.appendChild(entityElement);
-		
-			entityElement.appendChild(NewElement(document, "violationType"
-					, "numberClockDomaineViolation"));
-	
-			Element fileNameElement = document.createElement(NodeType.FILE.toString()+NodeInfo.NAME.toString());
-			fileNameElement.setTextContent(hdlFile.getLocalPath());
-			entityElement.appendChild(fileNameElement);
-	
-			Element entityNameElement = document.createElement(NodeType.ENTITY.toString()+NodeInfo.NAME.toString());
-			entityNameElement.setTextContent(hdlEntityItem.getEntity().getId());
-			entityElement.appendChild(entityNameElement);
-	
-			Element archiNameElement = document.createElement(NodeType.ARCHITECTURE.toString()+NodeInfo.NAME.toString());
-			archiNameElement.setTextContent(hdlArchitectureItem.getArchitecture().getId());
-			entityElement.appendChild(archiNameElement);
-
-			Element clockSourceTagElement = document.createElement(NodeType.CLOCK_SOURCE.toString()+NodeInfo.TAG.toString());
-			clockSourceTagElement.setTextContent(clockSource.getTag());
-			entityElement.appendChild(clockSourceTagElement);
-			
-			Element clockSourceNameElement = document.createElement(NodeType.CLOCK_SOURCE.toString()+NodeInfo.NAME.toString());
-			clockSourceNameElement.setTextContent(clockSource.toString());
-			entityElement.appendChild(clockSourceNameElement);
-			
-			Element clockSourceTypeElement = document.createElement(NodeType.CLOCK_SOURCE.toString()+NodeInfo.TYPE.toString());
-			clockSourceTypeElement.setTextContent(clockSource.getType());
-			entityElement.appendChild(clockSourceTypeElement);
-			
-			Element clockSourceLocElement = document.createElement(NodeType.CLOCK_SOURCE.toString()+NodeInfo.LOCATION.toString());
-			clockSourceLocElement.setTextContent(String.valueOf(clockSource.getSignalDeclaration().getLocation().fLine));
-			entityElement.appendChild(clockSourceLocElement);
-		}
-	
-	}
-
 }

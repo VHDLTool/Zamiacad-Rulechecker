@@ -15,8 +15,9 @@ import java.util.List;
 
 import javax.swing.AbstractAction;
 import javax.swing.BorderFactory;
-import javax.swing.ImageIcon;
+import javax.swing.DefaultCellEditor;
 import javax.swing.JButton;
+import javax.swing.JComboBox;
 import javax.swing.JLabel;
 import javax.swing.JPanel;
 import javax.swing.JScrollPane;
@@ -31,9 +32,11 @@ import javax.swing.table.TableRowSorter;
 import org.w3c.dom.Element;
 import org.zamia.ZamiaLogger;
 import org.zamia.ZamiaProject;
+import org.zamia.plugin.tool.vhdl.manager.ReportManager.ParameterSource;
+import org.zamia.plugin.tool.vhdl.manager.ReportManager;
+import org.zamia.plugin.tool.vhdl.manager.SynthesisReport;
 import org.zamia.plugin.tool.vhdl.manager.ToolManager;
 import org.zamia.plugin.tool.vhdl.manager.ZDialogManager;
-import org.zamia.plugin.tool.vhdl.rules.impl.RuleManager;
 import org.zamia.util.Pair;
 
 public class ZDialog extends ZDialogManager  {
@@ -101,9 +104,6 @@ public class ZDialog extends ZDialogManager  {
 		this.setLocationRelativeTo(null);
 		this.setResizable(true);
 		this.setTitle("Rules Selector");
-		ImageIcon img = new ImageIcon("C:\\Users\\cniesner\\workspace\\workspace_32b_travail\\zamia-eclipse-plugin\\share\\images\\Eclipse_icon.png");
-
-		this.setIconImage(img.getImage());
 
 	}
 
@@ -185,8 +185,17 @@ public class ZDialog extends ZDialogManager  {
 		table.getColumnModel().getColumn(RuleObject.COL_ENABLE).setPreferredWidth(70);
 		table.getColumnModel().getColumn(RuleObject.COL_TYPE).setPreferredWidth(50);
 		table.getColumnModel().getColumn(RuleObject.COL_PARAM).setPreferredWidth(60);
+		table.getColumnModel().getColumn(RuleObject.COL_PARAM_SOURCE).setPreferredWidth(60);
 		table.getColumnModel().getColumn(RuleObject.COL_SELECTED).setPreferredWidth(70);
 		table.getColumnModel().getColumn(RuleObject.COL_STATUS).setPreferredWidth(90);
+		
+		TableColumn paramSourceColumn = table.getColumnModel().getColumn(RuleObject.COL_PARAM_SOURCE);
+		JComboBox<String> comboParamSource = new JComboBox<String>();
+		for (ParameterSource p : ParameterSource.values())
+		{
+			comboParamSource.addItem(p.toString());
+		}
+		paramSourceColumn.setCellEditor(new DefaultCellEditor(comboParamSource));
 		
 		TableColumn col = table.getColumnModel().getColumn(RuleObject.COL_LOG_FILE);  
 		ButtonCellRenderer renderer = new ButtonCellRenderer();  
@@ -373,66 +382,79 @@ public class ZDialog extends ZDialogManager  {
 			
 			deleteDirectory("rule");
 			
-			boolean ok = true;
-			
 			List<String> listSelectedRule = new ArrayList<String>();
 			for (int i = 0; i < table.getRowCount(); i++) {
 				if ((boolean) table.getValueAt(i, RuleObject.COL_SELECTED)) {
 					listSelectedRule.add((String) table.getValueAt(i, RuleObject.COL_ID));
 				}
 			}
-			Element racine = ToolManager.initReportXml("rule_reporting", RuleTypeE.NA);
+			
+			SynthesisReport synthesisReport = new SynthesisReport(SynthesisReport.Purpose.ForRule);
+			
 			List<RuleStruct> listRule = ((RuleObject) table.getModel()).getRuleStruct();
 			for (int r = 0; r < listRule.size(); r++) {
 				RuleStruct ruleItem = listRule.get(r);
-				table.getModel().setValueAt("", r, RuleObject.COL_LOG_FILE);
-				if (listSelectedRule.contains(ruleItem.getId())) {
-					logger.warn("ruleItem.getId() "+ruleItem.getId());
-					Pair<Integer, String> result = LaunchRules.Launch(ruleItem, zPrj);
-					Integer nbFailed = result.getFirst();
-					System.out.println("nbFailed "+nbFailed);
-					if (nbFailed == RuleManager.WRONG_PARAM) {
-						ok = false;
-					}
-					if (nbFailed == RuleManager.NO_BUILD) {
-						ok = false;
-					}
-					if (nbFailed == -1) {
-						ok = false;
-					}
-					
-					System.out.println("ruleItem.getType() "+ruleItem.getType());
-					StatusE statusE = nbFailed  == 0 ? (ruleItem.getType().equalsIgnoreCase(RuleTypeE.ALGO.toString()) ? StatusE.PASSED : StatusE.REPORTED) :  StatusE.FAILED;
-					System.out.println("statusE "+statusE);
-					String fileName = result.getSecond();
-					
-					table.getModel().setValueAt(statusE == StatusE.FAILED? (StatusE.FAILED.toString()+ " ("+ nbFailed +")") : statusE.toString(), r, RuleObject.COL_STATUS);
+				String ruleId = ruleItem.getId();
+				String ruleType = ruleItem.getType();
 
-					if (statusE == StatusE.REPORTED || statusE == StatusE.FAILED) {
-						table.getModel().setValueAt(fileName, r, RuleObject.COL_LOG_FILE);
-					}
-
-					ToolManager.addReportStatusXml(racine, ruleItem.getId(), statusE, nbFailed, fileName);
-					logger.warn("ruleItem.getId() END "+ruleItem.getId());
-				} else if (ruleItem.isEnable()) {
-					table.getModel().setValueAt(StatusE.NOT_EXECUTED.toString(), r, RuleObject.COL_STATUS);
-					
-					ToolManager.addReportStatusXml(racine, ruleItem.getId(), StatusE.NOT_EXECUTED);
+				StatusE status = StatusE.NOT_EXECUTED;
+				String text = "";
+				String reportFileName = "";
+				
+				if (!listSelectedRule.contains(ruleId)) {
+					status = StatusE.NOT_EXECUTED;
+					text = status.toString();
+					synthesisReport.addRuleReport(ruleId, status);
 				} else {
-					ToolManager.addReportStatusXml(racine, ruleItem.getId(), StatusE.NOT_IMPLEPMENTED);
+					logger.info("#### Execute rule " + ruleId);
+					Pair<Integer, RuleResult> returnObject = LaunchRules.Launch(ruleItem, zPrj);
+					
+					if (returnObject == null) {
+						status = StatusE.FAILED;
+						text = status.toString() + "(error)";
+						synthesisReport.addRuleReport(ruleId, status);
+						logger.error("#### execution failed");
+					} else {
+						int result = returnObject.getFirst();
+						RuleResult ruleResult = returnObject.getSecond();
+						
+						if (result == ReportManager.WRONG_PARAM) {
+							status = StatusE.NOT_EXECUTED;
+							text = status.toString() + "(wrong parameter)";
+							logger.warn(String.format("#### wrong parameter for rule %s.", ruleId));
+							synthesisReport.addRuleReport(ruleId, status);
+						} else if (result == ReportManager.NO_BUILD) {
+							status = StatusE.NOT_EXECUTED;
+							text = status.toString();
+							logger.warn("#### project must be rebuild.");
+							synthesisReport.addToolReport(ruleId, status, null);
+							break;
+						} else if (result == 0) {
+							boolean isAlgo = ruleType.equalsIgnoreCase(RuleTypeE.ALGO.toString());
+							status = isAlgo ? StatusE.PASSED : StatusE.REPORTED;
+							text = status.toString();
+							logger.info(String.format("#### no violations for rule %s.", ruleId));
+							synthesisReport.addRuleReport(ruleId, status);
+						} else {
+							boolean isAlgo = ruleType.equalsIgnoreCase(RuleTypeE.ALGO.toString());
+							status = isAlgo ? StatusE.FAILED : StatusE.REPORTED;
+							text = status.toString();
+							if (isAlgo) {
+								text += String.format("(%d)", result);
+							}
+							reportFileName = ruleResult.getReportFileName();
+							logger.info(String.format("####: %d violations for rule %s.", result, ruleId));
+							synthesisReport.addRuleReport(ruleId, status, reportFileName, result, ruleResult);
+						}
+					}
 				}
+				
+				table.getModel().setValueAt(text, r, RuleObject.COL_STATUS);
+				table.getModel().setValueAt(reportFileName, r, RuleObject.COL_LOG_FILE);
 			}
 			
-			updateValues(ToolManager.finishReportXml(RuleTypeE.RULE));
-			if (ok) {
-				logger.info("Rule Checker: rules selector has been executed with success.");
-			} else {
-				logger.info("Rule Checker: rules selector has been executed with error.");
-			}
+			updateValues(synthesisReport.saveToFile());
 		}
-
-
-
 	}
 	
 
@@ -450,7 +472,7 @@ public class ZDialog extends ZDialogManager  {
 
 		@Override
 		public void actionPerformed(ActionEvent e) {
-			updateConfigSelectedRules();
+//			updateConfigSelectedRules();
 			setVisible(false);
 		}
 
@@ -586,13 +608,6 @@ public class ZDialog extends ZDialogManager  {
 	}
 
 	public void updateConfigSelectedRules() {
-		
-		List<String> listSelectedRule = new ArrayList<String>();
-		for (int i = 0; i < table.getRowCount(); i++) {
-			if ((boolean) table.getValueAt(i, RuleObject.COL_SELECTED)) {
-				listSelectedRule.add((String) table.getValueAt(i, RuleObject.COL_ID));
-			}
-		}
 
 		String pathFileName = ToolManager.getPathFileName("/rule_checker/rc_config_selected_rules.xml");
 		File file = new File(pathFileName);
@@ -601,9 +616,16 @@ public class ZDialog extends ZDialogManager  {
 		}
 
 		Element racine = ToolManager.initReportXml("config_selected_rules", RuleTypeE.NA);
-		for (String selectedRule : listSelectedRule) {
-			ToolManager.addRuleSelectedXml(racine, selectedRule);
+
+		for (int i = 0; i < table.getRowCount(); i++) {
+			if ((boolean) table.getValueAt(i, RuleObject.COL_SELECTED)) {
+				String ruleId = (String) table.getValueAt(i, RuleObject.COL_ID);
+				String paramSource = (String) table.getValueAt(i, RuleObject.COL_PARAM_SOURCE);
+				
+				ToolManager.addRuleSelectedXml(racine, ruleId, paramSource);
+			}
 		}
+		
 		ToolManager.finishReportXml(pathFileName);
 	}
 }

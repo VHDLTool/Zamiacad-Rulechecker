@@ -7,6 +7,8 @@ import org.w3c.dom.Document;
 import org.w3c.dom.Element;
 import org.zamia.ZamiaProject;
 import org.zamia.plugin.tool.vhdl.ClockSignal;
+import org.zamia.plugin.tool.vhdl.ClockSource;
+import org.zamia.plugin.tool.vhdl.EdgeE;
 import org.zamia.plugin.tool.vhdl.EntityException;
 import org.zamia.plugin.tool.vhdl.HdlArchitecture;
 import org.zamia.plugin.tool.vhdl.HdlEntity;
@@ -21,6 +23,7 @@ import org.zamia.plugin.tool.vhdl.ResetSignal;
 import org.zamia.plugin.tool.vhdl.ResetSource;
 import org.zamia.plugin.tool.vhdl.manager.ResetSignalManager;
 import org.zamia.plugin.tool.vhdl.manager.ResetSignalSourceManager;
+import org.zamia.plugin.tool.vhdl.manager.ReportManager.ParameterSource;
 import org.zamia.plugin.tool.vhdl.tools.ToolE;
 import org.zamia.plugin.tool.vhdl.tools.ToolSelectorManager;
 import org.zamia.util.Pair;
@@ -31,13 +34,23 @@ public class Tool_AR_7 extends ToolSelectorManager {
 	
 	ToolE tool = ToolE.REQ_FEAT_AR7;
 
-	public Pair<Integer, String> Launch(ZamiaProject zPrj, String toolId) {
+	private Element racineFirst;
+	private Element racineSecond;
+	private Element racineThird;
+
+	ListResetSource listResetSource;
+	Map<String, HdlFile> listHdlFile;
+
+	
+	public Pair<Integer, String> Launch(ZamiaProject zPrj, String toolId, ParameterSource parameterSource) {
 		String fileName = "";
 		
-		ListResetSource listResetSource;
-		Map<String, HdlFile> listHdlFile;
+		racineFirst = null;
+		racineSecond = null;
+		racineThird = null;
 		
 		try {
+			// Retrieve data
 			listHdlFile = ResetSignalManager.getResetSignal();
 			listResetSource = ResetSignalSourceManager.getResetSourceSignal();
 		} catch (EntityException e) {
@@ -45,23 +58,57 @@ public class Tool_AR_7 extends ToolSelectorManager {
 			return new Pair<Integer, String> (NO_BUILD, "");
 		}
 		
-		Element racineThird1 = initReportFile(toolId, tool.getType(), tool.getRuleName(), NumberReportE.THIRD);
-		Element racineSecond = initReportFile(toolId, tool.getType(), tool.getRuleName(), NumberReportE.SECOND);
-		Element racineFirst1 = initReportFile(toolId, tool.getType(), tool.getRuleName(), NumberReportE.FIRST);
+		try 
+		{
+			// Dump report file 1
+			fileName = dumpXml(tool, parameterSource, NumberReportE.FIRST);
+		} catch (Exception e) {
+			logger.error("some exception message Tool_AR_7", e);
+			return new Pair<Integer, String> (NO_BUILD, "");
+		}
 
-		for(Entry<String, HdlFile> entry : listHdlFile.entrySet()) {
-			HdlFile hdlFile = entry.getValue();
-			if (hdlFile.getListHdlEntity() != null) {
-				for (HdlEntity hdlEntityItem : hdlFile.getListHdlEntity()) {
-					addReport(documentSecond, racineSecond, hdlFile, hdlEntityItem, listResetSource);
-					if (hdlEntityItem.getListHdlArchitecture() != null) {
-						for (HdlArchitecture hdlArchitectureItem : hdlEntityItem.getListHdlArchitecture()) {
-							if (hdlArchitectureItem.getListProcess() != null) {
-								for (Process processItem : hdlArchitectureItem.getListProcess()) {
-									if (processItem.hasSynchronousReset()) {
-										for (ClockSignal clockSignal : processItem.getListClockSignal()) {
-											for (ResetSignal resetSignal : clockSignal.getListResetSignal()) {
-												addReport(document, racineFirst1, hdlFile, hdlEntityItem, hdlArchitectureItem, processItem, listResetSource, resetSignal);
+		try 
+		{
+			// Dump report file 2
+			fileName = dumpXml(tool, parameterSource, NumberReportE.SECOND);
+		} catch (Exception e) {
+			logger.error("some exception message Tool_AR_7", e);
+			return new Pair<Integer, String> (NO_BUILD, "");
+		}
+
+		try 
+		{
+			// Dump report file 3
+			fileName = dumpXml(tool, parameterSource, NumberReportE.THIRD);
+		} catch (Exception e) {
+			logger.error("some exception message Tool_AR_7", e);
+			return new Pair<Integer, String> (NO_BUILD, "");
+		}
+
+		//		ZamiaErrorObserver.updateAllMarkers(zPrj);
+		return new Pair<Integer, String> (0, fileName);
+	}
+
+	
+	protected void addLogContent(Element racine, ParameterSource parameterSource) throws Exception
+	{
+		if (racineFirst == null)
+		{
+			racineFirst = racine;
+
+			for(Entry<String, HdlFile> entry : listHdlFile.entrySet()) {
+				HdlFile hdlFile = entry.getValue();
+				if (hdlFile.getListHdlEntity() != null) {
+					for (HdlEntity hdlEntityItem : hdlFile.getListHdlEntity()) {
+						if (hdlEntityItem.getListHdlArchitecture() != null) {
+							for (HdlArchitecture hdlArchitectureItem : hdlEntityItem.getListHdlArchitecture()) {
+								if (hdlArchitectureItem.getListProcess() != null) {
+									for (Process processItem : hdlArchitectureItem.getListProcess()) {
+										if (processItem.hasSynchronousReset()) {
+											for (ClockSignal clockSignal : processItem.getListClockSignal()) {
+												for (ResetSignal resetSignal : clockSignal.getListResetSignal()) {
+													addReport(hdlFile, hdlEntityItem, hdlArchitectureItem, processItem, listResetSource, resetSignal);
+												}
 											}
 										}
 									}
@@ -72,41 +119,56 @@ public class Tool_AR_7 extends ToolSelectorManager {
 				}
 			}
 		}
-		
-		for (ResetSource resetSource : listResetSource.getListResetSource()) {
-			LevelE level = LevelE.NAN;
-			for (ResetSignal resetSignal : resetSource.getListResetSignal()) {
-				if (resetSource.equals(resetSignal.getResetSource())) {
-					level = update(level, resetSignal.getLevel());
+		else if (racineSecond == null)
+		{
+			racineSecond = racine;
+			
+			for(Entry<String, HdlFile> entry : listHdlFile.entrySet()) {
+				HdlFile hdlFile = entry.getValue();
+				if (hdlFile.getListHdlEntity() != null) {
+					for (HdlEntity hdlEntityItem : hdlFile.getListHdlEntity()) {
+						addReport(hdlFile, hdlEntityItem, listResetSource);
+					}
 				}
 			}
-			addReport(documentThird, racineThird1, resetSource, level);
 		}
+		else
+		{
+			racineThird = racine;
 
+			for (ResetSource resetSource : listResetSource.getListResetSource()) {
+				LevelE level = LevelE.NAN;
+				for (ResetSignal resetSignal : resetSource.getListResetSignal()) {
+					if (resetSource.equals(resetSignal.getResetSource())) {
+						level = update(level, resetSignal.getLevel());
+					}
+				}
 
-		fileName = createReportFile(toolId, tool.getRuleName(), tool.getType(), "tool", NumberReportE.FIRST);
-		fileName = createReportFile(toolId, tool.getRuleName(), tool.getType(), "tool", NumberReportE.SECOND);
-		fileName = createReportFile(toolId, tool.getRuleName(), tool.getType(), "tool", NumberReportE.THIRD);
+				Element logEntry = document.createElement(NAMESPACE_PREFIX + tool.getIdReq() + "_T3");
 
-		return new Pair<Integer, String> (0, fileName);
+				Element resetSourceLevelElement = createResetSourceLevelInfoTypeElement(resetSource, level);
+				logEntry.appendChild(resetSourceLevelElement);
+				
+				racineThird.appendChild(logEntry);
+			}
+		}
 	}
-
-	private void addReport(Document document, Element racineSecond, HdlFile hdlFile,
+	
+	private void addReport(HdlFile hdlFile,
 			HdlEntity hdlEntityItem, ListResetSource listResetSource) {
 
-		Element processElement = document.createElement(NodeType.ENTITY.toString());
-		racineSecond.appendChild(processElement);
+		for (ResetSource resetSource : listResetSource.getListResetSource()) 
+		{
+			Element logEntry = document.createElement(NAMESPACE_PREFIX + tool.getIdReq() + "_T2");
 
-		Element fileNameElement = document.createElement(NodeType.FILE.toString()+NodeInfo.NAME.toString());
-		fileNameElement.setTextContent(hdlFile.getLocalPath());
-		processElement.appendChild(fileNameElement);
+			Element fileNameElement = document.createElement(NAMESPACE_PREFIX + NodeType.FILE.toString()+NodeInfo.NAME.toString());
+			fileNameElement.setTextContent(hdlFile.getLocalPath());
+			logEntry.appendChild(fileNameElement);
 
-		Element entityNameElement = document.createElement(NodeType.ENTITY.toString()+NodeInfo.NAME.toString());
-		entityNameElement.setTextContent(hdlEntityItem.getEntity().getId());
-		processElement.appendChild(entityNameElement);
-
-
-		for (ResetSource resetSource : listResetSource.getListResetSource()) {
+			Element entityNameElement = document.createElement(NAMESPACE_PREFIX + NodeType.ENTITY.toString()+NodeInfo.NAME.toString());
+			entityNameElement.setTextContent(hdlEntityItem.getEntity().getId());
+			logEntry.appendChild(entityNameElement);
+			
 			LevelE level = LevelE.NAN;
 			if (hdlEntityItem.getListHdlArchitecture() != null) {
 				for (HdlArchitecture hdlArchitectureItem : hdlEntityItem.getListHdlArchitecture()) {
@@ -127,89 +189,49 @@ public class Tool_AR_7 extends ToolSelectorManager {
 					}
 				}
 			}
-			Element clockSourceElement = document.createElement(resetSource.getTag());
-			clockSourceElement.setTextContent(resetSource.toString());
-			processElement.appendChild(clockSourceElement);
 
-			Element clockSourceEdgeElement = document.createElement(resetSource.getTag()+NodeInfo.EDGE);
-			clockSourceEdgeElement.setTextContent(level.toString());
-			processElement.appendChild(clockSourceEdgeElement);
+			Element resetSourceLevelElement = createResetSourceLevelInfoTypeElement(resetSource, level);
+			logEntry.appendChild(resetSourceLevelElement);
 
+			racineSecond.appendChild(logEntry);
 		}
-		
 	
 	}
 
-
-	private void addReport(Document document, Element racineThird, ResetSource resetSource,
-			LevelE level) {
-		Element processElement = document.createElement(NodeType.RESET_SOURCE.toString());
-		racineThird.appendChild(processElement);
-		
-		Element clockSourceElement = document.createElement(resetSource.getTag());
-		clockSourceElement.setTextContent(resetSource.toString());
-		processElement.appendChild(clockSourceElement);
-
-		Element clockSourceEdgeElement = document.createElement(resetSource.getTag()+NodeInfo.LEVEL);
-		clockSourceEdgeElement.setTextContent(level.toString());
-		processElement.appendChild(clockSourceEdgeElement);
-
-	}
-
-
-	private void addReport(Document document, Element racine, HdlFile hdlFile,
+	private void addReport(HdlFile hdlFile,
 			HdlEntity hdlEntityItem, HdlArchitecture hdlArchitectureItem,
 			Process processItem, ListResetSource listResetSource, ResetSignal resetSignal) {
 
-		Element processElement = document.createElement(NodeType.PROCESS.toString());
-		racine.appendChild(processElement);
+		for (ResetSource resetSource : listResetSource.getListResetSource()) 
+		{
+			Element logEntry = document.createElement(NAMESPACE_PREFIX + tool.getIdReq() + "_T1");
 
-		Element fileNameElement = document.createElement(NodeType.FILE.toString()+NodeInfo.NAME.toString());
-		fileNameElement.setTextContent(hdlFile.getLocalPath());
-		processElement.appendChild(fileNameElement);
+			Element entityArchitecture = createEntityArchitectureTypeElement(hdlFile.getLocalPath(), hdlEntityItem.getEntity().getId(), hdlArchitectureItem.getArchitecture().getId());
+			logEntry.appendChild(entityArchitecture);
 
-		Element entityNameElement = document.createElement(NodeType.ENTITY.toString()+NodeInfo.NAME.toString());
-		entityNameElement.setTextContent(hdlEntityItem.getEntity().getId());
-		processElement.appendChild(entityNameElement);
+			Element processSignal = createProcessSignalTypeElement(processItem);
+			logEntry.appendChild(processSignal);
+			
+			Element resetSignalNameElement = document.createElement(NAMESPACE_PREFIX + NodeType.RESET_SIGNAL.toString()+NodeInfo.NAME.toString());
+			resetSignalNameElement.setTextContent(resetSignal.toString());
+			logEntry.appendChild(resetSignalNameElement);
 
-		Element archiNameElement = document.createElement(NodeType.ARCHITECTURE.toString()+NodeInfo.NAME.toString());
-		archiNameElement.setTextContent(hdlArchitectureItem.getArchitecture().getId());
-		processElement.appendChild(archiNameElement);
-
-		Element processNameElement = document.createElement(NodeType.PROCESS.toString()+NodeInfo.NAME.toString());
-		processNameElement.setTextContent(processItem.getLabel());
-		processElement.appendChild(processNameElement);
-
-		Element processLocElement = document.createElement(NodeType.PROCESS.toString()+NodeInfo.LOCATION.toString());
-		processLocElement.setTextContent(String.valueOf(processItem.getLocation().fLine));
-		processElement.appendChild(processLocElement);
-
-		Element resetSignalNameElement = document.createElement(NodeType.RESET_SIGNAL.toString()+NodeInfo.NAME.toString());
-		resetSignalNameElement.setTextContent(resetSignal.toString());
-		processElement.appendChild(resetSignalNameElement);
-
-		Element resetSignalLocElement = document.createElement(NodeType.RESET_SIGNAL.toString()+NodeInfo.LOCATION.toString());
-		resetSignalLocElement.setTextContent(String.valueOf(resetSignal.getLocation().fLine));
-		processElement.appendChild(resetSignalLocElement);
-
-		for (ResetSource resetSource : listResetSource.getListResetSource()) {
+			Element resetSignalLocElement = document.createElement(NAMESPACE_PREFIX + NodeType.RESET_SIGNAL.toString()+NodeInfo.LOCATION.toString());
+			resetSignalLocElement.setTextContent(String.valueOf(resetSignal.getLocation().fLine));
+			logEntry.appendChild(resetSignalLocElement);
+			
 			LevelE level = LevelE.NAN;
-			if (resetSource.equals(resetSignal.getResetSource())) {
+			if (resetSource.equals(resetSignal.getResetSource())) 
+			{
 				level = update(level, resetSignal.getLevel());
 			}
-			Element clockSourceElement = document.createElement(resetSource.getTag());
-			clockSourceElement.setTextContent(resetSource.toString());
-			processElement.appendChild(clockSourceElement);
-
-			Element clockSourceEdgeElement = document.createElement(resetSource.getTag()+NodeInfo.LEVEL);
-			clockSourceEdgeElement.setTextContent(level.toString());
-			processElement.appendChild(clockSourceEdgeElement);
+			
+			Element resetSourceLevelElement = createResetSourceLevelInfoTypeElement(resetSource, level);
+			logEntry.appendChild(resetSourceLevelElement);
+			
+			racineFirst.appendChild(logEntry);
 
 		}
-		
 	}
-
-
-
 
 }

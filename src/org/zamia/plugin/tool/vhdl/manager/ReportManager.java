@@ -24,49 +24,52 @@ import org.w3c.dom.NodeList;
 import org.xml.sax.SAXException;
 import org.zamia.ZamiaLogger;
 import org.zamia.ZamiaProject;
+import org.zamia.plugin.ZamiaPlugin;
 import org.zamia.plugin.tool.vhdl.EdgeE;
 import org.zamia.plugin.tool.vhdl.LevelE;
 import org.zamia.plugin.tool.vhdl.NumberReportE;
 import org.zamia.plugin.tool.vhdl.PathReport;
+import org.zamia.plugin.tool.vhdl.rules.IHandbookParam;
+import org.zamia.plugin.tool.vhdl.rules.IntParam;
+import org.zamia.plugin.tool.vhdl.rules.RangeParam;
 import org.zamia.plugin.tool.vhdl.rules.RuleService;
 import org.zamia.plugin.tool.vhdl.rules.RuleTypeE;
-import org.zamia.plugin.tool.vhdl.rules.impl.TypeParam;
-import org.zamia.util.Pair;
+import org.zamia.plugin.tool.vhdl.rules.StringParam;
 
 public abstract class ReportManager {
 
 	private static DocumentBuilder builder;
-
+	private static String _ruleCheckerVersion;
+	
 	public static final Integer WRONG_PARAM = -2;
 	public static final Integer NO_BUILD = -3;
 
+	public enum ParameterSource {HANDBOOK, RULE_CHECKER};
+	
 	protected static Document document;
 	protected static Document documentSecond;
 	protected static Document documentThird;
 
 	public final static ZamiaLogger logger = ZamiaLogger.getInstance();
 
-
 	public ReportManager() {
 		
 	}
 	
-	/**
-	 * This method is launch when user click on "launch" button in "rule selector" or "tool selector" windows. 
-	 * Use getXmlParameterFileConfig to used param for the rule.
-	 * Use initReportFile to start report.
-	 * Use createReportFile to finish report.
-	 * Create method "addReport" or "addViolation" to build the report.
-	 * And used the method "NewElement" to add info in xml report 
-	 * 
-	 * @param zPrj
-	 * @param ruleId
-	 * @return number of violation 
-	 * 			//  report fileName 
-	 * 
+	/*
+	 * To set the version without loading the ZamiaPlugin bundle.
+	 * Used from org.zamia.plugin.Check.main.
 	 */
-	public abstract Pair<Integer,String> Launch(ZamiaProject zPrj, String ruleId) ;
-
+	public static void setRuleCheckerVersion(String ruleCheckerVersion) { 
+		_ruleCheckerVersion = ruleCheckerVersion;
+	}
+	
+	public static String getRuleCheckerVersion() { 
+		if (_ruleCheckerVersion == null) {
+			_ruleCheckerVersion = ZamiaPlugin.getDefault().fVersion;
+		}
+		return _ruleCheckerVersion; 
+	}
 	
 	protected Element initReportFile(String ruleId, RuleTypeE ruleType, String ruleName) {
 		return initReportFile(ruleId, ruleType, ruleName, NumberReportE.NAN);
@@ -222,12 +225,13 @@ public abstract class ReportManager {
 
 	}
 
-	public static PathReport getPathReport(NumberReportE numberReport, List<String> xmlLogReport, String ruleId, String ruleName) {
+	public static PathReport getPathReport(NumberReportE numberReport, List<String> xmlLogReport, String ruleId, String ruleName) 
+	{
 		String directory = "";
 		String fileName = "";
 			directory = xmlLogReport.get(0) + 
 					((xmlLogReport.get(1).indexOf(".") == -1) ? (xmlLogReport.get(1) + "_" + ruleId + "_" + ruleName) 
-							: (xmlLogReport.get(1).substring(0, xmlLogReport.get(1).indexOf(".")) + "_" + ruleId + "_" + ruleName))+"/";
+							: (xmlLogReport.get(1).substring(0, xmlLogReport.get(1).indexOf(".")) + "_" + ruleId + "_" + ruleName))+ File.separator;
 			
 			// fileName for xml log report
 			fileName = 	((xmlLogReport.get(1).indexOf(".") == -1) ? (xmlLogReport.get(1) + "_" + ruleId + "_" + ruleName) 
@@ -274,14 +278,22 @@ public abstract class ReportManager {
 	}
 
 
-	protected static List<List<Object>> getXmlParameterFileConfig(ZamiaProject zPrj, String ruleId, List<List<Object>> defaultParam) {
+	/**
+	 * Retrieve the parameters for the given rule and from the given source
+	 * @param zPrj The Zamia project
+	 * @param ruleId The Rule identifier
+	 * @param paramSource The source of the parameters
+	 * @return The list of parameters, null if a parameter is wrong or no parameter is found
+	 */
+	protected static List<IHandbookParam> getXmlParameterFileConfig(ZamiaProject zPrj, String ruleId, ParameterSource paramSource) 
+	{
 		final DocumentBuilderFactory factory = DocumentBuilderFactory.newInstance();
-		List<List<Object>> listParameter = new ArrayList<List<Object>>();
-		List<Object> param = new ArrayList<Object>(); 
+		List<IHandbookParam> listParameter = new ArrayList<IHandbookParam>();
+
 		try {
 		     builder = factory.newDocumentBuilder();		
 		    
-		    String fichierName = RuleService.getInstance().getParametersFile(zPrj);
+		    String fichierName = RuleService.getInstance().getParametersFile(zPrj, ruleId, paramSource);
 		    Document document;
 		    try {
 				
@@ -290,8 +302,6 @@ public abstract class ReportManager {
 				JOptionPane.showMessageDialog(null, "<html>Parameters file doesn't exist " + fichierName +"</html>", "Error",
                         JOptionPane.ERROR_MESSAGE);
 
-//				createXmlParameterFileConfig(fichierName, ruleId, defaultParam);
-				// pas de param on utilise les param par defaut
 				return null;
 			}
 		    
@@ -302,8 +312,6 @@ public abstract class ReportManager {
 		    final int nbRuleNode = ruleNode.getLength();
 
 		    if (nbRuleNode < 1) {
-//		    	addRule(racine, ruleId, defaultParam);
-//		    	createfile(fichierName);
 		    	// pas de param on utilise les param par defaut
 				JOptionPane.showMessageDialog(null, "<html>No rule element in parameters file " + fichierName +"</html>", "Error",
                         JOptionPane.ERROR_MESSAGE);
@@ -312,98 +320,60 @@ public abstract class ReportManager {
 		    }
 		    
 		    //recherche la balise ruleId
-		    for (int i = 0; i < nbRuleNode; i++) {
-		        if(ruleNode.item(i).getNodeType() == Node.ELEMENT_NODE) {
-		            final Element ruleElement = (Element) ruleNode.item(i);
-		            
-					if (ruleElement.getAttribute("UID").equalsIgnoreCase(ruleId)) {
-					    final NodeList ruleParameterNode = ruleElement.getElementsByTagName("hb:RuleParameter");
-					    final int nbRuleParameterNode = ruleParameterNode.getLength();
-
-					    if (nbRuleParameterNode < 1) {
-//					    	addRuleParameter(ruleElement, defaultParam);
-//					    	createfile(fichierName);
-					    	// pas de param on utilise les param par defaut
-							JOptionPane.showMessageDialog(null, "<html>No parameters for rule " + ruleId +"</html>", "Error",
-			                        JOptionPane.ERROR_MESSAGE);
-
-							return null;
-					    }
-					    
-					    //recherche des parametres
-					    for (int j = 0; j < nbRuleParameterNode; j++) {
-					    	param = new ArrayList<Object>();
-					        if(ruleParameterNode.item(j).getNodeType() == Node.ELEMENT_NODE) {
-					        	final Element ruleParameterElement = (Element) ruleParameterNode.item(j);
-					        	//get paameter name
-					        	String paramName = getInfoElement(ruleParameterElement, "name");
-					        	param.add(paramName);
-					        	String type = getInfoElement(ruleParameterElement, "type");
-					        	if (!TypeParam.exist(type)) {
-									JOptionPane.showMessageDialog(null, "<html>bad parameter type for the parameter "+paramName+" of rule " + ruleId +", type "+type+" does'nt exist</html>", "Error",
+		    for (int i = 0; i < nbRuleNode; i++) 
+		    {
+	            final Element ruleElement = (Element) ruleNode.item(i);
+	            
+	            NodeList ruleIDTagList = ruleElement.getElementsByTagName("hb:RuleUID");
+	            if (ruleIDTagList != null && ruleIDTagList.getLength() == 1 && ruleIDTagList.item(0).getTextContent().equalsIgnoreCase(ruleId))
+	            {
+	            	NodeList ruleParamsList = ruleElement.getElementsByTagName("hb:RuleParams");
+	            	if (ruleParamsList != null && ruleParamsList.getLength() == 1)
+	            	{
+	            		Element ruleParams = (Element) ruleParamsList.item(0);
+	            		int nbParams = ruleParams.getChildNodes().getLength();
+	            		for (int j = 0; j < nbParams; j++)
+	            		{
+	            			Node current = ruleParams.getChildNodes().item(j);
+	            			if (current.getNodeType() == Node.ELEMENT_NODE)
+	            			{
+	            				Element param = (Element) current;
+	            				IHandbookParam handbookParameter = null;
+	            				switch (param.getTagName())
+	    						{
+	    						case IntParam.INT_PARAM_TAG:
+	    							handbookParameter = new IntParam(param);
+	    							break;
+	    						case StringParam.STRING_PARAM_TAG:
+	    							handbookParameter = new StringParam(param);
+	    							break;
+	    						case RangeParam.RANGE_PARAM_TAG:
+	    							handbookParameter = new RangeParam(param);
+	    							break;
+	    						}
+	            				
+	            				if (handbookParameter != null && handbookParameter.isParamValid())
+	            				{
+	            					listParameter.add(handbookParameter);
+	            				}
+	            				else
+	            				{
+									JOptionPane.showMessageDialog(null, "<html>bad parameter type for the parameter "+param.getTagName()+" of rule " + ruleId +"</html>", "Error",
 					                        JOptionPane.ERROR_MESSAGE);
-
-					        		return null;
-					        	}
-					        	
-					        	param.add(TypeParam.getClass(type));
-					        	//recherche des valeurs des parametres
-							    final NodeList valueNode = ruleParameterElement.getElementsByTagName("value");
-							    final int nbValueNode = valueNode.getLength();
-							    if (nbValueNode < 1) {
-									JOptionPane.showMessageDialog(null, "<html>No value for the parameter  "+paramName+" of rule " + ruleId+"</html>", "Error",
-					                        JOptionPane.ERROR_MESSAGE);
-
-							    	return null;
-							    }
-							    
-							    //recherche des parametres
-							    for (int k = 0; k < nbValueNode; k++) {
-							        if(valueNode.item(k).getNodeType() == Node.ELEMENT_NODE) {
-							        	final Element valueElement = (Element) valueNode.item(k);
-							        	String value = valueElement.getTextContent();
-							        	param.add(value);
-							        }
-							    }
-					        }
-					        listParameter.add(param);
-					    }
-					    if (listParameter.isEmpty() || (listParameter.size() != defaultParam.size())) {
-					    	// pas de param ou pas assez de param on utilise les param par defaut
-							JOptionPane.showMessageDialog(null, "<html>Wrong number of parameters, Rule "+ruleId+" must have "+defaultParam.size()+" parameters</html>", "Error",
-			                        JOptionPane.ERROR_MESSAGE);
-
-							return null;
-					    } else {
-					    	// verif param type
-					    	for (int cmptParam = 0; cmptParam < listParameter.size(); cmptParam++) {
-					    		List<Object> paramItem = listParameter.get(cmptParam);
-					    		List<Object> defaultParamItem = defaultParam.get(cmptParam);
-					    		if (paramItem.isEmpty() || paramItem.size() < 3) {
-									JOptionPane.showMessageDialog(null, "<html>No value for the parameter "+defaultParamItem.get(0).toString()+" of rule " + ruleId+"</html>", "Error",
-					                        JOptionPane.ERROR_MESSAGE);
-					    			return null;
-					    			}
-					    		if (! paramItem.get(0).toString().equalsIgnoreCase(defaultParamItem.get(0).toString())) {
-					    			// si le nom du param n'est pas le meme
-									JOptionPane.showMessageDialog(null, "<html>Wrong name ("+paramItem.get(0).toString()+") for the parameters "+defaultParamItem.get(0).toString()+" of rule " + ruleId+"</html>", "Error",
-					                        JOptionPane.ERROR_MESSAGE);
-
-					    			return null;
-					    		} 
-					    		if (! paramItem.get(1).equals(defaultParamItem.get(1))) {
-									JOptionPane.showMessageDialog(null, "<html>Wrong type for the parameters "+defaultParamItem.get(0).toString()+" of rule " + ruleId+"</html>", "Error",
-					                        JOptionPane.ERROR_MESSAGE);
-
-					    			// si le type du param n'est pas le meme
-					    			return null;
-					    		} 
-					    	}
-					    	return listParameter;
-					    }
-					}
-		        }				
+									return null;
+	            				}
+	            			}
+	            		}		            		
+	            	}
+	            	else
+	            	{
+						JOptionPane.showMessageDialog(null, "<html>No parameters for rule " + ruleId +"</html>", "Error",
+		                        JOptionPane.ERROR_MESSAGE);
+						return null;
+	            	}
+	            }
 		    }
+	            
 		}
 		catch (final ParserConfigurationException e) {
 		    e.printStackTrace();
@@ -414,21 +384,7 @@ public abstract class ReportManager {
 		catch (final IOException e) {
 		    e.printStackTrace();
 		}	
+		
 		return listParameter;
 	}
-	
-	private static String getInfoElement(Element ruleElement, String info) {
-		final NodeList ruleParameterNameNode = ruleElement.getElementsByTagName(info);
-	    final int nbRuleParameterNameNode = ruleParameterNameNode.getLength();
-
-	    if (nbRuleParameterNameNode < 1) {
-//	    	addRuleParameter(ruleElement, defaultParam);
-//	    	createfile(fichierName);
-	    	// pas de param on utilise les param par defaut
-			return null;
-	    }
-    	return((Element)ruleParameterNameNode.item(0)).getTextContent();
-	}
-
-
 }

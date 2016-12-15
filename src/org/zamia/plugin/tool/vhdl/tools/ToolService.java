@@ -4,6 +4,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 import org.zamia.ZamiaProject;
+import org.zamia.plugin.tool.vhdl.manager.ReportManager.ParameterSource;
 import org.zamia.plugin.tool.vhdl.rules.RuleStruct;
 import org.zamia.plugin.tool.vhdl.rules.RuleTypeE;
 import org.zamia.plugin.tool.vhdl.rules.StatusE;
@@ -35,10 +36,11 @@ public class ToolService {
 		
 		for(ToolE tool : ToolE.values()) { 
 	        RuleTypeE type = RuleTypeE.IDE;
-	        String parameter = "No";
+	        String parameter = tool.isParam()? "Yes" : "No";
 	        String enable = "Implemented";
 	        String status = StatusE.NOT_EXECUTED.toString();
-	        listRules.add(new RuleStruct(tool.getIdReq(), tool.getIdReq(), tool.getRuleName(), type.toString(), parameter, enable, tool.isSelected(), status, "", true, ""));
+            ParameterSource p = parameter.equals("Yes")? tool.getParameterSource(): ParameterSource.RULE_CHECKER;
+	        listRules.add(new RuleStruct(tool.getIdReq(), tool.getIdReq(), tool.getRuleName(), type.toString(), parameter, p == null? ParameterSource.RULE_CHECKER: p, enable, tool.isSelected(), status, "", true, ""));
 	
 	     }
 		return listRules;

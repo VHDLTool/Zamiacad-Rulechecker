@@ -3,9 +3,6 @@ package org.zamia.plugin.tool.vhdl.rules.impl.std;
 import java.util.Map;
 import java.util.Map.Entry;
 
-import javax.swing.JOptionPane;
-
-import org.w3c.dom.Document;
 import org.w3c.dom.Element;
 import org.zamia.ZamiaProject;
 import org.zamia.plugin.tool.vhdl.ClockSignal;
@@ -15,61 +12,84 @@ import org.zamia.plugin.tool.vhdl.HdlEntity;
 import org.zamia.plugin.tool.vhdl.HdlFile;
 import org.zamia.plugin.tool.vhdl.LevelE;
 import org.zamia.plugin.tool.vhdl.ListResetSource;
-import org.zamia.plugin.tool.vhdl.NodeInfo;
-import org.zamia.plugin.tool.vhdl.NodeType;
 import org.zamia.plugin.tool.vhdl.NumberReportE;
 import org.zamia.plugin.tool.vhdl.Process;
+import org.zamia.plugin.tool.vhdl.ReportFile;
 import org.zamia.plugin.tool.vhdl.ResetSignal;
 import org.zamia.plugin.tool.vhdl.ResetSource;
 import org.zamia.plugin.tool.vhdl.manager.ResetSignalManager;
 import org.zamia.plugin.tool.vhdl.manager.ResetSignalSourceManager;
 import org.zamia.plugin.tool.vhdl.rules.RuleE;
-import org.zamia.plugin.tool.vhdl.rules.impl.RuleManager;
+import org.zamia.plugin.tool.vhdl.rules.RuleResult;
+import org.zamia.plugin.tool.vhdl.rules.impl.Rule;
 import org.zamia.util.Pair;
 
-public class RuleSTD_03600 extends RuleManager {
+/*
+ * Reset Sensitive Level.
+ * Every synchronous process uses the same reset activation level.
+ * No parameters.
+ */
+public class RuleSTD_03600 extends Rule {
+	
+	private Map<String, HdlFile> _listHdlFile;
+	private ListResetSource _listResetSource;
+	
+	public RuleSTD_03600() {
+		super(RuleE.STD_03600);
+	}
 
-	// Reset Sensitive Level
-	
-	RuleE rule = RuleE.STD_03600;
-	ZamiaProject zPrj;
-	
-	ResetSignal currentResetSignal;
-	ListResetSource listResetSource;
-	boolean error = false;
-	
-	public Pair<Integer, String> Launch(ZamiaProject zPrj, String ruleId) {
-		this.zPrj = zPrj;
-		String fileName = "";
+	public Pair<Integer, RuleResult> Launch(ZamiaProject zPrj, String ruleId, ParameterSource parameterSource) {
 
-		Map<String, HdlFile> listHdlFile;
+		initializeRule(parameterSource, ruleId);
+		
+		//// Make the reset source list.
 
 		try {
-			listHdlFile = ResetSignalManager.getResetSignal();
-			listResetSource = ResetSignalSourceManager.getResetSourceSignal();
+			_listHdlFile = ResetSignalManager.getResetSignal();
+			_listResetSource = ResetSignalSourceManager.getResetSourceSignal();
 		} catch (EntityException e) {
-			logger.error("some exception message RuleSTD_03600", e);
-			return new Pair<Integer, String> (NO_BUILD, "");
+			LogNeedBuild();
+			return new Pair<Integer, RuleResult>(NO_BUILD, null);
 		}
 
-		Element racineFirst = initReportFile(ruleId, rule.getType(), rule.getRuleName(), NumberReportE.FIRST);
-		Element racineSecond = initReportFile(ruleId, rule.getType(), rule.getRuleName(), NumberReportE.SECOND);
-
-		Integer cmptViolationFirst = 0;
-		Integer cmptViolationSecond = 0;
-
-		// init edge per project in clockSource
-		for (ResetSource resetSource : listResetSource.getListResetSource()) {
+		//// Initialize level in reset sources.
+		
+		for (ResetSource resetSource : _listResetSource.getListResetSource()) {
 			resetSource.setLevelPerProject(LevelE.NAN);
 		}
 
-		for(Entry<String, HdlFile> entry : listHdlFile.entrySet()) {
+		//// Retrieve and save all violations per file.
+		
+		Pair<Integer, RuleResult> result1 = checkRulePerFile();
+		
+		//// Retrieve and save all violations per project.
+
+		Pair<Integer, RuleResult> result2 = checkRulePerProject();
+		
+		//// Return check result.
+
+		int totalViolationCount = result1.getFirst() + result2.getFirst();
+		RuleResult ruleResult = null;
+		if (result1.getFirst() > 0) {
+			ruleResult = result1.getSecond(); 
+		} else if (result2.getFirst() > 0) {
+			ruleResult = result2.getSecond(); 
+		}
+				
+		return new Pair<Integer, RuleResult>(totalViolationCount, ruleResult);
+	}
+	
+	private Pair<Integer, RuleResult> checkRulePerFile() {
+		ReportFile reportFile = new ReportFile(this);
+		if (!reportFile.initialize()) 
+			return null;
+
+		for (Entry<String, HdlFile> entry : _listHdlFile.entrySet()) {
 			HdlFile hdlFile = entry.getValue();
 			if (hdlFile.getListHdlEntity() != null) {
 				for (HdlEntity hdlEntityItem : hdlFile.getListHdlEntity()) {
 
 					if (checkResetMixLevels(hdlEntityItem)) {
-						cmptViolationSecond++;
 						if (hdlEntityItem.getListHdlArchitecture() != null) {
 							for (HdlArchitecture hdlArchitectureItem : hdlEntityItem.getListHdlArchitecture()) {
 								if (hdlArchitectureItem.getListProcess() != null) {
@@ -78,8 +98,7 @@ public class RuleSTD_03600 extends RuleManager {
 											for (ClockSignal clockSignal : processItem.getListClockSignal()) {
 												if (clockSignal.hasSynchronousReset()) {
 													for (ResetSignal resetSignal : clockSignal.getListResetSignal()) {
-														addViolationPerFile(document, racineFirst, hdlFile, hdlEntityItem, hdlArchitectureItem,
-																processItem, listResetSource, resetSignal);
+														addViolationPerFile(reportFile, hdlFile, hdlEntityItem, hdlArchitectureItem, processItem, resetSignal);
 													}
 												}
 											}
@@ -93,48 +112,35 @@ public class RuleSTD_03600 extends RuleManager {
 				}
 			}
 		}
-
-
-		for(Entry<String, HdlFile> entry : listHdlFile.entrySet()) {
+		
+		Pair<Integer, RuleResult> result = reportFile.save(NumberReportE.FIRST);
+		return result;
+	}
+	
+	private Pair<Integer, RuleResult> checkRulePerProject() {
+		ReportFile reportFile = new ReportFile(this);
+		if (!reportFile.initialize()) 
+			return null;
+		
+		for(Entry<String, HdlFile> entry : _listHdlFile.entrySet()) {
 			HdlFile hdlFile = entry.getValue();
 			if (hdlFile.getListHdlEntity() != null) {
 				for (HdlEntity hdlEntityItem : hdlFile.getListHdlEntity()) {
 					if (hdlEntityItem.useClock()) {
-						if (checkResetMixLevels(listResetSource)) {
-							addViolationPerProject(documentSecond, racineSecond, hdlFile, hdlEntityItem, listResetSource);
+						if (checkResetMixLevels()) {
+							addViolationPerProject(reportFile, hdlFile, hdlEntityItem);
 						}
 					}
 				}
 			}
 		}
 
-		cmptViolationFirst = countViolationPerProject();
-System.out.println("cmptViolationFirst "+cmptViolationFirst);
-		if (cmptViolationFirst != 0) {
-			fileName = createReportFile(ruleId, rule.getRuleName(), rule.getType(), "rule", NumberReportE.FIRST);
-		}
-		System.out.println("cmptViolationSecond "+cmptViolationSecond);
-		if (cmptViolationSecond != 0) {
-			fileName = createReportFile(ruleId, rule.getRuleName(), rule.getType(), "rule", NumberReportE.SECOND);
-		}
-
-		return new Pair<Integer, String> (cmptViolationFirst+cmptViolationSecond, fileName);
-
+		Pair<Integer, RuleResult> result = reportFile.save(NumberReportE.SECOND);
+		return result;
 	}
 	
-	private int countViolationPerProject() {
-		Integer cmptViolationFirst = 0;
-		for (ResetSource resetSource : listResetSource.getListResetSource()) {
-			if (resetSource.getLevelPerProject() == LevelE.BOTH) {
-				cmptViolationFirst++;
-			}
-		}
-		return cmptViolationFirst;
-	}
-
-
-	private boolean checkResetMixLevels(ListResetSource listResetSource) {
-		for (ResetSource resetSource : listResetSource.getListResetSource()) {
+	private boolean checkResetMixLevels() {
+		for (ResetSource resetSource : _listResetSource.getListResetSource()) {
 			if (resetSource.getLevelPerProject() == LevelE.BOTH) {
 				return true;
 			}
@@ -142,11 +148,10 @@ System.out.println("cmptViolationFirst "+cmptViolationFirst);
 		return false;
 	}
 
-
 	private boolean checkResetMixLevels(HdlEntity hdlEntityItem) {
 		boolean resetMixLevels = false;
 		
-		for (ResetSource resetSource : listResetSource.getListResetSource()) {
+		for (ResetSource resetSource : _listResetSource.getListResetSource()) {
 			LevelE level = LevelE.NAN;
 			if (hdlEntityItem.getListHdlArchitecture() != null) {
 				for (HdlArchitecture hdlArchitectureItem : hdlEntityItem.getListHdlArchitecture()) {
@@ -156,20 +161,10 @@ System.out.println("cmptViolationFirst "+cmptViolationFirst);
 								for (ClockSignal clockSignal : processItem.getListClockSignal()) {
 									if (clockSignal.hasSynchronousReset()) {
 										for (ResetSignal resetSignal : clockSignal.getListResetSignal()) {
-											System.out.println("resetSignal "+resetSignal);
-											System.out.println("resetSource  "+resetSource);
-											System.out.println("resetSignal.getResetSource() "+resetSignal.getResetSource());
 											try {
-//												if (resetSource.equals(resetSignal.getResetSource())) {
-													level = update(level, resetSignal.getLevel());
-//												}
+												level = update(level, resetSignal.getLevel());
 											} catch (Exception e) {
 												logger.error("some exception message RuleSTD_03600 checkResetMixLevels", e);
-												if (! error) {
-													JOptionPane.showMessageDialog(null, "<html>no source reset find for signal reset "+resetSignal+" </html>", "Error",
-															JOptionPane.ERROR_MESSAGE);
-												}
-												error = true;
 											}
 										}
 									}
@@ -187,24 +182,38 @@ System.out.println("cmptViolationFirst "+cmptViolationFirst);
 		return resetMixLevels;
 	}
 
+	private void addViolationPerFile(ReportFile reportFile, HdlFile hdlFile, HdlEntity hdlEntityItem, HdlArchitecture hdlArchitectureItem,	Process processItem, ResetSignal resetSignal) {
 
-	private void addViolationPerProject(Document document, Element racineSecond, HdlFile hdlFile,
-			HdlEntity hdlEntityItem, ListResetSource listResetSource) {
+		String fileName = hdlFile.getLocalPath();
+		int line = resetSignal.getLocation().fLine;
+		String entityId = hdlEntityItem.getEntity().getId();
+		String architectureId = hdlArchitectureItem.getArchitecture().getId();
+		
+		for (ResetSource resetSource : _listResetSource.getListResetSource()) {
+			LevelE level = LevelE.NAN;
+			if (resetSource.equals(resetSignal.getResetSource())) {
+				level = resetSignal.getLevel();
+			}
 
-		Element processElement = document.createElement(NodeType.ENTITY.toString());
-		racineSecond.appendChild(processElement);
+			if (level != LevelE.NAN) {
+				Element info = reportFile.addViolationPerFile(fileName, line, entityId, architectureId);
+				reportFile.addElement(ReportFile.TAG_RESET, resetSignal.toString(), info);
+				reportFile.addElement(ReportFile.TAG_PROCESS, processItem.getLabel(), info); 
+				
+				reportFile.addElement(ReportFile.TAG_SOURCE_TAG, resetSource.getTag(), info); 
+				reportFile.addElement(ReportFile.TAG_SOURCE_LEVEL, level.toString(), info);
+			}
+		}
+	}
 
-		processElement.appendChild(NewElement(document, "violationType"
-				, "mixLevelPerProject"));
+	private void addViolationPerProject(ReportFile reportFile, HdlFile hdlFile, HdlEntity hdlEntityItem) {
 
-		processElement.appendChild(NewElement(document, NodeType.FILE.toString()+NodeInfo.NAME.toString()
-				, hdlFile.getLocalPath()));
-
-		processElement.appendChild(NewElement(document, NodeType.ENTITY.toString()+NodeInfo.NAME.toString()
-				, hdlEntityItem.getEntity().getId()));
-
-
-		for (ResetSource resetSource : listResetSource.getListResetSource()) {
+		String fileName = hdlFile.getLocalPath();
+		int line = 0;
+		String entityId = hdlEntityItem.getEntity().getId();
+		String architectureId = null;
+		
+		for (ResetSource resetSource : _listResetSource.getListResetSource()) {
 			LevelE level = LevelE.NAN;
 			if (hdlEntityItem.getListHdlArchitecture() != null) {
 				for (HdlArchitecture hdlArchitectureItem : hdlEntityItem.getListHdlArchitecture()) {
@@ -225,62 +234,12 @@ System.out.println("cmptViolationFirst "+cmptViolationFirst);
 					}
 				}
 			}
-			processElement.appendChild(NewElement(document, resetSource.getTag()+NodeInfo.TAG
-					, resetSource.getTag()));
-
-			processElement.appendChild(NewElement(document, resetSource.getTag()+NodeInfo.LEVEL
-					, level.toString()));
-
-		}
-
-
-	}
-
-
-	private void addViolationPerFile(Document document, Element racine, HdlFile hdlFile,
-			HdlEntity hdlEntityItem, HdlArchitecture hdlArchitectureItem,
-			Process processItem, ListResetSource listResetSource, ResetSignal resetSignal) {
-
-		Element processElement = document.createElement(NodeType.RESET_SIGNAL.toString());
-		racine.appendChild(processElement);
-
-		processElement.appendChild(NewElement(document, "violationType"
-				, "mixLevelPerFile"));
-
-		processElement.appendChild(NewElement(document, NodeType.FILE.toString()+NodeInfo.NAME.toString()
-				, hdlFile.getLocalPath()));
-
-		processElement.appendChild(NewElement(document, NodeType.ENTITY.toString()+NodeInfo.NAME.toString() 
-				, hdlEntityItem.getEntity().getId()));
-
-		processElement.appendChild(NewElement(document, NodeType.ARCHITECTURE.toString()+NodeInfo.NAME.toString()
-				, hdlArchitectureItem.getArchitecture().getId()));
-
-		processElement.appendChild(NewElement(document, NodeType.PROCESS.toString()+NodeInfo.NAME.toString()
-				, processItem.getLabel()));
-
-		processElement.appendChild(NewElement(document, NodeType.PROCESS.toString()+NodeInfo.LOCATION.toString()
-				, String.valueOf(processItem.getLocation().fLine)));
-
-		processElement.appendChild(NewElement(document, NodeType.RESET_SIGNAL.toString()+NodeInfo.NAME.toString()
-				, resetSignal.toString()));
-
-		processElement.appendChild(NewElement(document, NodeType.RESET_SIGNAL.toString()+NodeInfo.LOCATION.toString()
-				, String.valueOf(resetSignal.getLocation().fLine)));
-
-		for (ResetSource resetSource : listResetSource.getListResetSource()) {
-			LevelE level = LevelE.NAN;
-			if (resetSource.equals(resetSignal.getResetSource())) {
-				level = resetSignal.getLevel();
+			
+			if (level != LevelE.NAN) {
+				Element info = reportFile.addViolationPerProject(fileName, line, entityId, architectureId);
+				reportFile.addElement(ReportFile.TAG_SOURCE_TAG, resetSource.getTag(), info); 
+				reportFile.addElement(ReportFile.TAG_SOURCE_LEVEL, level.toString(), info); 
 			}
-
-			processElement.appendChild(NewElement(document, resetSource.getTag()+NodeInfo.TAG
-					, resetSource.getTag()));
-
-			processElement.appendChild(NewElement(document, resetSource.getTag()+NodeInfo.LEVEL
-					, level.toString()));
-
 		}
 	}
-
 }

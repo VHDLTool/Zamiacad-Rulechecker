@@ -4,6 +4,7 @@ import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
 
 import org.zamia.ZamiaProject;
+import org.zamia.plugin.tool.vhdl.manager.ReportManager.ParameterSource;
 import org.zamia.plugin.tool.vhdl.rules.RuleStruct;
 import org.zamia.util.Pair;
 
@@ -23,12 +24,13 @@ public class LaunchTools {
 					Class<?> maClass = Class.forName(classRule.getName());
 					Object maClassTest = maClass.newInstance();
 					
-					Class<?>[] paramTypes = new Class[2];
+					Class<?>[] paramTypes = new Class[3];
 			        paramTypes[0] = ZamiaProject.class;
 			        paramTypes[1] = String.class;
+			        paramTypes[2] = ParameterSource.class;
 					Method setNameMethod = maClassTest.getClass().getDeclaredMethod(methodName, paramTypes);
 					
-					Object value = setNameMethod.invoke(maClassTest, zPrj, ruleItem.getId());
+					Object value = setNameMethod.invoke(maClassTest, zPrj, ruleItem.getId(), ruleItem.getParameterSource());
 					return (Pair<Integer, String>) value;
 					
 				} catch (SecurityException | ClassNotFoundException | 

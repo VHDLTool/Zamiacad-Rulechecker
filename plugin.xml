@@ -1691,5 +1691,11 @@
         </command>
      	</menuContribution>
 	</extension>
-
+ <extension
+       id="Check"
+       point="org.eclipse.core.runtime.applications">
+   <application>
+     <run class="org.zamia.plugin.Check"/>
+   </application>
+ </extension>
 </plugin>

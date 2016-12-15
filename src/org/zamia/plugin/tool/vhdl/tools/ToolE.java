@@ -13,6 +13,7 @@ import org.w3c.dom.Node;
 import org.w3c.dom.NodeList;
 import org.xml.sax.SAXException;
 import org.zamia.plugin.tool.vhdl.manager.ToolManager;
+import org.zamia.plugin.tool.vhdl.manager.ReportManager.ParameterSource;
 import org.zamia.plugin.tool.vhdl.rules.RuleTypeE;
 import org.zamia.plugin.tool.vhdl.tools.impl.Tool_AR_6;
 import org.zamia.plugin.tool.vhdl.tools.impl.Tool_AR_7;
@@ -110,6 +111,64 @@ import org.zamia.plugin.tool.vhdl.tools.impl.Tool_RST_PRJ;
 		}
 
 
+		public ParameterSource getParameterSource() {
+			String fileName = ToolManager.getPathFileName("/rule_checker/rc_config_selected_tools.xml");
+			File file = new File(fileName);
+			if (!file.exists()) { return null; }
+			final DocumentBuilderFactory factory = DocumentBuilderFactory.newInstance();
+		    
+			try {
+			    final DocumentBuilder builder = factory.newDocumentBuilder();		
+			    
+			    final Document document= builder.parse(fileName);
+			    
+			    final Element ruleSet = document.getDocumentElement();
+			    
+			    final NodeList ruleNodes = ruleSet.getElementsByTagName("hb:Tool");
+			    
+			    final int nbRuleNodes = ruleNodes.getLength();
+			    if (nbRuleNodes < 1) {
+					return null;
+			    }
+			    
+			    for (int i = 0; i < nbRuleNodes; i++) {
+			        if(ruleNodes.item(i).getNodeType() == Node.ELEMENT_NODE) {
+			            final Element ruleNodeElement = (Element) ruleNodes.item(i);
+			            
+			            String ruleIdS = ruleNodeElement.getAttribute("UID");
+			            if (ruleIdS.equalsIgnoreCase(idReq)) {
+			            	
+				            String parameterSource = ruleNodeElement.getAttribute("ParameterSource");
+				            
+				            for (ParameterSource p : ParameterSource.values())
+				    		{
+				            	if (parameterSource.equalsIgnoreCase(p.toString()))
+				            	{
+				            		return p;
+				            	}
+				    		}
+			            }
+			            
+			        }				
+
+			    }
+
+			    
+			}
+			catch (final ParserConfigurationException e) {
+			    e.printStackTrace();
+			}
+			catch (final SAXException e) {
+			    e.printStackTrace();
+			}
+			catch (final IOException e) {
+			    e.printStackTrace();
+			}
+
+		return null;
+		}
+		
+		
 		public boolean isSelected() {
 			String fileName = ToolManager.getPathFileName("/rule_checker/rc_config_selected_tools.xml");
 			File file = new File(fileName);

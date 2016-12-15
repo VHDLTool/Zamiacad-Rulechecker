@@ -19,6 +19,7 @@ import org.w3c.dom.Node;
 import org.w3c.dom.NodeList;
 import org.xml.sax.SAXException;
 import org.zamia.ZamiaProject;
+import org.zamia.plugin.tool.vhdl.manager.ReportManager.ParameterSource;
 import org.zamia.plugin.tool.vhdl.manager.ToolManager;
 import org.zamia.plugin.tool.vhdl.rules.impl.RuleSruct;
 
@@ -56,7 +57,7 @@ public class RuleService {
 			  List<String> xmlFileConfig = ToolManager.getXmlHandbookFileConfig(zPrj);
 			  
 			  // file name verifiers param
-			  String parametersFileName = getParametersFile(zPrj);
+			  String parametersFileName = getParametersFile(zPrj, null, null);
 			  
 				try { // test file exist
 					new FileReader(parametersFileName);
@@ -96,7 +97,8 @@ public class RuleService {
 				            String parameter = (exist ? (RuleE.valueOf(rule.gennericName).isParam() ? "Yes": "No") : "NA");
 				            String enable = (exist ? "Implemented" : "Not Implemented");
 				            String status = (exist ? StatusE.NOT_EXECUTED.toString() : StatusE.NOT_IMPLEPMENTED.toString());
-				            listRules.add(new RuleStruct(rule.ruleID.getTextContent(), rule.gennericName, rule.name.getTextContent(), type.toString(), parameter, enable, rule.isSelected(), status, "", exist, ""));
+				            ParameterSource p = parameter.equals("Yes")? rule.getParameterSource(): ParameterSource.RULE_CHECKER;
+				            listRules.add(new RuleStruct(rule.ruleID.getTextContent(), rule.gennericName, rule.name.getTextContent(), type.toString(), parameter, p == null? ParameterSource.RULE_CHECKER: p, enable, rule.isSelected(), status, "", exist, ""));
 				        }				
 				    }
 			  }
@@ -116,28 +118,66 @@ public class RuleService {
 	
 	
 	/**
-	 * get verifier param file name, in rc_config.xml
-	 * @param zPrj 
-	 * @return
+	 * Gets the file used as a source for parameters
+	 * @param zPrj The project
+	 * @param ruleId The optional ruleId. If null the file returned is the internal rulechecher parameter one. 
+	 * @param paramFile The source of the parameters. If null the file returned is the internal rulechecher parameter one. 
+	 * @return The parameters file path
 	 */
-	public String getParametersFile(ZamiaProject zPrj) {
+	public String getParametersFile(ZamiaProject zPrj, String ruleId, ParameterSource paramFile) {
 		final DocumentBuilderFactory factory = DocumentBuilderFactory.newInstance();
 		try {
 		    final DocumentBuilder builder = factory.newDocumentBuilder();
 		    
-		    String fichierName = ResourcesPlugin.getWorkspace().getRoot().findMember("/"+ zPrj.getId()).getLocation().toString()
-		    		+File.separator+"rule_checker"+File.separator+"rc_config.xml";
-		    final Document document= builder.parse(fichierName);
+		    String fichierName = ToolManager.getConfigFilePath("rc_config.xml");
+		    final Document document = builder.parse(fichierName);
 		    
 		    final Element racine = document.getDocumentElement();
 		    
-		    final NodeList parametersNode = racine.getElementsByTagName("verifiers_parameters");
+		    final NodeList parametersNode = racine.getElementsByTagName(paramFile != ParameterSource.HANDBOOK || ruleId == null? "verifiers_parameters": "handBook_fileName");
 		    if (parametersNode.getLength() < 1) {
 				return null;
 
 		    }
 		    
-		    String fileName = ((Element)parametersNode.item(0)).getTextContent(); 
+		    String fileName = "";
+		    if (paramFile != ParameterSource.HANDBOOK || ruleId == null)
+		    {
+		    	// rulechecker parameters
+		    	fileName = ((Element)parametersNode.item(0)).getTextContent();
+		    }
+		    else
+		    {
+		    	// Handbook parameters
+		    	String fileName1 = ((Element)parametersNode.item(0)).getTextContent();
+		    	String fileName2 = "";
+		    	if (parametersNode.getLength() >= 2)
+		    	{
+		    		fileName2 = ((Element)parametersNode.item(1)).getTextContent();
+		    	}
+
+		    	String fileNameSTD = null;
+		    	String fileNameCustom = null;
+		    	
+	    		if (fileName1.contains("_STD"))
+	    		{
+	    			fileNameSTD = fileName1;
+	    			fileNameCustom = fileName2;
+	    		}
+	    		else if (fileName2.contains("_STD"))
+	    		{
+	    			fileNameCustom = fileName1;
+	    			fileNameSTD = fileName2;
+	    		}
+	    		else
+	    		{
+	    			// No STD file
+	    			fileNameCustom = fileName1;
+	    		}
+
+	    		fileName = ruleId.startsWith("STD_")? fileNameSTD: fileNameCustom;
+		    }
+		    
 		    fileName=fileName.replace("\\", File.separator);
 		    return ToolManager.getPathFileName(fileName);
 		}

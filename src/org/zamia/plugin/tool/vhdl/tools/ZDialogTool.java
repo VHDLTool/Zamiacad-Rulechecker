@@ -1,6 +1,7 @@
 package org.zamia.plugin.tool.vhdl.tools;
 
 import java.awt.BorderLayout;
+import java.awt.Component;
 import java.awt.Desktop;
 import java.awt.Dimension;
 import java.awt.FlowLayout;
@@ -15,7 +16,6 @@ import java.util.List;
 
 import javax.swing.AbstractAction;
 import javax.swing.BorderFactory;
-import javax.swing.ImageIcon;
 import javax.swing.JButton;
 import javax.swing.JLabel;
 import javax.swing.JPanel;
@@ -24,6 +24,7 @@ import javax.swing.JTable;
 import javax.swing.JTextField;
 import javax.swing.RowFilter;
 import javax.swing.border.TitledBorder;
+import javax.swing.table.TableCellRenderer;
 import javax.swing.table.TableColumn;
 import javax.swing.table.TableModel;
 import javax.swing.table.TableRowSorter;
@@ -31,6 +32,7 @@ import javax.swing.table.TableRowSorter;
 import org.w3c.dom.Element;
 import org.zamia.ZamiaLogger;
 import org.zamia.ZamiaProject;
+import org.zamia.plugin.tool.vhdl.manager.SynthesisReport;
 import org.zamia.plugin.tool.vhdl.manager.ToolManager;
 import org.zamia.plugin.tool.vhdl.manager.ZDialogManager;
 import org.zamia.plugin.tool.vhdl.rules.ButtonCellEditor;
@@ -99,10 +101,6 @@ public class ZDialogTool extends ZDialogManager  {
 		this.setLocationRelativeTo(null);
 		this.setResizable(true);
 		this.setTitle("Tools Selector");
-		// TODO BGT
-		ImageIcon img = new ImageIcon("C:\\Users\\cniesner\\workspace\\workspace_32b_travail\\zamia-eclipse-plugin\\share\\images\\Eclipse_icon.png");
-
-		this.setIconImage(img.getImage());
 
 	}
 
@@ -180,6 +178,7 @@ public class ZDialogTool extends ZDialogManager  {
 		table.getColumnModel().getColumn(RuleObject.COL_ENABLE).setPreferredWidth(70);
 		table.getColumnModel().getColumn(RuleObject.COL_TYPE).setPreferredWidth(50);
 		table.getColumnModel().getColumn(RuleObject.COL_PARAM).setPreferredWidth(60);
+		table.getColumnModel().getColumn(RuleObject.COL_PARAM_SOURCE).setPreferredWidth(60);
 		table.getColumnModel().getColumn(RuleObject.COL_SELECTED).setPreferredWidth(70);
 		table.getColumnModel().getColumn(RuleObject.COL_STATUS).setPreferredWidth(90);
 
@@ -189,11 +188,11 @@ public class ZDialogTool extends ZDialogManager  {
 		ButtonCellEditor editor = new ButtonCellEditor();  
 		col.setCellEditor(editor);
 		col.setCellRenderer(renderer);
-		table.setDefaultRenderer(Object.class, new JTableRender());
+		table.setDefaultRenderer(Object.class, new JToolTableRender());
 		
 		table.setAutoResizeMode(1);
 		table.getTableHeader().setPreferredSize(new Dimension(0, 80));
-		
+
 		final TableRowSorter<TableModel> rowSorter
         = new TableRowSorter<>(table.getModel());
 		table.setRowSorter(rowSorter);
@@ -270,7 +269,9 @@ public class ZDialogTool extends ZDialogManager  {
 					listSelectedRule.add((String) table.getValueAt(i, RuleObject.COL_ID));
 				}
 			}
-			Element racine = ToolManager.initReportXml("tool_reporting", RuleTypeE.NA);
+			
+			SynthesisReport synthesisReport = new SynthesisReport(SynthesisReport.Purpose.ForTool);
+			
 			List<RuleStruct> listRule = ((RuleObject) table.getModel()).getRuleStruct();
 			for (int r = 0; r < listRule.size(); r++) {
 				RuleStruct ruleItem = listRule.get(r);
@@ -299,16 +300,16 @@ public class ZDialogTool extends ZDialogManager  {
 						table.getModel().setValueAt(fileName, r, RuleObject.COL_LOG_FILE);
 					} 
 
-					ToolManager.addReportStatusXml(racine, ruleItem.getId(), statusE, nbFailed, fileName);
+					synthesisReport.addToolReport(ruleItem.getId(), statusE, fileName);
 				} else if (ruleItem.isEnable()) {
 					table.getModel().setValueAt(StatusE.NOT_EXECUTED.toString(), r, RuleObject.COL_STATUS);
-					ToolManager.addReportStatusXml(racine, ruleItem.getId(), StatusE.NOT_EXECUTED);
+					synthesisReport.addToolReport(ruleItem.getId(), StatusE.NOT_EXECUTED, null);
 				} else {
-					ToolManager.addReportStatusXml(racine, ruleItem.getId(), StatusE.NOT_IMPLEPMENTED);
+					synthesisReport.addToolReport(ruleItem.getId(), StatusE.NOT_IMPLEPMENTED, null);
 				}
 			}
 			
-			updateValues(ToolManager.finishReportXml(RuleTypeE.TOOL));
+			updateValues(synthesisReport.saveToFile());
 			if (ok) {
 				logger.info("Rule Checker: tools selector has been executed with success.");
 			} else {
@@ -316,7 +317,7 @@ public class ZDialogTool extends ZDialogManager  {
 			}
 		}
 	}
-
+	
 	private class Cancel extends AbstractAction {
 
 		/**
@@ -330,7 +331,7 @@ public class ZDialogTool extends ZDialogManager  {
 
 		@Override
 		public void actionPerformed(ActionEvent e) {
-			updateConfigSelectedTools();
+//			updateConfigSelectedTools();
 			setVisible(false);
 		}
 
@@ -454,9 +455,15 @@ public class ZDialogTool extends ZDialogManager  {
 		}
 
 		Element racine = ToolManager.initReportXml("config_selected_rules", RuleTypeE.NA);
-		for (String selectedTool : listSelectedTool) {
-			ToolManager.addToolSelectedXml(racine, selectedTool);
+		for (int i = 0; i < table.getRowCount(); i++) {
+			if ((boolean) table.getValueAt(i, RuleObject.COL_SELECTED)) {
+				String ruleId = (String) table.getValueAt(i, RuleObject.COL_ID);
+				String paramSource = (String) table.getValueAt(i, RuleObject.COL_PARAM_SOURCE);
+			
+				ToolManager.addToolSelectedXml(racine, ruleId, paramSource);
+			}
 		}
+		
 		ToolManager.finishReportXml(pathFileName);
 	}
 

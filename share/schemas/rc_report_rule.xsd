@@ -1,0 +1,271 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!-- 
+  This schema ensures that the element "RuleReport" has
+  at least two children in that exact order "Report", "Rule" 
+  followed by zero to many "Violation" children.
+-->
+<xs:schema targetNamespace="RULECHECKER" 
+	xmlns:xs="http://www.w3.org/2001/XMLSchema" 
+	xmlns:rc="RULECHECKER" 
+	elementFormDefault="qualified">
+
+	<!-- root element -->
+
+	<xs:element name="ReportRule" type="rc:ReportRule_Type"/>
+
+	<!-- root element type --> 
+	
+	<xs:complexType name="ReportRule_Type">
+		<xs:sequence>
+			<xs:element name="RuleCheckerVersion" type="xs:string"           minOccurs="1" maxOccurs="1" />
+			<xs:element name="RuleName"           type="xs:string"           minOccurs="1" maxOccurs="1"/>
+			<xs:element name="ExecutionDate"      type="xs:string"           minOccurs="1" maxOccurs="1"/>
+			<xs:element name="RuleFailure"        type="rc:RuleFailure_Type" minOccurs="1" maxOccurs="unbounded"/>
+		</xs:sequence>
+	</xs:complexType>
+	
+	<xs:complexType name="RuleFailure_Type">
+		<xs:sequence>
+			<xs:element name="File"         type="xs:string"             minOccurs="1" maxOccurs="1"/>
+			<xs:element name="Line"         type="xs:nonNegativeInteger" minOccurs="1" maxOccurs="1"/>
+			<xs:element name="Entity"       type="xs:string"             minOccurs="1" maxOccurs="1"/>
+			<xs:element name="Architecture" type="xs:string"             minOccurs="1" maxOccurs="1"/>
+
+			<xs:choice>
+				<!-- CNES Algo rules -->
+				<xs:element name="CNE_01200"             type="rc:CNE_01200_Type"/>
+				<xs:element name="CNE_02300"             type="rc:CNE_02300_Type"/>
+				<xs:element name="CNE_02400"             type="rc:CNE_02400_Type"/>
+				<xs:element name="CNE_04900"             type="rc:CNE_04900_Type"/>
+				<!-- Standard Algo rules -->
+				<xs:element name="STD_00200"             type="rc:STD_00200_Type"/>
+				<xs:element name="STD_00300"             type="rc:STD_00300_Type"/>
+				<xs:element name="STD_00400"             type="rc:STD_00400_Type"/>
+				<xs:element name="STD_03600_R1"          type="rc:STD_03600_R1_Type"/>
+				<xs:element name="STD_03600_R2"          type="rc:STD_03600_R2_Type"/>
+				<xs:element name="STD_03800"             type="rc:STD_03800_Type"/>
+				<xs:element name="STD_04500"             type="rc:STD_04500_Type"/>
+				<xs:element name="STD_04600"             type="rc:STD_04600_Type"/>
+				<xs:element name="STD_04700"             type="rc:STD_04700_Type"/>
+				<xs:element name="STD_04800_R1"          type="rc:STD_04800_R1_Type"/>
+				<xs:element name="STD_04800_R2"          type="rc:STD_04800_R2_Type"/>
+				<xs:element name="STD_05000"             type="rc:STD_05000_Type"/>
+				<xs:element name="STD_05300"             type="rc:STD_05300_Type"/>
+				<!-- Standard Help rules -->
+				<xs:element name="STD_01800"             type="rc:STD_01800_Type"/>
+				<xs:element name="STD_03700"             type="rc:STD_03700_Type"/>
+			</xs:choice>
+		</xs:sequence>
+	</xs:complexType>
+	
+	<!-- ===================================== -->
+	<!-- Specific types for CNES Algo rules    -->
+	<!-- ===================================== -->
+
+	<!-- Identification of process label -->
+	<!-- Process label name starts by a prefix: "P_". -->
+	<xs:complexType name="CNE_01200_Type">
+		<xs:sequence>
+			<xs:element name="Process" type="xs:string" minOccurs="1" maxOccurs="1"/>
+		</xs:sequence>
+	</xs:complexType>	
+
+	<!-- Preservation of clock name -->
+	<!-- Clock signal keeps its name through hierarchy levels. -->
+	<xs:complexType name="CNE_02300_Type">
+		<xs:sequence>
+			<xs:element name="Instance"    type="xs:string" minOccurs="1" maxOccurs="1"/>
+			<xs:element name="ClockBefore" type="xs:string" minOccurs="1" maxOccurs="1"/>
+			<xs:element name="ClockAfter"  type="xs:string" minOccurs="1" maxOccurs="1"/>
+		</xs:sequence>
+	</xs:complexType>	
+	
+	<!-- Preservation of reset name -->
+	<!-- Reset signal keeps its name through hierarchy levels -->
+	<xs:complexType name="CNE_02400_Type">
+		<xs:sequence>
+			<xs:element name="Instance"    type="xs:string" minOccurs="1" maxOccurs="1"/>
+			<xs:element name="ResetBefore" type="xs:string" minOccurs="1" maxOccurs="1"/>
+			<xs:element name="ResetAfter"  type="xs:string" minOccurs="1" maxOccurs="1"/>
+		</xs:sequence>
+	</xs:complexType>	
+	
+
+	<!-- Use of clock signal -->
+	<!-- Clock signal is not used inside combinatory function like multiplexor or digital gate. -->
+	<xs:complexType name="CNE_04900_Type">
+		<xs:sequence>
+			<xs:element name="Clock"   type="xs:string" minOccurs="1" maxOccurs="1"/>
+		</xs:sequence>
+	</xs:complexType>	
+	
+	<!-- ====================================== -->
+	<!-- Specific types for Standard Algo rules -->
+	<!-- ====================================== -->
+
+	<!-- Name of clock signal -->
+	<!-- The clock signal name includes "clk" or "clock". -->
+	<xs:complexType name="STD_00200_Type">
+		<xs:sequence>
+			<xs:element name="Clock"   type="xs:string" minOccurs="1" maxOccurs="1"/>
+			<xs:element name="Process" type="xs:string" minOccurs="1" maxOccurs="1"/>
+		</xs:sequence>
+	</xs:complexType>	
+	
+	<!-- Name of reset signal -->
+	<!-- The reset signal name includes "rst", "reset" or "clr". -->
+	<xs:complexType name="STD_00300_Type">
+		<xs:sequence>
+			<xs:element name="Reset"   type="xs:string" minOccurs="1" maxOccurs="1"/>
+			<xs:element name="Process" type="xs:string" minOccurs="1" maxOccurs="1"/>
+		</xs:sequence>
+	</xs:complexType>	
+
+	<!-- Label for process -->
+	<!-- Processes are identified by a label. -->
+	<xs:complexType name="STD_00400_Type"/>
+	
+	<!-- Reset Sensitive Level -->
+	<!-- Every synchronous process uses the same reset activation level. -->
+	<xs:complexType name="STD_03600_R1_Type">
+		<xs:sequence>
+			<xs:element name="Reset"     type="xs:string" minOccurs="1" maxOccurs="1"/>	
+			<xs:element name="Process"   type="xs:string" minOccurs="1" maxOccurs="1"/>
+			<xs:element name="SourceTag" type="xs:string"    minOccurs="1" maxOccurs="1"/>
+			<xs:element name="Level"     type="rc:EnumLevel" minOccurs="1" maxOccurs="1" />	
+		</xs:sequence>
+	</xs:complexType>	
+	<xs:complexType name="STD_03600_R2_Type">
+		<xs:sequence>
+			<xs:element name="SourceTag" type="xs:string"    minOccurs="1" maxOccurs="1"/>
+			<xs:element name="Level"     type="rc:EnumLevel" minOccurs="1" maxOccurs="1" />	
+		</xs:sequence>
+	</xs:complexType>	
+	
+	<!-- Synchronous Elements Initialization -->
+	<!-- All synchronous elements (such as registers, counters and FSM states...) are initialized by a reset. -->
+	<xs:complexType name="STD_03800_Type">
+		<xs:sequence>
+			<xs:element name="Register" type="xs:string" minOccurs="1" maxOccurs="1"/>
+			<xs:element name="Clock"    type="xs:string" minOccurs="1" maxOccurs="1"/>	
+			<xs:element name="Process"  type="xs:string" minOccurs="1" maxOccurs="1"/>	
+		</xs:sequence>
+	</xs:complexType>	
+	
+	<!-- Clock Reassignment -->
+	<!-- Do not reassign a clock in a concurrent statement. -->
+	<xs:complexType name="STD_04500_Type">
+		<xs:sequence>
+			<xs:element name="SourceTag"  type="xs:string"         minOccurs="1" maxOccurs="1"/>
+			<xs:element name="Clock"      type="xs:string"         minOccurs="1" maxOccurs="1"/>	
+			<xs:element name="SignalType" type="rc:EnumSignalType" minOccurs="1" maxOccurs="1"/>
+		</xs:sequence>
+	</xs:complexType>	
+	
+	<!-- Clock domain number in the design -->
+	<!-- One clock domain is used in the design. -->
+	<xs:complexType name="STD_04600_Type">
+		<xs:sequence>
+			<xs:element name="SourceTag"  type="xs:string"         minOccurs="1" maxOccurs="1"/>
+			<xs:element name="Clock"      type="xs:string"         minOccurs="1" maxOccurs="1"/>	
+			<xs:element name="SignalType" type="rc:EnumSignalType" minOccurs="1" maxOccurs="1"/>
+		</xs:sequence>
+	</xs:complexType>	
+	
+	<!-- Number of clock domains per modules -->
+	<!-- Each module in the design handle only one clock. -->
+	<xs:complexType name="STD_04700_Type">
+		<xs:sequence>
+			<xs:element name="SourceTag"  type="xs:string"             minOccurs="1" maxOccurs="1"/>
+			<xs:element name="Clock"      type="xs:string"             minOccurs="1" maxOccurs="1"/>	
+			<xs:element name="SignalType" type="rc:EnumSignalType"     minOccurs="1" maxOccurs="1"/>
+		</xs:sequence>
+	</xs:complexType>	
+	
+	<!-- Clock edge sensitivity -->
+	<!-- A unique single sensitive edge is used to clock all Flip-Flop in the same clock domain. -->
+	<xs:complexType name="STD_04800_R1_Type">
+		<xs:sequence>
+			<xs:element name="Clock"     type="xs:string" minOccurs="1" maxOccurs="1"/>	
+			<xs:element name="Process"   type="xs:string" minOccurs="1" maxOccurs="1"/>	
+		    <xs:element name="SourceTag" type="xs:string"   minOccurs="1" maxOccurs="1"/>
+			<xs:element name="Edge"      type="rc:EnumEdge" minOccurs="1" maxOccurs="1" />	
+		</xs:sequence>
+	</xs:complexType>	
+	<xs:complexType name="STD_04800_R2_Type">
+		<xs:sequence>
+		    <xs:element name="SourceTag" type="xs:string"   minOccurs="1" maxOccurs="1"/>
+			<xs:element name="Edge"      type="rc:EnumEdge" minOccurs="1" maxOccurs="1" />	
+		</xs:sequence>
+	</xs:complexType>	
+	
+	<!-- Sensitivity list for synchronous processes -->
+	<!-- A synchronous process needs only the clock and reset signals in the sensitivity list. -->
+	<xs:complexType name="STD_05000_Type">
+		<xs:sequence>
+			<xs:element name="Process"     type="xs:string" minOccurs="1" maxOccurs="1"/>	
+			<xs:element name="Sensitivity" type="xs:string" minOccurs="1" maxOccurs="1"/>	
+		</xs:sequence>
+	</xs:complexType>	
+	
+	<!-- Sensitivity list for combinational processes -->
+	<!-- Combinational processes have a sensitivity list including all inputs signals which are read. -->
+	<xs:complexType name="STD_05300_Type">
+		<xs:sequence>
+			<xs:element name="Process"     type="xs:string" minOccurs="1" maxOccurs="1"/>	
+			<xs:element name="Sensitivity" type="xs:string" minOccurs="1" maxOccurs="1"/>	
+		</xs:sequence>
+	</xs:complexType>	
+	
+	<!-- ====================================== -->
+	<!-- Specific types for Standard Help rules -->
+	<!-- ====================================== -->
+
+	<!-- Primitive isolation -->
+	<!-- Primitive are isolated in a wrapper entity defined in a dedicated VHDL file. -->
+	<xs:complexType name="STD_01800_Type">
+		<xs:sequence>
+			<xs:element name="Library" type="xs:string" minOccurs="1" maxOccurs="1"/>
+		</xs:sequence>
+	</xs:complexType>	
+	
+	<!-- Reset Assertion and De-assertion -->
+	<!-- Internal reset is asserted asynchronously and deasserted synchronously. -->
+	<xs:complexType name="STD_03700_Type">
+		<xs:sequence>
+			<xs:element name="Reset"      type="xs:string"         minOccurs="1" maxOccurs="1"/>	
+			<xs:element name="SignalType" type="rc:EnumSignalType" minOccurs="1" maxOccurs="1"/>	
+		</xs:sequence>
+	</xs:complexType>	
+
+	<!-- ===================================== -->
+	<!-- Base types                            -->
+	<!-- ===================================== -->
+	
+	<xs:simpleType name="EnumSignalType">
+        <xs:restriction base="xs:string">
+            <xs:enumeration value="None"/>
+            <xs:enumeration value="Instance Output"/>
+            <xs:enumeration value="Signal Assignment"/>
+            <xs:enumeration value="Input Port"/>
+        </xs:restriction>
+    </xs:simpleType>
+	
+	<xs:simpleType name="EnumLevel">
+        <xs:restriction base="xs:string">
+            <xs:enumeration value="none"/>
+            <xs:enumeration value="high"/>
+            <xs:enumeration value="low"/>
+			<xs:enumeration value="both"/>
+        </xs:restriction>
+    </xs:simpleType>
+	
+	<xs:simpleType name="EnumEdge">
+        <xs:restriction base="xs:string">
+			<xs:enumeration value="none"/>
+            <xs:enumeration value="rising"/>
+            <xs:enumeration value="falling"/>
+            <xs:enumeration value="both"/>
+        </xs:restriction>
+    </xs:simpleType>
+</xs:schema>

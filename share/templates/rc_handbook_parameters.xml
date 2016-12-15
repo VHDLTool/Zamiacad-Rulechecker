@@ -1,31 +1,28 @@
 <?xml version="1.0" encoding="UTF-8" standalone="no" ?>
 
-<handbook_parameters xmlns:hb="HANDBOOK">
-	<author>Niesner Christophe</author>
-	<creation_date>07/06/15</creation_date>
-	<description>Handbook rules may rely on existing generic rules. A
+<hb:handbook_parameters xmlns:hb="HANDBOOK">
+	<hb:author>Niesner Christophe</hb:author>
+	<hb:creation_date>14/11/16</hb:creation_date>
+	<hb:description>Handbook rules may rely on existing generic rules. A
 		generic rule is composed of an algorithm and some generic parameters.
 		The generic rule and parameters values are configured through the
 		verifiers parameters file. In case that some parameters are missing in
 		the parameters file, then they are replaced with default values that
-		are hard coded.</description>
-	<version_revision>creation</version_revision>
-
-
+		are hard coded.</hb:description>
+	<hb:version_revision>creation</hb:version_revision>
 
 	<hb:Rule UID="CNE_01200">
 		<hb:RuleUID>CNE_01200</hb:RuleUID>
 		<hb:RuleGEN>GEN_01200</hb:RuleGEN>
-		<hb:RuleParameter>
-			<name>position</name>
-			<type>PositionE</type>
-			<value>prefix</value>
-		</hb:RuleParameter>
-		<hb:RuleParameter>
-			<name>partName</name>
-			<type>String</type>
-			<value>p_</value>
-		</hb:RuleParameter>
+		
+	   <hb:RuleParams>
+			<hb:StringParam>
+			   <hb:ParamID>P1</hb:ParamID>
+			   <hb:Position>Prefix</hb:Position>
+			   <hb:Value>p_</hb:Value>
+		   </hb:StringParam>
+	   </hb:RuleParams>
+
 	</hb:Rule>
 	<hb:Rule UID="CNE_02300">
 		<hb:RuleUID>CNE_02300</hb:RuleUID>
@@ -44,34 +41,44 @@
 	<hb:Rule UID="STD_00200">
 		<hb:RuleUID>STD_00200</hb:RuleUID>
 		<hb:RuleGEN>STD_00200</hb:RuleGEN>
-		<hb:RuleParameter>
-			<name>position</name>
-			<type>PositionE</type>
-			<value>contain</value>
-		</hb:RuleParameter>
-		<hb:RuleParameter>
-			<name>partName</name>
-			<type>String</type>
-			<value>clk</value>
-			<value>clock</value>
-		</hb:RuleParameter>
+				
+		<hb:RuleParams>
+		   <hb:StringParam>
+			   <hb:ParamID>P1</hb:ParamID>
+			   <hb:Position>Contain</hb:Position>
+			   <hb:Value>clk</hb:Value>
+		   </hb:StringParam>
+		   <hb:StringParam>
+			   <hb:ParamID>P2</hb:ParamID>
+			   <hb:Position>Contain</hb:Position>
+			   <hb:Value>clock</hb:Value>
+		   </hb:StringParam>
+        </hb:RuleParams>
+		
 	</hb:Rule>
 	<hb:Rule UID="STD_00300">
 		<hb:RuleUID>STD_00300</hb:RuleUID>
 		<hb:RuleGEN>STD_00300</hb:RuleGEN>
-		<hb:RuleParameter>
-			<name>position</name>
-			<type>PositionE</type>
-			<value>contain</value>
-		</hb:RuleParameter>
-		<hb:RuleParameter>
-			<name>partName</name>
-			<type>String</type>
-			<value>rst</value>
-			<value>reset</value>
-			<value>clr</value>
-		</hb:RuleParameter>
+				
+		<hb:RuleParams>
+		   <hb:StringParam>
+			   <hb:ParamID>P1</hb:ParamID>
+			   <hb:Position>Contain</hb:Position>
+			   <hb:Value>rst</hb:Value>
+		   </hb:StringParam>
+		   <hb:StringParam>
+			   <hb:ParamID>P2</hb:ParamID>
+			   <hb:Position>Contain</hb:Position>
+			   <hb:Value>reset</hb:Value>
+		   </hb:StringParam>
+		   <hb:StringParam>
+			   <hb:ParamID>P3</hb:ParamID>
+			   <hb:Position>Contain</hb:Position>
+			   <hb:Value>clr</hb:Value>
+		   </hb:StringParam>
+        </hb:RuleParams>
 	</hb:Rule>
+		
 	<hb:Rule UID="STD_00400">
 		<hb:RuleUID>STD_00400</hb:RuleUID>
 		<hb:RuleGEN>STD_00400</hb:RuleGEN>
@@ -99,20 +106,28 @@
 	<hb:Rule UID="STD_04600">
 		<hb:RuleUID>STD_04600</hb:RuleUID>
 		<hb:RuleGEN>STD_04600</hb:RuleGEN>
-		<hb:RuleParameter>
-			<name>nbClockDomain</name>
-			<type>Integer</type>
-			<value>1</value>
-		</hb:RuleParameter>
+		
+		<hb:RuleParams>
+		   <hb:IntParam>
+			   <hb:ParamID>P1</hb:ParamID>
+			   <hb:Relation>LET</hb:Relation>
+			   <hb:Value>1</hb:Value>
+		   </hb:IntParam>
+        </hb:RuleParams>
+
 	</hb:Rule>
 	<hb:Rule UID="STD_04700">
 		<hb:RuleUID>STD_04700</hb:RuleUID>
 		<hb:RuleGEN>STD_04700</hb:RuleGEN>
-		<hb:RuleParameter>
-			<name>nbClockDomain</name>
-			<type>Integer</type>
-			<value>1</value>
-		</hb:RuleParameter>
+				
+		<hb:RuleParams>
+			<hb:IntParam>
+			   <hb:ParamID>P1</hb:ParamID>
+			   <hb:Relation>LT</hb:Relation>
+			   <hb:Value>2</hb:Value>
+		   </hb:IntParam>
+		</hb:RuleParams>
+
 	</hb:Rule>
 	<hb:Rule UID="STD_04800">
 		<hb:RuleUID>STD_04800</hb:RuleUID>
@@ -134,16 +149,21 @@
 	<hb:Rule UID="REQ_FEAT_AR3">
 		<hb:RuleUID>REQ_FEAT_AR3</hb:RuleUID>
 		<hb:RuleGEN>REQ_FEAT_AR3</hb:RuleGEN>
-		<hb:RuleParameter>
-			<name>nbStage</name>
-			<type>Integer</type>
-			<value>5</value>
-		</hb:RuleParameter>
-		<hb:RuleParameter>
-			<name>signalTag</name>
-			<type>String</type>
-			<value>INPUT_COMB_1</value>
-		</hb:RuleParameter>
+				
+		<hb:RuleParams>
+		   <hb:IntParam>
+			   <hb:ParamID>P1</hb:ParamID>
+			   <hb:Relation>E</hb:Relation>
+			   <hb:Value>5</hb:Value>
+		   </hb:IntParam>
+		   <hb:StringParam>
+			   <hb:ParamID>P2</hb:ParamID>
+			   <hb:Position>Prefix</hb:Position>
+			   <hb:Value>INPUT_COMB_1</hb:Value>
+		   </hb:StringParam>
+        </hb:RuleParams>
+
+		
 	</hb:Rule>
 
-</handbook_parameters>
+</hb:handbook_parameters>

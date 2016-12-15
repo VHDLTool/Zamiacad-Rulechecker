@@ -6,6 +6,7 @@ import java.util.List;
 import javax.swing.table.AbstractTableModel;
 
 import org.zamia.ZamiaProject;
+import org.zamia.plugin.tool.vhdl.manager.ReportManager.ParameterSource;
 import org.zamia.plugin.tool.vhdl.tools.ToolService;
 
 public class RuleObject extends AbstractTableModel  {
@@ -33,15 +34,20 @@ public class RuleObject extends AbstractTableModel  {
 	 
 	 public static final int COL_PARAM = 4;
 	 
-	 public static final int COL_SELECTED = 5;
+	 public static final int COL_PARAM_SOURCE = 5;
+
+	 public static final int COL_SELECTED = 6;
 	 
-	 public static final int COL_STATUS = 6;
+	 public static final int COL_STATUS = 7;
 	 
-	 public static final int COL_LOG_FILE = 7;
+	 public static final int COL_LOG_FILE = 8;
 	 
+	 private String typeSelect;
 	 
     public RuleObject(ZamiaProject zPrj, String typeSelect) {
     	super();
+    	this.typeSelect = typeSelect;
+    			
     	if (typeSelect.equalsIgnoreCase("Tool")) {
     		rules = toolService.findAllTools(zPrj);
     	} else {
@@ -49,7 +55,7 @@ public class RuleObject extends AbstractTableModel  {
     	}
     	
         entetes = new String[] {  "<html>Requirement ID</html>", "<html>Requirement Name</html>", "<html>Implemented /Not Implemented</html>" ,
-        			"Type" , "Parameter",  "", "status", "Log file"}; // the last column "enable" isn't in header to hide this
+        			"Type" , "Parameters",  "Parameters source", "", "status", "Log file"}; // the last column "enable" isn't in header to hide this
     }
  
     @Override
@@ -84,12 +90,14 @@ public class RuleObject extends AbstractTableModel  {
         case 4:
             return rule.getParameter();
         case 5:
-            return rule.isSelect();
+            return rule.getParameter().equalsIgnoreCase("Yes")? rule.getParameterSource().toString(): "";
         case 6:
-            return rule.getStatus();
+            return rule.isSelect();
         case 7:
-            return rule.getLogFile();
+            return rule.getStatus();
         case 8:
+            return rule.getLogFile();
+        case 9:
             return rule.isEnable();
 
         default:
@@ -107,14 +115,15 @@ public class RuleObject extends AbstractTableModel  {
         case 2:
         case 3:
         case 4:
-        case 6:
+        case 5:
         case 7:
+        case 8:
             return String.class;
 
-        case 5:
-        case 8:
+        case 6:
+        case 9:
             return Boolean.class;
-
+            
          default:
             return Object.class;
         }
@@ -127,39 +136,49 @@ public class RuleObject extends AbstractTableModel  {
         
         if (columnIndex == COL_LOG_FILE) return true;
         
+        if (columnIndex == COL_PARAM_SOURCE && ((String)getValueAt(rowIndex, COL_PARAM)).equalsIgnoreCase("Yes") && !typeSelect.equalsIgnoreCase("Tool")) return true;
+
         return false;
     }
     
     @Override
     public void setValueAt(Object aValue, int rowIndex, int columnIndex) {
     	
+    	final RuleStruct rule = rules.get(rowIndex);
+    	
     	switch (columnIndex) {
 		case 0:
-			rules.get(rowIndex).setId((String) aValue);
+			rule.setId((String) aValue);
 			break;
 		case 1:
-			rules.get(rowIndex).setName((String) aValue);
+			rule.setName((String) aValue);
 			break;
 		case 2:
-			rules.get(rowIndex).setImplemented((String) aValue);
+			rule.setImplemented((String) aValue);
 			break;
 		case 3:
-			rules.get(rowIndex).setType((String) aValue);
+			rule.setType((String) aValue);
 			break;
 		case 4:
-			rules.get(rowIndex).setParameter((String) aValue);
+			rule.setParameter((String) aValue);
 			break;
 		case 5:
-			rules.get(rowIndex).setSelect((boolean) aValue);
+			if (rule.getParameter().equalsIgnoreCase("Yes"))
+			{
+				rule.setParameterSource(ParameterSource.valueOf((String )aValue));
+			}
 			break;
 		case 6:
-			rules.get(rowIndex).setStatus((String) aValue);
+			rule.setSelect((boolean) aValue);
 			break;
 		case 7:
-			rules.get(rowIndex).setLogFile((String) aValue);
+			rule.setStatus((String) aValue);
 			break;
 		case 8:
-			rules.get(rowIndex).setEnable((boolean) aValue);
+			rule.setLogFile((String) aValue);
+			break;
+		case 9:
+			rule.setEnable((boolean) aValue);
 			break;
 
 

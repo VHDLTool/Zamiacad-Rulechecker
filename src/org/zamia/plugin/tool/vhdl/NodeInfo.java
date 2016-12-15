@@ -7,6 +7,7 @@ public enum NodeInfo {
 		// if new type is used in verifier param file, add this in enum
 		
 			NAME("Name"),
+			SIGNAL("Signal"),
 			TYPE("Type"),
 			LOCATION("Loc"),
 			DIRECTION("Type"),

@@ -12,6 +12,7 @@ import org.w3c.dom.Element;
 import org.w3c.dom.Node;
 import org.w3c.dom.NodeList;
 import org.xml.sax.SAXException;
+import org.zamia.plugin.tool.vhdl.manager.ReportManager.ParameterSource;
 import org.zamia.plugin.tool.vhdl.manager.ToolManager;
 
 public class RuleSruct {
@@ -36,8 +37,23 @@ public class RuleSruct {
 		 
 	}
 	 
+/*	private String getGenericName(String ruleId)
+	{
+		if (ruleId.startsWith("STD_"))
+		{
+			return ruleId;
+		}
+		else
+		{
+			String genericId = "GEN_" + ruleId.substring(ruleId.length() - 5);
+			return genericId;
+		}
+	}*/
+	 
 	private Boolean isImplemented(String parametersFileName) {
 		 gennericName = "";
+
+//		 String ruleId = getGenericName(ruleID.getTextContent());
 		 
 		 	if (parametersFileName == null || parametersFileName == "") {return false;}
 		 	
@@ -56,27 +72,29 @@ public class RuleSruct {
 			    if (nbRuleNodes < 1) {
 					return false;
 			    }
-			    
-			    for (int i = 0; i < nbRuleNodes; i++) {
-			        if(ruleNodes.item(i).getNodeType() == Node.ELEMENT_NODE) {
-			            final Element ruleNodeElement = (Element) ruleNodes.item(i);
-			            
-			            String ruleIdS = ruleNodeElement.getAttribute("UID");
-			            if (ruleIdS.equalsIgnoreCase(ruleID.getTextContent())) {
-			            	NodeList ruleGenNodeList = ruleNodeElement.getElementsByTagName("hb:RuleGEN");
-			            	if (ruleGenNodeList.getLength() < 1) { return false;}
-			            	
-			            	gennericName = ((Element)ruleGenNodeList.item(0)).getTextContent();
+
+			    //recherche la balise ruleId
+			    for (int i = 0; i < nbRuleNodes; i++) 
+			    {
+		            final Element ruleElement = (Element) ruleNodes.item(i);
+		            
+		            NodeList ruleIDTagList = ruleElement.getElementsByTagName("hb:RuleUID");
+		            if (ruleIDTagList != null && ruleIDTagList.getLength() == 1 && ruleIDTagList.item(0).getTextContent().equalsIgnoreCase(ruleID.getTextContent()))
+		            {
+		            	NodeList ruleGENTagList = ruleElement.getElementsByTagName("hb:RuleGEN");
+		            	if (ruleGENTagList != null && ruleGENTagList.getLength() == 1)
+		            	{
+			            	gennericName = ruleGENTagList.item(0).getTextContent();
 			            	if (gennericName.equalsIgnoreCase("")) {return false;}
-			            	
-			            	// TODO recup param
-			            	return true;
-			            }
-			            
-			        }				
-
+		            	}
+		            	else
+		            	{
+		            		return false;
+		            	}
+		            			 
+		            	return true;
+		            }
 			    }
-
 			    
 			}
 			catch (final ParserConfigurationException e) {
@@ -97,6 +115,64 @@ public String toString() {
 	return "gennericName "+gennericName+ " implemented "+implemented;
 }
 
+public ParameterSource getParameterSource() {
+	if (!implemented) { return null; }
+	
+	String fileName = ToolManager.getPathFileName("/rule_checker/rc_config_selected_rules.xml");
+	File file = new File(fileName);
+	if (!file.exists()) { return null; }
+	
+	final DocumentBuilderFactory factory = DocumentBuilderFactory.newInstance();
+    
+	try {
+	    final DocumentBuilder builder = factory.newDocumentBuilder();		
+	    
+	    final Document document= builder.parse(fileName);
+	    
+	    final Element ruleSet = document.getDocumentElement();
+	    
+	    final NodeList ruleNodes = ruleSet.getElementsByTagName("hb:Rule");
+	    
+	    final int nbRuleNodes = ruleNodes.getLength();
+	    if (nbRuleNodes < 1) {
+			return null;
+	    }
+	    
+	    for (int i = 0; i < nbRuleNodes; i++) {
+	        if(ruleNodes.item(i).getNodeType() == Node.ELEMENT_NODE) {
+	            final Element ruleNodeElement = (Element) ruleNodes.item(i);
+	            
+	            String ruleIdS = ruleNodeElement.getAttribute("UID");
+	            if (ruleIdS.equalsIgnoreCase(ruleID.getTextContent())) {
+		            String parameterSource = ruleNodeElement.getAttribute("ParameterSource");
+		            
+		            for (ParameterSource p : ParameterSource.values())
+		    		{
+		            	if (parameterSource.equalsIgnoreCase(p.toString()))
+		            	{
+		            		return p;
+		            	}
+		    		}
+	            }
+	            
+	        }				
+
+	    }
+
+	    
+	}
+	catch (final ParserConfigurationException e) {
+	    e.printStackTrace();
+	}
+	catch (final SAXException e) {
+	    e.printStackTrace();
+	}
+	catch (final IOException e) {
+	    e.printStackTrace();
+	}
+
+return null;
+}
 
 
 public boolean isSelected() {

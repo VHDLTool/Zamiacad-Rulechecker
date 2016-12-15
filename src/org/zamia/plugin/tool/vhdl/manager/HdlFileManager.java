@@ -84,8 +84,7 @@ public class HdlFileManager extends ToolManager {
 		
 		info = ListUpdateE.YES;
 		
-		String fichierName = ResourcesPlugin.getWorkspace().getRoot().findMember("/"+ zPrj.getId()).getLocation().toString();
-		File projectDirectory = new File(fichierName);
+		File projectDirectory = new File(ToolManager.getZamiaProjectPath());
 		List<File> listvhdlFile = getVhdlFile(projectDirectory);
 		String projetcPathDirectory = zPrj.getBuildPath().getSourceFile().getFile().getParent();
 		
