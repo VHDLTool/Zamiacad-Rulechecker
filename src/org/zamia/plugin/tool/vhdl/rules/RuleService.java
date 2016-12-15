@@ -1,5 +1,6 @@
 package org.zamia.plugin.tool.vhdl.rules;
 
+import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.FileReader;
 import java.io.IOException;
@@ -124,7 +125,8 @@ public class RuleService {
 		try {
 		    final DocumentBuilder builder = factory.newDocumentBuilder();
 		    
-		    String fichierName = ResourcesPlugin.getWorkspace().getRoot().findMember("/"+ zPrj.getId()).getLocation().toString()+"\\rule_checker\\rc_config.xml";
+		    String fichierName = ResourcesPlugin.getWorkspace().getRoot().findMember("/"+ zPrj.getId()).getLocation().toString()
+		    		+File.separator+"rule_checker"+File.separator+"rc_config.xml";
 		    final Document document= builder.parse(fichierName);
 		    
 		    final Element racine = document.getDocumentElement();
@@ -135,7 +137,8 @@ public class RuleService {
 
 		    }
 		    
-		    String fileName = ((Element)parametersNode.item(0)).getTextContent();
+		    String fileName = ((Element)parametersNode.item(0)).getTextContent(); 
+		    fileName=fileName.replace("\\", File.separator);
 		    return ToolManager.getPathFileName(fileName);
 		}
 		catch (final ParserConfigurationException e) {

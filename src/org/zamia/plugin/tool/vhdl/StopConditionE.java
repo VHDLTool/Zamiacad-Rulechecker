@@ -4,7 +4,7 @@ public enum StopConditionE {
 	NAN(""),
 	MAX_STAGE("maxStage"),
 	IO_PAD("IO Pad"),
-	IO("IO"),
+	IO("IO Black Box"),
 	STATE_MACHINE("State Machine"),
 	CONSTANT_ASSIGNMENT("Constant Assignment");
 

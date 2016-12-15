@@ -131,13 +131,13 @@
 
 
 
-	<hb:Rule UID="REQ_FEAT_LOGICAL_CONE">
-		<hb:RuleUID>REQ_FEAT_LOGICAL_CONE</hb:RuleUID>
-		<hb:RuleGEN>REQ_FEAT_LOGICAL_CONE</hb:RuleGEN>
+	<hb:Rule UID="REQ_FEAT_AR3">
+		<hb:RuleUID>REQ_FEAT_AR3</hb:RuleUID>
+		<hb:RuleGEN>REQ_FEAT_AR3</hb:RuleGEN>
 		<hb:RuleParameter>
 			<name>nbStage</name>
 			<type>Integer</type>
-			<value>10</value>
+			<value>5</value>
 		</hb:RuleParameter>
 		<hb:RuleParameter>
 			<name>signalTag</name>

@@ -1,5 +1,6 @@
 package org.zamia.plugin.tool.vhdl.tools.impl;
 
+import java.io.File;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
@@ -37,7 +38,7 @@ public class Tool_LOGICAL_CONE extends ToolSelectorManager {
 
 	//Logical Cone
 
-	ToolE tool = ToolE.REQ_FEAT_LOGICAL_CONE;
+	ToolE tool = ToolE.REQ_FEAT_AR3;
 	private RegisterInput register;
 	private HdlEntity hdlEntity;
 	private HdlArchitecture hdlArchitecture;
@@ -77,7 +78,7 @@ public class Tool_LOGICAL_CONE extends ToolSelectorManager {
 
 
 		List<List<Object>> xmlParameterFileConfig = getXmlParameterFileConfig(zPrj, ruleId, listParam);
-		if (xmlParameterFileConfig == null) {
+		if (xmlParameterFileConfig == null || xmlParameterFileConfig.isEmpty()) {
 			// wrong param
 			logger.info("Rule Checker: wrong parameter for rules "+tool.getIdReq()+ ".");
 			return new Pair<Integer, String> (WRONG_PARAM, "");
@@ -98,12 +99,9 @@ public class Tool_LOGICAL_CONE extends ToolSelectorManager {
 
 		List<Object> listParam2 = xmlParameterFileConfig.get(1);
 		signalTag = (String) listParam2.get(2);
-		
 		racineFirst = initReportFile(ruleId, tool.getType(), tool.getRuleName(), NumberReportE.FIRST);
 		racineSecond = initReportFile(ruleId, tool.getType(), tool.getRuleName(), NumberReportE.SECOND);
 
-		System.out.println("TAG "+signalTag + " nbHierarchie "+nbHierarchie);
-		
 		if (signalTag.startsWith(HdlEntity.IO)) {
 			logger.info("IO");
 			try {
@@ -131,16 +129,14 @@ public class Tool_LOGICAL_CONE extends ToolSelectorManager {
 		}		
 		//		ZamiaErrorObserver.updateAllMarkers(zPrj);
 		
-		
-		fileName = createReportFile(ruleId, tool.getRuleName(), tool.getType(), "rule", NumberReportE.FIRST);
+		fileName = createReportFile(ruleId, tool.getRuleName(), tool.getType(), "tool", NumberReportE.FIRST);
 
-		fileName = createReportFile(ruleId, tool.getRuleName(), tool.getType(), "rule", NumberReportE.SECOND);
+		fileName = createReportFile(ruleId, tool.getRuleName(), tool.getType(), "tool", NumberReportE.SECOND);
 
 		return new Pair<Integer, String> (0, fileName);
 	}
 
 	private void logicalConeIO(String signalTag)  throws EntityException {
-		
 		getIO(signalTag);
 		if (io != null) {
 			
@@ -151,7 +147,7 @@ public class Tool_LOGICAL_CONE extends ToolSelectorManager {
 
 	private String searchID(String fileName, String signalName) {
 		String id = "";
-		fileName = "\\"+fileName;
+		fileName = File.separator+fileName;
 		for(Entry<String, HdlFile> entry : listHdlFile.entrySet()) {
 			HdlFile hdlFile = entry.getValue();
 			if (!hdlFile.getLocalPath().equalsIgnoreCase(fileName)){
@@ -234,6 +230,9 @@ public class Tool_LOGICAL_CONE extends ToolSelectorManager {
 							if (ioItem.getTag().equalsIgnoreCase(signalTag)) {
 								io = ioItem;
 								hdlEntity = hdlEntityItem;
+								if (hdlEntity.getListHdlArchitecture().size()>0) {
+									hdlArchitecture = hdlEntity.getListHdlArchitecture().get(0);
+								}
 								return;
 							}
 						}
@@ -283,7 +282,6 @@ public class Tool_LOGICAL_CONE extends ToolSelectorManager {
 	}
 
 	private void getInputComb(String signalTag) throws EntityException {
-System.out.println("getInputComb");
 		Map<String, HdlFile> listHdlFile = InputCombinationalProcessManager.getInputCombinationalProcess();
 
 		for(Entry<String, HdlFile> entry : listHdlFile.entrySet()) {
@@ -355,10 +353,10 @@ System.out.println("getInputComb");
 		element.appendChild(NewElement(document, NodeType.SINK.toString()+NodeInfo.NAME.toString()
 				, sinkName));
 
-		element.appendChild(NewElement(document, NodeType.SINK.toString()+NodeInfo.LOCATION.toString()
+		element.appendChild(NewElement(document, NodeType.SINK.toString()+NodeType.FILE.toString()+NodeInfo.NAME.toString()
 				, registerInputSource.getLocation().fSF.getLocalPath()));
 
-		element.appendChild(NewElement(document, NodeType.SINK.toString()+NodeInfo.NB_LINE.toString()
+		element.appendChild(NewElement(document, NodeType.SINK.toString()+NodeInfo.LOCATION.toString()
 				, String.valueOf(registerInputSource.getLocation().fLine)));
 
 		element.appendChild(NewElement(document, NodeType.SINK.toString()+NodeInfo.TYPE.toString()
@@ -403,10 +401,10 @@ System.out.println("getInputComb");
 		element.appendChild(NewElement(document, NodeType.SOURCE.toString()+NodeInfo.ID.toString()
 				, searchID(registerInputSource.getLocation().fSF.getLocalPath(), sinkName)));
 
-		element.appendChild(NewElement(document, NodeType.SOURCE.toString()+NodeInfo.LOCATION.toString()
+		element.appendChild(NewElement(document, NodeType.SOURCE.toString()+NodeType.FILE.toString()+NodeInfo.NAME.toString()
 				, registerInputSource.getLocation().fSF.getLocalPath()));
 
-		element.appendChild(NewElement(document, NodeType.SOURCE.toString()+NodeInfo.NB_LINE.toString()
+		element.appendChild(NewElement(document, NodeType.SOURCE.toString()+NodeInfo.LOCATION.toString()
 				, String.valueOf(registerInputSource.getLocation().fLine)));
 
 		element.appendChild(NewElement(document, NodeType.SOURCE.toString()+NodeInfo.TYPE.toString()
@@ -459,10 +457,10 @@ System.out.println("getInputComb");
 		element.appendChild(NewElement(document, NodeType.SINK.toString()+NodeInfo.ID.toString()
 				, searchID(register.getLocation().fSF.getLocalPath(),  register.toString())));
 
-		element.appendChild(NewElement(document, NodeType.SINK.toString()+NodeInfo.LOCATION.toString()
+		element.appendChild(NewElement(document, NodeType.SINK.toString()+NodeType.FILE.toString()+NodeInfo.NAME.toString()
 				, register.getLocation().fSF.getLocalPath()));
 
-		element.appendChild(NewElement(document, NodeType.SINK.toString()+NodeInfo.NB_LINE.toString()
+		element.appendChild(NewElement(document, NodeType.SINK.toString()+NodeInfo.LOCATION.toString()
 				, String.valueOf(register.getLocation().fLine)));
 
 //		element.appendChild(NewElement(document, NodeType.ALL.toString()+NodeInfo.TAG.toString()
@@ -496,10 +494,10 @@ System.out.println("getInputComb");
 		element.appendChild(NewElement(document, NodeType.SOURCE.toString()+NodeInfo.ID.toString()
 				, signalTag));
 
-		element.appendChild(NewElement(document, NodeType.SOURCE.toString()+NodeInfo.LOCATION.toString()
+		element.appendChild(NewElement(document, NodeType.SOURCE.toString()+NodeType.FILE.toString()+NodeInfo.NAME.toString()
 				, register.getLocation().fSF.getLocalPath()));
 
-		element.appendChild(NewElement(document, NodeType.SOURCE.toString()+NodeInfo.NB_LINE.toString()
+		element.appendChild(NewElement(document, NodeType.SOURCE.toString()+NodeInfo.LOCATION.toString()
 				, String.valueOf(register.getLocation().fLine)));
 
 //		element.appendChild(NewElement(document, NodeType.ALL.toString()+NodeInfo.TAG.toString()
@@ -542,10 +540,10 @@ System.out.println("getInputComb");
 		element.appendChild(NewElement(document, NodeType.SINK.toString()+NodeInfo.ID.toString()
 				, searchID(registerRead.getLocation().fSF.getLocalPath(), sinkName)));
 
-		element.appendChild(NewElement(document, NodeType.SINK.toString()+NodeInfo.LOCATION.toString()
+		element.appendChild(NewElement(document, NodeType.SINK.toString()+NodeType.FILE.toString()+NodeInfo.NAME.toString()
 				, registerRead.getLocation().fSF.getLocalPath()));
 
-		element.appendChild(NewElement(document, NodeType.SINK.toString()+NodeInfo.NB_LINE.toString()
+		element.appendChild(NewElement(document, NodeType.SINK.toString()+NodeInfo.LOCATION.toString()
 				, String.valueOf(registerRead.getLocation().fLine)));
 
 		element.appendChild(NewElement(document, NodeType.SINK.toString()+NodeInfo.TYPE.toString()
@@ -592,10 +590,10 @@ System.out.println("getInputComb");
 		element.appendChild(NewElement(document, NodeType.SINK.toString()+NodeInfo.ID.toString()
 				, searchID(registerRead.getLocation().fSF.getLocalPath(), sinkName)));
 
-		element.appendChild(NewElement(document, NodeType.SINK.toString()+NodeInfo.LOCATION.toString()
+		element.appendChild(NewElement(document, NodeType.SINK.toString()+NodeType.FILE.toString()+NodeInfo.NAME.toString()
 				, registerRead.getLocation().fSF.getLocalPath()));
 
-		element.appendChild(NewElement(document, NodeType.SINK.toString()+NodeInfo.NB_LINE.toString()
+		element.appendChild(NewElement(document, NodeType.SINK.toString()+NodeInfo.LOCATION.toString()
 				, String.valueOf(registerRead.getLocation().fLine)));
 
 		element.appendChild(NewElement(document, NodeType.SINK.toString()+NodeInfo.TYPE.toString()
@@ -645,10 +643,10 @@ System.out.println("getInputComb");
 		element.appendChild(NewElement(document, NodeType.SOURCE.toString()+NodeInfo.ID.toString()
 				, searchID(registerSource.getLocation().fSF.getLocalPath(), sinkName)));
 
-		element.appendChild(NewElement(document, NodeType.SOURCE.toString()+NodeInfo.LOCATION.toString()
+		element.appendChild(NewElement(document, NodeType.SOURCE.toString()+NodeType.FILE.toString()+NodeInfo.NAME.toString()
 				, registerSource.getLocation().fSF.getLocalPath()));
 
-		element.appendChild(NewElement(document, NodeType.SOURCE.toString()+NodeInfo.NB_LINE.toString()
+		element.appendChild(NewElement(document, NodeType.SOURCE.toString()+NodeInfo.LOCATION.toString()
 				, String.valueOf(registerSource.getLocation().fLine)));
 
 		element.appendChild(NewElement(document, NodeType.SOURCE.toString()+NodeInfo.TYPE.toString()
@@ -673,11 +671,9 @@ System.out.println("getInputComb");
 	}
 	
 	private void logicalConeSourceIO() {
-		
-		if (io.getDir() == OIDir.IN) {
-			return;
-		}
-		System.out.println("logicalConeSourceIO");
+//		if (io.getDir() == OIDir.IN) {
+//			return;
+//		}
 		hdlEntity.searchSourceSignal(io, hdlEntity, hdlArchitecture, 0, nbHierarchie);
 		addElementSource(io, racineSecond, documentSecond, 0);
 		for (RegisterInputSource registerInputSource : io.getListSourceRegisterInput()) {
@@ -689,10 +685,9 @@ System.out.println("getInputComb");
 	}
 
 	private void logicalConeReadIO() {
-		if (io.getDir() == OIDir.OUT) {
-			return;
-		}
-		System.out.println("logicalConeReadIO");
+//		if (io.getDir() == OIDir.OUT) {
+//			return;
+//		}
 		hdlEntity.searchReadSignalSource(io, ToolManager.getVectorName(io.toString()), 0, nbHierarchie);
 		addElement(io, racineFirst, document, 0);
 		for (RegisterInputRead registerInputRead : io.getListReadRegisterInput()) {

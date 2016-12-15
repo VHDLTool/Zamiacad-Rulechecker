@@ -8,6 +8,7 @@
  */
 package org.zamia.plugin.tool.vhdl.manager;
 
+import java.io.File;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
@@ -112,8 +113,8 @@ public class EntityManager extends ToolManager {
 						}else{
 							
 							String fileName = entity.getSourceFile().getFile().getName();
-							String filePath = "\\"+entity.getSourceFile().getLocalPath().replace(fileName, "");
-							String filePathName = "\\"+entity.getSourceFile().getLocalPath();
+							String filePath = File.separator+entity.getSourceFile().getLocalPath().replace(fileName, "");
+							String filePathName = File.separator+entity.getSourceFile().getLocalPath();
 							List<String> listFilePath = createListFilePath(filePath);
 														
 							if (listFileToWork.contains(filePathName) || !listFilePath.isEmpty()) {
@@ -165,7 +166,7 @@ public class EntityManager extends ToolManager {
 					try {
 						entity = ((Entity)zPrj.getDUM().getDM(stub.getDUUID()));
 						if (entity != null) {
-							String localPath = "\\"+entity.getSource().getLocalPath();
+							String localPath = File.separator+entity.getSource().getLocalPath();
 							HdlFile hdlFile = listHdlFile.get(localPath);
 							if (hdlFile != null) {
 								cmpt++;
@@ -181,7 +182,7 @@ public class EntityManager extends ToolManager {
 						try {
 							VHDLPackage vhdlPackage = ((VHDLPackage)zPrj.getDUM().getDM(stub.getDUUID()));
 							if (vhdlPackage != null) {
-								String localPath = "\\"+vhdlPackage.getSource().getLocalPath();
+								String localPath = File.separator+vhdlPackage.getSource().getLocalPath();
 								HdlFile hdlFile = listHdlFile.get(localPath);
 								if (hdlFile != null) {
 									System.out.println("package "+localPath);

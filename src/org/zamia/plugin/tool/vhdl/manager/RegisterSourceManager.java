@@ -1,5 +1,6 @@
 package org.zamia.plugin.tool.vhdl.manager;
 
+import java.io.File;
 import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
@@ -129,7 +130,7 @@ public class RegisterSourceManager extends ToolManager {
 		for (SignalSource signalSource : listSearchSignalOrigin) {
 			
 			if (signalSource != null && signalSource.getSignalDeclaration() != null) {
-				HdlFile hdlFile2 = listHdlFile.get("\\"+sourceLocation.fSF.getLocalPath());
+				HdlFile hdlFile2 = listHdlFile.get(File.separator+sourceLocation.fSF.getLocalPath());
 				ClockSource clockSourceRegister = hdlFile2.isSignalRegister(signalSource);
 				if (clockSourceRegister == null) {
 					List<String> listOperand = signalSource.getListOperand();

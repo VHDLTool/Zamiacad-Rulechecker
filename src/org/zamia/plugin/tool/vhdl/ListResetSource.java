@@ -34,10 +34,10 @@ public class ListResetSource {
 			resetSource.addResetSignalElement(resetSignalItem);
 			if (resetSource.getTag() == null) {
 				if (listResetSource.isEmpty()) {
-					resetSource.setTag(NodeType.CLOCK_SOURCE.toString()+tag);
+					resetSource.setTag(NodeType.RESET_SOURCE.toString()+tag);
 				} else {
 					tag = tag+listResetSource.size();
-					resetSource.setTag(NodeType.CLOCK_SOURCE.toString()+tag);
+					resetSource.setTag(NodeType.RESET_SOURCE.toString()+tag);
 				}
 			}
 

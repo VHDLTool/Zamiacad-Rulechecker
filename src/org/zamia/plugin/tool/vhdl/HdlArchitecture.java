@@ -260,10 +260,6 @@ public class HdlArchitecture {
 	}
 
 	private List<VHDLNode> searchInSequentialCase(VHDLNode node, String idPort) {
-		if (idPort.equalsIgnoreCase("DMA")) {
-			
-			System.out.println("searchInSequentialCase "+idPort);
-		}
 		List<VHDLNode> listResult = new ArrayList<VHDLNode>();
 		if (node == null) {return null;}
 
@@ -474,7 +470,6 @@ public class HdlArchitecture {
 //			return;
 //		}
 		if (registerInputRead.isSameParent()) {
-			System.out.println(StopConditionE.STATE_MACHINE.toString()+"  "+registerInputRead.toString()+ "  " +cmptHierar);
 			registerInputRead.setStopCondition(StopConditionE.STATE_MACHINE);
 			return;
 		}
@@ -543,7 +538,6 @@ public class HdlArchitecture {
 			if (((OperationCompare)node).getOperandB().toString().trim().equalsIgnoreCase(signalName) || 
 					((OperationCompare)node).getOperandA().toString().trim().equalsIgnoreCase(signalName)) {
 				if ((VHDLNode)node.getParent() instanceof SequentialIf) {
-					System.out.println("SequentialIf  "+node.toString()+ " loc "+node.getLocation());
 					if (((OperationCompare)node).getOperandB().toString().trim().equalsIgnoreCase(signalName)) {
 						searchReadInSequentialIf((VHDLNode) node.getParent(), signalSource, cmptHierar, nbHierarchie, ((OperationCompare)node).getOperandB());
 					} else {

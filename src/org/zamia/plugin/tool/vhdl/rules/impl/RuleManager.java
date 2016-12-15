@@ -1,21 +1,7 @@
 package org.zamia.plugin.tool.vhdl.rules.impl;
 
-import java.io.IOException;
-import java.util.ArrayList;
 import java.util.List;
 
-import javax.swing.JOptionPane;
-import javax.xml.parsers.DocumentBuilder;
-import javax.xml.parsers.DocumentBuilderFactory;
-import javax.xml.parsers.ParserConfigurationException;
-
-import org.w3c.dom.Document;
-import org.w3c.dom.Element;
-import org.w3c.dom.Node;
-import org.w3c.dom.NodeList;
-import org.xml.sax.SAXException;
-import org.zamia.ZamiaLogger;
-import org.zamia.ZamiaProject;
 import org.zamia.instgraph.IGObject.OIDir;
 import org.zamia.plugin.tool.vhdl.ClockSignal;
 import org.zamia.plugin.tool.vhdl.HdlArchitecture;
@@ -27,13 +13,13 @@ import org.zamia.plugin.tool.vhdl.ResetSignal;
 import org.zamia.plugin.tool.vhdl.Violation;
 import org.zamia.plugin.tool.vhdl.manager.ReportManager;
 import org.zamia.plugin.tool.vhdl.manager.ToolManager;
-import org.zamia.plugin.tool.vhdl.rules.RuleService;
 import org.zamia.vhdl.ast.Architecture;
 import org.zamia.vhdl.ast.Entity;
 import org.zamia.vhdl.ast.InterfaceDeclaration;
 import org.zamia.vhdl.ast.InterfaceList;
 import org.zamia.vhdl.ast.Range;
 import org.zamia.vhdl.ast.RecordElementDeclaration;
+import org.zamia.vhdl.ast.SequentialFor;
 import org.zamia.vhdl.ast.SignalDeclaration;
 import org.zamia.vhdl.ast.TypeDefinition;
 import org.zamia.vhdl.ast.TypeDefinitionRecord;
@@ -123,9 +109,12 @@ public abstract class RuleManager extends ReportManager {
 	protected void checkInitialization(ClockSignal clockSignalItem, HdlFile hdlFile, HdlEntity hdlEntityItem,
 			HdlArchitecture hdlArchitectureItem, Process processItem) {
 		// verify initialization
+		System.out.println("verify initialization");
 		for (RegisterInput registerAffectation : clockSignalItem.getListRegister()) {
+			System.out.println(registerAffectation.toString());
 			boolean find = false;
 			for (ResetSignal resetSignalItem : clockSignalItem.getListResetSignal()) {
+				System.out.println("RESET OK");
 				for (RegisterInput registerInitialization : resetSignalItem.getListRegister()) {
 					if (registerAffectation.equals(registerInitialization)) {
 						find = true;
@@ -139,11 +128,15 @@ public abstract class RuleManager extends ReportManager {
 					
 				}
 			}
-			if (!find && registerAffectation.isVector()) {
+			System.out.println("after reset find  "+find);
+			if (!find && (registerAffectation.isVector() || registerAffectation.isArray()) ) {
+				
+				System.out.println("registerAffectation  "+registerAffectation.toString());
 				boolean findIndex = false;
 				for (ResetSignal resetSignalItem : clockSignalItem.getListResetSignal()) {
 					for (RegisterInput registerInitialization : resetSignalItem.getListRegister()) {
-						if (registerInitialization.getVectorName().equalsIgnoreCase(registerAffectation.toString())) {
+						if (registerInitialization.getVectorName().equalsIgnoreCase(registerAffectation.toString()) ||
+								registerInitialization.getVectorName().equalsIgnoreCase(registerAffectation.getVectorName())) {
 							findIndex = true;
 						}
 					}
@@ -155,13 +148,13 @@ public abstract class RuleManager extends ReportManager {
 							hdlArchitectureItem, processItem);
 				}
 			}
-			
+			System.out.println("after vector find  "+find);
 			if (!find && registerAffectation.isRecord()) {
 				find = checkPartialInitialzedRecord(registerAffectation, clockSignalItem, 
 						hdlFile, hdlEntityItem,
 						hdlArchitectureItem, processItem);
 			}
-			
+			System.out.println("after record find  "+find);
 			if (!find) {
 				addViolation(NOT_INITIALIZED, registerAffectation.toString(), 
 						registerAffectation.getLocation().fLine, 
@@ -169,6 +162,7 @@ public abstract class RuleManager extends ReportManager {
 						hdlArchitectureItem.getArchitecture(), 
 						processItem, clockSignalItem);
 			}
+			System.out.println("find  "+find);
 		}
 		
 		
@@ -190,7 +184,7 @@ public abstract class RuleManager extends ReportManager {
 			indexMax = registerAffectation.getLeft();
 			indexMin = registerAffectation.getRight();
 		}
-		find = checkInitializedInVector(registerAffectation.toString(), registerAffectation.getLocation().fLine,
+		find = checkInitializedInVector(registerAffectation.getVectorName(), registerAffectation.getLocation().fLine,
 				indexMin, indexMax, clockSignalItem, hdlFile, hdlEntityItem, hdlArchitectureItem, processItem);
 		return find;
 	}
@@ -204,6 +198,9 @@ public abstract class RuleManager extends ReportManager {
 			boolean findIndex = false;
 			for (ResetSignal resetSignalItem : clockSignalItem.getListResetSignal()) {
 				for (RegisterInput registerInitialization : resetSignalItem.getListRegister()) {
+					System.out.println("checkInitializedInVector");
+					System.out.println("registerInitialization.toString() "+registerInitialization.toString());
+					System.out.println("registerIndexName "+registerIndexName);
 					if (registerInitialization.toString().equalsIgnoreCase(registerIndexName)) {
 						find = true;
 						findIndex = true;
@@ -294,13 +291,13 @@ public abstract class RuleManager extends ReportManager {
 				boolean find = false;
 				for (RegisterInput registerAffectation : clockSignalItem.getListRegister()) {
 					if (registerAffectation.equals(registerInitialization) ||
-							registerInitialization.getVectorName().equalsIgnoreCase(registerAffectation.toString()) ||
+							registerInitialization.getVectorName().equalsIgnoreCase(registerAffectation.toString()) || // pour vector et array
 							registerInitialization.getRecordName().equalsIgnoreCase(registerAffectation.toString())) {
 						find = true;
 					}
 				}
 				
-				if (!find && registerInitialization.isVector()) {
+				if (!find && (registerInitialization.isVector() || registerInitialization.isArray())) {
 					boolean findIndex = false;
 					for (RegisterInput registerAffectationIndex : clockSignalItem.getListRegister()) {
 						if (registerAffectationIndex.getVectorName().equalsIgnoreCase(registerInitialization.toString())) {
@@ -355,6 +352,46 @@ public abstract class RuleManager extends ReportManager {
 				if (registerAffectationIndex.toString().equalsIgnoreCase(registerIndexName)) {
 					findIndex = true;
 					find = true;
+				}
+				if (!findIndex) {
+					// cas des boucle for
+					registerAffectationIndex.toString().indexOf(")");
+					
+					String indexOfArray = registerAffectationIndex.toString().substring(registerAffectationIndex.toString().indexOf("(")+1, registerAffectationIndex.toString().indexOf(")"));
+					try {
+						Integer.valueOf(indexOfArray);
+					} catch (NumberFormatException e) {
+						// cas d'un compteur de boucle
+						VHDLNode parent = registerAffectationIndex.getVhdlNode();
+						while (!(parent instanceof SequentialFor)) {
+							parent = (VHDLNode) parent.getParent();
+						}
+						SequentialFor sequentialFor = (SequentialFor) parent;
+						indexOfArray = indexOfArray.replace(sequentialFor.getVar(), "1");
+						try {
+							Integer.valueOf(indexOfArray); // verif si l'index est une poération litérale
+							int _indexMin = 0;
+							int _indexMax = 0;
+							if (sequentialFor.getRange().isAscending()) {
+								_indexMin = ToolManager.getOp(sequentialFor.getRange().getLeft(), hdlEntityItem, hdlArchitectureItem);
+								_indexMax = ToolManager.getOp(sequentialFor.getRange().getRight(), hdlEntityItem, hdlArchitectureItem);
+							} else {
+								_indexMin = ToolManager.getOp(sequentialFor.getRange().getRight(), hdlEntityItem, hdlArchitectureItem);
+								_indexMax = ToolManager.getOp(sequentialFor.getRange().getLeft(), hdlEntityItem, hdlArchitectureItem);
+							}
+							System.out.println("_indexMin "+_indexMin);
+							System.out.println("_indexMax "+_indexMax);
+							for (int j = _indexMin; j <=  _indexMax; j++) {
+								registerAffectationIndex.toString().replace(sequentialFor.getVar(), String.valueOf(j));
+								if (registerAffectationIndex.toString().replace(sequentialFor.getVar(), String.valueOf(j)).equalsIgnoreCase(registerIndexName)) {
+									findIndex = true;
+									find = true;
+								}
+							}
+						} catch (NumberFormatException e1) {
+							e1.printStackTrace();
+						}
+					}
 				}
 			}
 			if (!findIndex) {

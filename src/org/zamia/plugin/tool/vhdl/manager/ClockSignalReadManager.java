@@ -8,6 +8,8 @@
  */
 package org.zamia.plugin.tool.vhdl.manager;
 
+import java.io.File;
+
 import org.eclipse.jface.action.IAction;
 import org.zamia.plugin.ZamiaPlugin;
 import org.zamia.plugin.tool.vhdl.ClockSignal;
@@ -100,8 +102,7 @@ public class ClockSignalReadManager extends ToolManager {
 
 		for (ClockSource clockSource : listClockSource.getListClockSource()) {
 			String signalName = clockSource.toString();
-			HdlFile hdlFile = listHdlFile.get("\\"+clockSource.getSignalDeclaration().getLocation().fSF.getLocalPath());
-			
+			HdlFile hdlFile = listHdlFile.get(File.separator+clockSource.getSignalDeclaration().getLocation().fSF.getLocalPath());
 			for (HdlEntity hdlEntityItem : hdlFile.getListHdlEntity()) {
 				hdlEntityItem.searchReadSignalSource(clockSource, signalName, 0, 10);
 			}

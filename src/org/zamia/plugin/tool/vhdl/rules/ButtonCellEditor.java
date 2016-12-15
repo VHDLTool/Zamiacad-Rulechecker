@@ -26,6 +26,7 @@ public Component getTableCellEditorComponent(JTable table, Object value,
 
 	// Customize it  
 	String fileName = value.toString();
+	// TODO BGT?
 	Integer index = fileName.lastIndexOf("/") > fileName.lastIndexOf("\\") ? fileName.lastIndexOf("/") : fileName.lastIndexOf("\\");
 	String name = (index == -1) ? fileName : fileName.substring(index+1);
 	if (name.length() == 0) {
@@ -62,7 +63,7 @@ public class TraitementBut2 implements   ActionListener
 	}
 
 	/**
-	 * obligatoire car test implémente l'interface ActionListener
+	 * obligatoire car test implï¿½mente l'interface ActionListener
 	 */
 	public void actionPerformed(ActionEvent e)
 	{

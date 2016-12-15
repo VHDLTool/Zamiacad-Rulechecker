@@ -8,6 +8,8 @@
  */
 package org.zamia.plugin.tool.vhdl.manager;
 
+import java.io.File;
+
 import org.eclipse.jface.action.IAction;
 import org.zamia.plugin.ZamiaPlugin;
 import org.zamia.plugin.tool.vhdl.EntityException;
@@ -100,7 +102,7 @@ public class ResetSignalReadManager extends ToolManager {
 		
 		for (ResetSource resetSource : listResetSource.getListResetSource()) {
 			String signalName = resetSource.toString();
-			HdlFile hdlFile = listHdlFile.get("\\"+resetSource.getSignalDeclaration().getLocation().fSF.getLocalPath());
+			HdlFile hdlFile = listHdlFile.get(File.separator+resetSource.getSignalDeclaration().getLocation().fSF.getLocalPath());
 			
 			for (HdlEntity hdlEntityItem : hdlFile.getListHdlEntity()) {
 				hdlEntityItem.searchReadSignalSource(resetSource, signalName, 0, 10);

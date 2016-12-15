@@ -50,7 +50,7 @@ import org.zamia.plugin.tool.vhdl.tools.impl.Tool_RST_PRJ;
 		REQ_FEAT_COMB_INPUT("REQ_FEAT_COMB_INPUT", Tool_COMB_INPUT.class, RuleTypeE.IDE, false, "Input of combinational process"),
 		REQ_FEAT_IO_PRJ("REQ_FEAT_IO_PRJ", Tool_IO_PRJ.class, RuleTypeE.IDE, false, "Input Output Identification"), 
 		REQ_FEAT_OBJ_ID("REQ_FEAT_OBJ_ID", Tool_OBJ_ID.class, RuleTypeE.IDE, false, "Object Identification"), 
-		REQ_FEAT_LOGICAL_CONE("REQ_FEAT_LOGICAL_CONE", Tool_LOGICAL_CONE.class, RuleTypeE.IDE, true, "Logical Cone");
+		REQ_FEAT_AR3("REQ_FEAT_AR3", Tool_LOGICAL_CONE.class, RuleTypeE.IDE, true, "Logical Cone");
 
 		
 		

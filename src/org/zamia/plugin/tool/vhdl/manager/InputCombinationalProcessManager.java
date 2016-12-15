@@ -186,15 +186,16 @@ public class InputCombinationalProcessManager extends ToolManager {
 				addNewInput(child2, processItem);
 			} else if (child2 instanceof OperationConcat) {
 				searchInOp(child2, processItem);
+			}else if (child2 instanceof SequenceOfStatements) {
+				// cas d'instructions dans les if
+				searchInput(child2, processItem);
 			}
-
 		}
  }
 
 
 	private static void addNewInput(VHDLNode node, Process processItem) {
 		Input input = new Input((OperationName)node, hdlEntity, hdlArchitecture, INPUT, num);
-			System.out.println("addNewInput  "+((OperationName)node).toString()+" getType  "+input.getType());
 		if (!input.getType().equals(RegisterTypeE.NAN)) {
 			num = processItem.addInput(input);
 			

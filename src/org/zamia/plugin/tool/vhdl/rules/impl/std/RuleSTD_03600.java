@@ -160,9 +160,9 @@ System.out.println("cmptViolationFirst "+cmptViolationFirst);
 											System.out.println("resetSource  "+resetSource);
 											System.out.println("resetSignal.getResetSource() "+resetSignal.getResetSource());
 											try {
-												if (resetSource.equals(resetSignal.getResetSource())) {
+//												if (resetSource.equals(resetSignal.getResetSource())) {
 													level = update(level, resetSignal.getLevel());
-												}
+//												}
 											} catch (Exception e) {
 												logger.error("some exception message RuleSTD_03600 checkResetMixLevels", e);
 												if (! error) {

@@ -2,13 +2,15 @@ package org.zamia.plugin.tool.vhdl;
 
 import org.zamia.ZamiaLogger;
 import org.zamia.plugin.tool.vhdl.manager.ToolManager;
+import org.zamia.vhdl.ast.DiscreteRange;
 import org.zamia.vhdl.ast.InterfaceDeclaration;
 import org.zamia.vhdl.ast.InterfaceList;
 import org.zamia.vhdl.ast.Name;
-import org.zamia.vhdl.ast.OperationName;
 import org.zamia.vhdl.ast.Range;
 import org.zamia.vhdl.ast.SignalDeclaration;
 import org.zamia.vhdl.ast.TypeDeclaration;
+import org.zamia.vhdl.ast.TypeDefinition;
+import org.zamia.vhdl.ast.TypeDefinitionConstrainedArray;
 import org.zamia.vhdl.ast.TypeDefinitionEnum;
 import org.zamia.vhdl.ast.TypeDefinitionRecord;
 import org.zamia.vhdl.ast.TypeDefinitionSubType;
@@ -136,6 +138,13 @@ public abstract class Declaration {
 		return false;
 	}
 	
+	public boolean isArray() {
+		if (type == RegisterTypeE.ARRAY) {
+			return true;
+		}
+		return false;
+	}
+	
 	protected void setType(HdlEntity hdlEntity, HdlArchitecture hdlArchitecture) {
 		int numChildren = hdlArchitecture.getArchitecture().getNumChildren();
 		for (int i = 0; i < numChildren; i++) {
@@ -143,23 +152,14 @@ public abstract class Declaration {
 
 			if (child instanceof SignalDeclaration) {
 				SignalDeclaration signal = (SignalDeclaration) child;
-				if (signal.getId().equalsIgnoreCase("key_reg0") && toString().equalsIgnoreCase("key_reg0"))
-					System.out.println("signal SignalDeclaration  "+signal.getId()+"  type "+signal.getType()+ " toString  "+ toString());
 				if (signal.getId().equalsIgnoreCase(getVectorName())) {
-					if (signal.getId().equalsIgnoreCase("key_reg0") && toString().equalsIgnoreCase("key_reg0"))
-						System.out.println("signal getVectorName  "+signal.getId()+"  type "+signal.getType()+ " toString  "+ toString());
-
 					if (signal.getType().toString().equalsIgnoreCase("STD_LOGIC")) {
-						if (signal.getId().equalsIgnoreCase("key_reg0") && toString().equalsIgnoreCase("key_reg0"))
-							System.out.println("signal getVectorName STD_LOGIC  "+signal.getId()+"  type "+signal.getType()+ " toString  "+ toString());
 
 						type = RegisterTypeE.DISCRETE;
 						typeS = signal.getType().toString();
 						range = 1;
 						return;
 					} else if (signal.getType().toString().contains("STD_LOGIC_VECTOR")) {
-						if (signal.getId().equalsIgnoreCase("key_reg0") && toString().equalsIgnoreCase("key_reg0"))
-							System.out.println("signal getVectorName STD_LOGIC_VECTOR  "+signal.getId()+"  type "+signal.getType()+ " toString  "+ toString());
 
 						if(getVectorName().equalsIgnoreCase(toString())) {
 							type = RegisterTypeE.VECTOR;
@@ -221,7 +221,7 @@ public abstract class Declaration {
 						range = 1;
 						return;
 					} else {
-						if (searchOtherType(hdlArchitecture, signal.getType().toString())) {
+						if (searchOtherType(hdlEntity, hdlArchitecture, signal.getType().toString())) {
 							return;
 						}
 						type = RegisterTypeE.UNKNOWN_TYPE;
@@ -230,12 +230,7 @@ public abstract class Declaration {
 						return;
 					}
 				} else if (signal.getId().equalsIgnoreCase(getRecordName())) {
-					if (signal.getId().equalsIgnoreCase("key_reg0") && toString().equalsIgnoreCase("key_reg0"))
-						System.out.println("signal getRecordName  "+signal.getId()+"  type "+signal.getType()+ " toString  "+ toString());
-
-					if (searchOtherType(hdlArchitecture, signal.getType().toString())) {
-						if (signal.getId().equalsIgnoreCase("key_reg0") && toString().equalsIgnoreCase("key_reg0"))
-							System.out.println("signal searchOtherType  "+signal.getId()+"  type "+signal.getType()+ " toString  "+ toString());
+					if (searchOtherType(hdlEntity, hdlArchitecture, signal.getType().toString())) {
 
 						return;
 					}
@@ -312,7 +307,7 @@ public abstract class Declaration {
 		return (indexMax - indexMin +1);
 	}
 
-	private boolean searchOtherType(HdlArchitecture hdlArchitecture,
+	private boolean searchOtherType(HdlEntity hdlEntity, HdlArchitecture hdlArchitecture,
 			String otherType) {
 		int numChildren = hdlArchitecture.getArchitecture().getNumChildren();
 		for (int i = 0; i < numChildren; i++) {
@@ -337,7 +332,18 @@ public abstract class Declaration {
 							typeS = otherType;
 							range = 1;
 							return true;
+						} else if (child2 instanceof TypeDefinitionConstrainedArray) {
+							TypeDefinitionConstrainedArray typeArray = (TypeDefinitionConstrainedArray) child2;
+							TypeDefinition elementType = typeArray.getElementType();
+							System.out.println("elementType "+elementType.toString());
+							DiscreteRange discreteRange = (DiscreteRange) typeArray.getChild(1);
+							setRange(discreteRange.getRange(), hdlEntity, hdlArchitecture);
+							type = RegisterTypeE.ARRAY;
+							typeS = child2.toString();
+							range = getRangeVector();
+							return true;
 						} else if (child2 != null) {
+							System.out.println("child2 "+child2.toString()+ "  loc "+child2.getLocation());
 							System.out.println("child2 "+child2.getClass().getSimpleName());
 						}
 //						System.out.println("child "+child2.getClass().getSimpleName());
@@ -347,6 +353,12 @@ public abstract class Declaration {
 		}
 
 		return false;
+	}
+
+	private void setRange(Range range, HdlEntity hdlEntity, HdlArchitecture hdlArchitecture) {
+		fAscending = range.isAscending();
+		fLeft = ToolManager.getOp(range.getLeft(), hdlEntity, hdlArchitecture);
+		fRight = ToolManager.getOp(range.getRight(), hdlEntity, hdlArchitecture);
 	}
 
 	private void getSignalVectorRange(SignalDeclaration signal, HdlEntity hdlEntity, HdlArchitecture hdlArchitecture) {

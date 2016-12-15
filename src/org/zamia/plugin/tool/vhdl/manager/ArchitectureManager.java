@@ -10,6 +10,7 @@
  */
 package org.zamia.plugin.tool.vhdl.manager;
 
+import java.io.File;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
@@ -107,7 +108,7 @@ public class ArchitectureManager extends ToolManager {
 			DesignModuleStub stub = dum.getStub(j);
 
 			if (stub.getDUUID().getLibId().equalsIgnoreCase("WORK")) { // pour prendre les fichiers de travail
-				System.out.println("stub.getDUUID().getType() "+stub.getDUUID().getType());
+//				System.out.println("stub.getDUUID().getType() "+stub.getDUUID().getType());
 				if (stub.getDUUID().getType() == LUType.Architecture) {
 					try {
 						architecture = ((Architecture)zPrj.getDUM().getDM(stub.getDUUID()));
@@ -117,8 +118,8 @@ public class ArchitectureManager extends ToolManager {
 						}else{
 							
 							String fileName = architecture.getSourceFile().getFile().getName();
-							String filePath = "\\"+architecture.getSourceFile().getLocalPath().replace(fileName, "");
-							String filePathName = "\\"+architecture.getSourceFile().getLocalPath();
+							String filePath = File.separator+architecture.getSourceFile().getLocalPath().replace(fileName, "");
+							String filePathName = File.separator+architecture.getSourceFile().getLocalPath();
 							List<String> listFilePath = createListFilePath(filePath);
 
 							if (listFileToWork.contains(filePathName) || !listFilePath.isEmpty()) {
@@ -137,15 +138,15 @@ public class ArchitectureManager extends ToolManager {
 						}else{
 							
 							String fileName = packageBody.getSourceFile().getFile().getName();
-							String filePath = "\\"+packageBody.getSourceFile().getLocalPath().replace(fileName, "");
-							String filePathName = "\\"+packageBody.getSourceFile().getLocalPath();
+							String filePath = File.separator+packageBody.getSourceFile().getLocalPath().replace(fileName, "");
+							String filePathName = File.separator+packageBody.getSourceFile().getLocalPath();
 							List<String> listFilePath = createListFilePath(filePath);
 
 							if (listFileToWork.contains(filePathName) || !listFilePath.isEmpty()) {
-								System.out.println(fileName);
-								System.out.println("NB lib "+packageBody.getContext().getNumLibraries());
+//								System.out.println(fileName);
+//								System.out.println("NB lib "+packageBody.getContext().getNumLibraries());
 								if (packageBody.getContext().getNumLibraries() != 0) {System.out.println(packageBody.getContext().getLibrary(0));}
-								System.out.println("NB use "+packageBody.getContext().getNumUses());
+//								System.out.println("NB use "+packageBody.getContext().getNumUses());
 								if (packageBody.getContext().getNumUses() != 0) {System.out.println(packageBody.getContext().getUse(0));}
 //								listArchi.add(packageBody);
 							}

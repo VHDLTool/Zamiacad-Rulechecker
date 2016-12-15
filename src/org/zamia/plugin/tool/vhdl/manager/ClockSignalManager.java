@@ -210,7 +210,6 @@ public class ClockSignalManager extends ToolManager {
  * @return 
  */
 	public static boolean searchKeyWord(VHDLNode node, Pair<VHDLNode, String> signalPair) {
-		
 		if (signalPair == null) { return false;}
 		
 		VHDLNode signal = signalPair.getFirst();
@@ -226,7 +225,6 @@ public class ClockSignalManager extends ToolManager {
 					}
 				}
 			} else if (child instanceof OperationLogic) {
-				
 				VHDLNode subChild_0,subChild_1;
 				if (child.getNumChildren() == 2){
 					subChild_0 = child.getChild(0);

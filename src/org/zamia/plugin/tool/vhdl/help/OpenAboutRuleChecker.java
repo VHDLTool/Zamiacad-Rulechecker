@@ -12,8 +12,10 @@ public class OpenAboutRuleChecker implements IWorkbenchWindowActionDelegate {
 
 	@Override
 	public void run(IAction arg0) {
+		
 		JOptionPane.showMessageDialog(null, "<html>Rule Checker V"+ZamiaPlugin.getDefault().ruleCheckerVersion +" date "+ZamiaPlugin.getDefault().ruleCheckerDate +"</html>", "About Rule Checker",
 		        JOptionPane.INFORMATION_MESSAGE);
+		
 	}
 
 	@Override

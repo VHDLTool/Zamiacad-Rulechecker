@@ -312,7 +312,7 @@ public class NewZamiaProjectWizard extends BasicNewResourceWizard implements IEx
 						
 						// create rc_config.txt
 						try {
-							IFile file = project.getFile("rule_checker\\rc_config.txt");
+							IFile file = project.getFile("rule_checker"+File.separator+"rc_config.txt");
 							if (file.exists()) {
 								// rewriting file, especially linked one can be dangerous
 								//file.setContents(getInitialBuildPathContents(), true, false, null);
@@ -330,7 +330,7 @@ public class NewZamiaProjectWizard extends BasicNewResourceWizard implements IEx
 
 						// create rc_config.xml
 						try {
-							IFile file = project.getFile("rule_checker\\rc_config.xml");
+							IFile file = project.getFile("rule_checker"+File.separator+"rc_config.xml");
 							if (file.exists()) {
 								// rewriting file, especially linked one can be dangerous
 								//file.setContents(getInitialBuildPathContents(), true, false, null);
@@ -341,12 +341,12 @@ public class NewZamiaProjectWizard extends BasicNewResourceWizard implements IEx
 									file.appendContents(getInitialRCConfigFileHeaderContents(), IResource.NONE, null);
 									file.appendContents(new ByteArrayInputStream(("\n \t<!-- \n \t<root_directory>").getBytes()), IResource.NONE, null);	
 									file.appendContents(new ByteArrayInputStream(("\n \t \t <alias>LOG_ROOT</alias>").getBytes()), IResource.NONE, null);
-									file.appendContents(new ByteArrayInputStream(("\n \t \t <path>C:\\dev\\FPGA\\project\\log</path>").getBytes()), IResource.NONE, null);
+									file.appendContents(new ByteArrayInputStream(("\n \t \t <path>C:\\dev\\FPGA\\project\\log</path>").getBytes()), IResource.NONE, null);// TODO BGT chemin
 									file.appendContents(new ByteArrayInputStream(("\n \t</root_directory> \n \t-->\n").getBytes()), IResource.NONE, null);	
 									if (rootHandbook.length() != 0) {
 										file.appendContents(new ByteArrayInputStream(("\n \t<root_directory>").getBytes()), IResource.NONE, null);	
 										file.appendContents(new ByteArrayInputStream(("\n \t \t <alias>HANDBOOK_ROOT</alias>").getBytes()), IResource.NONE, null);
-										file.appendContents(new ByteArrayInputStream(("\n \t \t <path>"+rootHandbook.toUpperCase()+"</path>").getBytes()), IResource.NONE, null);
+										file.appendContents(new ByteArrayInputStream(("\n \t \t <path>"+rootHandbook+"</path>").getBytes()), IResource.NONE, null);
 										file.appendContents(new ByteArrayInputStream(("\n \t</root_directory>\n").getBytes()), IResource.NONE, null);	
 									} else {
 										file.appendContents(new ByteArrayInputStream(("\n \t<!-- \n \t<root_directory>").getBytes()), IResource.NONE, null);	
@@ -362,12 +362,12 @@ public class NewZamiaProjectWizard extends BasicNewResourceWizard implements IEx
 											if (handbookItem.length() != 0) {
 												if (rootHandbook.length() != 0) {
 													if (handbookItem.startsWith(rootHandbook)) {
-														file.appendContents(new ByteArrayInputStream((" \t\t<handBook_fileName>$HANDBOOK_ROOT"+handbookItem.substring(rootHandbook.length()).toUpperCase()+"</handBook_fileName>\n").getBytes()), IResource.NONE, null);
+														file.appendContents(new ByteArrayInputStream((" \t\t<handBook_fileName>$HANDBOOK_ROOT"+handbookItem.substring(rootHandbook.length())+"</handBook_fileName>\n").getBytes()), IResource.NONE, null);
 													} else {
-														file.appendContents(new ByteArrayInputStream((" \t\t<handBook_fileName>"+handbookItem.toUpperCase()+"</handBook_fileName>\n").getBytes()), IResource.NONE, null);
+														file.appendContents(new ByteArrayInputStream((" \t\t<handBook_fileName>"+handbookItem+"</handBook_fileName>\n").getBytes()), IResource.NONE, null);
 													}
 												} else {
-													file.appendContents(new ByteArrayInputStream((" \t\t<handBook_fileName>"+handbookItem.toUpperCase()+"</handBook_fileName>\n").getBytes()), IResource.NONE, null);
+													file.appendContents(new ByteArrayInputStream((" \t\t<handBook_fileName>"+handbookItem+"</handBook_fileName>\n").getBytes()), IResource.NONE, null);
 												}
 											}
 										}
@@ -392,7 +392,7 @@ public class NewZamiaProjectWizard extends BasicNewResourceWizard implements IEx
 
 						// create rc_handbook_parameters.xml
 						try {
-								IFile file = project.getFile("rule_checker\\rc_handbook_parameters.xml");
+								IFile file = project.getFile("rule_checker"+File.separator+"rc_handbook_parameters.xml");
 								if (file.exists()) {
 									// rewriting file, especially linked one can be dangerous
 									//file.setContents(getInitialBuildPathContents(), true, false, null);

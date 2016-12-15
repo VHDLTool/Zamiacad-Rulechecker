@@ -102,6 +102,11 @@ public class ClockSignalSourceManager extends ToolManager {
 											List<SignalSource> listSearchSignalOrigin = searchSignalOrigin(clockSignalItem.toString(), hdlEntity, 
 													hdlArchitecture, true);
 											for (SignalSource signalSource : listSearchSignalOrigin) {
+												if (hdlFile.getLocalPath().equalsIgnoreCase("\\VHDL_HANDBOOK\\DFlipFlop.vhd") || // TODO BGT
+														hdlFile.getLocalPath().equalsIgnoreCase("\\VHDL_HANDBOOK\\STD_04500_bad.vhd")) {
+													System.out
+															.println("signalSource  "+signalSource.toString());
+												}
 												// trouver l'origine de la clock
 												if (signalSource != null && signalSource.getSignalDeclaration() != null) {
 													

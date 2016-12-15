@@ -16,10 +16,10 @@ public class ButtonCellRenderer extends DefaultTableCellRenderer {
    
         Component component = super.getTableCellRendererComponent(table, value, isSelected, hasFocus, row, column);
         /**
-         * Fixer la couleur de fond de la première colonne en jaune
+         * Fixer la couleur de fond de la premiï¿½re colonne en jaune
          */
         /**
-         * Colorier les cellules en orange si le montant est négatif
+         * Colorier les cellules en orange si le montant est nï¿½gatif
          */
             if (((String)table.getValueAt(row, RuleObject.COL_ENABLE)).equalsIgnoreCase("Not Implemented")) {
                 Color clr = Color.LIGHT_GRAY;
@@ -31,6 +31,7 @@ public class ButtonCellRenderer extends DefaultTableCellRenderer {
 
         // Customize it  
     	String fileName = value.toString();
+    	// TODO BGT?
     	Integer index = fileName.lastIndexOf("/") > fileName.lastIndexOf("\\") ? fileName.lastIndexOf("/") : fileName.lastIndexOf("\\");
     	String name = (index == -1) ? fileName : fileName.substring(index+1);
     	if (name.length() == 0 && index != -1) {

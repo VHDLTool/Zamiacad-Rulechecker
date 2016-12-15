@@ -73,6 +73,10 @@ public class Tool_RST_PRJ  extends ToolSelectorManager {
 		Element resetSourceLocElement = document.createElement(NodeType.RESET_SOURCE.toString()+NodeInfo.LOCATION.toString());
 		resetSourceLocElement.setTextContent(String.valueOf(resetSource.getSignalDeclaration().getLocation().fLine));
 		resetSourceElement.appendChild(resetSourceLocElement);
+		
+		Element resetSourceSigDecElement = document.createElement(NodeType.RESET_SOURCE.toString()+"declaration");
+		resetSourceSigDecElement.setTextContent(String.valueOf(resetSource.getSignalDeclaration().toString()));
+		resetSourceElement.appendChild(resetSourceSigDecElement);
 	}
 
 

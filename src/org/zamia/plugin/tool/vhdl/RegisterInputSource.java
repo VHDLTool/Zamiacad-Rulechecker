@@ -185,7 +185,7 @@ public class RegisterInputSource  implements Cloneable {
 		} else if (read.getParent().getParent() instanceof ConditionalSignalAssignment) {
 			return "assignment";
 		}
-		System.out.println("getType "+read.getParent().getParent().getClass().getSimpleName());
+//		System.out.println("getType "+read.getParent().getParent().getClass().getSimpleName());
 		return "IO";
 	}
 

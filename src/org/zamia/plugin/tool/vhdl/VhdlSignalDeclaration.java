@@ -63,8 +63,18 @@ public class VhdlSignalDeclaration {
 
 
 	public boolean checkAffectation() {
-		if (vhdlNode instanceof ConditionalSignalAssignment ||
-				vhdlNode instanceof SequentialSignalAssignment) {
+		System.out.println("checkAffectation  "+vhdlNode.toString());
+		if (vhdlNode instanceof ConditionalSignalAssignment) {
+			System.out.println("ConditionalSignalAssignment  "+vhdlNode.toString());
+			 ConditionalWaveform cond = ((ConditionalSignalAssignment)vhdlNode).getConditionalWaveform(0);
+			 Waveform waveform = cond.getWaveform();
+			 VHDLNode child = waveform.getChild(0);
+			 VHDLNode child2 = child.getChild(0);
+			 if (child2 instanceof OperationName) {
+				 return true;
+			 }
+		} else if (vhdlNode instanceof SequentialSignalAssignment) {
+			
 			return true;
 		}
 		return false;
@@ -84,8 +94,11 @@ public class VhdlSignalDeclaration {
 		
 		VhdlSignalDeclaration signal = (VhdlSignalDeclaration) obj;
 		
-		if (!(getLocation().equals(signal.getLocation())))
-			return false;
+//		if (!(getLocation().equals(signal.getLocation())))
+//		return false;
+// verif sur le fichier et l'entite
+		if (!(getLocation().fSF.equals(signal.getLocation().fSF)))
+		return false;
 
 		if (!(toString().equals(signal.toString())))
 			return false;

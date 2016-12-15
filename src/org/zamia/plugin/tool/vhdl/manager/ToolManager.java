@@ -143,7 +143,8 @@ public abstract class ToolManager implements IWorkbenchWindowActionDelegate {
 	protected void init(boolean _log, boolean _logFile) {
 
 		try {
-			File ff=new File("C:\\resultat.txt"); // définir l'arborescence
+			// TODO BGT
+			File ff=new File("C:\\resultat.txt"); // dï¿½finir l'arborescence
 			ff.createNewFile();
 			fichier=new FileWriter(ff);
 		} catch (IOException e) {
@@ -204,7 +205,6 @@ public abstract class ToolManager implements IWorkbenchWindowActionDelegate {
 				Pair<VHDLNode, String> searchSignalInOpComp = searchSignalInOpComp(child);
 				if (searchSignalInOpComp != null) {
 					listResult.add(searchSignalInOpComp);
-					return listResult;
 				}
 			} else if (child instanceof OperationLogic) {
 				int numSubChildren = child.getNumChildren();
@@ -213,20 +213,17 @@ public abstract class ToolManager implements IWorkbenchWindowActionDelegate {
 					if (subChild instanceof OperationCompare) {
 						Pair<VHDLNode, String> searchSignalInOpComp = searchSignalInOpComp(subChild);
 						if (searchSignalInOpComp != null) {
-//							System.out.println("searchSignalInOpComp "+searchSignalInOpComp.toString()+ " locate "+searchSignalInOpComp.getFirst().getLocation());
 							listResult.add(searchSignalInOpComp);
 						}
 					}
 						
 				}
-//				System.out.println("listResult  "+listResult.size());
-				return listResult;
 			} else if (child instanceof SequentialIf){
 			} else if (child instanceof OperationLogic){
 				System.out.println("search RESET node "+child.toString()+" type "+ child.getClass().getSimpleName()+ " location "+child.getLocation());
 			}
 		}
-		return null;
+		return listResult;
 	}
 
 
@@ -240,12 +237,13 @@ public abstract class ToolManager implements IWorkbenchWindowActionDelegate {
 						return new Pair<VHDLNode, String>(signal,value.toString());
 					}
 				} else if (value != null && value instanceof OperationAggregate) {
-					System.out.println("OperationAggregate  "+signal.toString() + " loc "+ signal.getLocation());
 					value = value.getChild(0).getChild(0);
 					if (value.toString().equals("0") || value.toString().equals("1")) {
 						return new Pair<VHDLNode, String>(signal,value.toString());
 					}
 				}
+			} else if (signal != null ) {
+				System.out.println("signal NOT opName "+signal.toString()+"  type "+signal.getClass().getSimpleName());
 			}
 		} 
 		return null;
@@ -261,7 +259,8 @@ public abstract class ToolManager implements IWorkbenchWindowActionDelegate {
 		boolean fileIsEmpty = true;
 		listFileToWork = new ArrayList<>();
 		listPathToWork = new ArrayList<>();
-		String fichierName = ResourcesPlugin.getWorkspace().getRoot().findMember("/"+ zPrj.getId()).getLocation().toString()+"\\rule_checker\\rc_config.txt";
+		String fichierName = ResourcesPlugin.getWorkspace().getRoot().findMember("/"+ zPrj.getId()).getLocation().toString()
+				+File.separator+"rule_checker"+File.separator+"rc_config.txt";
 
 		java.io.File fichier = new java.io.File(fichierName);
 		try {
@@ -269,10 +268,10 @@ public abstract class ToolManager implements IWorkbenchWindowActionDelegate {
 			lecteur = new Scanner(fichier);
 
 			while (lecteur.hasNextLine()) {
-				String chaine = lecteur.nextLine();
-				if (chaine.length() == 0 || chaine.substring(chaine.length()-1).equalsIgnoreCase("#")) {
+				String chaine = lecteur.nextLine().trim();
+				if (chaine.length() == 0 || chaine.startsWith("#")) {
 					// comment in rc_config.txt
-				} else if (chaine.substring(chaine.length()-1).equalsIgnoreCase("\\")) {
+				} else if (chaine.substring(chaine.length()-1).equalsIgnoreCase(File.separator)) {
 					fileIsEmpty = false;
 					listPathToWork.add(chaine.trim());
 				} else if (chaine.substring(chaine.length()-4).equalsIgnoreCase(".vhd")) {
@@ -307,17 +306,24 @@ public abstract class ToolManager implements IWorkbenchWindowActionDelegate {
 	 */
 	protected static List<String> createListFilePath(String filePath) {
 		List<String> listFilePath = new ArrayList<String>();
-		do {
-			listFilePath.add(filePath);
-			int index = filePath.lastIndexOf("\\",filePath.lastIndexOf("\\")-1);
-			if (index == -1) {break;}
-			filePath = filePath.substring(0,index+1);
-
-		} while (filePath.contains("\\"));
-		listFilePath.add("\\"); // add project path
+		File current = new File(filePath);
+		String tmp="";
+		listFilePath.add(current.getPath()+File.separator);
+		
+		do{
+			tmp = current.getParent();
+			current = new File(tmp);
+			listFilePath.add(tmp+File.separator);
+			
+		}while(tmp==null);
+		listFilePath.add(File.separator);
+		// add Christophe filter
 		listFilePath.retainAll(listPathToWork); 
+		
+		return listFilePath;		
+		
 
-		return listFilePath;
+
 	}
 
 	/**
@@ -373,7 +379,8 @@ public abstract class ToolManager implements IWorkbenchWindowActionDelegate {
 		final DocumentBuilderFactory factory = DocumentBuilderFactory.newInstance();
 		final DocumentBuilder builder = factory.newDocumentBuilder();
 		// parse xml file in a document
-		String fichierName = ResourcesPlugin.getWorkspace().getRoot().findMember("/"+ zPrj.getId()).getLocation().toString()+"\\rule_checker\\rc_config.xml";
+		String fichierName = ResourcesPlugin.getWorkspace().getRoot().findMember("/"+ zPrj.getId()).getLocation().toString()
+				+File.separator+"rule_checker"+File.separator+"rc_config.xml";
 		try {
 
 			final Document document= builder.parse(fichierName);
@@ -449,7 +456,7 @@ public abstract class ToolManager implements IWorkbenchWindowActionDelegate {
 			}
 
 			final Element directory = (Element) logDirectoryNode.item(0);
-			pathFileNameLogReport.add(directory.getTextContent());
+			pathFileNameLogReport.add(directory.getTextContent().replace("\\",File.separator));
 
 			final NodeList logFileNameNode = ((Element)logReportNode.item(0)).getElementsByTagName(type+"_fileName");
 
@@ -485,22 +492,22 @@ public abstract class ToolManager implements IWorkbenchWindowActionDelegate {
 	public static String dumpXml(Map<String, HdlFile> hdlFiles, ToolE tool) {
 
 		/*
-		 * Etape 1 : récupération d'une instance de la classe "DocumentBuilderFactory"
+		 * Etape 1 : rï¿½cupï¿½ration d'une instance de la classe "DocumentBuilderFactory"
 		 */
 		final DocumentBuilderFactory factory = DocumentBuilderFactory.newInstance();
 		try {
 			/*
-			 * Etape 2 : création d'un parseur
+			 * Etape 2 : crï¿½ation d'un parseur
 			 */
 			final DocumentBuilder builder = factory.newDocumentBuilder();
 
 			/*
-			 * Etape 3 : création d'un Document
+			 * Etape 3 : crï¿½ation d'un Document
 			 */
 			document= builder.newDocument();
 
 			/*
-			 * Etape 4 : création de l'Element racine
+			 * Etape 4 : crï¿½ation de l'Element racine
 			 */
 			final Element racine = document.createElement(tool.getIdReq());
 			document.appendChild(racine);		
@@ -1239,11 +1246,12 @@ public abstract class ToolManager implements IWorkbenchWindowActionDelegate {
 	}
 
 	private static String getAliasRootDirectory(String fileName) {
-		if (!fileName.contains("\\")) {
+//		if (!fileName.contains("\\")) {
+		if (!fileName.contains(File.separator)) {
 			return fileName;
 		}
 
-		return fileName.substring(1, fileName.indexOf("\\"));
+		return fileName.substring(1, fileName.indexOf(File.separator));
 	}
 
 	private static String getRootDirectory(String alias) {
@@ -1316,23 +1324,23 @@ public abstract class ToolManager implements IWorkbenchWindowActionDelegate {
 	public static Element initReportXml(String racineName, RuleTypeE ruleType) {
 		try {
 			/*
-			 * Etape 1 : récupération d'une instance de la classe "DocumentBuilderFactory"
+			 * Etape 1 : rï¿½cupï¿½ration d'une instance de la classe "DocumentBuilderFactory"
 			 */
 			final DocumentBuilderFactory factory = DocumentBuilderFactory.newInstance();
 
 			/*
-			 * Etape 2 : création d'un parseur
+			 * Etape 2 : crï¿½ation d'un parseur
 			 */
 			DocumentBuilder builder;
 			builder = factory.newDocumentBuilder();
 
 			/*
-			 * Etape 3 : création d'un Document
+			 * Etape 3 : crï¿½ation d'un Document
 			 */
 			documentReport = builder.newDocument();
 
 			/*
-			 * Etape 4 : création de l'Element racine
+			 * Etape 4 : crï¿½ation de l'Element racine
 			 */
 			final Element racine = documentReport.createElement(racineName);
 			racine.setAttribute("xmlns:hb", "HANDBOOK");
@@ -1554,7 +1562,6 @@ public abstract class ToolManager implements IWorkbenchWindowActionDelegate {
 	public static List<SignalSource> searchSignalOrigin(String signalName, HdlEntity hdlEntity,
 			HdlArchitecture hdlArchitecture, boolean findClockResetSource) {
 			
-//			System.out.println("searchSignalOrigin "+signalName+ "  in "+hdlEntity.getEntity().getId());
 		List<SignalSource> listOrigin = new ArrayList<SignalSource>();
 		// cas 1 PORT IN du composant
 		int numChildren = hdlEntity.getEntity().getNumChildren();
@@ -1572,33 +1579,32 @@ public abstract class ToolManager implements IWorkbenchWindowActionDelegate {
 					if (subChild instanceof InterfaceDeclaration) {
 						intDeclaration = (InterfaceDeclaration)subChild;
 						if (signalName.equalsIgnoreCase(intDeclaration.getId()) &&  (intDeclaration.getDir() == OIDir.IN || intDeclaration.getDir() == OIDir.INOUT) ) {
-//							System.out.println("intDeclaration.getDir() "+intDeclaration.getDir());
 
-							Pair<HdlComponentInstantiation, Pair<HdlEntity, HdlArchitecture>> searchInstantiationComponent = searchInstantiationComponent(hdlEntity.getEntity());
-							if (searchInstantiationComponent == null) {
+							List<Pair<HdlComponentInstantiation,Pair<HdlEntity, HdlArchitecture>>> listSearchInstantiationComponent = searchInstantiationComponent(hdlEntity.getEntity());
+							if (listSearchInstantiationComponent.isEmpty()) {
 								//TOP FPGA
-System.out.println("TOP FPGA "+intDeclaration.toString()+ "  signalName  "+signalName);
 								listOrigin.add( new SignalSource(new VhdlSignalDeclaration(intDeclaration), hdlEntity, hdlArchitecture));
 								return listOrigin;
 							}
-							List<Operation> searchSignalConnexion = searchSignalConnexion(searchInstantiationComponent.getFirst(), intDeclaration.getId(), numInput);
-							if (!searchSignalConnexion.isEmpty()) {
-//								System.out.println("searchInstantiationComponent  hdlComponentItem "+searchInstantiationComponent.getFirst().getName()+ "  loc "+searchInstantiationComponent.getFirst().getLocation()+ "  size "+searchSignalConnexion.size());
-//								System.out.println("searchInstantiationComponent hdlEntityItem  "+searchInstantiationComponent.getSecond().getFirst().getEntity().getId());
-								for (Operation operation : searchSignalConnexion) {
-//									System.out.println("operation  "+operation);
-									List<SignalSource> searchSignalOrigin = searchSignalOrigin(operation.toString(), searchInstantiationComponent.getSecond().getFirst(), 
-											searchInstantiationComponent.getSecond().getSecond(), findClockResetSource);
-									if (searchSignalOrigin.isEmpty()){
-										searchSignalOrigin = searchSignalOrigin(getVectorName(operation.toString()), searchInstantiationComponent.getSecond().getFirst(), 
+							for (Pair<HdlComponentInstantiation, Pair<HdlEntity, HdlArchitecture>> searchInstantiationComponent : listSearchInstantiationComponent) {
+								
+								List<Operation> searchSignalConnexion = searchSignalConnexion(searchInstantiationComponent.getFirst(), intDeclaration.getId(), numInput);
+								if (!searchSignalConnexion.isEmpty()) {
+									for (Operation operation : searchSignalConnexion) {
+										List<SignalSource> searchSignalOrigin = searchSignalOrigin(operation.toString(), searchInstantiationComponent.getSecond().getFirst(), 
 												searchInstantiationComponent.getSecond().getSecond(), findClockResetSource);
+										if (searchSignalOrigin.isEmpty()){
+											searchSignalOrigin = searchSignalOrigin(getVectorName(operation.toString()), searchInstantiationComponent.getSecond().getFirst(), 
+													searchInstantiationComponent.getSecond().getSecond(), findClockResetSource);
+										}
+										listOrigin.addAll(searchSignalOrigin);
 									}
-									listOrigin.addAll(searchSignalOrigin);
+									
+								} else {
+									System.out.println("searchSignalConnexion null");
 								}
-								return listOrigin;
-							} else {
-								System.out.println("searchSignalConnexion null");
 							}
+							return listOrigin;
 						}
 					}
 				}
@@ -1667,7 +1673,6 @@ System.out.println("TOP FPGA "+intDeclaration.toString()+ "  signalName  "+signa
 		}
 
 		
-//			System.out.println("cas 2 SIGNAL DECLARATION");
 
 			// cas 2 SIGNAL DECLARATION
 			for (HdlArchitecture archiItem : hdlEntity.getListHdlArchitecture()) {
@@ -1679,18 +1684,11 @@ System.out.println("TOP FPGA "+intDeclaration.toString()+ "  signalName  "+signa
 					if (childArchi instanceof SignalDeclaration) {
 
 						signalDecl = (SignalDeclaration) childArchi;
-//						if (signalName.equalsIgnoreCase("DMA")) {
-//							System.out.println("SignalDeclaration  "+signalDecl.getId());
-//						}
 						if (signalName.equalsIgnoreCase(signalDecl.getId())) {
-//								System.out.println("SignalDeclaration  OK");
 							List<VHDLNode> listSearchOriginIncomponent = hdlEntity.searchOriginIncomponent(signalName);
 							for (VHDLNode searchOriginIncomponent : listSearchOriginIncomponent) {
 								if (searchOriginIncomponent!= null) {
-//									System.out.println("searchOriginIncomponent "+searchOriginIncomponent+"  loc "+searchOriginIncomponent.getLocation());
 									listOrigin.add(new SignalSource(new VhdlSignalDeclaration(searchOriginIncomponent), hdlEntity, archiItem));
-								} else {
-//								System.out.println("hdlEntityItem " +hdlEntity+ " signalName "+signalName );
 								}
 							}
 							return listOrigin;
@@ -1752,7 +1750,8 @@ System.out.println("TOP FPGA "+intDeclaration.toString()+ "  signalName  "+signa
 	}
 
 
-	protected static Pair<HdlComponentInstantiation, Pair<HdlEntity, HdlArchitecture>> searchInstantiationComponent(Entity entity) {
+	protected static List<Pair<HdlComponentInstantiation,Pair<HdlEntity, HdlArchitecture>>> searchInstantiationComponent(Entity entity) {
+		List<Pair<HdlComponentInstantiation,Pair<HdlEntity, HdlArchitecture>>> listResult = new ArrayList<Pair<HdlComponentInstantiation,Pair<HdlEntity,HdlArchitecture>>>();
 		for(Entry<String, HdlFile> entry : listHdlFile.entrySet()) {
 			HdlFile hdlFile = entry.getValue();
 			if (hdlFile.getListHdlEntity() == null) { continue;}
@@ -1762,14 +1761,14 @@ System.out.println("TOP FPGA "+intDeclaration.toString()+ "  signalName  "+signa
 					if (hdlArchitectureItem.getListComponent() == null) { continue;}
 					for (HdlComponentInstantiation hdlComponentItem : hdlArchitectureItem.getListComponent()) {
 						if (hdlComponentItem.getName().equalsIgnoreCase(entity.getId())) {
-							return new Pair<HdlComponentInstantiation,Pair<HdlEntity, HdlArchitecture>>(hdlComponentItem,new Pair<HdlEntity, HdlArchitecture>(hdlEntityItem, hdlArchitectureItem));
+							listResult.add(new Pair<HdlComponentInstantiation,Pair<HdlEntity, HdlArchitecture>>(hdlComponentItem,new Pair<HdlEntity, HdlArchitecture>(hdlEntityItem, hdlArchitectureItem)));
 						}
 					}
 				}
 			}
 		}
 
-		return null;
+		return listResult;
 
 	}
 

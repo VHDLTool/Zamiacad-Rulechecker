@@ -9,6 +9,7 @@ public enum RegisterTypeE {
 	ENUMERATION("enumeration"), 
 	RECORD_PART("record_part"),
 	STATE_ARRAY_TYPE("state_array_type"),
+	ARRAY("array"),
 	UNKNOWN_TYPE("unknown_type");
 	
 	

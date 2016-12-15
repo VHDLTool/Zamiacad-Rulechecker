@@ -99,6 +99,7 @@ public class ZDialogTool extends ZDialogManager  {
 		this.setLocationRelativeTo(null);
 		this.setResizable(true);
 		this.setTitle("Tools Selector");
+		// TODO BGT
 		ImageIcon img = new ImageIcon("C:\\Users\\cniesner\\workspace\\workspace_32b_travail\\zamia-eclipse-plugin\\share\\images\\Eclipse_icon.png");
 
 		this.setIconImage(img.getImage());

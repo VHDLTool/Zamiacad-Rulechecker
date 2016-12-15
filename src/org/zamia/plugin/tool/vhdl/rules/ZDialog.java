@@ -571,6 +571,7 @@ public class ZDialog extends ZDialogManager  {
 		if (fileName.length() == 0) {
 			call.setVisible(false);
 		} else {
+			// TODO BGT?
 			Integer index = fileName.lastIndexOf("/") > fileName.lastIndexOf("\\") ? fileName.lastIndexOf("/") : fileName.lastIndexOf("\\");
 			String name = (index == -1) ? fileName : fileName.substring(index+1);
 			callFileButon.setText(name);

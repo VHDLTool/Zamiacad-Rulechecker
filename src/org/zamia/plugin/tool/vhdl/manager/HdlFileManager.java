@@ -88,11 +88,13 @@ public class HdlFileManager extends ToolManager {
 		File projectDirectory = new File(fichierName);
 		List<File> listvhdlFile = getVhdlFile(projectDirectory);
 		String projetcPathDirectory = zPrj.getBuildPath().getSourceFile().getFile().getParent();
+		
 		for (File vhdlFile : listvhdlFile) {
 			String filePathName = vhdlFile.getAbsolutePath().replace(projetcPathDirectory, "");
-			List<String> listFilePath = createListFilePath(filePathName.replace(vhdlFile.getName(), ""));
+			List<String> listFilePath = createListFilePath(filePathName);
 			// file in directory or sub directory or explicit file with path
 			if (listFileToWork.contains(filePathName) || !listFilePath.isEmpty()) {
+//				System.out.println("   "+filePathName);
 				listHdlFile.put(filePathName, new HdlFile(vhdlFile, filePathName));
 			}
 		}

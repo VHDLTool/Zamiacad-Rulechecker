@@ -1,5 +1,6 @@
 package org.zamia.plugin.tool.vhdl;
 
+import java.io.File;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
@@ -268,7 +269,6 @@ public class HdlEntity  implements Cloneable {
 			hdlArchitectureItem.searchUseSignal(signalName, signalSource, getEntity().getId(), cmptHierar, nbHierarchie);
 
 		}
-
 		Pair<InterfaceDeclaration, Integer> searchSignalInPortOut = searchSignalInPortOut(signalName, signalSource);
 		if (searchSignalInPortOut != null) {
 			HdlComponentInstantiation componentInstantiation = searchInstantiation();
@@ -285,11 +285,9 @@ public class HdlEntity  implements Cloneable {
 							signalSource instanceof Register  ||
 							signalSource instanceof Input ||
 							signalSource instanceof InputOutput) {
-						System.out.println(StopConditionE.IO_PAD.toString()+"  "+((RegisterInput)signalSource).toString()+"  "+cmptHierar);
 
 						((RegisterInput)signalSource).setStopCondition(StopConditionE.IO_PAD);
 					} else if (signalSource instanceof RegisterInputRead) {
-						System.out.println(StopConditionE.IO_PAD.toString()+"  "+((RegisterInputRead)signalSource).toString()+"  "+cmptHierar);
 
 						((RegisterInputRead)signalSource).setStopCondition(StopConditionE.IO_PAD);
 					}
@@ -390,7 +388,7 @@ public class HdlEntity  implements Cloneable {
 					try {
 						Architecture architecture = (Architecture)zPrj.getDUM().getDM(stub.getDUUID());
 						if (architecture != null) {
-							String localPath = "\\"+architecture.getSource().getLocalPath();
+							String localPath = File.separator+architecture.getSource().getLocalPath();
 							if (fileLocalPath.equalsIgnoreCase(localPath)) {
 								if (architecture.getEntityName().toString().equalsIgnoreCase(getEntity().getId())) {
 									addHdlArchitecture(new HdlArchitecture(architecture, this));
@@ -436,7 +434,8 @@ public class HdlEntity  implements Cloneable {
 		if (cmptHierar >= nbHierarchie) { 
 			if (register instanceof RegisterInput  ||
 					register instanceof Register  ||
-					register instanceof Input) {
+					register instanceof Input  ||
+					register instanceof InputOutput) {
 				((RegisterInput)register).setStopCondition(StopConditionE.MAX_STAGE);
 			} else if (register instanceof RegisterInputSource) {
 				((RegisterInputSource)register).setStopCondition(StopConditionE.MAX_STAGE);
@@ -448,7 +447,8 @@ public class HdlEntity  implements Cloneable {
 		VHDLNode vhdlNode = null;
 		if (register instanceof RegisterInput  ||
 				register instanceof Register  ||
-				register instanceof Input) {
+				register instanceof Input  ||
+				register instanceof InputOutput) {
 			vhdlNode = ((RegisterInput)register).getVhdlNode();
 		} else if (register instanceof RegisterInputSource) {
 			vhdlNode = ((RegisterInputSource)register).getVhdlNode();
@@ -477,7 +477,8 @@ public class HdlEntity  implements Cloneable {
 			if (listSearchSignalOrigin.isEmpty()) {
 				if (register instanceof RegisterInput  ||
 						register instanceof Register  ||
-						register instanceof Input) {
+						register instanceof Input  ||
+						register instanceof InputOutput) {
 					((RegisterInput)register).setStopCondition(StopConditionE.CONSTANT_ASSIGNMENT);
 				} else if (register instanceof RegisterInputSource) {
 					((RegisterInputSource)register).setStopCondition(StopConditionE.CONSTANT_ASSIGNMENT);
@@ -485,12 +486,16 @@ public class HdlEntity  implements Cloneable {
 			}
 			for (SignalSource signalSource : listSearchSignalOrigin) {
 				if (signalSource.getSignalDeclaration().getVhdlNode() instanceof InterfaceDeclaration) {
-					RegisterInputSource registerInputSource = new RegisterInputSource(signalSource.getSignalDeclaration().getVhdlNode(), hdlEntity, hdlEntity.getEntity().getId(), ((RegisterInputSource)register).toString(), cmptHierar);
-					((RegisterInputSource)register).addSourceRegisterInput(registerInputSource);
-					if (signalSource.getType().equalsIgnoreCase("Instance Output")) {
-						registerInputSource.setStopCondition(StopConditionE.IO);
-					} else if (signalSource.getType().equalsIgnoreCase("Input Port")) {
-						registerInputSource.setStopCondition(StopConditionE.IO_PAD);
+					if (register instanceof RegisterInputSource) {
+						String registerName = "";
+						registerName = ((RegisterInputSource)register).toString();
+						RegisterInputSource registerInputSource = new RegisterInputSource(signalSource.getSignalDeclaration().getVhdlNode(), hdlEntity, hdlEntity.getEntity().getId(), registerName, cmptHierar);
+						((RegisterInputSource)register).addSourceRegisterInput(registerInputSource);
+						if (signalSource.getType().equalsIgnoreCase("Instance Output")) {
+							registerInputSource.setStopCondition(StopConditionE.IO);
+						} else if (signalSource.getType().equalsIgnoreCase("Input Port")) {
+							registerInputSource.setStopCondition(StopConditionE.IO_PAD);
+						}
 					}
 				}
 				if (! signalSource.getListOperand().isEmpty()) {
@@ -498,7 +503,8 @@ public class HdlEntity  implements Cloneable {
 				} else {
 					if (register instanceof RegisterInput  ||
 							register instanceof Register  ||
-							register instanceof Input) {
+							register instanceof Input  ||
+							register instanceof InputOutput) {
 						((RegisterInput)register).setStopCondition(StopConditionE.CONSTANT_ASSIGNMENT);
 					} else if (register instanceof RegisterInputSource) {
 						((RegisterInputSource)register).setStopCondition(StopConditionE.CONSTANT_ASSIGNMENT);
@@ -607,7 +613,8 @@ public class HdlEntity  implements Cloneable {
 	private void addToSignalSearch(Object register, VHDLNode child, HdlEntity hdlEntity, HdlArchitecture hdlArchitecture, int cmptHierrar, int nbHierarchie) {
 		if (register instanceof RegisterInput  ||
 				register instanceof Register  ||
-				register instanceof Input) {
+				register instanceof Input  ||
+				register instanceof InputOutput) {
 			RegisterInputSource registerInputSource = new RegisterInputSource(child, hdlEntity, hdlEntity.getEntity().getId(), ((RegisterInput)register).toString(), cmptHierrar);
 			((RegisterInput)register).addSourceRegisterInput(registerInputSource);
 			if (! (registerInputSource.toString().equalsIgnoreCase(((RegisterInput)register).toString()) ||
@@ -660,7 +667,6 @@ public class HdlEntity  implements Cloneable {
 						registerInputSource.toString().equalsIgnoreCase(ToolManager.getVectorName(((RegisterInputSource)register).toString())))) {
 					searchSourceSignal(registerInputSource, hdlEntity, hdlArchitecture, cmptHierrar, nbHierarchie);
 				} else {
-					System.out.println(StopConditionE.STATE_MACHINE.toString()+"  "+registerInputSource.toString()+ "  " +cmptHierrar);
 
 					registerInputSource.setStopCondition(StopConditionE.STATE_MACHINE);
 				}
@@ -749,7 +755,6 @@ public class HdlEntity  implements Cloneable {
 		}
 		
 		if (registerInputSource.getRead() instanceof InterfaceDeclaration){
-			System.out.println(StopConditionE.IO_PAD.toString()+"  "+registerInputSource.toString()+"  "+cmptHierar);
 			registerInputSource.setStopCondition(StopConditionE.IO_PAD);
 			return;
 		} else if (registerInputSource.getRead() instanceof AssociationElement) {

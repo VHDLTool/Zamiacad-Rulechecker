@@ -1109,7 +1109,8 @@
 				name="helpSampleGroup">
 			</separator>
 		</menu>
-         <menu
+   <!--
+           <menu
 			label="&amp;Tools"
 			path="ruleChecker/coreGroup"
 			id="coreVhdlToolMenu">
@@ -1118,8 +1119,8 @@
 			</separator>
 		</menu>
 
-	 	
-    <menu
+			  -->  
+  <!--  <menu
 			label="&amp;Debug"
 			path="ruleChecker/vhdlToolDebug"
 			id="debugVhdlToolMenu">
@@ -1127,8 +1128,8 @@
 				name="debugSampleGroup">
 			</separator>
 		</menu>
-	
-
+--> 
+ 
      <!--
     
     Menu HELP VHDL TOOL
@@ -1157,7 +1158,7 @@
       	<action
                id="features"
                class="org.zamia.plugin.tool.vhdl.help.OpenFeatures"
-               label="Features"
+               label="Features Description"
                menubarPath="ruleChecker/helpVhdlToolMenu/helpSampleGroup"
                tooltip="Features"
                definitionId="org.zamia.commands.features"
@@ -1179,7 +1180,7 @@
                tooltip="Rules Selection">
          </action>
          
-         <action
+        <action
                class="org.zamia.plugin.tool.vhdl.tools.SelectLaunchTools"
                icon="icons/sample.gif"
                id="org.zamia.plugin.tool.vhdl.tools.SelectLaunchTools"
@@ -1194,7 +1195,7 @@
     
     Menu DEBUG VHDL TOOL
     
-   
+    -->
        
          <action
                id="audit"
@@ -1208,7 +1209,7 @@
          
          <action
                id="sourceClock"
-               class="org.zamia.plugin.tool.vhdl.ClockSignalSourceManager"
+               class="org.zamia.plugin.tool.vhdl.manager.ClockSignalSourceManager"
                label="source Clock"
                menubarPath="ruleChecker/debugVhdlToolMenu/debugSampleGroup"
                tooltip="source Clock"
@@ -1217,7 +1218,7 @@
          </action>
         <action
                id="readClock"
-               class="org.zamia.plugin.tool.vhdl.ClockSignalReadManager"
+               class="org.zamia.plugin.tool.vhdl.manager.ClockSignalReadManager"
                label="read Clock"
                menubarPath="ruleChecker/debugVhdlToolMenu/debugSampleGroup"
                tooltip="read Clock"
@@ -1226,11 +1227,20 @@
          </action>
         <action
                id="sourceReset"
-               class="org.zamia.plugin.tool.vhdl.ResetSignalSourceManager"
+               class="org.zamia.plugin.tool.vhdl.manager.ResetSignalSourceManager"
                label="source Reset"
                menubarPath="ruleChecker/debugVhdlToolMenu/debugSampleGroup"
                tooltip="source Reset"
                definitionId="org.zamia.commands.sourcereset"
+               enablesFor="*">
+         </action>
+       <action
+               id="readReset"
+               class="org.zamia.plugin.tool.vhdl.manager.ResetSignalReadManager"
+               label="read Reset"
+               menubarPath="ruleChecker/debugVhdlToolMenu/debugSampleGroup"
+               tooltip="read Reset"
+               definitionId="org.zamia.commands.readreset"
                enablesFor="*">
          </action>
          
@@ -1261,61 +1271,6 @@
                menubarPath="ruleChecker/debugVhdlToolMenu/debugSampleGroup"
                tooltip="process"
                definitionId="org.zamia.commands.process"
-               enablesFor="*">
-         </action>
-    	 <action
-               id="registersource"
-               class="org.zamia.plugin.tool.vhdl.manager.RegisterSourceManager"
-               label="register source"
-               menubarPath="ruleChecker/debugVhdlToolMenu/debugSampleGroup"
-               tooltip="register source"
-               definitionId="org.zamia.commands.registersource"
-               enablesFor="*">
-         </action>
-    	 <action
-               id="input output"
-               class="org.zamia.plugin.tool.vhdl.manager.InputOutputManager"
-               label="input output"
-               menubarPath="ruleChecker/debugVhdlToolMenu/debugSampleGroup"
-               tooltip="input output"
-               definitionId="org.zamia.commands.inputoutput"
-               enablesFor="*">
-         </action>
-   	 <action
-               id="logicalcone"
-               class="org.zamia.plugin.tool.vhdl.manager.LogicalConeManager"
-               label="logical cone"
-               menubarPath="ruleChecker/debugVhdlToolMenu/debugSampleGroup"
-               tooltip="logical cone"
-               definitionId="org.zamia.commands.logicalcone"
-               enablesFor="*">
-         </action>
-    	 <action
-               id="logicalconeread"
-               class="org.zamia.plugin.tool.vhdl.manager.LogicalConeReadManager"
-               label="logical cone read"
-               menubarPath="ruleChecker/debugVhdlToolMenu/debugSampleGroup"
-               tooltip="logical cone read"
-               definitionId="org.zamia.commands.logicalconeread"
-               enablesFor="*">
-         </action>
-   	 <action
-               id="process"
-               class="org.zamia.plugin.tool.vhdl.manager.CombinatoryInputManager"
-               label="CombinatoryInputManager"
-               menubarPath="ruleChecker/debugVhdlToolMenu/debugSampleGroup"
-               tooltip="CombinatoryInputManager"
-               definitionId="org.zamia.commands.combinatoryInputManager"
-               enablesFor="*">
-         </action>
-         
-    	 <action
-               id="register"
-               class="org.zamia.plugin.tool.vhdl.manager.RegisterAffectationManager"
-               label="register"
-               menubarPath="ruleChecker/debugVhdlToolMenu/debugSampleGroup"
-               tooltip="register"
-               definitionId="org.zamia.commands.register"
                enablesFor="*">
          </action>
          
@@ -1359,7 +1314,7 @@
                enablesFor="*">
          </action>
 
-s
+    <!--
     
     END  Menu DEBUG VHDL TOOL
     
@@ -1369,16 +1324,7 @@ s
     Menu CORE VHDL TOOL
     
     -->
-     <!--      <action
-               id="Primitive isolation"
-               class="org.zamia.plugin.tool.vhdl.PrimitiveManager"
-               label="Primitive isolation (REQ_STD_01800)"
-               menubarPath="ruleChecker/coreVhdlToolMenu/sampleGroup"
-               tooltip="Primitive isolation"
-               definitionId="org.altran.commands.primitiveManager"
-               enablesFor="*">
-         </action>
-    
+  <!--   
          <action
                id="Line counter"
                class="org.zamia.plugin.tool.vhdl.HdlFileManager"
@@ -1418,7 +1364,7 @@ s
                definitionId="org.zamia.commands.findClock"
                enablesFor="*">
          </action>
-         -->
+            -->
      <!--
     
     END  Menu CORE VHDL TOOL

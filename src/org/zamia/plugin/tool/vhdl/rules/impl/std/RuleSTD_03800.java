@@ -14,6 +14,7 @@ import org.zamia.plugin.tool.vhdl.HdlFile;
 import org.zamia.plugin.tool.vhdl.NodeInfo;
 import org.zamia.plugin.tool.vhdl.NodeType;
 import org.zamia.plugin.tool.vhdl.Process;
+import org.zamia.plugin.tool.vhdl.RegisterInput;
 import org.zamia.plugin.tool.vhdl.ResetSignal;
 import org.zamia.plugin.tool.vhdl.Violation;
 import org.zamia.plugin.tool.vhdl.manager.RegisterAffectationManager;
@@ -42,7 +43,7 @@ public class RuleSTD_03800 extends RuleManager {
 		try {
 			hdlFiles = RegisterAffectationManager.getRegisterAffectation();
 		} catch (EntityException e) {
-			logger.error("some exception message RuleSTD_03700", e);
+			logger.error("some exception message RuleSTD_03800", e);
 			return new Pair<Integer, String> (RuleManager.NO_BUILD,"");
 		}
 
@@ -61,13 +62,13 @@ public class RuleSTD_03800 extends RuleManager {
 					for (Process processItem : hdlArchitectureItem.getListProcess()) {
 						if (processItem.getListClockSignal() == null) { continue;}
 						for (ClockSignal clockSignalItem : processItem.getListClockSignal()) {
-							if (clockSignalItem.hasSynchronousReset()) {
+//							if (clockSignalItem.hasSynchronousReset()) {
 								checkInitialization(clockSignalItem, hdlFile, hdlEntityItem,
 										hdlArchitectureItem, processItem);
 								checkAffectation(clockSignalItem, hdlFile, hdlEntityItem,
 										hdlArchitectureItem, processItem);
 
-							}
+//							}
 						}
 					}
 				}
