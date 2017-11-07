@@ -99,6 +99,17 @@ public class RuleSTD_01800 extends Rule {
 				for (SourceLocation location : _libraryInfos.get(libraryName)) {
 					Element info = reportFile.addViolation(location);
 					reportFile.addElement(ReportFile.TAG_LIBRARY, libraryName, info);
+					
+					if (libraryName.startsWith("IEEE"))
+					{
+						reportFile.addElement(ReportFile.TAG_SONAR_ERROR, "IEEE library identified", info);
+						reportFile.addElement(ReportFile.TAG_SONAR_MSG, "Nothing to be done", info);
+					}
+					else
+					{
+						reportFile.addElement(ReportFile.TAG_SONAR_ERROR, "Other library identified", info);
+						reportFile.addElement(ReportFile.TAG_SONAR_MSG, "If " + libraryName + " is a technology dependent library, use it only in a single VHDL file", info);
+					}
 				}
 			}
 

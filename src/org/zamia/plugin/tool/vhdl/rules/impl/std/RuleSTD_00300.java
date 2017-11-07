@@ -1,7 +1,9 @@
 
 package org.zamia.plugin.tool.vhdl.rules.impl.std;
 
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 import org.w3c.dom.Element;
 import org.zamia.SourceLocation;
@@ -11,6 +13,7 @@ import org.zamia.plugin.tool.vhdl.ResetSignal;
 import org.zamia.plugin.tool.vhdl.rules.IHandbookParam;
 import org.zamia.plugin.tool.vhdl.rules.RuleE;
 import org.zamia.plugin.tool.vhdl.rules.RuleResult;
+import org.zamia.plugin.tool.vhdl.rules.StringParam;
 import org.zamia.plugin.tool.vhdl.rules.impl.Rule;
 import org.zamia.util.Pair;
 import org.zamia.vhdl.ast.Architecture;
@@ -69,6 +72,38 @@ public class RuleSTD_00300 extends Rule {
 						processLabel = "no label";
 					}
 					reportFile.addElement(ReportFile.TAG_PROCESS, processLabel, info);
+					
+					HashMap<StringParam.Position, String> params = new HashMap<StringParam.Position, String>();
+					for (IHandbookParam param : parameterList)
+					{
+						if (param instanceof StringParam)
+						{
+							StringParam stringParam = (StringParam) param;
+							
+							if (params.containsKey(stringParam.getPosition()))
+							{
+								String positionValues = (String) params.get(stringParam.getPosition());
+								params.put(stringParam.getPosition(), positionValues + ", " + stringParam.getValue());
+							}
+							else
+							{
+								params.put(stringParam.getPosition(), stringParam.getValue());
+							}
+						}
+					}
+					
+					String paramString = null;
+					for (Map.Entry<StringParam.Position, String> entry: params.entrySet())
+					{
+						paramString = paramString != null? paramString + " or to ": "";
+						paramString = paramString + entry.getKey().toString() + " " + entry.getValue();
+					}
+					
+					if (paramString != null)
+					{
+						reportFile.addElement(ReportFile.TAG_SONAR_ERROR, "Reset signal " + resetSignal.toString() + " is miswritten", info);
+						reportFile.addElement(ReportFile.TAG_SONAR_MSG, "Change signal name " + resetSignal.toString() + " to " + paramString.toLowerCase(), info);
+					}
 				}
 			}
 

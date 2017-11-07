@@ -97,6 +97,10 @@ public class RuleSTD_03800 extends Rule {
 				
 				String processId = violation.getName();
 				reportFile.addElement(ReportFile.TAG_PROCESS, processId, info); 
+				
+				reportFile.addElement(ReportFile.TAG_SONAR_ERROR, "Synchronous " + registerId + " signal not asynchronously reset", info);
+				reportFile.addElement(ReportFile.TAG_SONAR_MSG, "Initialize " + registerId + " signal with a reset", info);
+
 			}
 			
 			result = reportFile.save();

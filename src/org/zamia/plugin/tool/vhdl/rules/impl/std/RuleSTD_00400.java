@@ -4,6 +4,7 @@ package org.zamia.plugin.tool.vhdl.rules.impl.std;
 import java.util.Dictionary;
 import java.util.Enumeration;
 
+import org.w3c.dom.Element;
 import org.zamia.SourceLocation;
 import org.zamia.ZamiaProject;
 import org.zamia.plugin.tool.vhdl.Process;
@@ -51,7 +52,10 @@ public class RuleSTD_00400 extends Rule {
 					SourceLocation location = process.getLocation(); 
 					Entity entity = processInfo.getEntity();
 					Architecture architecture = processInfo.getArchitecture();
-					reportFile.addViolation(location, entity, architecture);
+					Element info = reportFile.addViolation(location, entity, architecture);
+					
+					reportFile.addElement(ReportFile.TAG_SONAR_ERROR, "Label is missing", info);
+					reportFile.addElement(ReportFile.TAG_SONAR_MSG, "Add label to the process", info);
 				}
 			}
 			

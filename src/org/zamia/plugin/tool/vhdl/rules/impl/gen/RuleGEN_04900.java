@@ -49,6 +49,9 @@ public class RuleGEN_04900 extends Rule {
 						String architectureId =clockRead.getArchitectureName();
 						Element info = reportFile.addViolation(location, entityId, architectureId);
 						reportFile.addElement(ReportFile.TAG_CLOCK, clockSource.toString(), info); 
+						
+						reportFile.addElement(ReportFile.TAG_SONAR_ERROR, "Reset signal " + clockSource.toString() + " is misused", info);
+						reportFile.addElement(ReportFile.TAG_SONAR_MSG, "Use " + clockSource.toString() + " for clock inputs only and not as common", info);
 					}
 				}
 			}

@@ -49,6 +49,10 @@ public class RuleSTD_03700 extends Rule {
 				
 				reportFile.addElement(ReportFile.TAG_RESET, resetSource.toString(), info);
 				reportFile.addElement(ReportFile.TAG_SIGNAL_TYPE, resetSource.getType(), info);
+				
+				reportFile.addElement(ReportFile.TAG_SONAR_ERROR, "Reset generation identified", info);
+				reportFile.addElement(ReportFile.TAG_SONAR_MSG, "Control reset generation mechanism", info);
+
 			}
 			
 			result = reportFile.save();

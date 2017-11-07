@@ -158,7 +158,7 @@ public class RuleSTD_05000 extends Rule {
 							int line = sensitivity.getLocation().fLine; 
 							String sensitivityName = vectorName;
 							_violations.add(
-									new SensitivityRuleViolation(fileName, line, _entity, _architecture, process, sensitivityName));
+									new SensitivityRuleViolation(fileName, line, _entity, _architecture, process, sensitivityName, false));
 						}
 					}
 					
@@ -171,7 +171,7 @@ public class RuleSTD_05000 extends Rule {
 				int line = sensitivity.getLocation().fLine; 
 				String sensitivityName = sensitivity.toString();
 				_violations.add(
-						new SensitivityRuleViolation(fileName, line, _entity, _architecture, process, sensitivityName));
+						new SensitivityRuleViolation(fileName, line, _entity, _architecture, process, sensitivityName, false));
 			}
 		}
 
@@ -260,7 +260,7 @@ public class RuleSTD_05000 extends Rule {
 						int line = signal.getLocation().fLine; 
 						String sensitivityName = vectorName;
 						_violations.add(
-								new SensitivityRuleViolation(fileName, line, _entity, _architecture, process, sensitivityName));
+								new SensitivityRuleViolation(fileName, line, _entity, _architecture, process, sensitivityName, true));
 					}
 				}
 			}
@@ -271,7 +271,7 @@ public class RuleSTD_05000 extends Rule {
 			int line = signal.getLocation().fLine; 
 			String sensitivityName = signal.toString();
 			_violations.add(
-					new SensitivityRuleViolation(fileName, line, _entity, _architecture, process, sensitivityName));
+					new SensitivityRuleViolation(fileName, line, _entity, _architecture, process, sensitivityName, true));
 		}
 	}
 }

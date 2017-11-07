@@ -51,6 +51,9 @@ public class RuleGEN_02300 extends Rule {
 					reportFile.addElement(ReportFile.TAG_INSTANCE, violation.getComposantName(), info);
 					reportFile.addElement(ReportFile.TAG_CLOCK_BEFORE, violation.getSignalNameBefore(), info); 
 					reportFile.addElement(ReportFile.TAG_CLOCK_AFTER, violation.getSignalNameAfter(), info);
+					
+					reportFile.addElement(ReportFile.TAG_SONAR_ERROR, "Clock signal change its name from " + violation.getSignalNameBefore() + " to " + violation.getSignalNameAfter(), info);
+					reportFile.addElement(ReportFile.TAG_SONAR_MSG, "Change " + violation.getSignalNameAfter() + " to " + violation.getSignalNameBefore(), info);
 				}
 			}
 

@@ -48,6 +48,8 @@ public class ReportFile {
 	public static final String TAG_SIGNAL_EDGE               = NAMESPACE_PREFIX + "Edge";
 	public static final String TAG_SENSITIVITY               = NAMESPACE_PREFIX + "Sensitivity";
 	public static final String TAG_LIBRARY                   = NAMESPACE_PREFIX + "Library";
+	public static final String TAG_SONAR_ERROR              = NAMESPACE_PREFIX + "SonarError";
+	public static final String TAG_SONAR_MSG              	 = NAMESPACE_PREFIX + "SonarRemediationMsg";
 	
 	private static final String TAG_NAMESPACE_PREFIX          = "xmlns:rc";
 	private static final String TAG_NAMESPACE                 = "RULECHECKER";

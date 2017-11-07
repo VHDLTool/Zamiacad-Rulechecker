@@ -58,6 +58,10 @@ public class RuleSTD_04500 extends Rule {
 					reportFile.addElement(ReportFile.TAG_CLOCK, clockId, info); 
 					String signalType = clockSource.getType();
 					reportFile.addElement(ReportFile.TAG_SIGNAL_TYPE, signalType, info); 
+					
+//					reportFile.addElement(ReportFile.TAG_SONAR_ERROR, "Clock signal " + CLOCK_NAME_SRC + " is reassigned to " + clockId, info);
+//					reportFile.addElement(ReportFile.TAG_SONAR_MSG, "Remove this assignment and replace " + clockId + " with \r\n" + 
+//							+ CLOCK_NAME_SRC, info);
 				}
 			}
 			

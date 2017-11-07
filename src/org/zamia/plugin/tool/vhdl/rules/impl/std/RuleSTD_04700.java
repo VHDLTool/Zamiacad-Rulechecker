@@ -19,6 +19,7 @@ import org.zamia.plugin.tool.vhdl.ReportFile;
 import org.zamia.plugin.tool.vhdl.manager.ClockSignalManager;
 import org.zamia.plugin.tool.vhdl.manager.ClockSignalSourceManager;
 import org.zamia.plugin.tool.vhdl.rules.IHandbookParam;
+import org.zamia.plugin.tool.vhdl.rules.IntParam;
 import org.zamia.plugin.tool.vhdl.rules.RuleE;
 import org.zamia.plugin.tool.vhdl.rules.RuleResult;
 import org.zamia.plugin.tool.vhdl.rules.impl.Rule;
@@ -45,13 +46,33 @@ public class RuleSTD_04700 extends Rule {
 			_clockSource = clockSource;
 		}
 		
-		public void generate(ReportFile reportFile) {
+		public void generate(ReportFile reportFile, List<IHandbookParam> parameterList, int nbFailure) {
 			int line = _clockSource.getSignalDeclaration().getLocation().fLine;
 			Element info = reportFile.addViolation(_fileName, line, _entityId, _architectureId);
 			
 			reportFile.addElement(ReportFile.TAG_SOURCE_TAG, _clockSource.getTag(), info); 
 			reportFile.addElement(ReportFile.TAG_CLOCK, _clockSource.toString(), info); 
 			reportFile.addElement(ReportFile.TAG_SIGNAL_TYPE, _clockSource.getType(), info); 
+
+			String paramRelation = null;
+			String paramValue = null;
+			if (parameterList.size() == 1)
+			{
+				IHandbookParam param = parameterList.get(0);
+				if (param instanceof IntParam)
+				{
+					IntParam intParam = (IntParam) param;
+					paramRelation = intParam.getRelation().toString();
+					paramValue = intParam.getValue().toString();
+				}
+			}
+			
+			if (paramRelation != null && paramValue != null)
+			{
+				reportFile.addElement(ReportFile.TAG_SONAR_ERROR, "Too many clock domains in the entity " + _entityId, info);
+				reportFile.addElement(ReportFile.TAG_SONAR_MSG, "Lower clock domain from " + nbFailure + " to " + paramRelation + " " + paramValue + " inside " + _entityId, info);
+			}
+			
 		}
 	}
 
@@ -122,7 +143,7 @@ public class RuleSTD_04700 extends Rule {
 		ReportFile reportFile = new ReportFile(this);
 		if (reportFile.initialize()) {
 			for (Violation violation : violations) {
-				violation.generate(reportFile);
+				violation.generate(reportFile, parameterList, violations.size());
 			}
 			
 			result = reportFile.save();

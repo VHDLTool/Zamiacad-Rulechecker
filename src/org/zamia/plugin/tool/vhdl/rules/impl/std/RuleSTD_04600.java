@@ -11,8 +11,10 @@ import org.zamia.plugin.tool.vhdl.ListClockSource;
 import org.zamia.plugin.tool.vhdl.ReportFile;
 import org.zamia.plugin.tool.vhdl.manager.ClockSignalSourceManager;
 import org.zamia.plugin.tool.vhdl.rules.IHandbookParam;
+import org.zamia.plugin.tool.vhdl.rules.IntParam;
 import org.zamia.plugin.tool.vhdl.rules.RuleE;
 import org.zamia.plugin.tool.vhdl.rules.RuleResult;
+import org.zamia.plugin.tool.vhdl.rules.StringParam;
 import org.zamia.plugin.tool.vhdl.rules.impl.Rule;
 import org.zamia.plugin.tool.vhdl.rules.impl.RuleManager;
 import org.zamia.util.Pair;
@@ -78,6 +80,26 @@ public class RuleSTD_04600 extends Rule {
 					reportFile.addElement(ReportFile.TAG_CLOCK, clockId, info); 
 					String signalType = clockSource.getType();
 					reportFile.addElement(ReportFile.TAG_SIGNAL_TYPE, signalType, info); 
+					
+					String paramRelation = null;
+					String paramValue = null;
+					if (parameterList.size() == 1)
+					{
+						IHandbookParam param = parameterList.get(0);
+						if (param instanceof IntParam)
+						{
+							IntParam intParam = (IntParam) param;
+							paramRelation = intParam.getRelation().toString();
+							paramValue = intParam.getValue().toString();
+						}
+					}
+					
+					if (paramRelation != null && paramValue != null)
+					{
+						reportFile.addElement(ReportFile.TAG_SONAR_ERROR, "Too many clock domains in the design", info);
+						reportFile.addElement(ReportFile.TAG_SONAR_MSG, "Lower clock domain from " + listClockSource.getListClockSource().size() + " to " + paramRelation + " " + paramValue, info);
+					}
+
 				}
 			}
 			

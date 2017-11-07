@@ -50,6 +50,10 @@ public class RuleGEN_02400 extends Rule {
 					reportFile.addElement(ReportFile.TAG_INSTANCE, violation.getComposantName(), info);
 					reportFile.addElement(ReportFile.TAG_RESET_BEFORE, violation.getSignalNameBefore(), info); 
 					reportFile.addElement(ReportFile.TAG_RESET_AFTER, violation.getSignalNameAfter(), info);
+					
+					reportFile.addElement(ReportFile.TAG_SONAR_ERROR, "Reset signal change its name from " + violation.getSignalNameBefore() + " to " + violation.getSignalNameAfter(), info);
+					reportFile.addElement(ReportFile.TAG_SONAR_MSG, "Change signal name " + violation.getSignalNameAfter() + " to " + violation.getSignalNameBefore(), info);
+
 				}
 			}
 

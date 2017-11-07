@@ -12,6 +12,7 @@ import org.zamia.plugin.tool.vhdl.ReportFile;
 import org.zamia.plugin.tool.vhdl.rules.IHandbookParam;
 import org.zamia.plugin.tool.vhdl.rules.RuleE;
 import org.zamia.plugin.tool.vhdl.rules.RuleResult;
+import org.zamia.plugin.tool.vhdl.rules.StringParam;
 import org.zamia.plugin.tool.vhdl.rules.impl.Rule;
 import org.zamia.util.Pair;
 import org.zamia.vhdl.ast.Architecture;
@@ -70,6 +71,25 @@ public class RuleGEN_01200 extends Rule {
 						Architecture architecture = processInfo.getArchitecture();
 						Element info = reportFile.addViolation(location, entity, architecture);
 						reportFile.addElement(ReportFile.TAG_PROCESS, processLabel, info);
+
+						String paramPosition = null;
+						String paramValue = null;
+						if (parameterList.size() == 1)
+						{
+							IHandbookParam param = parameterList.get(0);
+							if (param instanceof StringParam)
+							{
+								StringParam stringParam = (StringParam) param;
+								paramPosition = stringParam.getPosition().toString().toLowerCase();
+								paramValue = stringParam.getValue().toLowerCase();
+							}
+						}
+						
+						if (paramPosition != null && paramValue != null)
+						{
+							reportFile.addElement(ReportFile.TAG_SONAR_ERROR, "Label " + processLabel + " is miswritten", info);
+							reportFile.addElement(ReportFile.TAG_SONAR_MSG, "Change label name " + processLabel + " to include " + paramValue + " as " + paramPosition, info);
+						}
 					}
 				}
 			}

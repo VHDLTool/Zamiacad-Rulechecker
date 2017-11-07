@@ -190,6 +190,9 @@ public class RuleSTD_04800 extends Rule {
 
 				reportFile.addElement(ReportFile.TAG_SOURCE_TAG, clockSource.getTag(), info); 
 				reportFile.addElement(ReportFile.TAG_SIGNAL_EDGE, edge.toString(), info);
+				
+				reportFile.addElement(ReportFile.TAG_SONAR_ERROR, "Clock signal " + clockSignal.toString() + " use " + edge.toString() + " edge on contrary of other clock signal inside " + entityId, info);
+				reportFile.addElement(ReportFile.TAG_SONAR_MSG, "Check that clock domain change mechanism is an authorized one", info);
 			}
 		}
 	}
