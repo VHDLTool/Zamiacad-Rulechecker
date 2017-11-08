@@ -231,7 +231,7 @@ public abstract class ReportManager {
 		String fileName = "";
 			directory = xmlLogReport.get(0) + 
 					((xmlLogReport.get(1).indexOf(".") == -1) ? (xmlLogReport.get(1) + "_" + ruleId + "_" + ruleName) 
-							: (xmlLogReport.get(1).substring(0, xmlLogReport.get(1).indexOf(".")) + "_" + ruleId + "_" + ruleName))+ File.separator;
+							: (xmlLogReport.get(1).substring(0, xmlLogReport.get(1).indexOf(".")) + "_" + ruleId + "_" + ruleName))+ "/";
 			
 			// fileName for xml log report
 			fileName = 	((xmlLogReport.get(1).indexOf(".") == -1) ? (xmlLogReport.get(1) + "_" + ruleId + "_" + ruleName) 

@@ -71,7 +71,7 @@ public class ZamiaBuilder extends IncrementalProjectBuilder {
 	private boolean fBPChanged = false;
 	
 	/**Used when build path is deleted*/
-	private static SourceFile fakeBp = new SourceFile(new File("fake://BuildPath.txt"), "fake://BuildPath.txt"); 
+	private static SourceFile fakeBp = new SourceFile(new File("fake:/BuildPath.txt"), "fake:/BuildPath.txt"); 
 
 	private static boolean fAutoBuildEnabled = true;
 
@@ -515,7 +515,7 @@ public class ZamiaBuilder extends IncrementalProjectBuilder {
 				if (includeDirFile == null)
 					continue;
 
-				String path = includeDirFile.getAbsolutePath();
+				String path = includeDirFile.getAbsolutePath().replace("\\", "/");
 
 				if (!generatedLinks.contains(path)) {
 					logger.info("ZamiaBuilder: creating include file link %4d/%4d in %s to '%s'", i + 1, n, ZamiaPlugin.BP_EXTERNAL_SOURCES, path);

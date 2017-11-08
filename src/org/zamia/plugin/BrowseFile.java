@@ -73,7 +73,7 @@ public class BrowseFile implements IWorkbenchWindowActionDelegate {
 		try {
 
 			
-			File ff=new File("C:\\resultat.txt"); // définir l'arborescence
+			File ff=new File("C:/resultat.txt"); // définir l'arborescence
 			ff.createNewFile();
 			fichier=new FileWriter(ff);
 
@@ -120,7 +120,7 @@ public class BrowseFile implements IWorkbenchWindowActionDelegate {
 								write("NODE NULL. Check the Top Level in build path");
 							}else{
 								write("top : "+ architecture.toString() +  " class: " + architecture.getClass().getName());
-								write("sourcefile "+architecture.getSourceFile().getFileName()+" AbsolutePath "+architecture.getSourceFile().getAbsolutePath());
+								write("sourcefile "+architecture.getSourceFile().getFileName()+" AbsolutePath "+architecture.getSourceFile().getAbsolutePath().replace("\\", "/"));
 								write("   LocalPath "+architecture.getSourceFile().getLocalPath());
 							}
 						} catch (ZamiaException e) {

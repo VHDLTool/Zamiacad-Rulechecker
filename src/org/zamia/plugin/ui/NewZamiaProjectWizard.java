@@ -312,7 +312,7 @@ public class NewZamiaProjectWizard extends BasicNewResourceWizard implements IEx
 						
 						// create rc_config.txt
 						try {
-							IFile file = project.getFile("rule_checker"+File.separator+"rc_config.txt");
+							IFile file = project.getFile("rule_checker"+"/"+"rc_config.txt");
 							if (file.exists()) {
 								// rewriting file, especially linked one can be dangerous
 								//file.setContents(getInitialBuildPathContents(), true, false, null);
@@ -330,7 +330,7 @@ public class NewZamiaProjectWizard extends BasicNewResourceWizard implements IEx
 
 						// create rc_config.xml
 						try {
-							IFile file = project.getFile("rule_checker"+File.separator+"rc_config.xml");
+							IFile file = project.getFile("rule_checker"+"/"+"rc_config.xml");
 							if (file.exists()) {
 								// rewriting file, especially linked one can be dangerous
 								//file.setContents(getInitialBuildPathContents(), true, false, null);
@@ -392,7 +392,7 @@ public class NewZamiaProjectWizard extends BasicNewResourceWizard implements IEx
 
 						// create rc_handbook_parameters.xml
 						try {
-								IFile file = project.getFile("rule_checker"+File.separator+"rc_handbook_parameters.xml");
+								IFile file = project.getFile("rule_checker"+"/"+"rc_handbook_parameters.xml");
 								if (file.exists()) {
 									// rewriting file, especially linked one can be dangerous
 									//file.setContents(getInitialBuildPathContents(), true, false, null);

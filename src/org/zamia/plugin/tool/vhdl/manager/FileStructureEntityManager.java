@@ -44,7 +44,7 @@ public class FileStructureEntityManager extends ToolManager {
 		try {
 
 			
-			File ff=new File("C:\\resultat.txt"); // définir l'arborescence
+			File ff=new File("C:/resultat.txt"); // définir l'arborescence
 			ff.createNewFile();
 			fichier=new FileWriter(ff);
 

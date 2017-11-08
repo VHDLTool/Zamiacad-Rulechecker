@@ -442,7 +442,9 @@ public class ZDialog extends ZDialogManager  {
 							if (isAlgo) {
 								text += String.format("(%d)", result);
 							}
-							reportFileName = ruleResult.getReportFileName();
+							if(ruleResult != null)
+								reportFileName = ruleResult.getReportFileName().replaceAll(zPrj.fBasePath.toString(), "");
+
 							logger.info(String.format("####: %d violations for rule %s.", result, ruleId));
 							synthesisReport.addRuleReport(ruleId, status, reportFileName, result, ruleResult);
 						}

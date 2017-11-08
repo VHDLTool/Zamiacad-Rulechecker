@@ -118,8 +118,8 @@ public class ArchitectureManager extends ToolManager {
 						}else{
 							
 							String fileName = architecture.getSourceFile().getFile().getName();
-							String filePath = File.separator+architecture.getSourceFile().getLocalPath().replace(fileName, "");
-							String filePathName = File.separator+architecture.getSourceFile().getLocalPath();
+							String filePath = "/"+architecture.getSourceFile().getLocalPath().replace(fileName, "");
+							String filePathName = "/"+architecture.getSourceFile().getLocalPath();
 							List<String> listFilePath = createListFilePath(filePath);
 
 							if (listFileToWork.contains(filePathName) || !listFilePath.isEmpty()) {
@@ -138,8 +138,8 @@ public class ArchitectureManager extends ToolManager {
 						}else{
 							
 							String fileName = packageBody.getSourceFile().getFile().getName();
-							String filePath = File.separator+packageBody.getSourceFile().getLocalPath().replace(fileName, "");
-							String filePathName = File.separator+packageBody.getSourceFile().getLocalPath();
+							String filePath = "/"+packageBody.getSourceFile().getLocalPath().replace(fileName, "");
+							String filePathName = "/"+packageBody.getSourceFile().getLocalPath();
 							List<String> listFilePath = createListFilePath(filePath);
 
 							if (listFileToWork.contains(filePathName) || !listFilePath.isEmpty()) {

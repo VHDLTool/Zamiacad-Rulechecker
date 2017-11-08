@@ -219,7 +219,7 @@ public class Tool_LOGICAL_CONE extends ToolSelectorManager {
 	
 	private String searchID(String fileName, String signalName) {
 		String id = "";
-		fileName = File.separator+fileName;
+		fileName = "/"+fileName;
 		for(Entry<String, HdlFile> entry : listHdlFile.entrySet()) {
 			HdlFile hdlFile = entry.getValue();
 			if (!hdlFile.getLocalPath().equalsIgnoreCase(fileName)){

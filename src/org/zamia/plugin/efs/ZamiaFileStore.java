@@ -132,7 +132,7 @@ public class ZamiaFileStore extends FileStore {
 				String childPath = fPath.endsWith("/") ? fPath + aName : fPath + '/' + aName;
 
 				URI uri = new URI(ZamiaFileSystem.ZAMIA_EFS_SCHEME, null, fReadonly ? ZamiaFileSystem.ZAMIA_EFS_HOST_READONLY: ZamiaFileSystem.ZAMIA_EFS_HOST_READWRITE, fURI.getPort(), childPath, null, null);
-				child = new ZamiaFileStore(aName, this, fPath + File.separator + aName, fReadonly, false, uri);
+				child = new ZamiaFileStore(aName, this, fPath + "/" + aName, fReadonly, false, uri);
 				fChildCache.put(aName, child);
 			} catch (URISyntaxException e) {
 				throw new RuntimeException(e);

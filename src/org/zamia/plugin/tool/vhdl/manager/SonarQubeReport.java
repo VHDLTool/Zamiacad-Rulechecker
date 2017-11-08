@@ -71,7 +71,7 @@ public class SonarQubeReport {
 		Document document = initializeXmlDoc();
 		
 		String ruleReportDirectoryPath = ToolManager.getRuleReportDirectory();
-		String reportFilePath = ruleReportDirectoryPath + File.separator + ReportFileName;
+		String reportFilePath = ruleReportDirectoryPath + "/" + ReportFileName;
 		
 		try {
 			TransformerFactory transformerFactory = TransformerFactory.newInstance();

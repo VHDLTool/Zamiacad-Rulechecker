@@ -113,8 +113,8 @@ public class EntityManager extends ToolManager {
 						}else{
 							
 							String fileName = entity.getSourceFile().getFile().getName();
-							String filePath = File.separator+entity.getSourceFile().getLocalPath().replace(fileName, "");
-							String filePathName = File.separator+entity.getSourceFile().getLocalPath();
+							String filePath = "/"+entity.getSourceFile().getLocalPath().replace(fileName, "");
+							String filePathName = "/"+entity.getSourceFile().getLocalPath();
 							List<String> listFilePath = createListFilePath(filePath);
 														
 							if (listFileToWork.contains(filePathName) || !listFilePath.isEmpty()) {
@@ -166,7 +166,7 @@ public class EntityManager extends ToolManager {
 					try {
 						entity = ((Entity)zPrj.getDUM().getDM(stub.getDUUID()));
 						if (entity != null) {
-							String localPath = File.separator+entity.getSource().getLocalPath();
+							String localPath = "/"+entity.getSource().getLocalPath();
 							HdlFile hdlFile = listHdlFile.get(localPath);
 							if (hdlFile != null) {
 								cmpt++;
@@ -182,7 +182,7 @@ public class EntityManager extends ToolManager {
 						try {
 							VHDLPackage vhdlPackage = ((VHDLPackage)zPrj.getDUM().getDM(stub.getDUUID()));
 							if (vhdlPackage != null) {
-								String localPath = File.separator+vhdlPackage.getSource().getLocalPath();
+								String localPath = "/"+vhdlPackage.getSource().getLocalPath();
 								HdlFile hdlFile = listHdlFile.get(localPath);
 								if (hdlFile != null) {
 									System.out.println("package "+localPath);
