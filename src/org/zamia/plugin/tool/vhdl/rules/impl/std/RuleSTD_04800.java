@@ -225,6 +225,9 @@ public class RuleSTD_04800 extends Rule {
 				Element info = reportFile.addViolationPerProject(fileName, line, entityId, architectureId);
 				reportFile.addElement(ReportFile.TAG_SOURCE_TAG, clockSource.getTag(), info); 
 				reportFile.addElement(ReportFile.TAG_SIGNAL_EDGE, edge.toString(), info);
+				
+				reportFile.addElement(ReportFile.TAG_SONAR_ERROR, "Clock signal " + clockSource.toString() + " use rising edge on contrary of other clock signal inside the design", info);
+				reportFile.addElement(ReportFile.TAG_SONAR_MSG, "Check that only one file in the design implements clock change from rising edge to falling edge", info);
 			}
 		}
 	}
