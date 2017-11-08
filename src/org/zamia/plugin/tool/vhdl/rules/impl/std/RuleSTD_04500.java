@@ -1,5 +1,7 @@
 package org.zamia.plugin.tool.vhdl.rules.impl.std;
 
+import java.util.List;
+
 import org.w3c.dom.Element;
 import org.zamia.SourceLocation;
 import org.zamia.ZamiaProject;
@@ -13,6 +15,7 @@ import org.zamia.plugin.tool.vhdl.rules.RuleResult;
 import org.zamia.plugin.tool.vhdl.rules.impl.Rule;
 import org.zamia.plugin.tool.vhdl.rules.impl.RuleManager;
 import org.zamia.util.Pair;
+import org.zamia.vhdl.ast.VHDLNode;
 
 /*
  * Clock Reassignment.
@@ -58,10 +61,11 @@ public class RuleSTD_04500 extends Rule {
 					reportFile.addElement(ReportFile.TAG_CLOCK, clockId, info); 
 					String signalType = clockSource.getType();
 					reportFile.addElement(ReportFile.TAG_SIGNAL_TYPE, signalType, info); 
+
+					List<String> clkNameSrc = clockSource.getSignalDeclaration().getListOperand();
 					
-//					reportFile.addElement(ReportFile.TAG_SONAR_ERROR, "Clock signal " + CLOCK_NAME_SRC + " is reassigned to " + clockId, info);
-//					reportFile.addElement(ReportFile.TAG_SONAR_MSG, "Remove this assignment and replace " + clockId + " with \r\n" + 
-//							+ CLOCK_NAME_SRC, info);
+					reportFile.addElement(ReportFile.TAG_SONAR_ERROR, "Clock signal " + clkNameSrc.get(0) + " is reassigned to " + clockId, info);
+					reportFile.addElement(ReportFile.TAG_SONAR_MSG, "Remove this assignment and replace " + clockId + " with " + clkNameSrc.get(0), info);
 				}
 			}
 			
