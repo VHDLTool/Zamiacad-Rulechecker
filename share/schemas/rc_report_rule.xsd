@@ -55,6 +55,7 @@
 				<xs:element name="STD_01800"             type="rc:STD_01800_Type"/>
 				<xs:element name="STD_03700"             type="rc:STD_03700_Type"/>
 			</xs:choice>
+			
 		</xs:sequence>
 	</xs:complexType>
 	
@@ -67,6 +68,8 @@
 	<xs:complexType name="CNE_01200_Type">
 		<xs:sequence>
 			<xs:element name="Process" type="xs:string" minOccurs="1" maxOccurs="1"/>
+			<xs:element name="SonarError" type="xs:string"	minOccurs="1" maxOccurs="1"/>
+			<xs:element name="SonarRemediationMsg" type="xs:string"	minOccurs="1" maxOccurs="1"/>
 		</xs:sequence>
 	</xs:complexType>	
 
@@ -77,6 +80,8 @@
 			<xs:element name="Instance"    type="xs:string" minOccurs="1" maxOccurs="1"/>
 			<xs:element name="ClockBefore" type="xs:string" minOccurs="1" maxOccurs="1"/>
 			<xs:element name="ClockAfter"  type="xs:string" minOccurs="1" maxOccurs="1"/>
+			<xs:element name="SonarError" type="xs:string"	minOccurs="1" maxOccurs="1"/>
+			<xs:element name="SonarRemediationMsg" type="xs:string"	minOccurs="1" maxOccurs="1"/>
 		</xs:sequence>
 	</xs:complexType>	
 	
@@ -87,6 +92,8 @@
 			<xs:element name="Instance"    type="xs:string" minOccurs="1" maxOccurs="1"/>
 			<xs:element name="ResetBefore" type="xs:string" minOccurs="1" maxOccurs="1"/>
 			<xs:element name="ResetAfter"  type="xs:string" minOccurs="1" maxOccurs="1"/>
+			<xs:element name="SonarError" type="xs:string"	minOccurs="1" maxOccurs="1"/>
+			<xs:element name="SonarRemediationMsg" type="xs:string"	minOccurs="1" maxOccurs="1"/>
 		</xs:sequence>
 	</xs:complexType>	
 	
@@ -96,6 +103,8 @@
 	<xs:complexType name="CNE_04900_Type">
 		<xs:sequence>
 			<xs:element name="Clock"   type="xs:string" minOccurs="1" maxOccurs="1"/>
+			<xs:element name="SonarError" type="xs:string"	minOccurs="1" maxOccurs="1"/>
+			<xs:element name="SonarRemediationMsg" type="xs:string"	minOccurs="1" maxOccurs="1"/>
 		</xs:sequence>
 	</xs:complexType>	
 	
@@ -109,6 +118,8 @@
 		<xs:sequence>
 			<xs:element name="Clock"   type="xs:string" minOccurs="1" maxOccurs="1"/>
 			<xs:element name="Process" type="xs:string" minOccurs="1" maxOccurs="1"/>
+			<xs:element name="SonarError" type="xs:string"	minOccurs="1" maxOccurs="1"/>
+			<xs:element name="SonarRemediationMsg" type="xs:string"	minOccurs="1" maxOccurs="1"/>
 		</xs:sequence>
 	</xs:complexType>	
 	
@@ -118,6 +129,8 @@
 		<xs:sequence>
 			<xs:element name="Reset"   type="xs:string" minOccurs="1" maxOccurs="1"/>
 			<xs:element name="Process" type="xs:string" minOccurs="1" maxOccurs="1"/>
+			<xs:element name="SonarError" type="xs:string"	minOccurs="1" maxOccurs="1"/>
+			<xs:element name="SonarRemediationMsg" type="xs:string"	minOccurs="1" maxOccurs="1"/>
 		</xs:sequence>
 	</xs:complexType>	
 
@@ -133,12 +146,16 @@
 			<xs:element name="Process"   type="xs:string" minOccurs="1" maxOccurs="1"/>
 			<xs:element name="SourceTag" type="xs:string"    minOccurs="1" maxOccurs="1"/>
 			<xs:element name="Level"     type="rc:EnumLevel" minOccurs="1" maxOccurs="1" />	
+			<xs:element name="SonarError" type="xs:string"	minOccurs="1" maxOccurs="1"/>
+			<xs:element name="SonarRemediationMsg" type="xs:string"	minOccurs="1" maxOccurs="1"/>
 		</xs:sequence>
 	</xs:complexType>	
 	<xs:complexType name="STD_03600_R2_Type">
 		<xs:sequence>
 			<xs:element name="SourceTag" type="xs:string"    minOccurs="1" maxOccurs="1"/>
 			<xs:element name="Level"     type="rc:EnumLevel" minOccurs="1" maxOccurs="1" />	
+			<xs:element name="SonarError" type="xs:string"	minOccurs="1" maxOccurs="1"/>
+			<xs:element name="SonarRemediationMsg" type="xs:string"	minOccurs="1" maxOccurs="1"/>
 		</xs:sequence>
 	</xs:complexType>	
 	
@@ -149,6 +166,8 @@
 			<xs:element name="Register" type="xs:string" minOccurs="1" maxOccurs="1"/>
 			<xs:element name="Clock"    type="xs:string" minOccurs="1" maxOccurs="1"/>	
 			<xs:element name="Process"  type="xs:string" minOccurs="1" maxOccurs="1"/>	
+			<xs:element name="SonarError" type="xs:string"	minOccurs="1" maxOccurs="1"/>
+			<xs:element name="SonarRemediationMsg" type="xs:string"	minOccurs="1" maxOccurs="1"/>
 		</xs:sequence>
 	</xs:complexType>	
 	
@@ -159,6 +178,8 @@
 			<xs:element name="SourceTag"  type="xs:string"         minOccurs="1" maxOccurs="1"/>
 			<xs:element name="Clock"      type="xs:string"         minOccurs="1" maxOccurs="1"/>	
 			<xs:element name="SignalType" type="rc:EnumSignalType" minOccurs="1" maxOccurs="1"/>
+			<xs:element name="SonarError" type="xs:string"	minOccurs="1" maxOccurs="1"/>
+			<xs:element name="SonarRemediationMsg" type="xs:string"	minOccurs="1" maxOccurs="1"/>
 		</xs:sequence>
 	</xs:complexType>	
 	
@@ -169,6 +190,8 @@
 			<xs:element name="SourceTag"  type="xs:string"         minOccurs="1" maxOccurs="1"/>
 			<xs:element name="Clock"      type="xs:string"         minOccurs="1" maxOccurs="1"/>	
 			<xs:element name="SignalType" type="rc:EnumSignalType" minOccurs="1" maxOccurs="1"/>
+			<xs:element name="SonarError" type="xs:string"	minOccurs="1" maxOccurs="1"/>
+			<xs:element name="SonarRemediationMsg" type="xs:string"	minOccurs="1" maxOccurs="1"/>
 		</xs:sequence>
 	</xs:complexType>	
 	
@@ -179,6 +202,8 @@
 			<xs:element name="SourceTag"  type="xs:string"             minOccurs="1" maxOccurs="1"/>
 			<xs:element name="Clock"      type="xs:string"             minOccurs="1" maxOccurs="1"/>	
 			<xs:element name="SignalType" type="rc:EnumSignalType"     minOccurs="1" maxOccurs="1"/>
+			<xs:element name="SonarError" type="xs:string"	minOccurs="1" maxOccurs="1"/>
+			<xs:element name="SonarRemediationMsg" type="xs:string"	minOccurs="1" maxOccurs="1"/>
 		</xs:sequence>
 	</xs:complexType>	
 	
@@ -190,12 +215,16 @@
 			<xs:element name="Process"   type="xs:string" minOccurs="1" maxOccurs="1"/>	
 		    <xs:element name="SourceTag" type="xs:string"   minOccurs="1" maxOccurs="1"/>
 			<xs:element name="Edge"      type="rc:EnumEdge" minOccurs="1" maxOccurs="1" />	
+			<xs:element name="SonarError" type="xs:string"	minOccurs="1" maxOccurs="1"/>
+			<xs:element name="SonarRemediationMsg" type="xs:string"	minOccurs="1" maxOccurs="1"/>
 		</xs:sequence>
 	</xs:complexType>	
 	<xs:complexType name="STD_04800_R2_Type">
 		<xs:sequence>
 		    <xs:element name="SourceTag" type="xs:string"   minOccurs="1" maxOccurs="1"/>
 			<xs:element name="Edge"      type="rc:EnumEdge" minOccurs="1" maxOccurs="1" />	
+			<xs:element name="SonarError" type="xs:string"	minOccurs="1" maxOccurs="1"/>
+			<xs:element name="SonarRemediationMsg" type="xs:string"	minOccurs="1" maxOccurs="1"/>
 		</xs:sequence>
 	</xs:complexType>	
 	
@@ -205,6 +234,8 @@
 		<xs:sequence>
 			<xs:element name="Process"     type="xs:string" minOccurs="1" maxOccurs="1"/>	
 			<xs:element name="Sensitivity" type="xs:string" minOccurs="1" maxOccurs="1"/>	
+			<xs:element name="SonarError" type="xs:string"	minOccurs="1" maxOccurs="1"/>
+			<xs:element name="SonarRemediationMsg" type="xs:string"	minOccurs="1" maxOccurs="1"/>
 		</xs:sequence>
 	</xs:complexType>	
 	
@@ -214,6 +245,8 @@
 		<xs:sequence>
 			<xs:element name="Process"     type="xs:string" minOccurs="1" maxOccurs="1"/>	
 			<xs:element name="Sensitivity" type="xs:string" minOccurs="1" maxOccurs="1"/>	
+			<xs:element name="SonarError" type="xs:string"	minOccurs="1" maxOccurs="1"/>
+			<xs:element name="SonarRemediationMsg" type="xs:string"	minOccurs="1" maxOccurs="1"/>
 		</xs:sequence>
 	</xs:complexType>	
 	
@@ -226,6 +259,8 @@
 	<xs:complexType name="STD_01800_Type">
 		<xs:sequence>
 			<xs:element name="Library" type="xs:string" minOccurs="1" maxOccurs="1"/>
+			<xs:element name="SonarError" type="xs:string"	minOccurs="1" maxOccurs="1"/>
+			<xs:element name="SonarRemediationMsg" type="xs:string"	minOccurs="1" maxOccurs="1"/>
 		</xs:sequence>
 	</xs:complexType>	
 	
@@ -235,6 +270,8 @@
 		<xs:sequence>
 			<xs:element name="Reset"      type="xs:string"         minOccurs="1" maxOccurs="1"/>	
 			<xs:element name="SignalType" type="rc:EnumSignalType" minOccurs="1" maxOccurs="1"/>	
+			<xs:element name="SonarError" type="xs:string"	minOccurs="1" maxOccurs="1"/>
+			<xs:element name="SonarRemediationMsg" type="xs:string"	minOccurs="1" maxOccurs="1"/>
 		</xs:sequence>
 	</xs:complexType>	
 
