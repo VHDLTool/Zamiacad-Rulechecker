@@ -110,7 +110,7 @@ public class NewFileWizard extends Wizard implements INewWizard {
 		// fZamiaProject.setFilename(fZamiaProject.zamiaFileName);
 		// String fPath = fProject.getLocation().toOSString();
 		// try {
-		// fZamiaProject.addFile(fPath + System.getProperty("file.separator") +
+		// fZamiaProject.addFile(fPath + "/" +
 		// file.getName());
 		// fZamiaProject.save();
 		// } catch (ProjectException e) {

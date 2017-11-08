@@ -122,7 +122,7 @@ public class ZamiaLaunchMainTab extends AbstractLaunchConfigurationTab {
 		}
 
 		File f = new File("");
-		String defPath = f.getAbsolutePath();
+		String defPath = f.getAbsolutePath().replace("\\", "/");
 
 		try {
 			fFileField.setText(configuration.getAttribute(SimRunnerConfig.ATTR_FILENAME, defPath));
@@ -361,7 +361,7 @@ public class ZamiaLaunchMainTab extends AbstractLaunchConfigurationTab {
 
 					File file = new File(fFileField.getText());
 					if (!file.exists()) {
-						setErrorMessage("'" + file.getAbsolutePath() + "' is not a file or does not exist.");
+						setErrorMessage("'" + file.getAbsolutePath().replace("\\", "/") + "' is not a file or does not exist.");
 					}
 
 				} else if (sim > 0) {
@@ -435,11 +435,11 @@ public class ZamiaLaunchMainTab extends AbstractLaunchConfigurationTab {
 				File file = new File(fFileField.getText());
 				String filterPath = null;
 				if (file.isDirectory()) {
-					filterPath = file.getAbsolutePath();
+					filterPath = file.getAbsolutePath().replace("\\", "/");
 				} else {
 					File parent = file.getParentFile();
 					if (parent != null) {
-						filterPath = parent.getAbsolutePath();
+						filterPath = parent.getAbsolutePath().replace("\\", "/");
 					}
 				}
 

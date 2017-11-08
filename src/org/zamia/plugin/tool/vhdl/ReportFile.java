@@ -201,7 +201,7 @@ public class ReportFile {
 				
 				if (number != NumberReportE.NAN)
 				{
-					reportFilePath = pathReport.getDirectory();
+					reportFilePath = pathReport.getFileName();					
 				}
 				
 				_currentResult.setReportFileName(reportFilePath);

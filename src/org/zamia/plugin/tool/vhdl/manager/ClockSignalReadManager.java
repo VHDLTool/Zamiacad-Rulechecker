@@ -102,7 +102,7 @@ public class ClockSignalReadManager extends ToolManager {
 
 		for (ClockSource clockSource : listClockSource.getListClockSource()) {
 			String signalName = clockSource.toString();
-			HdlFile hdlFile = listHdlFile.get(File.separator+clockSource.getSignalDeclaration().getLocation().fSF.getLocalPath());
+			HdlFile hdlFile = listHdlFile.get("/"+clockSource.getSignalDeclaration().getLocation().fSF.getLocalPath());
 			for (HdlEntity hdlEntityItem : hdlFile.getListHdlEntity()) {
 				hdlEntityItem.searchReadSignalSource(clockSource, signalName, 0, 10);
 			}

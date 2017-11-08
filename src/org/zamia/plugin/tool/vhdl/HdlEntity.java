@@ -388,7 +388,7 @@ public class HdlEntity  implements Cloneable {
 					try {
 						Architecture architecture = (Architecture)zPrj.getDUM().getDM(stub.getDUUID());
 						if (architecture != null) {
-							String localPath = File.separator+architecture.getSource().getLocalPath();
+							String localPath = "/"+architecture.getSource().getLocalPath();
 							if (fileLocalPath.equalsIgnoreCase(localPath)) {
 								if (architecture.getEntityName().toString().equalsIgnoreCase(getEntity().getId())) {
 									addHdlArchitecture(new HdlArchitecture(architecture, this));

@@ -8,22 +8,22 @@
 <!--	
 	<root_directory>
 		<alias>HANDBOOK_ROOT</alias>  
-		<path>C:\Projets\Handbook</path>  
+		<path>C:/Projets/Handbook</path>  
 	</root_directory>
 -->
 
 <!--
 	<handBook>
-		<handBook_fileName>$HANDBOOK_ROOT\handbook_CNE.xml</handBook_fileName>
+		<handBook_fileName>$HANDBOOK_ROOT/handbook_CNE.xml</handBook_fileName>
 	</handBook>  
 -->
 
-	<verifiers_parameters>$ROOT\rule_checker\rc_handbook_parameters.xml</verifiers_parameters>
+	<verifiers_parameters>$ROOT/rule_checker/rc_handbook_parameters.xml</verifiers_parameters>
 	
 	<log>
-		<tool_directory>$LOG_ROOT\rule_checker\reporting\tool\</tool_directory>
+		<tool_directory>$LOG_ROOT/rule_checker/reporting/tool/</tool_directory>
 		<tool_fileName>rc_report_tool.xml</tool_fileName>
-		<rule_directory>$LOG_ROOT\rule_checker\reporting\rule\</rule_directory>
+		<rule_directory>$LOG_ROOT/rule_checker/reporting/rule/</rule_directory>
 		<rule_fileName>rc_report_rule.xml</rule_fileName>
 	</log>
 </vhdlTool>

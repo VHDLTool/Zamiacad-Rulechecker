@@ -230,7 +230,7 @@ public class XilinxPrjImportWizard extends ZDBImportWizard {
 				void mappedAlreadyProperly(BuildPathEntry bpe) {}
 				
 				BPEntryHandler (String lib) {
-					String fakeName = lib + File.separator;
+					String fakeName = lib + "/";
 					BuildPathEntry bpe = zprj.getBuildPath().findEntry(new SourceFile(new File(fakeName), fakeName));
 					if (bpe.fPrefix != null) {
 						if (bpe.fLibId.equals(lib))

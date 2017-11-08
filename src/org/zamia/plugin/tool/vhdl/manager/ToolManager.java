@@ -15,6 +15,7 @@ import java.io.IOException;
 import java.nio.file.Files;
 import java.util.ArrayList;
 import java.util.Date;
+import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
@@ -135,7 +136,7 @@ public abstract class ToolManager implements IWorkbenchWindowActionDelegate {
 
 		try {
 			// TODO BGT
-			File ff=new File("C:\\resultat.txt"); // d�finir l'arborescence
+			File ff=new File("C:/resultat.txt"); // d�finir l'arborescence
 			ff.createNewFile();
 			fichier=new FileWriter(ff);
 		} catch (IOException e) {
@@ -169,15 +170,15 @@ public abstract class ToolManager implements IWorkbenchWindowActionDelegate {
 		if (_fromPlugin) {
 			zamiaProjectPath = ResourcesPlugin.getWorkspace().getRoot().findMember("/"+ zPrj.getId()).getLocation().toString();
 			// the returned path is separated with slash convert to antislash for windows
-			if (File.separatorChar == '\\') {
-				zamiaProjectPath = zamiaProjectPath.replace('/', File.separatorChar);
-			}
+//			if (File.separatorChar == '\\') {
+//				zamiaProjectPath = zamiaProjectPath.replace('/', File.separatorChar);
+//			}
 		} else {
 		    File[] files = null;
 		    try {
 		    	files = zPrj.fBasePath.getFiles();
 			    if (files.length > 0) {
-			    	String filePath = files[0].getAbsolutePath();
+			    	String filePath = files[0].getAbsolutePath().replace("\\", "/");
 			    	int indexChar = filePath.lastIndexOf(File.separatorChar);
 			    	zamiaProjectPath = filePath.substring(0, indexChar);
 			    }
@@ -190,8 +191,8 @@ public abstract class ToolManager implements IWorkbenchWindowActionDelegate {
 	}
 	
 	public static String getConfigFilePath(String fileName) {
-		String relativePath = "rule_checker" + File.separator + fileName;
-		String absolutePath = getZamiaProjectPath() + File.separator + relativePath;
+		String relativePath = "rule_checker" + "/" + fileName;
+		String absolutePath = getZamiaProjectPath() + "/" + relativePath;
 		return absolutePath;
 	}
 
@@ -332,7 +333,7 @@ public abstract class ToolManager implements IWorkbenchWindowActionDelegate {
 				String chaine = lecteur.nextLine().trim();
 				if (chaine.length() == 0 || chaine.startsWith("#")) {
 					// comment in rc_config.txt
-				} else if (chaine.substring(chaine.length()-1).equalsIgnoreCase(File.separator)) {
+				} else if (chaine.substring(chaine.length()-1).equalsIgnoreCase("/")) {
 					fileIsEmpty = false;
 					listPathToWork.add(chaine.trim());
 				} else if (chaine.substring(chaine.length()-4).equalsIgnoreCase(".vhd")) {
@@ -369,15 +370,15 @@ public abstract class ToolManager implements IWorkbenchWindowActionDelegate {
 		List<String> listFilePath = new ArrayList<String>();
 		File current = new File(filePath);
 		String tmp="";
-		listFilePath.add(current.getPath()+File.separator);
+		listFilePath.add(current.getPath()+"/");
 		
 		do{
 			tmp = current.getParent();
 			current = new File(tmp);
-			listFilePath.add(tmp+File.separator);
+			listFilePath.add(tmp+"/");
 			
 		}while(tmp==null);
-		listFilePath.add(File.separator);
+		listFilePath.add("/");
 		// add Christophe filter
 		listFilePath.retainAll(listPathToWork); 
 		
@@ -515,7 +516,7 @@ public abstract class ToolManager implements IWorkbenchWindowActionDelegate {
 			}
 
 			final Element directory = (Element) logDirectoryNode.item(0);
-			pathFileNameLogReport.add(directory.getTextContent().replace("\\",File.separator));
+			pathFileNameLogReport.add(directory.getTextContent().replace("\\","/"));
 
 			final NodeList logFileNameNode = ((Element)logReportNode.item(0)).getElementsByTagName(type+"_fileName");
 
@@ -600,7 +601,16 @@ public abstract class ToolManager implements IWorkbenchWindowActionDelegate {
 		}
 
 	}
-
+	
+	public static void addAnalyzedListFile(Document document, Element racine) {
+		if((document != null) && (racine != null) && (!listHdlFile.isEmpty())) {
+			for(Entry<String, HdlFile> entry : listHdlFile.entrySet()) {
+				Element fileNameElement = document.createElement("rc:filename");
+				fileNameElement.setTextContent(entry.getValue().getLocalPath() );
+				racine.appendChild(fileNameElement);
+			}			
+		}		
+	}
 
 	public void dispose() {
 	}
@@ -633,11 +643,11 @@ public abstract class ToolManager implements IWorkbenchWindowActionDelegate {
 	}
 
 	private static String getAliasRootDirectory(String fileName) {
-		if (!fileName.contains(File.separator)) {
+		if (!fileName.contains("/")) {
 			return fileName;
 		}
 
-		return fileName.substring(1, fileName.indexOf(File.separator));
+		return fileName.substring(1, fileName.indexOf("/"));
 	}
 
 	private static String getRootDirectory(String alias) {
@@ -733,6 +743,11 @@ public abstract class ToolManager implements IWorkbenchWindowActionDelegate {
 			documentReport.appendChild(racine);		
 
 			addHeader(documentReport, racine, "", ruleType, "");
+			
+			if(racineName.equals("rc:ruleReporting")) {
+				Element inputsElement = documentReport.createElement("rc:Inputs");
+				racine.appendChild(inputsElement);
+			}
 
 			return racine;
 		} catch (ParserConfigurationException e) {
@@ -748,6 +763,15 @@ public abstract class ToolManager implements IWorkbenchWindowActionDelegate {
 			final Transformer transformer = transformerFactory.newTransformer();
 			final DOMSource source = new DOMSource(documentReport);
 
+			if(fileName.toLowerCase().contains("rc_report_rule.xml")) {
+				Node rootNode = documentReport.getElementsByTagName("rc:Inputs").item(0);
+				Element racine = null;
+				if((rootNode != null) && (rootNode.getNodeType() == Node.ELEMENT_NODE)) {
+					racine = (Element)rootNode;
+					addAnalyzedListFile(documentReport, racine);
+				}
+			}
+			
 			final StreamResult sortie = new StreamResult(new File(fileName));
 
 			//prologue
@@ -832,7 +856,7 @@ public abstract class ToolManager implements IWorkbenchWindowActionDelegate {
 			fileNameElement.setTextContent(fileName);
 			ruleElement.appendChild(fileNameElement);
 		}
-		
+
 		if (statusE == StatusE.REPORTED) {
 			Element fileNameElement = documentReport.createElement("rc:fileName");
 			fileNameElement.setTextContent(fileName);

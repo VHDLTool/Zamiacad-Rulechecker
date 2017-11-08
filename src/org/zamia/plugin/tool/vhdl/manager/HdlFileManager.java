@@ -86,10 +86,10 @@ public class HdlFileManager extends ToolManager {
 		
 		File projectDirectory = new File(ToolManager.getZamiaProjectPath());
 		List<File> listvhdlFile = getVhdlFile(projectDirectory);
-		String projetcPathDirectory = zPrj.getBuildPath().getSourceFile().getFile().getParent();
+		String projetcPathDirectory = zPrj.getBuildPath().getSourceFile().getFile().getParent().replace("\\", "/");
 		
 		for (File vhdlFile : listvhdlFile) {
-			String filePathName = vhdlFile.getAbsolutePath().replace(projetcPathDirectory, "");
+			String filePathName = vhdlFile.getAbsolutePath().replace("\\", "/").replace(projetcPathDirectory, "");
 			List<String> listFilePath = createListFilePath(filePathName);
 			// file in directory or sub directory or explicit file with path
 			if (listFileToWork.contains(filePathName) || !listFilePath.isEmpty()) {

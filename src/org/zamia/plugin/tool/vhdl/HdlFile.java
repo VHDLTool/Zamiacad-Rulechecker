@@ -33,7 +33,7 @@ public class HdlFile  implements Cloneable {
 //		nbLine = sourceFile.getNumLines();
 		nbLine = 0;
 		try {
-		FileInputStream fis = new FileInputStream(vhdlFile.getAbsolutePath());
+		FileInputStream fis = new FileInputStream(vhdlFile.getAbsolutePath().replace("\\", "/"));
 		LineNumberReader l = new LineNumberReader(       
 		       new BufferedReader(new InputStreamReader(fis)));
 						while ((l.readLine())!=null)
