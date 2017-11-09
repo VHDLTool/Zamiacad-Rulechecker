@@ -14,8 +14,9 @@ public class SensitivityRuleViolation {
 	private Process _process;
 	private String _sensitivityName;
 	private boolean _sensitivityMissing;
+	private boolean _synchronousProcess;
 	
-	public SensitivityRuleViolation(String fileName, int line, Entity entity, Architecture architecture, Process process, String sensitivityName, boolean sensitivityMissing) {
+	public SensitivityRuleViolation(String fileName, int line, Entity entity, Architecture architecture, Process process, String sensitivityName, boolean synchronousProcess, boolean sensitivityMissing) {
 		_fileName = fileName;
 		_line = line;
 		_entity = entity;
@@ -23,6 +24,7 @@ public class SensitivityRuleViolation {
 		_process = process;
 		_sensitivityName = sensitivityName;
 		_sensitivityMissing = sensitivityMissing;
+		_synchronousProcess = synchronousProcess;
 	}
 	
 	public void generate(ReportFile reportFile) {
@@ -33,16 +35,30 @@ public class SensitivityRuleViolation {
 		String processId = _process.getLabel(); 
 		reportFile.addElement(ReportFile.TAG_PROCESS, processId, info); 
 		reportFile.addElement(ReportFile.TAG_SENSITIVITY, _sensitivityName, info); 
-		
-		if (_sensitivityMissing)
+
+		if (_synchronousProcess)
 		{
-			reportFile.addElement(ReportFile.TAG_SONAR_ERROR, "Signal " + _sensitivityName + " is not in the sensitivity list of the synchronous process", info);
-			reportFile.addElement(ReportFile.TAG_SONAR_MSG, "Add " + _sensitivityName + " in the sensitivity list of " + processId, info);
+			// Rule STD_05000
+			if (_sensitivityMissing)
+			{
+				reportFile.addSonarTags(info, SonarQubeRule.SONAR_ERROR_STD_05000_MISSING, new Object[] {_sensitivityName}, SonarQubeRule.SONAR_MSG_STD_05000_MISSING, new Object[] {_sensitivityName, processId});
+			}
+			else
+			{
+				reportFile.addSonarTags(info, SonarQubeRule.SONAR_ERROR_STD_05000_MORE, new Object[] {_sensitivityName}, SonarQubeRule.SONAR_MSG_STD_05000_MORE, null);
+			}
 		}
 		else
 		{
-			reportFile.addElement(ReportFile.TAG_SONAR_ERROR, "Signal " + _sensitivityName + " should not be in the sensitivity list of the synchronous process", info);
-			reportFile.addElement(ReportFile.TAG_SONAR_MSG, "Remove " + _sensitivityName + " from the sensitivity list of " + processId, info);
+			// Rule STD_05300
+			if (_sensitivityMissing)
+			{
+				reportFile.addSonarTags(info, SonarQubeRule.SONAR_ERROR_STD_05300_MISSING, new Object[] {_sensitivityName}, SonarQubeRule.SONAR_MSG_STD_05300_MISSING, new Object[] {_sensitivityName, processId});
+			}
+			else
+			{
+				reportFile.addSonarTags(info, SonarQubeRule.SONAR_ERROR_STD_05300_MORE, new Object[] {_sensitivityName}, SonarQubeRule.SONAR_MSG_STD_05300_MORE, new Object[] {_sensitivityName, processId});
+			}
 		}
 	}
 }

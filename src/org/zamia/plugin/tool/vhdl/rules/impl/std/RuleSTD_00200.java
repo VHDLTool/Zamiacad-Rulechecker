@@ -1,6 +1,7 @@
 
 package org.zamia.plugin.tool.vhdl.rules.impl.std;
 
+import java.util.Arrays;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -14,6 +15,7 @@ import org.zamia.plugin.tool.vhdl.rules.RuleE;
 import org.zamia.plugin.tool.vhdl.rules.RuleResult;
 import org.zamia.plugin.tool.vhdl.rules.StringParam;
 import org.zamia.plugin.tool.vhdl.rules.impl.Rule;
+import org.zamia.plugin.tool.vhdl.rules.impl.SonarQubeRule;
 import org.zamia.util.Pair;
 import org.zamia.vhdl.ast.Architecture;
 import org.zamia.vhdl.ast.Entity;
@@ -101,8 +103,7 @@ public class RuleSTD_00200 extends Rule {
 					
 					if (paramString != null)
 					{
-						reportFile.addElement(ReportFile.TAG_SONAR_ERROR, "Clock " + clockSignal.toString() + " signal miswritten", info);
-						reportFile.addElement(ReportFile.TAG_SONAR_MSG, "Change signal name " + clockSignal.toString() + " to " + paramString.toLowerCase(), info);
+						reportFile.addSonarTags(info, SonarQubeRule.SONAR_ERROR_STD_00200, new Object[] {clockSignal.toString()}, SonarQubeRule.SONAR_MSG_STD_00200, new Object[] {clockSignal.toString(), paramString.toLowerCase()});
 					}
 				}
 			}

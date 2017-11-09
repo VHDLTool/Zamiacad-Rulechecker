@@ -14,6 +14,7 @@ import org.zamia.plugin.tool.vhdl.rules.RuleE;
 import org.zamia.plugin.tool.vhdl.rules.RuleResult;
 import org.zamia.plugin.tool.vhdl.rules.impl.Rule;
 import org.zamia.plugin.tool.vhdl.rules.impl.RuleManager;
+import org.zamia.plugin.tool.vhdl.rules.impl.SonarQubeRule;
 import org.zamia.util.Pair;
 import org.zamia.vhdl.ast.VHDLNode;
 
@@ -64,8 +65,7 @@ public class RuleSTD_04500 extends Rule {
 
 					List<String> clkNameSrc = clockSource.getSignalDeclaration().getListOperand();
 					
-					reportFile.addElement(ReportFile.TAG_SONAR_ERROR, "Clock signal " + clkNameSrc.get(0) + " is reassigned to " + clockId, info);
-					reportFile.addElement(ReportFile.TAG_SONAR_MSG, "Remove this assignment and replace " + clockId + " with " + clkNameSrc.get(0), info);
+					reportFile.addSonarTags(info, SonarQubeRule.SONAR_ERROR_STD_04500, new Object[] {clkNameSrc.get(0), clockId}, SonarQubeRule.SONAR_MSG_STD_04500, new Object[] {clockId, clkNameSrc.get(0)});
 				}
 			}
 			

@@ -1,5 +1,6 @@
 package org.zamia.plugin.tool.vhdl.rules.impl.gen;
 
+import java.util.Arrays;
 import java.util.List;
 
 import org.w3c.dom.Element;
@@ -11,6 +12,7 @@ import org.zamia.plugin.tool.vhdl.ViolationPreservationName;
 import org.zamia.plugin.tool.vhdl.rules.RuleE;
 import org.zamia.plugin.tool.vhdl.rules.RuleResult;
 import org.zamia.plugin.tool.vhdl.rules.impl.Rule;
+import org.zamia.plugin.tool.vhdl.rules.impl.SonarQubeRule;
 import org.zamia.util.Pair;
 
 /*
@@ -51,9 +53,7 @@ public class RuleGEN_02400 extends Rule {
 					reportFile.addElement(ReportFile.TAG_RESET_BEFORE, violation.getSignalNameBefore(), info); 
 					reportFile.addElement(ReportFile.TAG_RESET_AFTER, violation.getSignalNameAfter(), info);
 					
-					reportFile.addElement(ReportFile.TAG_SONAR_ERROR, "Reset signal change its name from " + violation.getSignalNameBefore() + " to " + violation.getSignalNameAfter(), info);
-					reportFile.addElement(ReportFile.TAG_SONAR_MSG, "Change signal name " + violation.getSignalNameAfter() + " to " + violation.getSignalNameBefore(), info);
-
+					reportFile.addSonarTags(info, SonarQubeRule.SONAR_ERROR_GEN_02400, new Object[] {violation.getSignalNameBefore(), violation.getSignalNameAfter()}, SonarQubeRule.SONAR_MSG_GEN_02400, new Object[] {violation.getSignalNameAfter(), violation.getSignalNameBefore()});
 				}
 			}
 
