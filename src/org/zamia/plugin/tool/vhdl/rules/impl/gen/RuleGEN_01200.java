@@ -1,5 +1,6 @@
 package org.zamia.plugin.tool.vhdl.rules.impl.gen;
 
+import java.util.Arrays;
 import java.util.Dictionary;
 import java.util.Enumeration;
 import java.util.List;
@@ -14,6 +15,7 @@ import org.zamia.plugin.tool.vhdl.rules.RuleE;
 import org.zamia.plugin.tool.vhdl.rules.RuleResult;
 import org.zamia.plugin.tool.vhdl.rules.StringParam;
 import org.zamia.plugin.tool.vhdl.rules.impl.Rule;
+import org.zamia.plugin.tool.vhdl.rules.impl.SonarQubeRule;
 import org.zamia.util.Pair;
 import org.zamia.vhdl.ast.Architecture;
 import org.zamia.vhdl.ast.Entity;
@@ -87,8 +89,7 @@ public class RuleGEN_01200 extends Rule {
 						
 						if (paramPosition != null && paramValue != null)
 						{
-							reportFile.addElement(ReportFile.TAG_SONAR_ERROR, "Label " + processLabel + " is miswritten", info);
-							reportFile.addElement(ReportFile.TAG_SONAR_MSG, "Change label name " + processLabel + " to include " + paramValue + " as " + paramPosition, info);
+							reportFile.addSonarTags(info, SonarQubeRule.SONAR_ERROR_GEN_01200, new Object[] {processLabel}, SonarQubeRule.SONAR_MSG_GEN_01200, new Object[] {processLabel, paramValue, paramPosition});
 						}
 					}
 				}

@@ -19,6 +19,7 @@ import org.zamia.plugin.tool.vhdl.rules.RuleE;
 import org.zamia.plugin.tool.vhdl.rules.RuleResult;
 import org.zamia.plugin.tool.vhdl.rules.impl.Rule;
 import org.zamia.plugin.tool.vhdl.rules.impl.RuleManager;
+import org.zamia.plugin.tool.vhdl.rules.impl.SonarQubeRule;
 import org.zamia.util.Pair;
 
 /*
@@ -98,9 +99,7 @@ public class RuleSTD_03800 extends Rule {
 				String processId = violation.getName();
 				reportFile.addElement(ReportFile.TAG_PROCESS, processId, info); 
 				
-				reportFile.addElement(ReportFile.TAG_SONAR_ERROR, "Synchronous " + registerId + " signal not asynchronously reset", info);
-				reportFile.addElement(ReportFile.TAG_SONAR_MSG, "Initialize " + registerId + " signal with a reset", info);
-
+				reportFile.addSonarTags(info, SonarQubeRule.SONAR_ERROR_STD_03800, new Object[] {registerId}, SonarQubeRule.SONAR_MSG_STD_03800, new Object[] {registerId});
 			}
 			
 			result = reportFile.save();

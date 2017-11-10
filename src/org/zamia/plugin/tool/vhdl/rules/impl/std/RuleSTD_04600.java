@@ -17,6 +17,7 @@ import org.zamia.plugin.tool.vhdl.rules.RuleResult;
 import org.zamia.plugin.tool.vhdl.rules.StringParam;
 import org.zamia.plugin.tool.vhdl.rules.impl.Rule;
 import org.zamia.plugin.tool.vhdl.rules.impl.RuleManager;
+import org.zamia.plugin.tool.vhdl.rules.impl.SonarQubeRule;
 import org.zamia.util.Pair;
 
 /*
@@ -96,8 +97,7 @@ public class RuleSTD_04600 extends Rule {
 					
 					if (paramRelation != null && paramValue != null)
 					{
-						reportFile.addElement(ReportFile.TAG_SONAR_ERROR, "Too many clock domains in the design", info);
-						reportFile.addElement(ReportFile.TAG_SONAR_MSG, "Lower clock domain from " + listClockSource.getListClockSource().size() + " to " + paramRelation + " " + paramValue, info);
+						reportFile.addSonarTags(info, SonarQubeRule.SONAR_ERROR_STD_04600, null, SonarQubeRule.SONAR_MSG_STD_04600, new Object[] {listClockSource.getListClockSource().size(), paramRelation, paramValue});
 					}
 
 				}

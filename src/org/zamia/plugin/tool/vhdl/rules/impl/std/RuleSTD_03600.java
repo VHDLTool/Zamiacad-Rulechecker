@@ -22,6 +22,7 @@ import org.zamia.plugin.tool.vhdl.manager.ResetSignalSourceManager;
 import org.zamia.plugin.tool.vhdl.rules.RuleE;
 import org.zamia.plugin.tool.vhdl.rules.RuleResult;
 import org.zamia.plugin.tool.vhdl.rules.impl.Rule;
+import org.zamia.plugin.tool.vhdl.rules.impl.SonarQubeRule;
 import org.zamia.util.Pair;
 
 /*
@@ -203,9 +204,7 @@ public class RuleSTD_03600 extends Rule {
 				reportFile.addElement(ReportFile.TAG_SOURCE_TAG, resetSource.getTag(), info); 
 				reportFile.addElement(ReportFile.TAG_SOURCE_LEVEL, level.toString(), info);
 				
-				reportFile.addElement(ReportFile.TAG_SONAR_ERROR, "Reset signal " + resetSignal.toString() + " is active " + level.toString() + " on contrary of other reset signal inside " + entityId, info);
-				reportFile.addElement(ReportFile.TAG_SONAR_MSG, "Choose a unique reset polarity for every reset signal in entity " + entityId, info);
-
+				reportFile.addSonarTags(info, SonarQubeRule.SONAR_ERROR_STD_03600_LEVEL_1, new Object[] {resetSignal.toString(), level.toString(), entityId}, SonarQubeRule.SONAR_MSG_STD_03600_LEVEL_1, new Object[] {entityId});
 			}
 		}
 	}
@@ -244,8 +243,7 @@ public class RuleSTD_03600 extends Rule {
 				reportFile.addElement(ReportFile.TAG_SOURCE_TAG, resetSource.getTag(), info); 
 				reportFile.addElement(ReportFile.TAG_SOURCE_LEVEL, level.toString(), info); 
 				
-				reportFile.addElement(ReportFile.TAG_SONAR_ERROR, "Reset signal " + resetSource.toString() + " is active " + level.toString() + " on contrary of other reset signal inside the design", info);
-				reportFile.addElement(ReportFile.TAG_SONAR_MSG, "Choose a unique reset polarity for every reset signal in the design", info);
+				reportFile.addSonarTags(info, SonarQubeRule.SONAR_ERROR_STD_03600_LEVEL_2, new Object[] {resetSource.toString(), level.toString()}, SonarQubeRule.SONAR_MSG_STD_03600_LEVEL_2, null);
 			}
 		}
 	}

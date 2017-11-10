@@ -48,7 +48,7 @@ public class ReportFile {
 	public static final String TAG_SIGNAL_EDGE               = NAMESPACE_PREFIX + "Edge";
 	public static final String TAG_SENSITIVITY               = NAMESPACE_PREFIX + "Sensitivity";
 	public static final String TAG_LIBRARY                   = NAMESPACE_PREFIX + "Library";
-	public static final String TAG_SONAR_ERROR              = NAMESPACE_PREFIX + "SonarError";
+	public static final String TAG_SONAR_ERROR               = NAMESPACE_PREFIX + "SonarError";
 	public static final String TAG_SONAR_MSG              	 = NAMESPACE_PREFIX + "SonarRemediationMsg";
 	
 	private static final String TAG_NAMESPACE_PREFIX          = "xmlns:rc";
@@ -67,6 +67,7 @@ public class ReportFile {
 	private static final String TAG_LINE                      = NAMESPACE_PREFIX + "Line";
 	private static final String TAG_ENTITY                    = NAMESPACE_PREFIX + "Entity";
 	private static final String TAG_ARCHITECTURE              = NAMESPACE_PREFIX + "Architecture";
+	private static final String TAG_SONAR_QUBE_TYPE           = NAMESPACE_PREFIX + "SonarQubeMsg";
 
 	private Rule _rule;
 	private Document _document;
@@ -103,6 +104,17 @@ public class ReportFile {
 	
 	public Element addViolation(SourceLocation sourceLocation) {
 		return addViolation(sourceLocation, "", "");
+	}
+	
+	public void addSonarTags(Element infoElement, String sonarErrorString, Object[] sonarErrorParams, String sonarMsgString, Object[] sonarMsgParams) {
+		Element sonarQubeElt = _document.createElement(TAG_SONAR_QUBE_TYPE);
+		infoElement.appendChild(sonarQubeElt);
+
+		String sonarError = String.format(sonarErrorString, sonarErrorParams);
+		String sonarMsg = String.format(sonarMsgString, sonarMsgParams);
+		
+		this.addElement(ReportFile.TAG_SONAR_ERROR, sonarError, sonarQubeElt);
+		this.addElement(ReportFile.TAG_SONAR_MSG, sonarMsg, sonarQubeElt);
 	}
 	
 	public Element addViolation(SourceLocation sourceLocation, Entity entity, Architecture architecture) {

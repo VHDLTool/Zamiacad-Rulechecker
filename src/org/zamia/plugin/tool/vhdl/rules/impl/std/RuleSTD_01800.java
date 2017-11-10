@@ -1,6 +1,7 @@
 package org.zamia.plugin.tool.vhdl.rules.impl.std;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Dictionary;
 import java.util.Enumeration;
 import java.util.Hashtable;
@@ -20,6 +21,7 @@ import org.zamia.plugin.tool.vhdl.rules.RuleE;
 import org.zamia.plugin.tool.vhdl.rules.RuleResult;
 import org.zamia.plugin.tool.vhdl.rules.impl.Rule;
 import org.zamia.plugin.tool.vhdl.rules.impl.RuleManager;
+import org.zamia.plugin.tool.vhdl.rules.impl.SonarQubeRule;
 import org.zamia.util.Pair;
 import org.zamia.vhdl.ast.Entity;
 import org.zamia.vhdl.ast.Use;
@@ -102,13 +104,11 @@ public class RuleSTD_01800 extends Rule {
 					
 					if (libraryName.startsWith("IEEE"))
 					{
-						reportFile.addElement(ReportFile.TAG_SONAR_ERROR, "IEEE library identified", info);
-						reportFile.addElement(ReportFile.TAG_SONAR_MSG, "Nothing to be done", info);
+						reportFile.addSonarTags(info, SonarQubeRule.SONAR_ERROR_STD_01800_IEEE, null, SonarQubeRule.SONAR_MSG_STD_01800_IEEE, null);
 					}
 					else
 					{
-						reportFile.addElement(ReportFile.TAG_SONAR_ERROR, "Other library identified", info);
-						reportFile.addElement(ReportFile.TAG_SONAR_MSG, "If " + libraryName + " is a technology dependent library, use it only in a single VHDL file", info);
+						reportFile.addSonarTags(info, SonarQubeRule.SONAR_ERROR_STD_01800_OTHER, null, SonarQubeRule.SONAR_MSG_STD_01800_OTHER, new Object[] {libraryName});
 					}
 				}
 			}

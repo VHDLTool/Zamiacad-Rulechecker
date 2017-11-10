@@ -10,6 +10,7 @@ import org.zamia.plugin.tool.vhdl.ResetSource;
 import org.zamia.plugin.tool.vhdl.rules.RuleE;
 import org.zamia.plugin.tool.vhdl.rules.RuleResult;
 import org.zamia.plugin.tool.vhdl.rules.impl.Rule;
+import org.zamia.plugin.tool.vhdl.rules.impl.SonarQubeRule;
 import org.zamia.util.Pair;
 
 /*
@@ -50,9 +51,7 @@ public class RuleSTD_03700 extends Rule {
 				reportFile.addElement(ReportFile.TAG_RESET, resetSource.toString(), info);
 				reportFile.addElement(ReportFile.TAG_SIGNAL_TYPE, resetSource.getType(), info);
 				
-				reportFile.addElement(ReportFile.TAG_SONAR_ERROR, "Reset generation identified", info);
-				reportFile.addElement(ReportFile.TAG_SONAR_MSG, "Control reset generation mechanism", info);
-
+				reportFile.addSonarTags(info, SonarQubeRule.SONAR_ERROR_STD_03700, null, SonarQubeRule.SONAR_MSG_STD_03700, null);
 			}
 			
 			result = reportFile.save();
