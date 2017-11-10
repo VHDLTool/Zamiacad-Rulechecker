@@ -341,7 +341,7 @@ public class NewZamiaProjectWizard extends BasicNewResourceWizard implements IEx
 									file.appendContents(getInitialRCConfigFileHeaderContents(), IResource.NONE, null);
 									file.appendContents(new ByteArrayInputStream(("\n \t<!-- \n \t<root_directory>").getBytes()), IResource.NONE, null);	
 									file.appendContents(new ByteArrayInputStream(("\n \t \t <alias>LOG_ROOT</alias>").getBytes()), IResource.NONE, null);
-									file.appendContents(new ByteArrayInputStream(("\n \t \t <path>C:\\dev\\FPGA\\project\\log</path>").getBytes()), IResource.NONE, null);// TODO BGT chemin
+									file.appendContents(new ByteArrayInputStream(("\n \t \t <path>C:/dev/FPGA/project/log</path>").getBytes()), IResource.NONE, null);// TODO BGT chemin
 									file.appendContents(new ByteArrayInputStream(("\n \t</root_directory> \n \t-->\n").getBytes()), IResource.NONE, null);	
 									if (rootHandbook.length() != 0) {
 										file.appendContents(new ByteArrayInputStream(("\n \t<root_directory>").getBytes()), IResource.NONE, null);	

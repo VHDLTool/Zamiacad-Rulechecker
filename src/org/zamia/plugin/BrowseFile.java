@@ -120,7 +120,7 @@ public class BrowseFile implements IWorkbenchWindowActionDelegate {
 								write("NODE NULL. Check the Top Level in build path");
 							}else{
 								write("top : "+ architecture.toString() +  " class: " + architecture.getClass().getName());
-								write("sourcefile "+architecture.getSourceFile().getFileName()+" AbsolutePath "+architecture.getSourceFile().getAbsolutePath().replace("\\", "/"));
+								write("sourcefile "+architecture.getSourceFile().getFileName()+" AbsolutePath "+architecture.getSourceFile().getAbsolutePath());
 								write("   LocalPath "+architecture.getSourceFile().getLocalPath());
 							}
 						} catch (ZamiaException e) {

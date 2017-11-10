@@ -92,7 +92,7 @@ public class ZamiaProjectMap {
 			Set<IFile> accumulator = new HashSet<IFile>();
 			for (String key : projectFiles.keySet()) {
 				String value = projectFiles.get(key);
-				if (value.equals(sf.getAbsolutePath().replace("\\", "/")))
+				if (value.equals(sf.getAbsolutePath()))
 					accumulator.add(project.getFile(key));
 			}
 			return accumulator;
@@ -126,7 +126,7 @@ public class ZamiaProjectMap {
 					ZamiaProjectBuilder.fileNameAcceptable(sf.getLocalPath())  && // line name will satisfy user, referenced file 
 					ZamiaProjectBuilder.fileNameAcceptable(sf.getFileName())) // must have extension acceptable by compiler
 					)
-				projectFiles.put(sf.getLocalPath(), sf.getAbsolutePath().replace("\\", "/"));			
+				projectFiles.put(sf.getLocalPath(), sf.getAbsolutePath());			
 		}
 		
 		//we are notified when files are added/removed. Sf is produced from delta resource.
@@ -221,7 +221,7 @@ public class ZamiaProjectMap {
 						File lockfile = e.getLockFile();
 
 						int answer = ZamiaPlugin.askQuestion(null, "Lockfile exists", "A lockfile for project\n\n" + aProject.getName() + "\n\nalready exists:\n\n"
-								+ lockfile.getAbsolutePath().replace("\\", "/") + "\n\nAnother instance of zamiaCAD is probably running.", SWT.ICON_ERROR | SWT.CANCEL | SWT.RETRY);
+								+ lockfile.getAbsolutePath() + "\n\nAnother instance of zamiaCAD is probably running.", SWT.ICON_ERROR | SWT.CANCEL | SWT.RETRY);
 
 						switch (answer) {
 						case SWT.CANCEL:

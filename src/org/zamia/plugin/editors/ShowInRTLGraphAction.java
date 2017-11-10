@@ -271,8 +271,8 @@ public class ShowInRTLGraphAction extends StaticAnalysisAction {
 	// continue;
 	// SourceLocation l2 = src2.getLocation();
 	//
-	// String p1 = l2.sf.getAbsolutePath().replace("\\", "/");
-	// String p2 = l1_.sf.getAbsolutePath().replace("\\", "/");
+	// String p1 = l2.sf.getAbsolutePath();
+	// String p2 = l1_.sf.getAbsolutePath();
 	//
 	// if (p1.equals(p2)) {
 	//

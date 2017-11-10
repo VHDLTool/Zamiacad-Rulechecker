@@ -58,14 +58,14 @@ public class FileChooser extends Composite {
 					fdlg.setText("Open");
 					String path = fdlg.open();
 					if (path == null) return;
-					mText.setText(path);
+					mText.setText(path.replace("\\", "/"));
 					addButton.setEnabled(true);
 				} else {
 					DirectoryDialog dlg = new DirectoryDialog(mButton.getShell(),  SWT.OPEN  );
 					dlg.setText("Open");
 					String path = dlg.open();
 					if (path == null) return;
-					mText.setText(path);
+					mText.setText(path.replace("\\", "/"));
 					if (fileChooser!= null) {
 						fileChooser.setFilterPath(path);
 					}

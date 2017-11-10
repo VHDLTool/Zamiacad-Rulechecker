@@ -136,7 +136,7 @@ public class ReportFile {
 		Element rootElement = _document.getDocumentElement();
 		rootElement.appendChild(violationElement);
 		
-		addElement(TAG_FILE, fileName, violationElement);
+		addElement(TAG_FILE, "./" + fileName, violationElement);
 		addElement(TAG_LINE, String.valueOf(line), violationElement);
 		addElement(TAG_ENTITY, entityId, violationElement);
 		addElement(TAG_ARCHITECTURE, architectureId, violationElement);

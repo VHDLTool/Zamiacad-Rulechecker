@@ -300,7 +300,7 @@ public class ZDialogTool extends ZDialogManager  {
 						table.getModel().setValueAt(fileName, r, RuleObject.COL_LOG_FILE);
 					} 
 
-					synthesisReport.addToolReport(ruleItem.getId(), statusE, fileName.replaceAll(zPrj.fBasePath.toString(), ""));
+					synthesisReport.addToolReport(ruleItem.getId(), statusE, "." + fileName.replaceAll(zPrj.fBasePath.toString(), ""));
 				} else if (ruleItem.isEnable()) {
 					table.getModel().setValueAt(StatusE.NOT_EXECUTED.toString(), r, RuleObject.COL_STATUS);
 					synthesisReport.addToolReport(ruleItem.getId(), StatusE.NOT_EXECUTED, null);

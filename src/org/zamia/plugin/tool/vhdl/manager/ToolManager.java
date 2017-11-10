@@ -169,17 +169,13 @@ public abstract class ToolManager implements IWorkbenchWindowActionDelegate {
 		
 		if (_fromPlugin) {
 			zamiaProjectPath = ResourcesPlugin.getWorkspace().getRoot().findMember("/"+ zPrj.getId()).getLocation().toString();
-			// the returned path is separated with slash convert to antislash for windows
-//			if (File.separatorChar == '\\') {
-//				zamiaProjectPath = zamiaProjectPath.replace('/', File.separatorChar);
-//			}
 		} else {
 		    File[] files = null;
 		    try {
 		    	files = zPrj.fBasePath.getFiles();
 			    if (files.length > 0) {
 			    	String filePath = files[0].getAbsolutePath().replace("\\", "/");
-			    	int indexChar = filePath.lastIndexOf(File.separatorChar);
+			    	int indexChar = filePath.lastIndexOf("/");
 			    	zamiaProjectPath = filePath.substring(0, indexChar);
 			    }
 		    } catch (Exception e) {
@@ -198,13 +194,13 @@ public abstract class ToolManager implements IWorkbenchWindowActionDelegate {
 
 	public static String getRuleReportDirectory() {
 
-		String path = getConfigFilePath("reporting") + File.separatorChar + "rule";
+		String path = getConfigFilePath("reporting") + "/" + "rule";
 		return path;
 	}
 	
 	public static String getToolReportDirectory() {
 
-		String path = getConfigFilePath("reporting") + File.separatorChar + "tool";
+		String path = getConfigFilePath("reporting") + "/" + "tool";
 		return path;
 	}
 	
@@ -228,7 +224,7 @@ public abstract class ToolManager implements IWorkbenchWindowActionDelegate {
 			try {
 				Files.delete(file.toPath());
 			} catch (IOException e) {
-				logger.error(String.format("Could not delete %s.", file.getPath()), e);
+				logger.error(String.format("Could not delete %s.", file.getPath().replaceAll("\\", "/")), e);
 			}
 		}
 	}
@@ -370,10 +366,10 @@ public abstract class ToolManager implements IWorkbenchWindowActionDelegate {
 		List<String> listFilePath = new ArrayList<String>();
 		File current = new File(filePath);
 		String tmp="";
-		listFilePath.add(current.getPath()+"/");
+		listFilePath.add(current.getPath().replace("\\", "/")+"/");
 		
 		do{
-			tmp = current.getParent();
+			tmp = current.getParent().replace("\\", "/");
 			current = new File(tmp);
 			listFilePath.add(tmp+"/");
 			
@@ -605,8 +601,8 @@ public abstract class ToolManager implements IWorkbenchWindowActionDelegate {
 	public static void addAnalyzedListFile(Document document, Element racine) {
 		if((document != null) && (racine != null) && (!listHdlFile.isEmpty())) {
 			for(Entry<String, HdlFile> entry : listHdlFile.entrySet()) {
-				Element fileNameElement = document.createElement("rc:filename");
-				fileNameElement.setTextContent(entry.getValue().getLocalPath() );
+				Element fileNameElement = document.createElement("rc:File");
+				fileNameElement.setTextContent("." + entry.getValue().getLocalPath());
 				racine.appendChild(fileNameElement);
 			}			
 		}		

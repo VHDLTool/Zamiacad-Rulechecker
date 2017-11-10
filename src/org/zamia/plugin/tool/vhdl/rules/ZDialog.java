@@ -443,10 +443,10 @@ public class ZDialog extends ZDialogManager  {
 								text += String.format("(%d)", result);
 							}
 							if(ruleResult != null)
-								reportFileName = ruleResult.getReportFileName().replaceAll(zPrj.fBasePath.toString(), "");
+								reportFileName = ruleResult.getReportFileName();
 
 							logger.info(String.format("####: %d violations for rule %s.", result, ruleId));
-							synthesisReport.addRuleReport(ruleId, status, reportFileName, result, ruleResult);
+							synthesisReport.addRuleReport(ruleId, status, "." + reportFileName.replaceAll(zPrj.fBasePath.toString(), ""), result, ruleResult);
 						}
 					}
 				}

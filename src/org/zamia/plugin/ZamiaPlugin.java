@@ -201,7 +201,7 @@ public class ZamiaPlugin extends AbstractUIPlugin {
 				logger.info("Rule Checker V"+ruleCheckerVersion + " date "+ruleCheckerDate);
 				logger.info("");
 
-				logger.info("Logfile: " + logger.getLogFileName().replace("\\", "/"));
+				logger.info("Logfile: " + logger.getLogFileName());
 				logger.info("");
 				
 				el = ExceptionLogger.getInstance();
@@ -241,7 +241,7 @@ public class ZamiaPlugin extends AbstractUIPlugin {
 		ZamiaLogger.setConsoleOutput(null);
 		ZamiaProjectMap.shutdown();
 		System.out.println("zamiaCAD shutdown complete.");
-		System.out.println("Logfile: " + logger.getLogFileName().replace("\\", "/"));
+		System.out.println("Logfile: " + logger.getLogFileName());
 		System.out.println();
 		System.out.println("Thank you for using zamiaCAD.");
 	}
@@ -294,7 +294,7 @@ public class ZamiaPlugin extends AbstractUIPlugin {
 	public static IFile getIFile(SourceFile aSF, IProject aProject) {
 		
 		if (aSF.getURI() != null) {
-			logger.error("getIFile(): Called getIFile() on '%s' (absolute: '%s')", aSF, aSF.getAbsolutePath().replace("\\", "/"));
+			logger.error("getIFile(): Called getIFile() on '%s' (absolute: '%s')", aSF, aSF.getAbsolutePath());
 			return null;
 		}
 
@@ -308,9 +308,9 @@ public class ZamiaPlugin extends AbstractUIPlugin {
 
 		} else {
 
-			logger.debug("getIFile(): Need resource for non-local file '%s'", aSF.getAbsolutePath().replace("\\", "/"));
+			logger.debug("getIFile(): Need resource for non-local file '%s'", aSF.getAbsolutePath());
 
-			String absPath = aSF.getAbsolutePath().replace("\\", "/");
+			String absPath = aSF.getAbsolutePath();
 
 			// a quick check whether this resource is local anyway
 
@@ -343,7 +343,7 @@ public class ZamiaPlugin extends AbstractUIPlugin {
 				return null;
 			}
 
-			logger.debug("getIFile(): zprj location is '%s', build path came from '%s'", zprj.fBasePath, bp.getSourceFile().getAbsolutePath().replace("\\", "/"));
+			logger.debug("getIFile(): zprj location is '%s', build path came from '%s'", zprj.fBasePath, bp.getSourceFile().getAbsolutePath());
 
 			BuildPathEntry entry = bp.findEntry(aSF);
 
@@ -362,12 +362,11 @@ public class ZamiaPlugin extends AbstractUIPlugin {
 					pathPrefix = entry.fPrefix;
 				} else {
 					File f = new File(entry.fPrefix);
-					//pathPrefix = f.getParentFile().getAbsolutePath().replace("\\", "/").replace('/', '.').substring(1);
-					pathPrefix = f.getParentFile().getAbsolutePath().replace("\\", "/");
+					pathPrefix = f.getParentFile().getAbsolutePath();
 				}
 				String filename = absPath.substring(pathPrefix.length());
 
-				logger.debug("getIFile(): external file, pathPrefix is '%s', filename is '%s'", pathPrefix, filename);
+				logger.debug("getIFile(): external file, pathPrefix is '%s', filename is '%s'", pathPrefix.replace("\\", "/"), filename.replace("\\", "/"));
 
 				// a really ugly hack, but effective
 				ZamiaBuilder.disableAutoBuild(5000);

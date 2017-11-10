@@ -125,7 +125,7 @@ public class OpenUnitAction implements IWorkbenchWindowActionDelegate {
 				 */
 
 				SourceLocation location = dm.getLocation();
-				String filename = location != null ? location.fSF.getAbsolutePath().replace("\\", "/") : null;
+				String filename = location != null ? location.fSF.getAbsolutePath() : null;
 				ToplevelPath path = null;
 
 				if (filename != null) {
