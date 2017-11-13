@@ -351,7 +351,7 @@ public class NewZamiaProjectWizard extends BasicNewResourceWizard implements IEx
 									} else {
 										file.appendContents(new ByteArrayInputStream(("\n \t<!-- \n \t<root_directory>").getBytes()), IResource.NONE, null);	
 										file.appendContents(new ByteArrayInputStream(("\n \t \t <alias>HANDBOOK_ROOT</alias>").getBytes()), IResource.NONE, null);
-										file.appendContents(new ByteArrayInputStream(("\n \t \t <path>C:\\handbook</path>").getBytes()), IResource.NONE, null);
+										file.appendContents(new ByteArrayInputStream(("\n \t \t <path>C:/handbook</path>").getBytes()), IResource.NONE, null);
 										file.appendContents(new ByteArrayInputStream(("\n \t</root_directory> \n \t-->\n").getBytes()), IResource.NONE, null);	
 									}
 									if ((handbook.length()+handbookList.length()) != 0) {
@@ -374,7 +374,7 @@ public class NewZamiaProjectWizard extends BasicNewResourceWizard implements IEx
 										file.appendContents(new ByteArrayInputStream((" \t</handBook>\n\n").getBytes()), IResource.NONE, null);	
 									} else {
 										file.appendContents(new ByteArrayInputStream(("\n \t<!-- \n \t<handBook>\n \t\t<handBook_fileName>").getBytes()), IResource.NONE, null);											
-										file.appendContents(new ByteArrayInputStream(("C:\\Projets\\Handbook\\handbook_CNE.xml").getBytes()), IResource.NONE, null);
+										file.appendContents(new ByteArrayInputStream(("C:/Projets/Handbook/handbook_CNE.xml").getBytes()), IResource.NONE, null);
 										file.appendContents(new ByteArrayInputStream(("</handBook_fileName>\n \t</handBook> \n \t-->\n\n").getBytes()), IResource.NONE, null);	
 									}
 									file.appendContents(getInitialRCConfigFileFooterContents(), IResource.NONE, null);

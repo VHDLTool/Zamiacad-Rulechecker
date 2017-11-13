@@ -11,7 +11,7 @@
 	  <xs:sequence>
 		<xs:element name="ruleCheckerVersion" type="xs:string" minOccurs="1" maxOccurs="1" />
 		<xs:element name="executionDate" type="xs:string"  minOccurs="1" maxOccurs="1"/>
-		<xs:element name="RuleInputs" type="rc:RuleInputs_Type"  minOccurs="1" maxOccurs="unbounded"/>
+		<xs:element name="Inputs" type="rc:RuleInputs_Type"  minOccurs="1" maxOccurs="unbounded"/>
 		<xs:element name="Rule" type="rc:ruleStatusType" minOccurs="0" maxOccurs="unbounded" />
       </xs:sequence>
 </xs:complexType>
@@ -22,7 +22,7 @@
 
 <xs:complexType name="RuleInputs_Type">
 	<xs:sequence>
-		<xs:element name="filename"    type="xs:string" minOccurs="0" maxOccurs="unbounded"/>
+		<xs:element name="File"    type="xs:string" minOccurs="0" maxOccurs="unbounded"/>
 	</xs:sequence>
 </xs:complexType>
 		

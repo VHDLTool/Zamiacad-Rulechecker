@@ -122,7 +122,7 @@ public class ReportFile {
 	}
 	
 	public Element addViolation(SourceLocation sourceLocation, String entityId, String architectureId) {
-		String fileName = sourceLocation.fSF.getFileName();
+		String fileName = "/" + sourceLocation.fSF.getFileName();
 		int line = sourceLocation.fLine;
 		Element infoElement = addViolation(fileName, line, entityId, architectureId);
 		
@@ -148,7 +148,7 @@ public class ReportFile {
 		Element rootElement = _document.getDocumentElement();
 		rootElement.appendChild(violationElement);
 		
-		addElement(TAG_FILE, "./" + fileName, violationElement);
+		addElement(TAG_FILE, "." + fileName, violationElement);
 		addElement(TAG_LINE, String.valueOf(line), violationElement);
 		addElement(TAG_ENTITY, entityId, violationElement);
 		addElement(TAG_ARCHITECTURE, architectureId, violationElement);

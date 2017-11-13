@@ -203,7 +203,7 @@ public class Tool_AR_6 extends ToolSelectorManager {
 		{
 			Element logEntry = document.createElement(NAMESPACE_PREFIX + tool.getIdReq() + "_T1");
 
-			Element entityArchitecture = createEntityArchitectureTypeElement("." + hdlFile.getLocalPath(), hdlEntityItem.getEntity().getId(), hdlArchitectureItem.getArchitecture().getId());
+			Element entityArchitecture = createEntityArchitectureTypeElement(hdlFile.getLocalPath(), hdlEntityItem.getEntity().getId(), hdlArchitectureItem.getArchitecture().getId());
 			logEntry.appendChild(entityArchitecture);
 
 			Element processSignal = createProcessSignalTypeElement(processItem);

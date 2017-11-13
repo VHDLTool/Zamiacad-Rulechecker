@@ -10,6 +10,7 @@ package org.zamia.plugin.tool.vhdl.manager;
 
 import java.io.File;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -106,7 +107,7 @@ public class HdlFileManager extends ToolManager {
 		File[] listefichiers; 
 
 		int i; 
-		listefichiers=repertoire.listFiles(); 
+		listefichiers=repertoire.listFiles();
 		for(i=0;i<listefichiers.length;i++){ 
 			if (listefichiers[i].isDirectory()) {
 				listvhdlFile.addAll(getVhdlFile(listefichiers[i]));

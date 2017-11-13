@@ -47,7 +47,7 @@ public class Tool_RST_PRJ  extends ToolSelectorManager {
 			clockSourceTagElement.setTextContent(resetSource.getTag());
 			logEntry.appendChild(clockSourceTagElement);
 			
-			Element entityElement = createEntityArchitectureTypeElement(resetSource.getSignalDeclaration().getLocation().fSF.getLocalPath(), resetSource.getEntity(), resetSource.getArchitecture());
+			Element entityElement = createEntityArchitectureTypeElement("/" + resetSource.getSignalDeclaration().getLocation().fSF.getLocalPath(), resetSource.getEntity(), resetSource.getArchitecture());
 			logEntry.appendChild(entityElement);
 
 			Element resetSourceNameElement = document.createElement(NAMESPACE_PREFIX + NodeType.RESET_SOURCE.toString()+NodeInfo.NAME.toString());
