@@ -844,16 +844,12 @@ public abstract class ToolManager implements IWorkbenchWindowActionDelegate {
 		statusElement.setTextContent(statusE.toString());
 		ruleElement.appendChild(statusElement);
 
-		if (nbFailed > 0) {
-			Element nbFailedElement = documentReport.createElement("rc:nbFailed");
-			nbFailedElement.setTextContent(nbFailed.toString());
-			ruleElement.appendChild(nbFailedElement);
-			Element fileNameElement = documentReport.createElement("rc:fileName");
-			fileNameElement.setTextContent(fileName);
-			ruleElement.appendChild(fileNameElement);
-		}
-
-		if (statusE == StatusE.REPORTED) {
+		if ((statusE == StatusE.REPORTED) || (nbFailed > 0) ) {
+			if (nbFailed > 0) {
+				Element nbFailedElement = documentReport.createElement("rc:nbFailed");
+				nbFailedElement.setTextContent(nbFailed.toString());
+				ruleElement.appendChild(nbFailedElement);
+			}
 			Element fileNameElement = documentReport.createElement("rc:fileName");
 			fileNameElement.setTextContent(fileName);
 			ruleElement.appendChild(fileNameElement);

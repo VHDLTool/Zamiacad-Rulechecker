@@ -108,6 +108,7 @@ public class HdlFileManager extends ToolManager {
 
 		int i; 
 		listefichiers=repertoire.listFiles();
+		Arrays.sort(listefichiers);
 		for(i=0;i<listefichiers.length;i++){ 
 			if (listefichiers[i].isDirectory()) {
 				listvhdlFile.addAll(getVhdlFile(listefichiers[i]));
