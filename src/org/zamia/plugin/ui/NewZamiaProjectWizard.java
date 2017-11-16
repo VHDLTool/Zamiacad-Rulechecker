@@ -12,6 +12,8 @@ import java.io.ByteArrayInputStream;
 import java.io.File;
 import java.io.InputStream;
 import java.lang.reflect.InvocationTargetException;
+import java.nio.file.Path;
+import java.nio.file.Paths;
 import java.util.Arrays;
 import java.util.List;
 
@@ -55,6 +57,7 @@ import org.zamia.ZamiaLogger;
 import org.zamia.plugin.ZamiaPlugin;
 import org.zamia.plugin.build.ZamiaBuilder;
 import org.zamia.plugin.build.ZamiaNature;
+import org.zamia.util.Native;
 
 /**
  * 
@@ -256,7 +259,8 @@ public class NewZamiaProjectWizard extends BasicNewResourceWizard implements IEx
 			
 			WorkspaceModifyOperation op = new WorkspaceModifyOperation() {
 				protected void execute(IProgressMonitor monitor) {
-
+					String rootHandbookStr = rootHandbook;
+					
 					monitor.beginTask("Project is being created ...", 50);
 
 					// create project
@@ -276,6 +280,16 @@ public class NewZamiaProjectWizard extends BasicNewResourceWizard implements IEx
 						project.open(monitor);
 						addZamiaNature(project, new SubProgressMonitor(monitor, 10));
 
+						//Compute relative rootHandbook filepath if possible (need same drive on windows)
+						try {
+							Path rootHandbookPath = Paths.get(rootHandbook);
+							Path rootProjectPath = Paths.get(project.getLocationURI());
+							rootHandbookStr = (rootProjectPath.relativize(rootHandbookPath)).toString();
+							rootHandbookStr = "/" + rootHandbookStr.replace("\\", "/");
+						} catch (Exception e) {
+							//Here if drive diff on windows platform -> keep absolute path
+						}						
+						
 						try {
 							IFile file = project.getFile("BuildPath.txt");
 							if (file.exists()) {
@@ -346,7 +360,7 @@ public class NewZamiaProjectWizard extends BasicNewResourceWizard implements IEx
 									if (rootHandbook.length() != 0) {
 										file.appendContents(new ByteArrayInputStream(("\n \t<root_directory>").getBytes()), IResource.NONE, null);	
 										file.appendContents(new ByteArrayInputStream(("\n \t \t <alias>HANDBOOK_ROOT</alias>").getBytes()), IResource.NONE, null);
-										file.appendContents(new ByteArrayInputStream(("\n \t \t <path>"+rootHandbook+"</path>").getBytes()), IResource.NONE, null);
+										file.appendContents(new ByteArrayInputStream(("\n \t \t <path>"+rootHandbookStr+"</path>").getBytes()), IResource.NONE, null);
 										file.appendContents(new ByteArrayInputStream(("\n \t</root_directory>\n").getBytes()), IResource.NONE, null);	
 									} else {
 										file.appendContents(new ByteArrayInputStream(("\n \t<!-- \n \t<root_directory>").getBytes()), IResource.NONE, null);	

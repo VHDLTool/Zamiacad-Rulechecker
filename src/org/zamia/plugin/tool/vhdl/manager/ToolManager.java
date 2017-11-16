@@ -62,6 +62,7 @@ import org.zamia.plugin.tool.vhdl.VhdlSignalDeclaration;
 import org.zamia.plugin.tool.vhdl.rules.RuleTypeE;
 import org.zamia.plugin.tool.vhdl.rules.StatusE;
 import org.zamia.tool.vhdl.BuildMakeE;
+import org.zamia.util.Native;
 import org.zamia.util.Pair;
 import org.zamia.vhdl.ast.Architecture;
 import org.zamia.vhdl.ast.AssociationElement;
@@ -628,7 +629,9 @@ public abstract class ToolManager implements IWorkbenchWindowActionDelegate {
 		if (fileName.startsWith("$")) {
 			String alias = getAliasRootDirectory(fileName);
 			fileName = getRootDirectory(alias)+fileName.replace("$"+alias, "");
-		} else if (fileName.startsWith("/") || fileName.startsWith("\\")) {
+		}
+		
+		if (fileName.startsWith("/")) {
 			// relative path
 			String defaultRootPath = ToolManager.getZamiaProjectPath(); 
 			fileName = defaultRootPath + fileName;
