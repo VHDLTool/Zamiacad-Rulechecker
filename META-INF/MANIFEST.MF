@@ -2,7 +2,7 @@ Manifest-Version: 1.0
 Bundle-ManifestVersion: 2
 Bundle-Name: zamiaCAD Plugin
 Bundle-SymbolicName: org.zamia.plugin;singleton:=true
-Bundle-Version: 4.0.3
+Bundle-Version: 5.0.0
 Bundle-RuleCheckerVersion: 4.0.3
 Bundle-RuleCheckerDate: 08/11/2017
 Bundle-Activator: org.zamia.plugin.ZamiaPlugin
