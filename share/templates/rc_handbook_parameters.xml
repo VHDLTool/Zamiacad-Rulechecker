@@ -1,8 +1,6 @@
 <?xml version="1.0" encoding="UTF-8" standalone="no" ?>
 
 <hb:handbook_parameters xmlns:hb="HANDBOOK">
-	<hb:author>Niesner Christophe</hb:author>
-	<hb:creation_date>14/11/16</hb:creation_date>
 	<hb:description>Handbook rules may rely on existing generic rules. A
 		generic rule is composed of an algorithm and some generic parameters.
 		The generic rule and parameters values are configured through the

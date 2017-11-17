@@ -1,6 +1,3 @@
-# author: Niesner Christophe
-# creation date: 07/06/15
-# version revision: creation
 # description: The VHDL TOOL shall permit for users to select VHDL files to be parsed and checked within a VLSI project. 
 # A VLSI project may be composed of several directories, each containing all types of files: RTL code, Testbench code
 #  and scripting files for example.

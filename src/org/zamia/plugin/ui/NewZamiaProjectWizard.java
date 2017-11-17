@@ -285,7 +285,7 @@ public class NewZamiaProjectWizard extends BasicNewResourceWizard implements IEx
 							Path rootHandbookPath = Paths.get(rootHandbook);
 							Path rootProjectPath = Paths.get(project.getLocationURI());
 							rootHandbookStr = (rootProjectPath.relativize(rootHandbookPath)).toString();
-							rootHandbookStr = "/" + rootHandbookStr.replace("\\", "/");
+							rootHandbookStr = rootHandbookStr.replace("\\", "/");
 						} catch (Exception e) {
 							//Here if drive diff on windows platform -> keep absolute path
 						}						
@@ -458,27 +458,27 @@ public class NewZamiaProjectWizard extends BasicNewResourceWizard implements IEx
 	}
 
 	private InputStream getInitialBuildPathContents() {
-		return FSCache.getInstance().getClass().getResourceAsStream("/templates/BuildPath.txt");
+		return FSCache.getInstance().getClass().getResourceAsStream("./templates/BuildPath.txt");
 	}
 
 	private InputStream getInitialConfigFileContents() {
-		return this.getClass().getResourceAsStream("/templates/rc_config.txt");
+		return this.getClass().getResourceAsStream("./templates/rc_config.txt");
 	}
 
 	private InputStream getInitialRCConfigFileContents() {
-		return this.getClass().getResourceAsStream("/templates/rc_config.xml");
+		return this.getClass().getResourceAsStream("./templates/rc_config.xml");
 	}
 
 	private InputStream getInitialRCConfigFileHeaderContents() {
-		return this.getClass().getResourceAsStream("/templates/rc_config_header.txt");
+		return this.getClass().getResourceAsStream("./templates/rc_config_header.txt");
 	}
 
 	private InputStream getInitialRCConfigFileFooterContents() {
-		return this.getClass().getResourceAsStream("/templates/rc_config_footer.txt");
+		return this.getClass().getResourceAsStream("./templates/rc_config_footer.txt");
 	}
 
 	private InputStream getInitialRCHandbookParametersFileContents() {
-		return this.getClass().getResourceAsStream("/templates/rc_handbook_parameters.xml");
+		return this.getClass().getResourceAsStream("./templates/rc_handbook_parameters.xml");
 	}
 
 	public void setInitializationData(IConfigurationElement config, String propertyName, Object data) throws CoreException {

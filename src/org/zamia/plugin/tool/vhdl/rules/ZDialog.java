@@ -446,7 +446,7 @@ public class ZDialog extends ZDialogManager  {
 								reportFileName = ruleResult.getReportFileName();
 
 							logger.info(String.format("####: %d violations for rule %s.", result, ruleId));
-							synthesisReport.addRuleReport(ruleId, status, "." + reportFileName.replaceAll(zPrj.fBasePath.toString(), ""), result, ruleResult);
+							synthesisReport.addRuleReport(ruleId, status, (reportFileName.replace(zPrj.fBasePath.toString() + "/", "./")).replace("./..", "..").replace(".../", ".."), result, ruleResult);
 						}
 					}
 				}
@@ -611,7 +611,7 @@ public class ZDialog extends ZDialogManager  {
 
 	public void updateConfigSelectedRules() {
 
-		String pathFileName = ToolManager.getPathFileName("/rule_checker/rc_config_selected_rules.xml");
+		String pathFileName = ToolManager.getPathFileName("./rule_checker/rc_config_selected_rules.xml");
 		File file = new File(pathFileName);
 		if (file.exists()) {
 			file.delete();

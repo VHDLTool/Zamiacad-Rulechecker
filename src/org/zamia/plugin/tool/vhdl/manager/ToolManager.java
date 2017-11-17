@@ -541,7 +541,7 @@ public abstract class ToolManager implements IWorkbenchWindowActionDelegate {
 	}
 
 	public static void updateConfigSelectedRules(Map<String, String> selectedRuleList) {
-		String pathFileName = ToolManager.getPathFileName("/rule_checker/rc_config_selected_rules.xml");
+		String pathFileName = ToolManager.getPathFileName("./rule_checker/rc_config_selected_rules.xml");
 		
 		File file = new File(pathFileName);
 		if (file.exists()) {
@@ -631,10 +631,11 @@ public abstract class ToolManager implements IWorkbenchWindowActionDelegate {
 			fileName = getRootDirectory(alias)+fileName.replace("$"+alias, "");
 		}
 		
-		if (fileName.startsWith("/")) {
+		if (fileName.startsWith(".")) {
 			// relative path
 			String defaultRootPath = ToolManager.getZamiaProjectPath(); 
-			fileName = defaultRootPath + fileName;
+			fileName = defaultRootPath + "/" + fileName;
+			fileName = fileName.replace("/./", "/");
 		} else {
 			// absolute path
 		}

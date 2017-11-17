@@ -112,7 +112,7 @@ import org.zamia.plugin.tool.vhdl.tools.impl.Tool_RST_PRJ;
 
 
 		public ParameterSource getParameterSource() {
-			String fileName = ToolManager.getPathFileName("/rule_checker/rc_config_selected_tools.xml");
+			String fileName = ToolManager.getPathFileName("./rule_checker/rc_config_selected_tools.xml");
 			File file = new File(fileName);
 			if (!file.exists()) { return null; }
 			final DocumentBuilderFactory factory = DocumentBuilderFactory.newInstance();
@@ -170,7 +170,7 @@ import org.zamia.plugin.tool.vhdl.tools.impl.Tool_RST_PRJ;
 		
 		
 		public boolean isSelected() {
-			String fileName = ToolManager.getPathFileName("/rule_checker/rc_config_selected_tools.xml");
+			String fileName = ToolManager.getPathFileName("./rule_checker/rc_config_selected_tools.xml");
 			File file = new File(fileName);
 			if (!file.exists()) { return false; }
 			final DocumentBuilderFactory factory = DocumentBuilderFactory.newInstance();
