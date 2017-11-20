@@ -462,23 +462,23 @@ public class NewZamiaProjectWizard extends BasicNewResourceWizard implements IEx
 	}
 
 	private InputStream getInitialConfigFileContents() {
-		return this.getClass().getResourceAsStream("./templates/rc_config.txt");
+		return this.getClass().getResourceAsStream("/templates/rc_config.txt");
 	}
 
 	private InputStream getInitialRCConfigFileContents() {
-		return this.getClass().getResourceAsStream("./templates/rc_config.xml");
+		return this.getClass().getResourceAsStream("/templates/rc_config.xml");
 	}
 
 	private InputStream getInitialRCConfigFileHeaderContents() {
-		return this.getClass().getResourceAsStream("./templates/rc_config_header.txt");
+		return this.getClass().getResourceAsStream("/templates/rc_config_header.txt");
 	}
 
 	private InputStream getInitialRCConfigFileFooterContents() {
-		return this.getClass().getResourceAsStream("./templates/rc_config_footer.txt");
+		return this.getClass().getResourceAsStream("/templates/rc_config_footer.txt");
 	}
 
 	private InputStream getInitialRCHandbookParametersFileContents() {
-		return this.getClass().getResourceAsStream("./templates/rc_handbook_parameters.xml");
+		return this.getClass().getResourceAsStream("/templates/rc_handbook_parameters.xml");
 	}
 
 	public void setInitializationData(IConfigurationElement config, String propertyName, Object data) throws CoreException {
