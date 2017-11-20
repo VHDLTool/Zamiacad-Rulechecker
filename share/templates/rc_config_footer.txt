@@ -1,5 +1,5 @@
 
-	<verifiers_parameters>/rule_checker/rc_handbook_parameters.xml</verifiers_parameters>
+	<verifiers_parameters>./rule_checker/rc_handbook_parameters.xml</verifiers_parameters>
 	
 	<log>
 		<tool_directory>./rule_checker/reporting/tool/</tool_directory>
