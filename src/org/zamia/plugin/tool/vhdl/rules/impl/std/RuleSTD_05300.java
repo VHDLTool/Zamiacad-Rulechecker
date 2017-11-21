@@ -129,7 +129,7 @@ public class RuleSTD_05300 extends Rule {
 							}
 						}
 						if (!findIndex) {
-							String fileName = "." + _hdlFile.getLocalPath();
+							String fileName = _hdlFile.getLocalPathWithPoint();
 							int line = sensitivity.getLocation().fLine; 
 							String sensitivityName = vectorName;
 							_violations.add(
@@ -140,7 +140,7 @@ public class RuleSTD_05300 extends Rule {
 				
 			}
 			if (!find) {
-				String fileName = "." + _hdlFile.getLocalPath();
+				String fileName = _hdlFile.getLocalPathWithPoint();
 				int line = sensitivity.getLocation().fLine; 
 				String sensitivityName = sensitivity.toString();
 				_violations.add(
@@ -208,7 +208,7 @@ public class RuleSTD_05300 extends Rule {
 						}
 					}
 					if (!findIndex) {
-						String fileName = "." + _hdlFile.getLocalPath();
+						String fileName = _hdlFile.getLocalPathWithPoint();
 						int line = input.getLocation().fLine; 
 						String sensitivityName = vectorName;
 						_violations.add(
@@ -219,7 +219,7 @@ public class RuleSTD_05300 extends Rule {
 		}
 
 		if (!find) {
-			String fileName = "." + _hdlFile.getLocalPath();
+			String fileName = _hdlFile.getLocalPathWithPoint();
 			int line = input.getLocation().fLine; 
 			String sensitivityName = input.toString();
 			_violations.add(

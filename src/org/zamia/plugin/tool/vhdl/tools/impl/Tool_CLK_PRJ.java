@@ -51,7 +51,7 @@ public class Tool_CLK_PRJ  extends ToolSelectorManager {
 			clockSourceTagElement.setTextContent(clockSource.getTag());
 			logEntry.appendChild(clockSourceTagElement);
 			
-			Element entityElement = createEntityArchitectureTypeElement("/" + clockSource.getSignalDeclaration().getLocation().fSF.getLocalPath(), clockSource.getEntity(), clockSource.getArchitecture());
+			Element entityElement = createEntityArchitectureTypeElement(clockSource.getSignalDeclaration().getLocation().fSF.getLocalPathWithPointSlash(), clockSource.getEntity(), clockSource.getArchitecture());
 			logEntry.appendChild(entityElement);
 
 			Element clockSourceNameElement = document.createElement(NAMESPACE_PREFIX + NodeType.CLOCK_SOURCE.toString()+NodeInfo.NAME.toString());

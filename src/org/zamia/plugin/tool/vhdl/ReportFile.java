@@ -122,7 +122,7 @@ public class ReportFile {
 	}
 	
 	public Element addViolation(SourceLocation sourceLocation, String entityId, String architectureId) {
-		String fileName = "./" + sourceLocation.fSF.getLocalPath();
+		String fileName = sourceLocation.fSF.getLocalPathWithPointSlash();
 		int line = sourceLocation.fLine;
 		Element infoElement = addViolation(fileName, line, entityId, architectureId);
 		

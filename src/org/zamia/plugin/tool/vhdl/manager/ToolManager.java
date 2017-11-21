@@ -603,7 +603,7 @@ public abstract class ToolManager implements IWorkbenchWindowActionDelegate {
 		if((document != null) && (racine != null) && (!listHdlFile.isEmpty())) {
 			for(Entry<String, HdlFile> entry : listHdlFile.entrySet()) {
 				Element fileNameElement = document.createElement("rc:File");
-				fileNameElement.setTextContent("." + entry.getValue().getLocalPath());
+				fileNameElement.setTextContent(entry.getValue().getLocalPathWithPoint());
 				racine.appendChild(fileNameElement);
 			}			
 		}		

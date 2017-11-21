@@ -458,7 +458,7 @@ public class NewZamiaProjectWizard extends BasicNewResourceWizard implements IEx
 	}
 
 	private InputStream getInitialBuildPathContents() {
-		return FSCache.getInstance().getClass().getResourceAsStream("./templates/BuildPath.txt");
+		return FSCache.getInstance().getClass().getResourceAsStream("/templates/BuildPath.txt");
 	}
 
 	private InputStream getInitialConfigFileContents() {

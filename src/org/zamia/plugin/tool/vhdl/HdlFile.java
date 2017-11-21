@@ -124,6 +124,10 @@ public class HdlFile  implements Cloneable {
 	public String getLocalPath() {
 		return localPath;
 	}
+	
+	public String getLocalPathWithPoint() {
+		return "." + localPath;
+	}
 
 
 	public void clearLibrary() {

@@ -185,7 +185,7 @@ public class RuleSTD_03600 extends Rule {
 
 	private void addViolationPerFile(ReportFile reportFile, HdlFile hdlFile, HdlEntity hdlEntityItem, HdlArchitecture hdlArchitectureItem,	Process processItem, ResetSignal resetSignal) {
 
-		String fileName = "." + hdlFile.getLocalPath();
+		String fileName = hdlFile.getLocalPathWithPoint();
 		int line = resetSignal.getLocation().fLine;
 		String entityId = hdlEntityItem.getEntity().getId();
 		String architectureId = hdlArchitectureItem.getArchitecture().getId();
@@ -211,7 +211,7 @@ public class RuleSTD_03600 extends Rule {
 
 	private void addViolationPerProject(ReportFile reportFile, HdlFile hdlFile, HdlEntity hdlEntityItem) {
 
-		String fileName = "." + hdlFile.getLocalPath();
+		String fileName = hdlFile.getLocalPathWithPoint();
 		int line = 0;
 		String entityId = hdlEntityItem.getEntity().getId();
 		String architectureId = null;
