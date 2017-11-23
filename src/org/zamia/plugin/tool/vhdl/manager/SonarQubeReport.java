@@ -1,6 +1,7 @@
 package org.zamia.plugin.tool.vhdl.manager;
 
 import java.io.File;
+import java.util.List;
 import java.util.Set;
 import java.util.SortedMap;
 import java.util.TreeMap;
@@ -16,6 +17,7 @@ import javax.xml.transform.stream.StreamResult;
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
 import org.zamia.plugin.tool.vhdl.rules.RuleResult;
+import org.zamia.plugin.tool.vhdl.rules.RuleTypeE;
 
 public class SonarQubeReport {
 	private class ReportLog {
@@ -70,8 +72,8 @@ public class SonarQubeReport {
 
 		Document document = initializeXmlDoc();
 		
-		String ruleReportDirectoryPath = ToolManager.getRuleReportDirectory();
-		String reportFilePath = ruleReportDirectoryPath + "/" + ReportFileName;
+		List<String> xmlLogReport = ToolManager.getXmlLogReport("rule");
+		String reportFilePath = xmlLogReport.get(0) + ReportFileName;
 		
 		try {
 			TransformerFactory transformerFactory = TransformerFactory.newInstance();
