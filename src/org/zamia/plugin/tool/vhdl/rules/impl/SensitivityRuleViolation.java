@@ -13,14 +13,18 @@ public class SensitivityRuleViolation {
 	private Architecture _architecture; 
 	private Process _process;
 	private String _sensitivityName;
+	private boolean _sensitivityMissing;
+	private boolean _synchronousProcess;
 	
-	public SensitivityRuleViolation(String fileName, int line, Entity entity, Architecture architecture, Process process, String sensitivityName) {
+	public SensitivityRuleViolation(String fileName, int line, Entity entity, Architecture architecture, Process process, String sensitivityName, boolean synchronousProcess, boolean sensitivityMissing) {
 		_fileName = fileName;
 		_line = line;
 		_entity = entity;
 		_architecture = architecture;
 		_process = process;
 		_sensitivityName = sensitivityName;
+		_sensitivityMissing = sensitivityMissing;
+		_synchronousProcess = synchronousProcess;
 	}
 	
 	public void generate(ReportFile reportFile) {
@@ -31,5 +35,30 @@ public class SensitivityRuleViolation {
 		String processId = _process.getLabel(); 
 		reportFile.addElement(ReportFile.TAG_PROCESS, processId, info); 
 		reportFile.addElement(ReportFile.TAG_SENSITIVITY, _sensitivityName, info); 
+
+		if (_synchronousProcess)
+		{
+			// Rule STD_05000
+			if (_sensitivityMissing)
+			{
+				reportFile.addSonarTags(info, SonarQubeRule.SONAR_ERROR_STD_05000_MISSING, new Object[] {_sensitivityName}, SonarQubeRule.SONAR_MSG_STD_05000_MISSING, new Object[] {_sensitivityName, processId});
+			}
+			else
+			{
+				reportFile.addSonarTags(info, SonarQubeRule.SONAR_ERROR_STD_05000_MORE, new Object[] {_sensitivityName}, SonarQubeRule.SONAR_MSG_STD_05000_MORE, null);
+			}
+		}
+		else
+		{
+			// Rule STD_05300
+			if (_sensitivityMissing)
+			{
+				reportFile.addSonarTags(info, SonarQubeRule.SONAR_ERROR_STD_05300_MISSING, new Object[] {_sensitivityName}, SonarQubeRule.SONAR_MSG_STD_05300_MISSING, new Object[] {_sensitivityName, processId});
+			}
+			else
+			{
+				reportFile.addSonarTags(info, SonarQubeRule.SONAR_ERROR_STD_05300_MORE, new Object[] {_sensitivityName}, SonarQubeRule.SONAR_MSG_STD_05300_MORE, new Object[] {_sensitivityName, processId});
+			}
+		}
 	}
 }

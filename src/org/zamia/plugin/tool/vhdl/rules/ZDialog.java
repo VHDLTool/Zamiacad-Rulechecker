@@ -442,9 +442,11 @@ public class ZDialog extends ZDialogManager  {
 							if (isAlgo) {
 								text += String.format("(%d)", result);
 							}
-							reportFileName = ruleResult.getReportFileName();
+							if(ruleResult != null)
+								reportFileName = ruleResult.getReportFileName();
+
 							logger.info(String.format("####: %d violations for rule %s.", result, ruleId));
-							synthesisReport.addRuleReport(ruleId, status, reportFileName, result, ruleResult);
+							synthesisReport.addRuleReport(ruleId, status, (reportFileName.replace(zPrj.fBasePath.toString() + "/", "./")).replace("./..", "..").replace(".../", ".."), result, ruleResult);
 						}
 					}
 				}
@@ -609,7 +611,7 @@ public class ZDialog extends ZDialogManager  {
 
 	public void updateConfigSelectedRules() {
 
-		String pathFileName = ToolManager.getPathFileName("/rule_checker/rc_config_selected_rules.xml");
+		String pathFileName = ToolManager.getPathFileName("./rule_checker/rc_config_selected_rules.xml");
 		File file = new File(pathFileName);
 		if (file.exists()) {
 			file.delete();

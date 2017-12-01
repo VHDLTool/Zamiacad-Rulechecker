@@ -154,11 +154,11 @@ public class RuleSTD_05000 extends Rule {
 						}
 						
 						if (!findIndex) {
-							String fileName = _hdlFile.getLocalPath();
+							String fileName = _hdlFile.getLocalPathWithPoint();
 							int line = sensitivity.getLocation().fLine; 
 							String sensitivityName = vectorName;
 							_violations.add(
-									new SensitivityRuleViolation(fileName, line, _entity, _architecture, process, sensitivityName));
+									new SensitivityRuleViolation(fileName, line, _entity, _architecture, process, sensitivityName, true, false));
 						}
 					}
 					
@@ -167,11 +167,11 @@ public class RuleSTD_05000 extends Rule {
 			}
 
 			if (!find) {
-				String fileName = _hdlFile.getLocalPath();
+				String fileName = _hdlFile.getLocalPathWithPoint();
 				int line = sensitivity.getLocation().fLine; 
 				String sensitivityName = sensitivity.toString();
 				_violations.add(
-						new SensitivityRuleViolation(fileName, line, _entity, _architecture, process, sensitivityName));
+						new SensitivityRuleViolation(fileName, line, _entity, _architecture, process, sensitivityName, true, false));
 			}
 		}
 
@@ -256,22 +256,22 @@ public class RuleSTD_05000 extends Rule {
 						}
 					}
 					if (!findIndex) {
-						String fileName = _hdlFile.getLocalPath();
+						String fileName = _hdlFile.getLocalPathWithPoint();
 						int line = signal.getLocation().fLine; 
 						String sensitivityName = vectorName;
 						_violations.add(
-								new SensitivityRuleViolation(fileName, line, _entity, _architecture, process, sensitivityName));
+								new SensitivityRuleViolation(fileName, line, _entity, _architecture, process, sensitivityName, true, true));
 					}
 				}
 			}
 		}
 
 		if (!find) {
-			String fileName = _hdlFile.getLocalPath();
+			String fileName = _hdlFile.getLocalPathWithPoint();
 			int line = signal.getLocation().fLine; 
 			String sensitivityName = signal.toString();
 			_violations.add(
-					new SensitivityRuleViolation(fileName, line, _entity, _architecture, process, sensitivityName));
+					new SensitivityRuleViolation(fileName, line, _entity, _architecture, process, sensitivityName, true, true));
 		}
 	}
 }

@@ -85,12 +85,12 @@ public class RuleCheckerCmd  {
 	private boolean createZamiaProject() {
 		boolean ok = false;
 		
-		_configDirectory = _vhdlProjectDirectory + File.separatorChar + RULE_CHECKER;
+		_configDirectory = _vhdlProjectDirectory + "/" + RULE_CHECKER;
 
 		File file = new File(_vhdlProjectDirectory);
 		String projectName = file.getName();
 		
-		SourceFile buildFilePath = new SourceFile(new File(_vhdlProjectDirectory + File.separatorChar + BUILD_FILE_NAME), BUILD_FILE_NAME);
+		SourceFile buildFilePath = new SourceFile(new File(_vhdlProjectDirectory + "/" + BUILD_FILE_NAME), BUILD_FILE_NAME);
 		try {
 			_zamiaProject = new ZamiaProject(projectName, _vhdlProjectDirectory, buildFilePath, null);
 			ToolManager.setFromPlugin(false);

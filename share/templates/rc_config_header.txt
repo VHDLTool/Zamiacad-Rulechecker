@@ -1,7 +1,10 @@
 <?xml version="1.0" encoding="UTF-8" standalone="no"?> 
 <vhdlTool>
-<author>Niesner Christophe</author>
-<creation_date>07/06/15</creation_date>
-<description>The user shall configure Rule Checker with handbook files location, verifiers parameters, file location and log files location.</description>
-<version_revision>creation</version_revision>
+<!--
+The goal of this file is to configure the RuleChecker with various location and files.
+It is created by the RC HMI when a new project is created.
+To be compliant to both Linux and Windows environments, all folders and files paths are relative to the project folder using Linux notation.
+Note for Windows users: in case the Handbook folder is not in the same drive than the VHDL project, the path is kept absolute.
+The file can be manually edited if necessary.
+-->
 

@@ -22,6 +22,7 @@ import org.zamia.plugin.tool.vhdl.manager.ResetSignalSourceManager;
 import org.zamia.plugin.tool.vhdl.rules.RuleE;
 import org.zamia.plugin.tool.vhdl.rules.RuleResult;
 import org.zamia.plugin.tool.vhdl.rules.impl.Rule;
+import org.zamia.plugin.tool.vhdl.rules.impl.SonarQubeRule;
 import org.zamia.util.Pair;
 
 /*
@@ -184,7 +185,7 @@ public class RuleSTD_03600 extends Rule {
 
 	private void addViolationPerFile(ReportFile reportFile, HdlFile hdlFile, HdlEntity hdlEntityItem, HdlArchitecture hdlArchitectureItem,	Process processItem, ResetSignal resetSignal) {
 
-		String fileName = hdlFile.getLocalPath();
+		String fileName = hdlFile.getLocalPathWithPoint();
 		int line = resetSignal.getLocation().fLine;
 		String entityId = hdlEntityItem.getEntity().getId();
 		String architectureId = hdlArchitectureItem.getArchitecture().getId();
@@ -202,13 +203,15 @@ public class RuleSTD_03600 extends Rule {
 				
 				reportFile.addElement(ReportFile.TAG_SOURCE_TAG, resetSource.getTag(), info); 
 				reportFile.addElement(ReportFile.TAG_SOURCE_LEVEL, level.toString(), info);
+				
+				reportFile.addSonarTags(info, SonarQubeRule.SONAR_ERROR_STD_03600_LEVEL_1, new Object[] {resetSignal.toString(), level.toString(), entityId}, SonarQubeRule.SONAR_MSG_STD_03600_LEVEL_1, new Object[] {entityId});
 			}
 		}
 	}
 
 	private void addViolationPerProject(ReportFile reportFile, HdlFile hdlFile, HdlEntity hdlEntityItem) {
 
-		String fileName = hdlFile.getLocalPath();
+		String fileName = hdlFile.getLocalPathWithPoint();
 		int line = 0;
 		String entityId = hdlEntityItem.getEntity().getId();
 		String architectureId = null;
@@ -239,6 +242,8 @@ public class RuleSTD_03600 extends Rule {
 				Element info = reportFile.addViolationPerProject(fileName, line, entityId, architectureId);
 				reportFile.addElement(ReportFile.TAG_SOURCE_TAG, resetSource.getTag(), info); 
 				reportFile.addElement(ReportFile.TAG_SOURCE_LEVEL, level.toString(), info); 
+				
+				reportFile.addSonarTags(info, SonarQubeRule.SONAR_ERROR_STD_03600_LEVEL_2, new Object[] {resetSource.toString(), level.toString()}, SonarQubeRule.SONAR_MSG_STD_03600_LEVEL_2, null);
 			}
 		}
 	}

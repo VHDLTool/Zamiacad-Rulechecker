@@ -219,7 +219,7 @@ public class Tool_LOGICAL_CONE extends ToolSelectorManager {
 	
 	private String searchID(String fileName, String signalName) {
 		String id = "";
-		fileName = File.separator+fileName;
+		fileName = "/"+fileName;
 		for(Entry<String, HdlFile> entry : listHdlFile.entrySet()) {
 			HdlFile hdlFile = entry.getValue();
 			if (!hdlFile.getLocalPath().equalsIgnoreCase(fileName)){
@@ -414,7 +414,7 @@ public class Tool_LOGICAL_CONE extends ToolSelectorManager {
 				, searchID(registerInputSource.getLocation().fSF.getLocalPath(), sinkName)));
 
 		logEntry.appendChild(NewElement(document, NAMESPACE_PREFIX + NodeType.SOURCE.toString()+NodeType.FILE.toString()+NodeInfo.NAME.toString()
-				, registerInputSource.getLocation().fSF.getLocalPath()));
+				, "./" + registerInputSource.getLocation().fSF.getLocalPath()));
 
 		logEntry.appendChild(NewElement(document, NAMESPACE_PREFIX + NodeType.SOURCE.toString()+NodeInfo.LOCATION.toString()
 				, String.valueOf(registerInputSource.getLocation().fLine)));
@@ -464,7 +464,7 @@ public class Tool_LOGICAL_CONE extends ToolSelectorManager {
 				, searchID(register.getLocation().fSF.getLocalPath(),  register.toString())));
 
 		logEntry.appendChild(NewElement(document, NAMESPACE_PREFIX + NodeType.SINK.toString()+NodeType.FILE.toString()+NodeInfo.NAME.toString()
-				, register.getLocation().fSF.getLocalPath()));
+				, "./" + register.getLocation().fSF.getLocalPath()));
 
 		logEntry.appendChild(NewElement(document, NAMESPACE_PREFIX + NodeType.SINK.toString()+NodeInfo.LOCATION.toString()
 				, String.valueOf(register.getLocation().fLine)));
@@ -496,7 +496,7 @@ public class Tool_LOGICAL_CONE extends ToolSelectorManager {
 				, signalTag));
 
 		logEntry.appendChild(NewElement(document, NAMESPACE_PREFIX + NodeType.SOURCE.toString()+NodeType.FILE.toString()+NodeInfo.NAME.toString()
-				, register.getLocation().fSF.getLocalPath()));
+				, "./" + register.getLocation().fSF.getLocalPath()));
 
 		logEntry.appendChild(NewElement(document, NAMESPACE_PREFIX + NodeType.SOURCE.toString()+NodeInfo.LOCATION.toString()
 				, String.valueOf(register.getLocation().fLine)));
@@ -544,7 +544,7 @@ public class Tool_LOGICAL_CONE extends ToolSelectorManager {
 				, searchID(registerRead.getLocation().fSF.getLocalPath(), sinkName)));
 
 		logEntry.appendChild(NewElement(document, NAMESPACE_PREFIX + NodeType.SINK.toString()+NodeType.FILE.toString()+NodeInfo.NAME.toString()
-				, registerRead.getLocation().fSF.getLocalPath()));
+				, "./" + registerRead.getLocation().fSF.getLocalPath()));
 
 		logEntry.appendChild(NewElement(document, NAMESPACE_PREFIX + NodeType.SINK.toString()+NodeInfo.LOCATION.toString()
 				, String.valueOf(registerRead.getLocation().fLine)));
@@ -612,7 +612,7 @@ public class Tool_LOGICAL_CONE extends ToolSelectorManager {
 				, searchID(registerRead.getLocation().fSF.getLocalPath(), sinkName)));
 
 		logEntry.appendChild(NewElement(document, NAMESPACE_PREFIX + NodeType.SINK.toString()+NodeType.FILE.toString()+NodeInfo.NAME.toString()
-				, registerRead.getLocation().fSF.getLocalPath()));
+				, "./" + registerRead.getLocation().fSF.getLocalPath()));
 
 		logEntry.appendChild(NewElement(document, NAMESPACE_PREFIX + NodeType.SINK.toString()+NodeInfo.LOCATION.toString()
 				, String.valueOf(registerRead.getLocation().fLine)));
@@ -682,7 +682,7 @@ public class Tool_LOGICAL_CONE extends ToolSelectorManager {
 				, searchID(registerSource.getLocation().fSF.getLocalPath(), sinkName)));
 
 		logEntry.appendChild(NewElement(document, NAMESPACE_PREFIX + NodeType.SOURCE.toString()+NodeType.FILE.toString()+NodeInfo.NAME.toString()
-				, registerSource.getLocation().fSF.getLocalPath()));
+				, "./" + registerSource.getLocation().fSF.getLocalPath()));
 
 		logEntry.appendChild(NewElement(document, NAMESPACE_PREFIX + NodeType.SOURCE.toString()+NodeInfo.LOCATION.toString()
 				, String.valueOf(registerSource.getLocation().fLine)));

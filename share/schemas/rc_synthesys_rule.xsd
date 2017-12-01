@@ -11,9 +11,8 @@
 	  <xs:sequence>
 		<xs:element name="ruleCheckerVersion" type="xs:string" minOccurs="1" maxOccurs="1" />
 		<xs:element name="executionDate" type="xs:string"  minOccurs="1" maxOccurs="1"/>
-
+		<xs:element name="Inputs" type="rc:RuleInputs_Type"  minOccurs="1" maxOccurs="unbounded"/>
 		<xs:element name="Rule" type="rc:ruleStatusType" minOccurs="0" maxOccurs="unbounded" />
-		
       </xs:sequence>
 </xs:complexType>
 
@@ -21,6 +20,12 @@
 <!-- rule report type definition  -->
 <!-- ====================================== -->
 
+<xs:complexType name="RuleInputs_Type">
+	<xs:sequence>
+		<xs:element name="File"    type="xs:string" minOccurs="0" maxOccurs="unbounded"/>
+	</xs:sequence>
+</xs:complexType>
+		
 <xs:complexType name="ruleStatusType">
 	<xs:sequence>
 		<xs:element name="status" type="rc:EnumReportStatus" minOccurs="1" maxOccurs="1" />

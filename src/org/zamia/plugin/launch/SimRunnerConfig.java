@@ -137,7 +137,7 @@ public class SimRunnerConfig {
 
 	private String getFilename(ILaunchConfiguration aConfiguration) throws CoreException {
 		File f = new File("");
-		return aConfiguration.getAttribute(ATTR_FILENAME, f.getAbsolutePath());
+		return aConfiguration.getAttribute(ATTR_FILENAME, f.getAbsolutePath().replace("\\", "/"));
 	}
 
 	public String getFilename() {

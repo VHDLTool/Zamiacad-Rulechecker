@@ -108,7 +108,7 @@ public class ExternalBuildAction implements IWorkbenchWindowActionDelegate {
 
 			if (editor instanceof ZamiaEditor) {
 				ZamiaEditor ze = (ZamiaEditor) editor;
-				fileName = ze.getFilename();
+				fileName = ze.getFilename().replace("\\", "/");
 
 				zprj = ze.getZPrj();
 

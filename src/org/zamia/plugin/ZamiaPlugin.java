@@ -362,12 +362,11 @@ public class ZamiaPlugin extends AbstractUIPlugin {
 					pathPrefix = entry.fPrefix;
 				} else {
 					File f = new File(entry.fPrefix);
-					//pathPrefix = f.getParentFile().getAbsolutePath().replace('/', '.').substring(1);
 					pathPrefix = f.getParentFile().getAbsolutePath();
 				}
 				String filename = absPath.substring(pathPrefix.length());
 
-				logger.debug("getIFile(): external file, pathPrefix is '%s', filename is '%s'", pathPrefix, filename);
+				logger.debug("getIFile(): external file, pathPrefix is '%s', filename is '%s'", pathPrefix.replace("\\", "/"), filename.replace("\\", "/"));
 
 				// a really ugly hack, but effective
 				ZamiaBuilder.disableAutoBuild(5000);

@@ -208,7 +208,7 @@ public class ZamiaProjectMap {
 					
 				if (bpsf == null) {
 					String localPath = "BuildPath.txt";
-					bpsf = new SourceFile(new File(baseDir + File.separator + localPath), localPath);
+					bpsf = new SourceFile(new File(baseDir + "/" + localPath), localPath);
 				}
 
 				while (zprj == null) {

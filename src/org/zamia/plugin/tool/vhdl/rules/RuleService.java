@@ -178,7 +178,7 @@ public class RuleService {
 	    		fileName = ruleId.startsWith("STD_")? fileNameSTD: fileNameCustom;
 		    }
 		    
-		    fileName=fileName.replace("\\", File.separator);
+		    fileName = fileName.replace("\\", "/");
 		    return ToolManager.getPathFileName(fileName);
 		}
 		catch (final ParserConfigurationException e) {

@@ -129,22 +129,22 @@ public class RuleSTD_05300 extends Rule {
 							}
 						}
 						if (!findIndex) {
-							String fileName = getFileName(_hdlFile);
+							String fileName = _hdlFile.getLocalPathWithPoint();
 							int line = sensitivity.getLocation().fLine; 
 							String sensitivityName = vectorName;
 							_violations.add(
-									new SensitivityRuleViolation(fileName, line, _entity, _architecture, process, sensitivityName));
+									new SensitivityRuleViolation(fileName, line, _entity, _architecture, process, sensitivityName, false, false));
 						}
 					}
 				}
 				
 			}
 			if (!find) {
-				String fileName = getFileName(_hdlFile);
+				String fileName = _hdlFile.getLocalPathWithPoint();
 				int line = sensitivity.getLocation().fLine; 
 				String sensitivityName = sensitivity.toString();
 				_violations.add(
-						new SensitivityRuleViolation(fileName, line, _entity, _architecture, process, sensitivityName));
+						new SensitivityRuleViolation(fileName, line, _entity, _architecture, process, sensitivityName, false, false));
 			}
 		}
 		
@@ -208,40 +208,22 @@ public class RuleSTD_05300 extends Rule {
 						}
 					}
 					if (!findIndex) {
-						String fileName = getFileName(_hdlFile);
+						String fileName = _hdlFile.getLocalPathWithPoint();
 						int line = input.getLocation().fLine; 
 						String sensitivityName = vectorName;
 						_violations.add(
-								new SensitivityRuleViolation(fileName, line, _entity, _architecture, process, sensitivityName));
+								new SensitivityRuleViolation(fileName, line, _entity, _architecture, process, sensitivityName, false, true));
 					}
 				}
 			}
 		}
 
 		if (!find) {
-			String fileName = getFileName(_hdlFile);
+			String fileName = _hdlFile.getLocalPathWithPoint();
 			int line = input.getLocation().fLine; 
 			String sensitivityName = input.toString();
 			_violations.add(
-					new SensitivityRuleViolation(fileName, line, _entity, _architecture, process, sensitivityName));
+					new SensitivityRuleViolation(fileName, line, _entity, _architecture, process, sensitivityName, false, true));
 		}
-	}
-	
-	/*
-	 * Remove / or \ at the beginning of the filename
-	 */
-	private String getFileName(HdlFile hdlFile) {
-		String localPath = hdlFile.getLocalPath();
-		String fileName = localPath;
-		
-		if (fileName.length() > 0) {
-			char firstChar = fileName.charAt(0);
-			if (firstChar == '/' || firstChar == '\\') {
-				fileName = fileName.substring(1);
-			}
-			
-		}
-		
-		return fileName;
 	}
 }

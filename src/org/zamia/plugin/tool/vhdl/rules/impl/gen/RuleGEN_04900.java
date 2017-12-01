@@ -1,5 +1,6 @@
 package org.zamia.plugin.tool.vhdl.rules.impl.gen;
 
+import java.util.Arrays;
 import java.util.List;
 
 import org.w3c.dom.Element;
@@ -11,6 +12,7 @@ import org.zamia.plugin.tool.vhdl.ReportFile;
 import org.zamia.plugin.tool.vhdl.rules.RuleE;
 import org.zamia.plugin.tool.vhdl.rules.RuleResult;
 import org.zamia.plugin.tool.vhdl.rules.impl.Rule;
+import org.zamia.plugin.tool.vhdl.rules.impl.SonarQubeRule;
 import org.zamia.util.Pair;
 
 /*
@@ -49,6 +51,8 @@ public class RuleGEN_04900 extends Rule {
 						String architectureId =clockRead.getArchitectureName();
 						Element info = reportFile.addViolation(location, entityId, architectureId);
 						reportFile.addElement(ReportFile.TAG_CLOCK, clockSource.toString(), info); 
+						
+						reportFile.addSonarTags(info, SonarQubeRule.SONAR_ERROR_GEN_04900, new Object[] {clockSource.toString()}, SonarQubeRule.SONAR_MSG_GEN_04900, new Object[] {clockSource.toString()});
 					}
 				}
 			}

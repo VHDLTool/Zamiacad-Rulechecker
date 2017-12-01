@@ -118,7 +118,7 @@ public String toString() {
 public ParameterSource getParameterSource() {
 	if (!implemented) { return null; }
 	
-	String fileName = ToolManager.getPathFileName("/rule_checker/rc_config_selected_rules.xml");
+	String fileName = ToolManager.getPathFileName("./rule_checker/rc_config_selected_rules.xml");
 	File file = new File(fileName);
 	if (!file.exists()) { return null; }
 	
@@ -178,7 +178,7 @@ return null;
 public boolean isSelected() {
 	if (!implemented) { return false; }
 	
-	String fileName = ToolManager.getPathFileName("/rule_checker/rc_config_selected_rules.xml");
+	String fileName = ToolManager.getPathFileName("./rule_checker/rc_config_selected_rules.xml");
 	File file = new File(fileName);
 	if (!file.exists()) { return false; }
 	

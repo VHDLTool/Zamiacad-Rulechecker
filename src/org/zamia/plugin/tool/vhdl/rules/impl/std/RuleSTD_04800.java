@@ -21,6 +21,7 @@ import org.zamia.plugin.tool.vhdl.manager.ClockSignalSourceManager;
 import org.zamia.plugin.tool.vhdl.rules.RuleE;
 import org.zamia.plugin.tool.vhdl.rules.RuleResult;
 import org.zamia.plugin.tool.vhdl.rules.impl.Rule;
+import org.zamia.plugin.tool.vhdl.rules.impl.SonarQubeRule;
 import org.zamia.util.Pair;
 
 /*
@@ -190,6 +191,8 @@ public class RuleSTD_04800 extends Rule {
 
 				reportFile.addElement(ReportFile.TAG_SOURCE_TAG, clockSource.getTag(), info); 
 				reportFile.addElement(ReportFile.TAG_SIGNAL_EDGE, edge.toString(), info);
+				
+				reportFile.addSonarTags(info, SonarQubeRule.SONAR_ERROR_STD_04800_LEVEL_1, new Object[] {clockSignal.toString(), edge.toString(), entityId}, SonarQubeRule.SONAR_MSG_STD_04800_LEVEL_1, null);
 			}
 		}
 	}
@@ -222,6 +225,8 @@ public class RuleSTD_04800 extends Rule {
 				Element info = reportFile.addViolationPerProject(fileName, line, entityId, architectureId);
 				reportFile.addElement(ReportFile.TAG_SOURCE_TAG, clockSource.getTag(), info); 
 				reportFile.addElement(ReportFile.TAG_SIGNAL_EDGE, edge.toString(), info);
+				
+				reportFile.addSonarTags(info, SonarQubeRule.SONAR_ERROR_STD_04800_LEVEL_2, new Object[] {clockSource.toString()}, SonarQubeRule.SONAR_MSG_STD_04800_LEVEL_2, null);
 			}
 		}
 	}
