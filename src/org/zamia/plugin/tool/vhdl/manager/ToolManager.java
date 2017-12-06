@@ -367,16 +367,15 @@ public abstract class ToolManager implements IWorkbenchWindowActionDelegate {
 		List<String> listFilePath = new ArrayList<String>();
 		File current = new File(filePath);
 		String tmp="";
-		listFilePath.add(current.getPath().replace("\\", "/")+"/");
+		listFilePath.add(current.getPath().replace("\\", "/"));
 		
 		do{
 			tmp = current.getParent().replace("\\", "/");
 			current = new File(tmp);
-			listFilePath.add(tmp+"/");
+			listFilePath.add(tmp + "/");
 			
-		}while(tmp==null);
+		}while(!tmp.equals("/"));
 		listFilePath.add("/");
-		// add Christophe filter
 		listFilePath.retainAll(listPathToWork); 
 		
 		return listFilePath;		
@@ -603,7 +602,7 @@ public abstract class ToolManager implements IWorkbenchWindowActionDelegate {
 		if((document != null) && (racine != null) && (!listHdlFile.isEmpty())) {
 			for(Entry<String, HdlFile> entry : listHdlFile.entrySet()) {
 				Element fileNameElement = document.createElement("rc:File");
-				fileNameElement.setTextContent(entry.getValue().getLocalPathWithPoint());
+				fileNameElement.setTextContent(entry.getValue().getLocalPath());
 				racine.appendChild(fileNameElement);
 			}			
 		}		
