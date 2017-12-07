@@ -5,3 +5,6 @@ syntax: glob
 du.db
 ZDB
 bin
+src/org/zamia/plugin/tool/vhdl/rules/impl/std/RuleSTD_03800.java
+src/org/zamia/plugin/tool/vhdl/HdlFile.java
+src/org/zamia/plugin/AskQuestionJob.java

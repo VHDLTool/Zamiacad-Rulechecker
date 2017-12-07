@@ -211,7 +211,8 @@ public class ReportFile {
 				//output
 				transformer.transform(source, output);	
 				
-				_currentResult.setReportFileName(reportFilePath);
+				_currentResult.setReportFileName(number == NumberReportE.NAN? reportFilePath: pathReport.getDirectory());
+				
 				result = new Pair<Integer, RuleResult> (_violationCount, _currentResult);
 			} catch (Exception e) {
 				ToolManager.logger.error("Could not save report file for rule %s (exception thrown).", e, _rule.getRuleId());
