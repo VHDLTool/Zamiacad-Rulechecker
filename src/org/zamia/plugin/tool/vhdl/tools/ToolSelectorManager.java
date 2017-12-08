@@ -78,7 +78,7 @@ public abstract class ToolSelectorManager extends ReportManager {
 		fileElement = document.createElement(NAMESPACE_PREFIX + NodeType.FILE.toString());
 
 		fileNameElement = document.createElement(NAMESPACE_PREFIX + NodeType.FILE.toString()+NodeInfo.NAME.toString());
-		fileNameElement.setTextContent(hdlFile.getLocalPathWithPoint());
+		fileNameElement.setTextContent(hdlFile.getLocalPath());
 		fileElement.appendChild(fileNameElement);
 
 		nblineElement = document.createElement(NAMESPACE_PREFIX + NodeType.FILE.toString()+NodeInfo.NB_LINE.toString());

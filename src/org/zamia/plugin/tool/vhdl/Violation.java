@@ -43,10 +43,6 @@ public class Violation {
 		return localPath;
 	}
 	
-	public String getLocalPathWithPoint() {
-		return "." + localPath;
-	}	
-	
 	public Entity getEntity() {
 		return entity;
 	}

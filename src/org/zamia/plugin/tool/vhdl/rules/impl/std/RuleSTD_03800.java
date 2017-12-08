@@ -86,7 +86,7 @@ public class RuleSTD_03800 extends Rule {
 			for (Violation violation : listViolation) {
 				String entity = violation.getEntity().getId();
 				String architecture = violation.getArchitecture().getId();
-				String fileName = violation.getLocalPathWithPoint();
+				String fileName = violation.getLocalPath();
 				int line = violation.getfLine();
 				Element info = reportFile.addViolation(fileName, line, entity, architecture);
 				
