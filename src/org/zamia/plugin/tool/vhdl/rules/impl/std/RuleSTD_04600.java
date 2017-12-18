@@ -99,7 +99,6 @@ public class RuleSTD_04600 extends Rule {
 					{
 						reportFile.addSonarTags(info, SonarQubeRule.SONAR_ERROR_STD_04600, null, SonarQubeRule.SONAR_MSG_STD_04600, new Object[] {listClockSource.getListClockSource().size(), paramRelation, paramValue});
 					}
-
 				}
 			}
 			

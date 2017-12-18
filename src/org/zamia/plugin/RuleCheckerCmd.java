@@ -113,6 +113,9 @@ public class RuleCheckerCmd  {
 		RuleInfo[] ruleInfos = null;
 		String filePath = String.format("%s/%s", _configDirectory, ruleType == RuleTypeE.RULE ? CONFIG_SELECTED_RULES : CONFIG_SELECTED_TOOLS); 
 				
+		ZamiaLogger logger = ZamiaLogger.getInstance();
+		logger.info("Selected Rule file path: %s", filePath);
+		
 		try {
 			File file = new File(filePath);		
 			DocumentBuilderFactory dbFactory = DocumentBuilderFactory.newInstance();
@@ -123,13 +126,16 @@ public class RuleCheckerCmd  {
 			NodeList nodeList = doc.getElementsByTagName(tagName);			
 			int nodeCount = nodeList.getLength();
 			ruleInfos = new RuleInfo[nodeCount];
+			logger.info("Number of selected rules: %d", nodeCount);
 			for (int index = 0; index < nodeCount; ++index) {
 				Element nodeElement = (Element) nodeList.item(index);
 				String id = nodeElement.getAttribute("UID");
 				String parameterSource = nodeElement.getAttribute("ParameterSource");
 				ruleInfos[index] = new RuleInfo(id, parameterSource);
 			}
+			
 		} catch (Exception e) {
+			logger.error("RuleChecker: exception=", e);
 			ruleInfos = null;
 		}
 		

@@ -12,7 +12,7 @@ public final class Check implements IApplication  {
 
 	public Object start(IApplicationContext context) throws Exception {
 		String vhdlProjectDirectory = ".";
-		String version = context.getBrandingBundle().getVersion().toString();
+		String version = ZamiaPlugin.getDefault().ruleCheckerVersion;
 		
 		ZamiaLogger logger = ZamiaLogger.getInstance();
 		logger.info("RuleChecker: version=" + version);

@@ -70,7 +70,7 @@ public class RuleSTD_04700 extends Rule {
 			
 			if (paramRelation != null && paramValue != null)
 			{
-				reportFile.addSonarTags(info, SonarQubeRule.SONAR_ERROR_STD_04500, null, SonarQubeRule.SONAR_MSG_STD_04500, new Object[] {nbFailure, paramRelation, paramValue, _entityId});
+				reportFile.addSonarTags(info, SonarQubeRule.SONAR_ERROR_STD_04700, null, SonarQubeRule.SONAR_MSG_STD_04700, new Object[] {nbFailure, paramRelation, paramValue, _entityId});
 			}
 			
 		}
