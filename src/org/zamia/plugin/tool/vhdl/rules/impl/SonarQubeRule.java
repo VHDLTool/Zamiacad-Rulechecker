@@ -31,7 +31,7 @@ public class SonarQubeRule {
 	public static final String SONAR_MSG_GEN_01200 = "Change label name %s to include %s as %s";
 	public static final String SONAR_MSG_GEN_02300 = "Change %s to %s";
 	public static final String SONAR_MSG_GEN_02400 = "Change signal name %s to %s";
-	public static final String SONAR_MSG_GEN_04900 = "Use %s for clock inputs only and not as common";
+	public static final String SONAR_MSG_GEN_04900 = "Use %s for clock inputs only and not as common signal";
 	
 	public static final String SONAR_MSG_STD_00200 = "Change signal name %s to %s";
 	public static final String SONAR_MSG_STD_00300 = "Change signal name %s to %s";
@@ -43,8 +43,8 @@ public class SonarQubeRule {
 	public static final String SONAR_MSG_STD_03700 = "Control reset generation mechanism";
 	public static final String SONAR_MSG_STD_03800 = "Initialize %s signal with a reset";
 	public static final String SONAR_MSG_STD_04500 = "Remove this assignment and replace %s with %s";
-	public static final String SONAR_MSG_STD_04600 = "Lower clock domain from %i to %s %s";
-	public static final String SONAR_MSG_STD_04700 = "Lower clock domain from %i to %s %s inside %s";
+	public static final String SONAR_MSG_STD_04600 = "Lower clock domain from %d to %s %s";
+	public static final String SONAR_MSG_STD_04700 = "Lower clock domain from %d to %s %s inside %s";
 	public static final String SONAR_MSG_STD_04800_LEVEL_1 = "Check that clock domain change mechanism is an authorized one";
 	public static final String SONAR_MSG_STD_04800_LEVEL_2 = "Check that only one file in the design implements clock change from rising edge to falling edge";
 	public static final String SONAR_MSG_STD_05000_MISSING = "Add %s in the sensitivity list of %s";

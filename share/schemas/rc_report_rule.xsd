@@ -130,7 +130,11 @@
 
 	<!-- Label for process -->
 	<!-- Processes are identified by a label. -->
-	<xs:complexType name="STD_00400_Type"/>
+	<xs:complexType name="STD_00400_Type">
+		<xs:sequence>
+			<xs:element name="SonarQubeMsg" type="rc:SonarQubeMSG_Type" minOccurs="1" maxOccurs="1"/>
+		</xs:sequence>
+	</xs:complexType>	
 	
 	<!-- Reset Sensitive Level -->
 	<!-- Every synchronous process uses the same reset activation level. -->
