@@ -1,7 +1,12 @@
 package org.zamia.plugin.tool.vhdl;
 
+import java.io.IOException;
+
+import org.zamia.ZamiaException;
 import org.zamia.ZamiaLogger;
+import org.zamia.analysis.ast.ASTDeclarationSearch;
 import org.zamia.plugin.tool.vhdl.manager.ToolManager;
+import org.zamia.vhdl.ast.DeclarativeItem;
 import org.zamia.vhdl.ast.DiscreteRange;
 import org.zamia.vhdl.ast.InterfaceDeclaration;
 import org.zamia.vhdl.ast.InterfaceList;
@@ -146,110 +151,35 @@ public abstract class Declaration {
 	}
 	
 	protected void setType(HdlEntity hdlEntity, HdlArchitecture hdlArchitecture) {
+		
+		// Search at architecture level
 		int numChildren = hdlArchitecture.getArchitecture().getNumChildren();
 		for (int i = 0; i < numChildren; i++) {
 			VHDLNode child = hdlArchitecture.getArchitecture().getChild(i);
 
 			if (child instanceof SignalDeclaration) {
 				SignalDeclaration signal = (SignalDeclaration) child;
-				if (signal.getId().equalsIgnoreCase(getVectorName())) {
-					if (signal.getType().toString().equalsIgnoreCase("STD_LOGIC")) {
-
-						type = RegisterTypeE.DISCRETE;
-						typeS = signal.getType().toString();
-						range = 1;
-						return;
-					} else if (signal.getType().toString().contains("STD_LOGIC_VECTOR")) {
-
-						if(getVectorName().equalsIgnoreCase(toString())) {
-							type = RegisterTypeE.VECTOR;
-							typeS = signal.getType().toString();
-							getSignalVectorRange(signal, hdlEntity, hdlArchitecture);
-							range = getRangeVector();
-							return;
-						} else {
-							String argument = toString().replace(getVectorName(), "").replace("(", "").replace(")", "");
-							int index = argument.indexOf("downto");
-							if (index != -1) {
-								// case downto
-								try {
-									fAscending = false;
-									fLeft = Integer.valueOf(argument.substring(0, index).trim());
-									fRight = Integer.valueOf(argument.substring(index+6, argument.length()).trim());
-								} catch (NumberFormatException e) {
-									getSignalVectorRange(signal, hdlEntity, hdlArchitecture);
-								}
-								type = RegisterTypeE.VECTOR_PART;
-								typeS = signal.getType().toString();
-								range = getRangeVector();
-								return;
-							} 
-							
-							index = argument.indexOf("to");
-							if (index != -1) {
-								// case to
-								try {
-									fAscending = true;
-									fLeft = Integer.valueOf(argument.substring(0, index).trim());
-									fRight = Integer.valueOf(argument.substring(index+2, argument.length()).trim());
-								} catch (NumberFormatException e) {
-									getSignalVectorRange(signal, hdlEntity, hdlArchitecture);
-								}
-
-								type = RegisterTypeE.VECTOR_PART;
-								typeS = signal.getType().toString();
-								range = getRangeVector();
-								return;
-							} 
-							
-							// case discrete
-							try {
-								fAscending = true;
-								fLeft = Integer.valueOf(argument.trim());
-								fRight = Integer.valueOf(argument.trim());
-							} catch (NumberFormatException e) {
-								getSignalVectorRange(signal, hdlEntity, hdlArchitecture);
-							}
-							type = RegisterTypeE.VECTOR_PART;
-							typeS = signal.getType().toString();
-							range = 1;
-							return;
-						}
-					} else if (signal.getType().toString().contains("STATE_ARRAY_TYPE")) {
-						type = RegisterTypeE.STATE_ARRAY_TYPE;
-						typeS = signal.getType().toString();
-						range = 1;
-						return;
-					} else {
-						if (searchOtherType(hdlEntity, hdlArchitecture, signal.getType().toString())) {
-							return;
-						}
-						type = RegisterTypeE.UNKNOWN_TYPE;
-						typeS = signal.getType().toString();
-						range = 1;
+				String signalId = signal.getId();
+				if (signalId.equalsIgnoreCase(getVectorName())) {
+					int status = setGenericType(signal.getType().toString());
+					if (status == 1) {
+						searchOtherType(hdlEntity, hdlArchitecture, signalId);
+					}
+					else if (status == 2) {
+						getSignalVectorRange(signal, hdlEntity, hdlArchitecture);
+					}
+					return;
+				}  else if (signalId.equalsIgnoreCase(getRecordName())) {
+					if (searchOtherType(hdlEntity, hdlArchitecture, signalId)) {
 						return;
 					}
-				} else if (signal.getId().equalsIgnoreCase(getRecordName())) {
-					if (searchOtherType(hdlEntity, hdlArchitecture, signal.getType().toString())) {
-
-						return;
-					}
-//				} else if (signal.getType().toString().equalsIgnoreCase("STATE_ARRAY_TYPE") && toString().equalsIgnoreCase(signal.getId())) {
-//					if (signal.getId().equalsIgnoreCase("key_reg0") && toString().equalsIgnoreCase("key_reg0"))
-//						System.out.println("signal STATE_ARRAY_TYPE  "+signal.getId()+"  type "+signal.getType()+ " toString  "+ toString());
-//					type = RegisterTypeE.STATE_ARRAY_TYPE;
-//					typeS = signal.getType().toString();
-//					range = 1;
-//					return;
-//				} else {
-//					type = RegisterTypeE.STATE_ARRAY_TYPE;
-//					typeS = signal.getType().toString();
-//					range = 1;
-//					return;
 				}
+//				return;
 			}
 		}
 		numChildren = hdlEntity.getEntity().getNumChildren();
+
+		// Search at entity level
 		for (int i = 0; i < numChildren; i++) {
 			VHDLNode child = hdlEntity.getEntity().getChild(i);
 			if (child instanceof InterfaceList) {
@@ -260,51 +190,134 @@ public abstract class Declaration {
 					if (subChild instanceof InterfaceDeclaration) {
 						InterfaceDeclaration interfaceDec = (InterfaceDeclaration) subChild;
 						if (interfaceDec.getId().equalsIgnoreCase(getVectorName())) {
-							if (interfaceDec.getType().toString().equalsIgnoreCase("STD_LOGIC")) {
-								type = RegisterTypeE.DISCRETE;
-								typeS = interfaceDec.getType().toString();
-								range = 1;
-								return;
-							} else if (interfaceDec.getType().toString().contains("STD_LOGIC_VECTOR")) {
-								if(interfaceDec.getId().equalsIgnoreCase(toString())) {
-									type = RegisterTypeE.VECTOR_PART;
-									typeS = interfaceDec.getType().toString();
-									range = 1;
-									return;
-								}
-								type = RegisterTypeE.VECTOR_PART;
-
-								getSignalVectorRange(interfaceDec, hdlEntity, hdlArchitecture);
-								return;
-							} else {
-//								logger.debug("+++++++++ TYPE interfaceDec  "+interfaceDec.getType().toString());
+							String searchedType = interfaceDec.getType().toString();
+							/*if(interfaceDec.getType() instanceof TypeDefinitionSubType) {
+								TypeDefinition td = findReferencedType((TypeDefinitionSubType) interfaceDec.getType());
+								searchedType = td.toString();
+								logger.debug(((InterfaceDeclaration) subChild).getId()+" is of type "+interfaceDec.getType()+" which is a subtype of: "+td);
+							}*/
+							int status = setTypeFromEntity(searchedType, interfaceDec.getId());
+							logger.info("setTypeFromEntity: "+typeS+" -> "+type);
+//							int status = setGenericType(searchedType);
+//							logger.info("setGenericType: "+typeS+" -> "+type);
+							if (status == 1) {
+								// not yet implemented yet entity
+//								searchOtherType(hdlEntity, hdlArchitecture, signalId);
 							}
+							if (status == 2) {
+								getSignalVectorRange(interfaceDec, hdlEntity, hdlArchitecture);
+							}
+							return;
 						}
 					}
 				}
 			}
-		}
-		
+		}	
 	}
 	
-	public String getRecordName() {
-		int indexOf = toString().indexOf(".");
-		if (indexOf == -1) { return toString();}
-		
-		return toString().substring(0, indexOf);
-	}
+		// signalType: signal.getType().toString(),
+	// signalId: signal.getId(),
+	private int setGenericType(String signalType) {
+		//0: ok 
+		//1: need to call SearchOtherTypes 
+		//2: need to call getSignalVectorRange
+		int res = 0; 
+		if (signalType.equalsIgnoreCase("STD_LOGIC")) {
 
-	private int getRangeVector() {
-		int indexMax = 0;
-		int indexMin = 0;
-		if (isAscending()) {
-			indexMax = getRight();
-			indexMin = getLeft();
+			type = RegisterTypeE.DISCRETE;
+			typeS = signalType;
+			range = 1;
+		} else if (signalType.contains("STD_LOGIC_VECTOR")) {
+			if(getVectorName().equalsIgnoreCase(toString())) {
+				type = RegisterTypeE.VECTOR;
+				typeS = signalType;
+				range = getRangeVector();
+				res = 2;
+			} else {
+				type = RegisterTypeE.VECTOR_PART;
+				typeS = signalType;
+				String argument = toString().replace(getVectorName(), "").replace("(", "").replace(")", "");
+				try {
+					determineVectorType(argument);
+				} catch (NumberFormatException e) {
+					res = 2;
+				}
+			}
+		} else if (signalType.contains("STATE_ARRAY_TYPE")) {
+			type = RegisterTypeE.STATE_ARRAY_TYPE;
+			typeS = signalType;
+			range = 1;
 		} else {
-			indexMax = getLeft();
-			indexMin = getRight();
+			type = RegisterTypeE.UNKNOWN_TYPE;
+			typeS = signalType;
+			range = 1;
+			res = 1;
 		}
-		return (indexMax - indexMin +1);
+		return res;
+	}
+	
+	private int setTypeFromEntity(String sType, String sId) {
+		int res = 0;
+		if (sType.equalsIgnoreCase("STD_LOGIC")) {
+			type = RegisterTypeE.DISCRETE;
+			typeS = sType;
+			range = 1;
+		} else if (sType.contains("STD_LOGIC_VECTOR")) {
+			type = RegisterTypeE.VECTOR_PART;
+			if(sId.equalsIgnoreCase(toString())) {
+				typeS = sType;
+				range = 1;
+			} else {
+				//getSignalVectorRange(interfaceDec, hdlEntity, hdlArchitecture);
+				res = 2;
+			}
+		}
+		return res;
+	}
+	
+	private void determineVectorType(String vectorStr) {
+//		int index = (vectorStr.indexOf("downto") != -1)? vectorStr.indexOf("downto"): vectorStr.indexOf("to");
+		// case downto
+		if (vectorStr.indexOf("downto") != -1) {
+			int index = (vectorStr.indexOf("downto"));
+			fAscending = false;
+			fLeft = Integer.valueOf(vectorStr.substring(0, index).trim());
+			fRight = Integer.valueOf(vectorStr.substring(index+6, vectorStr.length()).trim());
+			range = getRangeVector();						
+		}
+		// case to
+		else if (vectorStr.indexOf("to") != -1) {
+			int index = vectorStr.indexOf("to");
+			fAscending = true;
+			fLeft = Integer.valueOf(vectorStr.substring(0, index).trim());
+			fRight = Integer.valueOf(vectorStr.substring(index+2, vectorStr.length()).trim());
+			range = getRangeVector();
+		}
+		// case discrete
+		else {
+			fAscending = true;
+			fLeft = Integer.valueOf(vectorStr.trim());
+			fRight = Integer.valueOf(vectorStr.trim());
+			range = 1;
+		}
+	}
+	
+	private TypeDefinition findReferencedType(TypeDefinitionSubType subType) {
+		try {
+
+			DeclarativeItem declaration = ASTDeclarationSearch.search(subType.getName(), ToolManager.getZamiaProject());
+
+			if (declaration != null && declaration instanceof TypeDeclaration) {
+				TypeDefinition td = ((TypeDeclaration) declaration).getType();
+				return td;
+			}
+
+		} catch (IOException e) {
+			
+		} catch (ZamiaException e) {
+			
+		}
+		return null;
 	}
 
 	private boolean searchOtherType(HdlEntity hdlEntity, HdlArchitecture hdlArchitecture,
@@ -354,6 +367,27 @@ public abstract class Declaration {
 
 		return false;
 	}
+	
+	public String getRecordName() {
+		int indexOf = toString().indexOf(".");
+		if (indexOf == -1) { return toString();}
+		
+		return toString().substring(0, indexOf);
+	}
+
+	private int getRangeVector() {
+		int indexMax = 0;
+		int indexMin = 0;
+		if (isAscending()) {
+			indexMax = getRight();
+			indexMin = getLeft();
+		} else {
+			indexMax = getLeft();
+			indexMin = getRight();
+		}
+		return (indexMax - indexMin +1);
+	}
+	
 
 	private void setRange(Range range, HdlEntity hdlEntity, HdlArchitecture hdlArchitecture) {
 		fAscending = range.isAscending();

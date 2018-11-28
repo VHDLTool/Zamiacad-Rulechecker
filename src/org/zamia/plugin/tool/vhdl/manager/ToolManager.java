@@ -164,6 +164,13 @@ public abstract class ToolManager implements IWorkbenchWindowActionDelegate {
 		}
 
 	}
+	
+	/*
+	 * 
+	 */
+	public static ZamiaProject getZamiaProject() {
+		return zPrj;
+	}
 
 	public static String getZamiaProjectPath() {
 		String zamiaProjectPath = "";
