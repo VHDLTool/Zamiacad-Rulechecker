@@ -163,14 +163,14 @@ public abstract class Declaration {
 				if (signalId.equalsIgnoreCase(getVectorName())) {
 					int status = setGenericType(signal.getType().toString());
 					if (status == 1) {
-						searchOtherType(hdlEntity, hdlArchitecture, signalId);
+						searchOtherType(hdlEntity, hdlArchitecture, signal.getType().toString());
 					}
 					else if (status == 2) {
 						getSignalVectorRange(signal, hdlEntity, hdlArchitecture);
 					}
 					return;
 				}  else if (signalId.equalsIgnoreCase(getRecordName())) {
-					if (searchOtherType(hdlEntity, hdlArchitecture, signalId)) {
+					if (searchOtherType(hdlEntity, hdlArchitecture, signal.getType().toString())) {
 						return;
 					}
 				}
