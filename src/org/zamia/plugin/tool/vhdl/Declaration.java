@@ -151,7 +151,7 @@ public abstract class Declaration {
 	}
 	
 	protected void setType(HdlEntity hdlEntity, HdlArchitecture hdlArchitecture) {
-		
+
 		// Search at architecture level
 		int numChildren = hdlArchitecture.getArchitecture().getNumChildren();
 		for (int i = 0; i < numChildren; i++) {
@@ -160,21 +160,21 @@ public abstract class Declaration {
 			if (child instanceof SignalDeclaration) {
 				SignalDeclaration signal = (SignalDeclaration) child;
 				String signalId = signal.getId();
+				String signalType = signal.getType().toString();
 				if (signalId.equalsIgnoreCase(getVectorName())) {
-					int status = setGenericType(signal.getType().toString());
-					if (status == 1) {
-						searchOtherType(hdlEntity, hdlArchitecture, signal.getType().toString());
+					if (findGenericType(signalType, signal, hdlEntity, hdlArchitecture) // search first generic type
+							|| searchOtherType(hdlEntity, hdlArchitecture, signalType)	// then other types
+							|| searchSubType(signal, hdlEntity, hdlArchitecture)) {		// then subtype
+						return;	// type was found
+					} else {
+						type = RegisterTypeE.UNKNOWN_TYPE;
+						typeS = signalType;
+						range = 1;
 					}
-					else if (status == 2) {
-						getSignalVectorRange(signal, hdlEntity, hdlArchitecture);
-					}
+				}  else if (signalId.equalsIgnoreCase(getRecordName()) 
+						&& searchOtherType(hdlEntity, hdlArchitecture, signal.getType().toString())) {
 					return;
-				}  else if (signalId.equalsIgnoreCase(getRecordName())) {
-					if (searchOtherType(hdlEntity, hdlArchitecture, signal.getType().toString())) {
-						return;
-					}
 				}
-//				return;
 			}
 		}
 		numChildren = hdlEntity.getEntity().getNumChildren();
@@ -190,38 +190,30 @@ public abstract class Declaration {
 					if (subChild instanceof InterfaceDeclaration) {
 						InterfaceDeclaration interfaceDec = (InterfaceDeclaration) subChild;
 						if (interfaceDec.getId().equalsIgnoreCase(getVectorName())) {
+							VHDLNode subnode = null;
 							String searchedType = interfaceDec.getType().toString();
-							/*if(interfaceDec.getType() instanceof TypeDefinitionSubType) {
-								TypeDefinition td = findReferencedType((TypeDefinitionSubType) interfaceDec.getType());
-								searchedType = td.toString();
-								logger.debug(((InterfaceDeclaration) subChild).getId()+" is of type "+interfaceDec.getType()+" which is a subtype of: "+td);
-							}*/
-							int status = setTypeFromEntity(searchedType, interfaceDec.getId());
-							logger.info("setTypeFromEntity: "+typeS+" -> "+type);
-//							int status = setGenericType(searchedType);
-//							logger.info("setGenericType: "+typeS+" -> "+type);
-							if (status == 1) {
-								// not yet implemented yet entity
-//								searchOtherType(hdlEntity, hdlArchitecture, signalId);
+							if(searchedType != null && 
+									(findGenericType(searchedType, interfaceDec, hdlEntity, hdlArchitecture)	// search first generic type
+									|| searchOtherType(hdlEntity, hdlArchitecture, searchedType)				// then other types
+									|| searchSubType(interfaceDec, hdlEntity, hdlArchitecture))) {				// then subtype
+								return;	// type was found
+							} else {
+								type = RegisterTypeE.UNKNOWN_TYPE;
+								typeS = searchedType;
+								range = 1;
 							}
-							if (status == 2) {
-								getSignalVectorRange(interfaceDec, hdlEntity, hdlArchitecture);
-							}
-							return;
 						}
 					}
 				}
 			}
-		}	
-	}
+		}
+	}	
 	
-		// signalType: signal.getType().toString(),
-	// signalId: signal.getId(),
-	private int setGenericType(String signalType) {
-		//0: ok 
-		//1: need to call SearchOtherTypes 
-		//2: need to call getSignalVectorRange
-		int res = 0; 
+	/*
+	 * Search for generic type (STD_LOGIC, STD_LOGIC_VECTOR, STATE_ARRAY_TYPE)
+	 * return true if type is found, else false
+	 */
+	private boolean findGenericType(String signalType, VHDLNode node, HdlEntity hdlEntity, HdlArchitecture hdlArchitecture) {
 		if (signalType.equalsIgnoreCase("STD_LOGIC")) {
 
 			type = RegisterTypeE.DISCRETE;
@@ -232,15 +224,15 @@ public abstract class Declaration {
 				type = RegisterTypeE.VECTOR;
 				typeS = signalType;
 				range = getRangeVector();
-				res = 2;
+				getSignalVectorRange(node, hdlEntity, hdlArchitecture);
 			} else {
 				type = RegisterTypeE.VECTOR_PART;
 				typeS = signalType;
 				String argument = toString().replace(getVectorName(), "").replace("(", "").replace(")", "");
 				try {
-					determineVectorType(argument);
+					determineVectorProperties(argument);
 				} catch (NumberFormatException e) {
-					res = 2;
+					getSignalVectorRange(node, hdlEntity, hdlArchitecture);
 				}
 			}
 		} else if (signalType.contains("STATE_ARRAY_TYPE")) {
@@ -248,78 +240,39 @@ public abstract class Declaration {
 			typeS = signalType;
 			range = 1;
 		} else {
-			type = RegisterTypeE.UNKNOWN_TYPE;
-			typeS = signalType;
-			range = 1;
-			res = 1;
+			return false;
 		}
-		return res;
+		return true;
 	}
 	
-	private int setTypeFromEntity(String sType, String sId) {
-		int res = 0;
-		if (sType.equalsIgnoreCase("STD_LOGIC")) {
-			type = RegisterTypeE.DISCRETE;
-			typeS = sType;
-			range = 1;
-		} else if (sType.contains("STD_LOGIC_VECTOR")) {
-			type = RegisterTypeE.VECTOR_PART;
-			if(sId.equalsIgnoreCase(toString())) {
-				typeS = sType;
-				range = 1;
-			} else {
-				//getSignalVectorRange(interfaceDec, hdlEntity, hdlArchitecture);
-				res = 2;
-			}
-		}
-		return res;
-	}
-	
-	private void determineVectorType(String vectorStr) {
-//		int index = (vectorStr.indexOf("downto") != -1)? vectorStr.indexOf("downto"): vectorStr.indexOf("to");
-		// case downto
-		if (vectorStr.indexOf("downto") != -1) {
-			int index = (vectorStr.indexOf("downto"));
-			fAscending = false;
-			fLeft = Integer.valueOf(vectorStr.substring(0, index).trim());
-			fRight = Integer.valueOf(vectorStr.substring(index+6, vectorStr.length()).trim());
-			range = getRangeVector();						
-		}
-		// case to
-		else if (vectorStr.indexOf("to") != -1) {
-			int index = vectorStr.indexOf("to");
-			fAscending = true;
-			fLeft = Integer.valueOf(vectorStr.substring(0, index).trim());
-			fRight = Integer.valueOf(vectorStr.substring(index+2, vectorStr.length()).trim());
-			range = getRangeVector();
-		}
-		// case discrete
-		else {
-			fAscending = true;
-			fLeft = Integer.valueOf(vectorStr.trim());
-			fRight = Integer.valueOf(vectorStr.trim());
-			range = 1;
-		}
-	}
-	
-	private TypeDefinition findReferencedType(TypeDefinitionSubType subType) {
+	/*
+	 * Support for subtype by searching referenced generic type 
+	 * return true if type is found, else false
+	 */
+	private boolean searchSubType(VHDLNode node, HdlEntity hdlEntity, HdlArchitecture hdlArchitecture) {
 		try {
 
-			DeclarativeItem declaration = ASTDeclarationSearch.search(subType.getName(), ToolManager.getZamiaProject());
-
-			if (declaration != null && declaration instanceof TypeDeclaration) {
-				TypeDefinition td = ((TypeDeclaration) declaration).getType();
-				return td;
+			TypeDefinitionSubType subtype = null;
+			if((node instanceof InterfaceDeclaration) && ((InterfaceDeclaration) node).getType() instanceof TypeDefinitionSubType) {
+				subtype = (TypeDefinitionSubType)((InterfaceDeclaration) node).getType();
+			} else if ((node instanceof SignalDeclaration) && ((SignalDeclaration) node).getType() instanceof TypeDefinitionSubType)  {
+				subtype = (TypeDefinitionSubType)((SignalDeclaration) node).getType();
 			}
+			
+			if(subtype != null) {
+				DeclarativeItem declaration = ASTDeclarationSearch.search(subtype.getName(), ToolManager.getZamiaProject());
 
-		} catch (IOException e) {
-			
-		} catch (ZamiaException e) {
-			
+				if (declaration instanceof TypeDeclaration) {
+					TypeDefinition td = ((TypeDeclaration) declaration).getType();
+					return findGenericType(td.toString(), declaration, hdlEntity, hdlArchitecture) ;
+				}
+			}
+		} catch (IOException|ZamiaException e) {
+			logger.debug(e.toString());
 		}
-		return null;
+		return false;
 	}
-
+	
 	private boolean searchOtherType(HdlEntity hdlEntity, HdlArchitecture hdlArchitecture,
 			String otherType) {
 		int numChildren = hdlArchitecture.getArchitecture().getNumChildren();
@@ -368,6 +321,32 @@ public abstract class Declaration {
 		return false;
 	}
 	
+	private void determineVectorProperties(String vectorStr) {
+		// case downto
+		if (vectorStr.indexOf("downto") != -1) {
+			int index = (vectorStr.indexOf("downto"));
+			fAscending = false;
+			fLeft = Integer.valueOf(vectorStr.substring(0, index).trim());
+			fRight = Integer.valueOf(vectorStr.substring(index+6, vectorStr.length()).trim());
+			range = getRangeVector();						
+		}
+		// case to
+		else if (vectorStr.indexOf("to") != -1) {
+			int index = vectorStr.indexOf("to");
+			fAscending = true;
+			fLeft = Integer.valueOf(vectorStr.substring(0, index).trim());
+			fRight = Integer.valueOf(vectorStr.substring(index+2, vectorStr.length()).trim());
+			range = getRangeVector();
+		}
+		// case discrete
+		else {
+			fAscending = true;
+			fLeft = Integer.valueOf(vectorStr.trim());
+			fRight = Integer.valueOf(vectorStr.trim());
+			range = 1;
+		}
+	}
+	
 	public String getRecordName() {
 		int indexOf = toString().indexOf(".");
 		if (indexOf == -1) { return toString();}
@@ -394,18 +373,8 @@ public abstract class Declaration {
 		fLeft = ToolManager.getOp(range.getLeft(), hdlEntity, hdlArchitecture);
 		fRight = ToolManager.getOp(range.getRight(), hdlEntity, hdlArchitecture);
 	}
-
-	private void getSignalVectorRange(SignalDeclaration signal, HdlEntity hdlEntity, HdlArchitecture hdlArchitecture) {
-		int numChildren = signal.getNumChildren();
-		for (int i = 0; i < numChildren; i++) {
-			VHDLNode child = signal.getChild(i);
-			if (child instanceof TypeDefinitionSubType) {
-				searchRangeInTypeDefinitionSubType(child, hdlEntity, hdlArchitecture);
-			}
-		}
-	}
-
-	private void getSignalVectorRange(InterfaceDeclaration signal, HdlEntity hdlEntity, HdlArchitecture hdlArchitecture) {
+	
+	private void getSignalVectorRange(VHDLNode signal, HdlEntity hdlEntity, HdlArchitecture hdlArchitecture) {
 		int numChildren = signal.getNumChildren();
 		for (int i = 0; i < numChildren; i++) {
 			VHDLNode child = signal.getChild(i);
