@@ -123,37 +123,26 @@ public abstract class Declaration {
 	}
 
 	public boolean isVector() {
-		if (type == RegisterTypeE.VECTOR) {
-			return true;
-		}
-		return false;
+		return type == RegisterTypeE.VECTOR;
 	}
 
 	public boolean isDiscrete() {
-		if (type == RegisterTypeE.DISCRETE) {
-			return true;
-		}
-		return false;
+		return type == RegisterTypeE.DISCRETE;
 	}
 
 	public boolean isPartOfVector() {
-		if (type == RegisterTypeE.VECTOR_PART) {
-			return true;
-		}
-		return false;
+		return type == RegisterTypeE.VECTOR_PART;
 	}
 	
 	public boolean isArray() {
-		if (type == RegisterTypeE.ARRAY) {
-			return true;
-		}
-		return false;
+		return type == RegisterTypeE.ARRAY;
 	}
 	
 	protected void setType(HdlEntity hdlEntity, HdlArchitecture hdlArchitecture) {
 
-		// Search at architecture level
+		// Try to find type from signals declared at architecture level
 		int numChildren = hdlArchitecture.getArchitecture().getNumChildren();
+		
 		for (int i = 0; i < numChildren; i++) {
 			VHDLNode child = hdlArchitecture.getArchitecture().getChild(i);
 
@@ -162,7 +151,7 @@ public abstract class Declaration {
 				String signalId = signal.getId();
 				String signalType = signal.getType().toString();
 				if (signalId.equalsIgnoreCase(getVectorName())) {
-					if (findGenericType(signalType, signal, hdlEntity, hdlArchitecture) // search first generic type
+					if (findGenericType(signalType, signal, hdlEntity, hdlArchitecture, false) // search first generic type
 							|| searchOtherType(hdlEntity, hdlArchitecture, signalType)	// then other types
 							|| searchSubType(signal, hdlEntity, hdlArchitecture)) {		// then subtype
 						return;	// type was found
@@ -179,7 +168,7 @@ public abstract class Declaration {
 		}
 		numChildren = hdlEntity.getEntity().getNumChildren();
 
-		// Search at entity level
+		// If type declaration wasn't found in architecture, search at entity level
 		for (int i = 0; i < numChildren; i++) {
 			VHDLNode child = hdlEntity.getEntity().getChild(i);
 			if (child instanceof InterfaceList) {
@@ -190,10 +179,9 @@ public abstract class Declaration {
 					if (subChild instanceof InterfaceDeclaration) {
 						InterfaceDeclaration interfaceDec = (InterfaceDeclaration) subChild;
 						if (interfaceDec.getId().equalsIgnoreCase(getVectorName())) {
-							VHDLNode subnode = null;
 							String searchedType = interfaceDec.getType().toString();
 							if(searchedType != null && 
-									(findGenericType(searchedType, interfaceDec, hdlEntity, hdlArchitecture)	// search first generic type
+									(findGenericType(searchedType, interfaceDec, hdlEntity, hdlArchitecture, false)	// search first generic type
 									|| searchOtherType(hdlEntity, hdlArchitecture, searchedType)				// then other types
 									|| searchSubType(interfaceDec, hdlEntity, hdlArchitecture))) {				// then subtype
 								return;	// type was found
@@ -210,10 +198,12 @@ public abstract class Declaration {
 	}	
 	
 	/*
-	 * Search for generic type (STD_LOGIC, STD_LOGIC_VECTOR, STATE_ARRAY_TYPE)
+	 * Determine basic type for both type and subtype
+	 * By default check (STD_LOGIC, STD_LOGIC_VECTOR, STATE_ARRAY_TYPE) for regular type
+	 * Or if 'isSubtype' parameter is checked, checks (STD_LOGIC, STD_LOGIC_VECTOR)
 	 * return true if type is found, else false
 	 */
-	private boolean findGenericType(String signalType, VHDLNode node, HdlEntity hdlEntity, HdlArchitecture hdlArchitecture) {
+	private boolean findGenericType(String signalType, VHDLNode node, HdlEntity hdlEntity, HdlArchitecture hdlArchitecture, boolean isSubtype) {
 		if (signalType.equalsIgnoreCase("STD_LOGIC")) {
 
 			type = RegisterTypeE.DISCRETE;
@@ -235,7 +225,7 @@ public abstract class Declaration {
 					getSignalVectorRange(node, hdlEntity, hdlArchitecture);
 				}
 			}
-		} else if (signalType.contains("STATE_ARRAY_TYPE")) {
+		} else if (signalType.contains("STATE_ARRAY_TYPE") && !isSubtype) {
 			type = RegisterTypeE.STATE_ARRAY_TYPE;
 			typeS = signalType;
 			range = 1;
@@ -243,10 +233,10 @@ public abstract class Declaration {
 			return false;
 		}
 		return true;
-	}
+	}	
 	
 	/*
-	 * Support for subtype by searching referenced generic type 
+	 * Handle subtype by searching referenced generic type 
 	 * return true if type is found, else false
 	 */
 	private boolean searchSubType(VHDLNode node, HdlEntity hdlEntity, HdlArchitecture hdlArchitecture) {
@@ -264,7 +254,7 @@ public abstract class Declaration {
 
 				if (declaration instanceof TypeDeclaration) {
 					TypeDefinition td = ((TypeDeclaration) declaration).getType();
-					return findGenericType(td.toString(), declaration, hdlEntity, hdlArchitecture) ;
+					return findGenericType(td.toString(), declaration, hdlEntity, hdlArchitecture, false) ;
 				}
 			}
 		} catch (IOException|ZamiaException e) {
@@ -272,9 +262,10 @@ public abstract class Declaration {
 		}
 		return false;
 	}
-	
-	private boolean searchOtherType(HdlEntity hdlEntity, HdlArchitecture hdlArchitecture,
-			String otherType) {
+	/**
+	 * Other type not supported by findGenericType
+	 */
+	private boolean searchOtherType(HdlEntity hdlEntity, HdlArchitecture hdlArchitecture, String otherType) {
 		int numChildren = hdlArchitecture.getArchitecture().getNumChildren();
 		for (int i = 0; i < numChildren; i++) {
 			VHDLNode child = hdlArchitecture.getArchitecture().getChild(i);
