@@ -199,7 +199,7 @@ public class RuleSTD_04800 extends Rule {
 
 	private void addViolationPerProject(ReportFile reportFile, HdlFile hdlFile, HdlEntity hdlEntityItem) {
 		String fileName = hdlFile.getLocalPath();
-		int line = 0;
+		int line = 1;
 		String entityId = hdlEntityItem.getEntity().getId();
 		String architectureId = null;
 		
