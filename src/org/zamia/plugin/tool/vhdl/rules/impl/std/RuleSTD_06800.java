@@ -18,6 +18,7 @@ import org.zamia.plugin.tool.vhdl.manager.ArchitectureManager;
 import org.zamia.plugin.tool.vhdl.rules.RuleE;
 import org.zamia.plugin.tool.vhdl.rules.RuleResult;
 import org.zamia.plugin.tool.vhdl.rules.impl.Rule;
+import org.zamia.plugin.tool.vhdl.rules.impl.RuleManager;
 import org.zamia.plugin.tool.vhdl.rules.impl.SensitivityRuleViolation;
 import org.zamia.plugin.tool.vhdl.rules.impl.SonarQubeRule;
 import org.zamia.util.Pair;
@@ -57,8 +58,8 @@ public class RuleSTD_06800 extends Rule {
 		try {
 			hdlFiles = ArchitectureManager.getArchitecture();
 		} catch (EntityException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
+			logger.error("Current project needs a build.");
+			return new Pair<Integer, RuleResult> (RuleManager.NO_BUILD, null);
 		}
 
 		//// Check rule
@@ -78,11 +79,7 @@ public class RuleSTD_06800 extends Rule {
 
 				for (HdlArchitecture hdlArchitectureItem : hdlEntityItem.getListHdlArchitecture()) {
 					_architecture = hdlArchitectureItem.getArchitecture();
-					//					Object[] objTab = fContentProvider.getChildren(_architecture);
 					List<HdlSignalAssignment> listSignals = hdlArchitectureItem.getListSignalAssignment();
-					if(listSignals.size() > 0) {
-						logger.error("toto");
-					}
 
 					int numChildren = _architecture.getNumChildren();
 					for (int i = 0; i < numChildren; i++) {
@@ -91,13 +88,12 @@ public class RuleSTD_06800 extends Rule {
 						if (child instanceof SignalDeclaration) {
 							SignalDeclaration signalDec = (SignalDeclaration) child;
 							if(signalDec.toString().contains(":=")) {
-								//								_violations.add(new SensitivityRuleViolation(_architecture.getSourceFile().getFileName(), child.getStartLine(), _entity, _architecture, "process", "sensitivityName", false, false));
 								Element info = reportFile.addViolation(signalDec.getLocation(), _entity, _architecture);
-								reportFile.addSonarTags(info, SonarQubeRule.SONAR_ERROR_STD_00300, new Object[] {signalDec.toString()}, SonarQubeRule.SONAR_MSG_STD_00300, null);		
+								reportFile.addElement(ReportFile.TAG_SIGNAL, signalDec.getId(), info); 
+								reportFile.addSonarTags(info, SonarQubeRule.SONAR_ERROR_STD_06800, new Object[] {signalDec.getId()}, SonarQubeRule.SONAR_MSG_STD_06800, new Object[] {signalDec.getId()});		
 							}
 						}
 					}
-					//					listSignals.get(0).getComponentInstantiation();
 				}													
 			}
 		}

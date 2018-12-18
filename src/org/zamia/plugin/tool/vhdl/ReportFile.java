@@ -44,6 +44,7 @@ public class ReportFile {
 	public static final String TAG_INSTANCE                  = NAMESPACE_PREFIX + "Instance";
 	public static final String TAG_SOURCE_LEVEL              = NAMESPACE_PREFIX + "Level";
 	public static final String TAG_SOURCE_TAG                = NAMESPACE_PREFIX + "SourceTag";
+	public static final String TAG_SIGNAL           		 = NAMESPACE_PREFIX + "Signal";
 	public static final String TAG_SIGNAL_TYPE               = NAMESPACE_PREFIX + "SignalType";
 	public static final String TAG_SIGNAL_EDGE               = NAMESPACE_PREFIX + "Edge";
 	public static final String TAG_SENSITIVITY               = NAMESPACE_PREFIX + "Sensitivity";
