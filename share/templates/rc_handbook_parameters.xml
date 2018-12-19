@@ -139,6 +139,10 @@
 		<hb:RuleUID>STD_05300</hb:RuleUID>
 		<hb:RuleGEN>STD_05300</hb:RuleGEN>
 	</hb:Rule>
+	<hb:Rule UID="STD_06800">
+		<hb:RuleUID>STD_06800</hb:RuleUID>
+		<hb:RuleGEN>STD_06800</hb:RuleGEN>
+	</hb:Rule>
 
 
 
