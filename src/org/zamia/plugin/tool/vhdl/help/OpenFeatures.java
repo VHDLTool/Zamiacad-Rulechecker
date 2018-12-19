@@ -18,7 +18,7 @@ public class OpenFeatures implements IWorkbenchWindowActionDelegate {
 	public void run(IAction arg0) {
 		try {
 			Desktop desktop = java.awt.Desktop.getDesktop();
-			URI oURL = new URI("https://github.com/VHDLTool/Zamiacad-Rulechecker/wiki/RC-features");
+			URI oURL = new URI("https://github.com/VHDLTool/Zamiacad-Rulechecker/wiki/features");
 			desktop.browse(oURL);
 		} catch (Exception e) {
 			e.printStackTrace();
