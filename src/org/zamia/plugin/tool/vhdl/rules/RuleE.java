@@ -19,6 +19,7 @@ import org.zamia.plugin.tool.vhdl.rules.impl.std.RuleSTD_04700;
 import org.zamia.plugin.tool.vhdl.rules.impl.std.RuleSTD_04800;
 import org.zamia.plugin.tool.vhdl.rules.impl.std.RuleSTD_05000;
 import org.zamia.plugin.tool.vhdl.rules.impl.std.RuleSTD_05300;
+import org.zamia.plugin.tool.vhdl.rules.impl.std.RuleSTD_06800;
 
 	public enum RuleE {
 		
@@ -42,7 +43,8 @@ import org.zamia.plugin.tool.vhdl.rules.impl.std.RuleSTD_05300;
 		STD_04700("STD_04700", RuleSTD_04700.class, RuleTypeE.ALGO, true, "Number of clock domains per modules"), 
 		STD_04800("STD_04800", RuleSTD_04800.class, RuleTypeE.ALGO, false, "Clock Edge Sensitivity"), 
 		STD_05000("STD_05000", RuleSTD_05000.class, RuleTypeE.ALGO, false, "Sensitivity List for Synchronous Processes"), 
-		STD_05300("STD_05300", RuleSTD_05300.class, RuleTypeE.ALGO, false, "Sensitivity list for combinational processes");
+		STD_05300("STD_05300", RuleSTD_05300.class, RuleTypeE.ALGO, false, "Sensitivity list for combinational processes"),
+		STD_06800("STD_06800", RuleSTD_06800.class, RuleTypeE.ALGO, false, "Unsuitability of signal initialization in declaration section");
 
 		
 		
