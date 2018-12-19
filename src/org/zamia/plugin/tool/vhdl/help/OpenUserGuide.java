@@ -1,5 +1,8 @@
 package org.zamia.plugin.tool.vhdl.help;
 
+import java.awt.Desktop;
+import java.net.URI;
+
 import org.eclipse.jface.action.IAction;
 import org.eclipse.jface.viewers.ISelection;
 import org.eclipse.ui.IWorkbenchWindow;
@@ -12,9 +15,13 @@ public class OpenUserGuide implements IWorkbenchWindowActionDelegate {
 	
 	@Override
 	public void run(IAction arg0) {
-		
-		ThreadOpenUserGuide threadOpenUserGuide = new ThreadOpenUserGuide();
-		threadOpenUserGuide.start();
+		try {
+			Desktop desktop = java.awt.Desktop.getDesktop();
+			URI oURL = new URI("https://github.com/VHDLTool/Zamiacad-Rulechecker/wiki");
+			desktop.browse(oURL);
+		} catch (Exception e) {
+			e.printStackTrace();
+		}
 	}
 	
 	@Override

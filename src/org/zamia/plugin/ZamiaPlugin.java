@@ -76,9 +76,6 @@ import org.zamia.plugin.editors.ExternalReaderEditorInput;
 import org.zamia.plugin.editors.ZamiaEditor;
 import org.zamia.plugin.editors.completion.VHDLContext;
 import org.zamia.plugin.efs.ZamiaFileStore;
-import org.zamia.plugin.tool.vhdl.help.ThreadCreateFeature;
-import org.zamia.plugin.tool.vhdl.help.ThreadCreateUserGuide;
-import org.zamia.plugin.tool.vhdl.help.ThreadOpenUserGuide;
 import org.zamia.plugin.views.navigator.IGModuleWrapper;
 import org.zamia.plugin.views.rtl.RTLView;
 import org.zamia.util.PathName;
@@ -115,10 +112,7 @@ public class ZamiaPlugin extends AbstractUIPlugin {
 	
 	public String ruleCheckerDate;
 
-	public static ThreadCreateUserGuide threadCreateUserGuide;
-	
-	public static ThreadCreateFeature threadCreateFeature;
-	
+
 	// Resource bundle.
 	private ResourceBundle fResourceBundle;
 
@@ -160,12 +154,6 @@ public class ZamiaPlugin extends AbstractUIPlugin {
 		Display.getDefault().asyncExec(new Runnable() {
 
 			public void run() {
-				threadCreateUserGuide = new ThreadCreateUserGuide();
-				threadCreateUserGuide.start();
-		
-				threadCreateFeature = new ThreadCreateFeature();
-				threadCreateFeature.start();
-		
 				MessageConsole console = null;
 				ConsolePlugin plugin = ConsolePlugin.getDefault();
 				IConsoleManager conMan = plugin.getConsoleManager();
