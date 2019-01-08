@@ -381,6 +381,11 @@ public class ZDialog extends ZDialogManager  {
 		public void actionPerformed(ActionEvent e) {
 			updateConfigSelectedRules();
 			
+			// This block is intended to reset the last column
+			//
+			// Related bug: 
+			// If we click the last column and then click launch, the clicked cell will not be updated on UI level
+			//
 			table.getColumnModel().getColumn(RuleObject.COL_LOG_FILE).setCellEditor(null);
 			revalidate();
 			repaint();
