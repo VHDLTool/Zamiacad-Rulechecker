@@ -35,7 +35,7 @@ public class RuleSTD_01000 extends Rule {
 			hdlFiles = EntityManager.getEntity();
 		} catch (EntityException e) {
 			LogNeedBuild();
-			return new Pair<Integer, RuleResult>(RuleManager.NO_BUILD, null);
+			return new Pair<>(RuleManager.NO_BUILD, null);
 		}
 		
 		// TODO report file information to be defined
