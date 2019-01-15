@@ -23,6 +23,18 @@ import org.zamia.plugin.tool.vhdl.rules.impl.std.RuleSTD_06800;
 
 	public enum RuleE {
 		
+		/** 
+		 * Enum Fields: 
+		 *
+		 * 'RuleID' : string,
+		 * 'ClassImplementation': class,
+		 * 'RuleType': enum,
+		 * 'isRuleParametrizable': boolean
+		 * 'RuleDescription': string
+		 */
+
+		// Note: 'RuleDescription' is only used to name report's file and not to fill Rule Selector's IHM
+		
 		//generic
 		GEN_01200("GEN_01200", RuleGEN_01200.class, RuleTypeE.ALGO, true, "Identification of process label"),
 		GEN_02300("GEN_02300", RuleGEN_02300.class, RuleTypeE.ALGO, false, "Preservation of Clock Name"),
