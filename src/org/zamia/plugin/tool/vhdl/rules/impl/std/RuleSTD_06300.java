@@ -15,6 +15,9 @@ import org.zamia.plugin.tool.vhdl.rules.RuleE;
 import org.zamia.plugin.tool.vhdl.rules.RuleResult;
 import org.zamia.plugin.tool.vhdl.rules.impl.Rule;
 import org.zamia.util.Pair;
+import org.zamia.vhdl.ast.BlockDeclarativeItem;
+import org.zamia.vhdl.ast.SequentialProcess;
+import org.zamia.vhdl.ast.VariableDeclaration;
 
 public class RuleSTD_06300 extends Rule {
 
@@ -42,10 +45,24 @@ public class RuleSTD_06300 extends Rule {
 		ReportFile reportFile = new ReportFile(this);
 		if (reportFile.initialize()) {
 			for (Entry<Process, ProcessInfo> entry: processMap.entrySet()) {
-				
+				SequentialProcess process = entry.getKey().getSequentialProcess();
+				int n;
+				if ((n = process.getNumDeclarations()) > 0) {
+					BlockDeclarativeItem variable;
+					for (int i = 0; i < n; i++) {
+						if ((variable = process.getDeclaration(i)) instanceof VariableDeclaration) {
+							reportFile.addViolation(
+									((VariableDeclaration)variable).getLocation(),
+									entry.getValue().getEntity(),
+									entry.getValue().getArchitecture()
+									);
+						}
+					}
+				}
 			}
+			result = reportFile.save();
 		}
-		return null;
+		return result;
 	}
 
 }
