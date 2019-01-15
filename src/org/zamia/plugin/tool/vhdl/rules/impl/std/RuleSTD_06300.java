@@ -34,7 +34,7 @@ public class RuleSTD_06300 extends Rule {
 		Dictionary<Process, ProcessInfo> processInfos = getAllProcesses();
 		Map<Process, ProcessInfo> processMap;
 		if (processInfos == null) {
-			return new Pair<Integer, RuleResult> (NO_BUILD,null);
+			return new Pair<> (NO_BUILD,null);
 		} else {
 			List<Process> keys = Collections.list(processInfos.keys());
 			processMap = keys.stream().collect(Collectors.toMap(Function.identity(), processInfos::get));
