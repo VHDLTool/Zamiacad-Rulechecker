@@ -141,6 +141,28 @@ public class ReportFile {
 	public Element addViolationPerProject(String fileName, int line, String entityId, String architectureId) {
 		return addViolation(PER_PROJECT_SUFFIX, fileName, line, entityId, architectureId);
 	}
+	
+	public Element addViolation(SourceLocation sourceLocation, Entity entity) {
+		++_violationCount;
+		Element violationElement = _document.createElement(TAG_RULE_FAILURE);
+		Element rootElement = _document.getDocumentElement();
+		rootElement.appendChild(violationElement);
+		
+		String fileName = sourceLocation.fSF.getLocalPathWithPointSlash();
+		int line = sourceLocation.fLine;
+		
+		addElement(TAG_FILE, fileName, violationElement);
+		addElement(TAG_LINE, String.valueOf(line), violationElement);
+		addElement(TAG_ENTITY, entity.getId(), violationElement);
+		
+		String tagInfo = NAMESPACE_PREFIX + _rule.getRuleId();
+		Element infoElement = _document.createElement(tagInfo);
+		violationElement.appendChild(infoElement);
+		
+		_currentResult.addError(fileName, line);
+		
+		return infoElement;
+	}
 
 	private Element addViolation(String violationSuffix, String fileName, int line, String entityId, String architectureId) {
 		++_violationCount;
