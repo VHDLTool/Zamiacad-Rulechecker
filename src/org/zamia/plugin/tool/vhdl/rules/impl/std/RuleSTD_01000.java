@@ -49,7 +49,8 @@ public class RuleSTD_01000 extends Rule {
 						ArrayList<HdlEntity> entities = entry.getValue().getListHdlEntity();
 						for (HdlEntity entity: entities) {
 							Element element = reportFile.addViolation(entity.getEntity().getLocation(), entity.getEntity());
-							reportFile.addSonarTags(element, SonarQubeRule.SONAR_ERROR_STD_01000, new Object[] {entry.getKey()}, SonarQubeRule.SONAR_MSG_STD_01000, new Object[] {entry.getKey()});
+							String fileName = entry.getValue().getFile().getName();
+							reportFile.addSonarTags(element, SonarQubeRule.SONAR_ERROR_STD_01000, new Object[] {fileName}, SonarQubeRule.SONAR_MSG_STD_01000, new Object[] {fileName});
 						}
 					}
 				}

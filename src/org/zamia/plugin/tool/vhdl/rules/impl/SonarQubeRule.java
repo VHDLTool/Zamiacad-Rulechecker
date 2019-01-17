@@ -54,5 +54,5 @@ public class SonarQubeRule {
 	public static final String SONAR_MSG_STD_05300_MISSING = "Add %s in the sensitivity list of %s";
 	public static final String SONAR_MSG_STD_05300_MORE = "Remove %s from the sensitivity list of %s";
 	public static final String SONAR_MSG_STD_06800 = "Remove initialisation of %s signal in the declaration section";
-	public static final String SONAR_MSG_STD_01000 = "Reduce the number of entity declaration to 1 in the file %s";
+	public static final String SONAR_MSG_STD_01000 = "Reduce the number of entity declarations to 1 in the file %s";
 }
