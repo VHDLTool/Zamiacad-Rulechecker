@@ -1,5 +1,6 @@
 package org.zamia.plugin.tool.vhdl.rules.impl;
 
+import java.lang.reflect.InvocationTargetException;
 import java.util.List;
 
 import org.zamia.instgraph.IGObject.OIDir;
@@ -326,10 +327,13 @@ public abstract class RuleManager extends ReportManager {
 					findIndex = true;
 					find = true;
 				}
-				if (!findIndex && registerAffectationIndex.toString().indexOf("(") != -1) {
+				/*
+				 * dead code (never reached) 
+				 */
+				/*if (!findIndex && registerAffectationIndex.toString().indexOf("(") != -1) {
 					// cas des boucle for
-					registerAffectationIndex.toString().indexOf(")");
 					String indexOfArray = registerAffectationIndex.toString().substring(registerAffectationIndex.toString().indexOf("(")+1, registerAffectationIndex.toString().indexOf(")"));
+					
 					try {
 						Integer.valueOf(indexOfArray);
 					} catch (NumberFormatException e) {
@@ -364,7 +368,7 @@ public abstract class RuleManager extends ReportManager {
 							e1.printStackTrace();
 						}
 					}
-				}
+				}*/
 			}
 			if (!findIndex) {
 				addViolation(NOT_USED, registerIndexName,
