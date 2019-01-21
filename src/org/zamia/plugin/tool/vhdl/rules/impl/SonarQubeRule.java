@@ -27,6 +27,7 @@ public class SonarQubeRule {
 	public static final String SONAR_ERROR_STD_05300_MISSING = "Signal %s is not in the sensitivity list of the process";
 	public static final String SONAR_ERROR_STD_05300_MORE = "Signal %s should not be in the sensitivity list of the process";
 	public static final String SONAR_ERROR_STD_06800 = "%s is initialised in the declaration section";
+	public static final String SONAR_ERROR_STD_00900 = "the file %s does not contain the name of the entity %s";
 
 	/** Sonar remediation messages */
 	public static final String SONAR_MSG_GEN_01200 = "Change label name %s to include %s as %s";
@@ -53,4 +54,5 @@ public class SonarQubeRule {
 	public static final String SONAR_MSG_STD_05300_MISSING = "Add %s in the sensitivity list of %s";
 	public static final String SONAR_MSG_STD_05300_MORE = "Remove %s from the sensitivity list of %s";
 	public static final String SONAR_MSG_STD_06800 = "Remove initialisation of %s signal in the declaration section";
+	public static final String SONAR_MSG_STD_00900 = "Change the %s to contain the name of the entity %s";
 }
