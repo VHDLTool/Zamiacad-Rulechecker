@@ -42,14 +42,18 @@ public class RuleSTD_01000 extends Rule {
 		
 		// report
 		ReportFile reportFile = new ReportFile(this);
+		HdlFile file;
+		String fileName;
 		if (reportFile.initialize()) {
 			if (hdlFiles != null && hdlFiles.size() > 0) {
 				for (Entry<String, HdlFile> entry: hdlFiles.entrySet()) {
-					if (entry.getValue() != null && entry.getValue().getListHdlEntity().size() > 1) {
-						ArrayList<HdlEntity> entities = entry.getValue().getListHdlEntity();
+					file = entry.getValue();
+					fileName = file.getFile().getName();
+					logger.info("File %s contains %d entity", fileName, file.getListHdlEntity().size());
+					if (file.getListHdlEntity().size() > 1) {
+						ArrayList<HdlEntity> entities = file.getListHdlEntity();
 						for (HdlEntity entity: entities) {
 							Element element = reportFile.addViolation(entity.getEntity().getLocation(), entity.getEntity());
-							String fileName = entry.getValue().getFile().getName();
 							reportFile.addSonarTags(element, SonarQubeRule.SONAR_ERROR_STD_01000, new Object[] {fileName}, SonarQubeRule.SONAR_MSG_STD_01000, new Object[] {fileName});
 						}
 					}
