@@ -8,12 +8,14 @@ import java.util.Map.Entry;
 import java.util.function.Function;
 import java.util.stream.Collectors;
 
+import org.w3c.dom.Element;
 import org.zamia.ZamiaProject;
 import org.zamia.plugin.tool.vhdl.Process;
 import org.zamia.plugin.tool.vhdl.ReportFile;
 import org.zamia.plugin.tool.vhdl.rules.RuleE;
 import org.zamia.plugin.tool.vhdl.rules.RuleResult;
 import org.zamia.plugin.tool.vhdl.rules.impl.Rule;
+import org.zamia.plugin.tool.vhdl.rules.impl.SonarQubeRule;
 import org.zamia.util.Pair;
 import org.zamia.vhdl.ast.BlockDeclarativeItem;
 import org.zamia.vhdl.ast.SequentialProcess;
@@ -51,11 +53,15 @@ public class RuleSTD_06300 extends Rule {
 					BlockDeclarativeItem variable;
 					for (int i = 0; i < n; i++) {
 						if ((variable = process.getDeclaration(i)) instanceof VariableDeclaration) {
-							reportFile.addViolation(
+							Element element = reportFile.addViolation(
 									((VariableDeclaration)variable).getLocation(),
 									entry.getValue().getEntity(),
 									entry.getValue().getArchitecture()
 									);
+							reportFile.addElement(ReportFile.TAG_PROCESS, process.getLabel(), element);
+							reportFile.addElement(ReportFile.TAG_VARIABLE, variable.getId(), element);
+							reportFile.addSonarTags(element, SonarQubeRule.SONAR_ERROR_STD_06300, new Object[] {process.getLabel(), variable.getId()},
+									SonarQubeRule.SONAR_MSG_STD_06300, new Object[] {variable.getId(), process.getLabel()});
 						}
 					}
 				}

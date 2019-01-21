@@ -52,6 +52,7 @@
 				<xs:element name="STD_05000"             type="rc:STD_05000_Type"/>
 				<xs:element name="STD_05300"             type="rc:STD_05300_Type"/>
 				<xs:element name="STD_06800"             type="rc:STD_06800_Type"/>
+				<xs:element name="STD_06300"             type="rc:STD_06300_Type"/>
 				
 				<!-- Standard Help rules -->
 				<xs:element name="STD_01800"             type="rc:STD_01800_Type"/>
@@ -244,6 +245,16 @@
 	<!-- Combinational processes have a sensitivity list including all inputs signals which are read. -->
 	<xs:complexType name="STD_06800_Type">
 		<xs:sequence>
+			<xs:element name="SonarQubeMsg" type="rc:SonarQubeMSG_Type" minOccurs="1" maxOccurs="1"/>
+		</xs:sequence>
+	</xs:complexType>	
+	
+	<!-- Sensitivity list for combinational processes -->
+	<!-- Combinational processes have a sensitivity list including all inputs signals which are read. -->
+	<xs:complexType name="STD_06300_Type">
+		<xs:sequence>
+			<xs:element name="Process"     type="xs:string" minOccurs="1" maxOccurs="1"/>	
+			<xs:element name="Variable" type="xs:string" minOccurs="1" maxOccurs="1"/>	
 			<xs:element name="SonarQubeMsg" type="rc:SonarQubeMSG_Type" minOccurs="1" maxOccurs="1"/>
 		</xs:sequence>
 	</xs:complexType>	
