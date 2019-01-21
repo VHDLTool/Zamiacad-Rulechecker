@@ -48,7 +48,7 @@ public class RuleSTD_01100 extends Rule {
 			if (hdlFiles != null && hdlFiles.size() > 0) {
 				for (Entry<String, HdlFile> entry: hdlFiles.entrySet()) {
 					hdlFile = entry.getValue();
-					if (hdlFile == null || hdlFile.getListHdlEntity().size() == 0) {
+					if (hdlFile == null || hdlFile.getListHdlEntity().isEmpty()) {
 						continue;
 					} else if (hdlFile.getListHdlEntity().size() == 1) {
 						// if there is only one entity in the file
