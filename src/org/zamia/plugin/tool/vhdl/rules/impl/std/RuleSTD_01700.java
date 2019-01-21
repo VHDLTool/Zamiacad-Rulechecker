@@ -18,10 +18,13 @@ import org.zamia.plugin.tool.vhdl.manager.EntityManager;
 import org.zamia.plugin.tool.vhdl.rules.RuleE;
 import org.zamia.plugin.tool.vhdl.rules.RuleResult;
 import org.zamia.plugin.tool.vhdl.rules.impl.Rule;
+import org.zamia.plugin.tool.vhdl.rules.impl.SonarQubeRule;
 import org.zamia.util.Pair;
 import org.zamia.vhdl.ast.Entity;
 
 public class RuleSTD_01700 extends Rule {
+	private static final String clockString = "Clock";
+	private static final String resetString = "Reset";
 
 	public RuleSTD_01700() {
 		super(RuleE.STD_01700);
@@ -89,6 +92,9 @@ public class RuleSTD_01700 extends Rule {
 										if (i != specialPortCnt) {
 											Element info = reportFile.addViolation(entity.getPorts().get(i).getLocation(), entity, clockSignal.getArchitecture());
 											reportFile.addElement(ReportFile.TAG_CLOCK, clockSignal.toString(), info);
+											reportFile.addElement(ReportFile.TAG_RESET, " ", info);
+											reportFile.addSonarTags(info, SonarQubeRule.SONAR_ERROR_STD_01700, new Object[] {clockString, clockSignal.toString(), entity.getId()},
+													SonarQubeRule.SONAR_MSG_STD_01700, new Object[] {clockSignal.toString(), entity.getId()});
 										}
 										specialPortCnt++;
 										break;
@@ -104,7 +110,10 @@ public class RuleSTD_01700 extends Rule {
 									if (resetSignal.toString().equalsIgnoreCase(entity.getPorts().get(i).getId())) {
 										if (i != specialPortCnt) {
 											Element info = reportFile.addViolation(entity.getPorts().get(i).getLocation(), entity, resetSignal.getArchitecture());
+											reportFile.addElement(ReportFile.TAG_CLOCK, " ", info);
 											reportFile.addElement(ReportFile.TAG_RESET, resetSignal.toString(), info);
+											reportFile.addSonarTags(info, SonarQubeRule.SONAR_ERROR_STD_01700, new Object[] {resetString, resetSignal.toString(), entity.getId()},
+													SonarQubeRule.SONAR_MSG_STD_01700, new Object[] {resetSignal.toString(), entity.getId()});
 										}
 										specialPortCnt++;
 										break;
