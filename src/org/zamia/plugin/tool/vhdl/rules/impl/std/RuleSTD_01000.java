@@ -10,6 +10,7 @@ import org.zamia.plugin.tool.vhdl.EntityException;
 import org.zamia.plugin.tool.vhdl.HdlEntity;
 import org.zamia.plugin.tool.vhdl.HdlFile;
 import org.zamia.plugin.tool.vhdl.ReportFile;
+import org.zamia.plugin.tool.vhdl.manager.ArchitectureManager;
 import org.zamia.plugin.tool.vhdl.manager.EntityManager;
 import org.zamia.plugin.tool.vhdl.rules.RuleE;
 import org.zamia.plugin.tool.vhdl.rules.RuleResult;
@@ -34,7 +35,7 @@ public class RuleSTD_01000 extends Rule {
 		
 		// get all the entities
 		try {
-			hdlFiles = EntityManager.getEntity();
+			hdlFiles = ArchitectureManager.getArchitecture();
 		} catch (EntityException e) {
 			LogNeedBuild();
 			return new Pair<>(RuleManager.NO_BUILD, null);
@@ -53,7 +54,10 @@ public class RuleSTD_01000 extends Rule {
 					if (file.getListHdlEntity().size() > 1) {
 						ArrayList<HdlEntity> entities = file.getListHdlEntity();
 						for (HdlEntity entity: entities) {
-							Element element = reportFile.addViolation(entity.getEntity().getLocation(), entity.getEntity());
+							Element element = reportFile.addViolation(
+									entity.getEntity().getLocation(),
+									entity.getEntity().getId(),
+									entity.getListHdlArchitecture().isEmpty() ? " " : entity.getListHdlArchitecture().get(0).getArchitecture().getId());
 							reportFile.addSonarTags(element, SonarQubeRule.SONAR_ERROR_STD_01000, new Object[] {fileName}, SonarQubeRule.SONAR_MSG_STD_01000, new Object[] {fileName});
 						}
 					}
