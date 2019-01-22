@@ -249,8 +249,8 @@
 		</xs:sequence>
 	</xs:complexType>	
 	
-	<!-- Sensitivity list for combinational processes -->
-	<!-- Combinational processes have a sensitivity list including all inputs signals which are read. -->
+	<!-- Unsuitability of variables in RTL design -->
+	<!-- Variables are prohibited in the RTL design. -->
 	<xs:complexType name="STD_06300_Type">
 		<xs:sequence>
 			<xs:element name="Process"     type="xs:string" minOccurs="1" maxOccurs="1"/>	
