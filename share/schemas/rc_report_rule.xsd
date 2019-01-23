@@ -52,11 +52,11 @@
 				<xs:element name="STD_05000"             type="rc:STD_05000_Type"/>
 				<xs:element name="STD_05300"             type="rc:STD_05300_Type"/>
 				<xs:element name="STD_06800"             type="rc:STD_06800_Type"/>
-				<xs:element name="STD_01700"             type="rc:STD_01700_Type"/>
 				
 				<!-- Standard Help rules -->
 				<xs:element name="STD_01800"             type="rc:STD_01800_Type"/>
 				<xs:element name="STD_03700"             type="rc:STD_03700_Type"/>
+				<xs:element name="STD_01700"             type="rc:STD_01700_Type"/>
 			</xs:choice>
 			
 		</xs:sequence>
@@ -248,16 +248,6 @@
 			<xs:element name="SonarQubeMsg" type="rc:SonarQubeMSG_Type" minOccurs="1" maxOccurs="1"/>
 		</xs:sequence>
 	</xs:complexType>		
-
-	<!-- Entity special ports -->
-	<!-- Special ports are the first group of an entity. -->
-	<xs:complexType name="STD_01700_Type">
-		<xs:sequence>
-			<xs:element name="Clock" type="xs:string" minOccurs="1" maxOccurs="1"/>
-			<xs:element name="Reset" type="xs:string" minOccurs="1" maxOccurs="1"/>
-			<xs:element name="SonarQubeMsg" type="rc:SonarQubeMSG_Type" minOccurs="1" maxOccurs="1"/>
-		</xs:sequence>
-	</xs:complexType>
 	
 	<!-- ====================================== -->
 	<!-- Specific types for Standard Help rules -->
@@ -281,6 +271,16 @@
 			<xs:element name="SonarQubeMsg" type="rc:SonarQubeMSG_Type" minOccurs="1" maxOccurs="1"/>
 		</xs:sequence>
 	</xs:complexType>	
+
+	<!-- Entity special ports -->
+	<!-- Special ports are the first group of an entity. -->
+	<xs:complexType name="STD_01700_Type">
+		<xs:sequence>
+			<xs:element name="Clock" type="xs:string" minOccurs="1" maxOccurs="1"/>
+			<xs:element name="Reset" type="xs:string" minOccurs="1" maxOccurs="1"/>
+			<xs:element name="SonarQubeMsg" type="rc:SonarQubeMSG_Type" minOccurs="1" maxOccurs="1"/>
+		</xs:sequence>
+	</xs:complexType>
 
 	<!-- ===================================== -->
 	<!-- SonarQube types                       -->
