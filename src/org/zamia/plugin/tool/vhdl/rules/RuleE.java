@@ -24,6 +24,7 @@ import org.zamia.plugin.tool.vhdl.rules.impl.std.RuleSTD_01000;
 import org.zamia.plugin.tool.vhdl.rules.impl.std.RuleSTD_01100;
 import org.zamia.plugin.tool.vhdl.rules.impl.std.RuleSTD_00900;
 import org.zamia.plugin.tool.vhdl.rules.impl.std.RuleSTD_06300;
+import org.zamia.plugin.tool.vhdl.rules.impl.std.RuleSTD_01700;
 
 	public enum RuleE {
 		
@@ -52,7 +53,8 @@ import org.zamia.plugin.tool.vhdl.rules.impl.std.RuleSTD_06300;
 		STD_01000("STD_01000", RuleSTD_01000.class, RuleTypeE.ALGO, false, "Number of entities per file"),
 		STD_01100("STD_01100", RuleSTD_01100.class, RuleTypeE.ALGO, false, "Number of architectures in files"),
 		STD_00900("STD_00900", RuleSTD_00900.class, RuleTypeE.ALGO, false, "File name of an entity"),
-		STD_06300("STD_06300", RuleSTD_06300.class, RuleTypeE.ALGO, false, "Unsuitability of variables in RTL design");
+		STD_06300("STD_06300", RuleSTD_06300.class, RuleTypeE.ALGO, false, "Unsuitability of variables in RTL design"),
+		STD_01700("STD_01700", RuleSTD_01700.class, RuleTypeE.HELP, false, "Entity special ports");
 
 		
 		
