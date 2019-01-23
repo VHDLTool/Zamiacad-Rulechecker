@@ -28,6 +28,7 @@ public class SonarQubeRule {
 	public static final String SONAR_ERROR_STD_05300_MORE = "Signal %s should not be in the sensitivity list of the process";
 	public static final String SONAR_ERROR_STD_06800 = "%s is initialised in the declaration section";
 	public static final String SONAR_ERROR_STD_01000 = "The file %s contains more than 1 entity declaration";
+	public static final String SONAR_ERROR_STD_01100 = "The file %s contains more than 1 architecture declaration";
 
 	/** Sonar remediation messages */
 	public static final String SONAR_MSG_GEN_01200 = "Change label name %s to include %s as %s";
@@ -55,4 +56,5 @@ public class SonarQubeRule {
 	public static final String SONAR_MSG_STD_05300_MORE = "Remove %s from the sensitivity list of %s";
 	public static final String SONAR_MSG_STD_06800 = "Remove initialisation of %s signal in the declaration section";
 	public static final String SONAR_MSG_STD_01000 = "Reduce the number of entity declarations to 1 in the file %s";
+	public static final String SONAR_MSG_STD_01100 = "Reduce the number of architecture declarations to 1 in the file %s";
 }
