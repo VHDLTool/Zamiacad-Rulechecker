@@ -30,6 +30,7 @@ public class SonarQubeRule {
 	public static final String SONAR_ERROR_STD_01000 = "The file %s contains more than 1 entity declaration";
 	public static final String SONAR_ERROR_STD_01100 = "The file %s contains more than 1 architecture declaration";
 	public static final String SONAR_ERROR_STD_00900 = "The file %s does not contain the name of the entity %s";
+	public static final String SONAR_ERROR_STD_06300 = "Process %s contains a variable which name is %s";
 
 	/** Sonar remediation messages */
 	public static final String SONAR_MSG_GEN_01200 = "Change label name %s to include %s as %s";
@@ -59,4 +60,5 @@ public class SonarQubeRule {
 	public static final String SONAR_MSG_STD_01000 = "Reduce the number of entity declarations to 1 in the file %s";
 	public static final String SONAR_MSG_STD_01100 = "Reduce the number of architecture declarations to 1 in the file %s";
 	public static final String SONAR_MSG_STD_00900 = "Change the %s to contain the name of the entity %s";
+	public static final String SONAR_MSG_STD_06300 = "Change variable %s by signal for process %s";
 }
