@@ -52,6 +52,7 @@
 				<xs:element name="STD_05000"             type="rc:STD_05000_Type"/>
 				<xs:element name="STD_05300"             type="rc:STD_05300_Type"/>
 				<xs:element name="STD_06800"             type="rc:STD_06800_Type"/>
+				<xs:element name="STD_01300"             type="rc:STD_01300_Type"/>
 				
 				<!-- Standard Help rules -->
 				<xs:element name="STD_01800"             type="rc:STD_01800_Type"/>
@@ -247,6 +248,15 @@
 			<xs:element name="SonarQubeMsg" type="rc:SonarQubeMSG_Type" minOccurs="1" maxOccurs="1"/>
 		</xs:sequence>
 	</xs:complexType>	
+
+	<!-- Number of ports declaration per line -->
+	<!-- Each line includes only one port definition or mapping. -->
+	<xs:complexType name="STD_01300_Type">
+		<xs:sequence>
+			<xs:element name="Port" type="xs:string" minOccurs="1" maxOccurs="1"/>
+			<xs:element name="SonarQubeMsg" type="rc:SonarQubeMSG_Type" minOccurs="1" maxOccurs="1"/>
+		</xs:sequence>
+	</xs:complexType>
 	
 	<!-- ====================================== -->
 	<!-- Specific types for Standard Help rules -->

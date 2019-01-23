@@ -39,6 +39,7 @@ public class ReportFile {
 	public static final String TAG_RESET                     = NAMESPACE_PREFIX + "Reset";
 	public static final String TAG_RESET_BEFORE              = NAMESPACE_PREFIX + "ResetBefore";
 	public static final String TAG_RESET_AFTER               = NAMESPACE_PREFIX + "ResetAfter";
+	public static final String TAG_PORT                      = NAMESPACE_PREFIX + "Port";
 
 	public static final String TAG_REGISTER                  = NAMESPACE_PREFIX + "Register";
 	public static final String TAG_INSTANCE                  = NAMESPACE_PREFIX + "Instance";
