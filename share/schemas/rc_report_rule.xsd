@@ -54,6 +54,7 @@
 				<xs:element name="STD_06800"             type="rc:STD_06800_Type"/>
 				<xs:element name="STD_01000"             type="rc:STD_01000_Type"/>
 				<xs:element name="STD_01100"             type="rc:STD_01100_Type"/>
+				<xs:element name="STD_00900"             type="rc:STD_00900_Type"/>
 				
 				<!-- Standard Help rules -->
 				<xs:element name="STD_01800"             type="rc:STD_01800_Type"/>
@@ -253,6 +254,14 @@
 	<!-- Number of entities per file -->
 	<!-- Each source file contains only one VHDL entity. -->
 	<xs:complexType name="STD_01000_Type">
+		<xs:sequence>
+			<xs:element name="SonarQubeMsg" type="rc:SonarQubeMSG_Type" minOccurs="1" maxOccurs="1"/>
+		</xs:sequence>
+	</xs:complexType>
+	
+	<!-- File name of an entity -->
+	<!-- The file name for an entity VHDL file includes at least the entity name. -->
+	<xs:complexType name="STD_00900_Type">
 		<xs:sequence>
 			<xs:element name="SonarQubeMsg" type="rc:SonarQubeMSG_Type" minOccurs="1" maxOccurs="1"/>
 		</xs:sequence>
