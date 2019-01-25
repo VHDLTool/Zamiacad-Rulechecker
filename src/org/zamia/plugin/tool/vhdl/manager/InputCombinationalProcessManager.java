@@ -146,13 +146,13 @@ public class InputCombinationalProcessManager extends ToolManager {
 				searchInput(child, processItem);
 			} else if (child instanceof SequentialFor) {
 				searchInput(child, processItem);
-			} else if (child instanceof SequentialSignalAssignment) {
-				VHDLNode child2 = child.getChild(1);
+			} else if (child instanceof SequentialSignalAssignment) {	// Target [RES(1)] <= I_DATA2(1)"XOR"I_DATA2(0) 
+				VHDLNode child2 = child.getChild(1);					// I_DATA2(1)"XOR"I_DATA2(0) 
 				if (child2 instanceof Waveform) {
-					VHDLNode child3 = child2.getChild(0);
+					VHDLNode child3 = child2.getChild(0);				// I_DATA2(1)"XOR"I_DATA2(0)
 					if (child3 instanceof WaveformElement) {
 						VHDLNode child4 = child3.getChild(0);
-						if (child4 instanceof OperationName) {
+						if (child4 instanceof OperationName) {			// OperationLogic(I_DATA2(1)"XOR"I_DATA2(0))
 							addNewInput(child4, processItem);
 						} else if (child4 instanceof OperationConcat || child4 instanceof OperationLogic) {
 							searchInOpConcat(child4, processItem);
@@ -204,11 +204,11 @@ public class InputCombinationalProcessManager extends ToolManager {
 
 	private static void searchInOpConcat(VHDLNode node, Process processItem) {
 		if (node == null) { return;}
-		int numChildren = node.getNumChildren();
+		int numChildren = node.getNumChildren();	// OperationLogic(I_DATA2(1)"XOR"I_DATA2(0))
 		for (int i = 0; i < numChildren; i++) {
 			VHDLNode child = node.getChild(i);
 			if (child instanceof OperationName) {
-				addNewInput(child, processItem);
+				addNewInput(child, processItem);	// I_DATA2(0), I_DATA2(1)
 			} else if (child instanceof OperationConcat) {
 				searchInOpConcat(child, processItem);
 			}
