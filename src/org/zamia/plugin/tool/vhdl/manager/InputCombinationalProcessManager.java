@@ -154,7 +154,7 @@ public class InputCombinationalProcessManager extends ToolManager {
 						VHDLNode child4 = child3.getChild(0);
 						if (child4 instanceof OperationName) {
 							addNewInput(child4, processItem);
-						} else if (child4 instanceof OperationConcat) {
+						} else if (child4 instanceof OperationConcat || child4 instanceof OperationLogic) {
 							searchInOpConcat(child4, processItem);
 						}
 					}
