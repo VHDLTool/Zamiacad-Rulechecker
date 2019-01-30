@@ -1,7 +1,10 @@
 package org.zamia.plugin.tool.vhdl.rules.impl.gen;
 
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
+import java.util.Map.Entry;
 
 import javax.xml.parsers.DocumentBuilderFactory;
 import javax.xml.parsers.ParserConfigurationException;
@@ -9,12 +12,17 @@ import javax.xml.parsers.ParserConfigurationException;
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
 import org.zamia.ZamiaProject;
+import org.zamia.plugin.tool.vhdl.EntityException;
+import org.zamia.plugin.tool.vhdl.HdlFile;
+import org.zamia.plugin.tool.vhdl.manager.EntityManager;
+import org.zamia.plugin.tool.vhdl.ReportFile;
 import org.zamia.plugin.tool.vhdl.rules.IHandbookParam;
 import org.zamia.plugin.tool.vhdl.rules.RuleE;
 import org.zamia.plugin.tool.vhdl.rules.RuleResult;
 import org.zamia.plugin.tool.vhdl.rules.StringParam;
 import org.zamia.plugin.tool.vhdl.rules.impl.Rule;
 import org.zamia.util.Pair;
+import org.zamia.vhdl.ast.VHDLPackage;
 
 public class RuleGEN_01600 extends Rule{
 	
@@ -37,8 +45,35 @@ public class RuleGEN_01600 extends Rule{
 		} else {
 			parameterList = getDefaultList();
 		}
+
+		Map<String, HdlFile> hdlFiles = new HashMap<>();
+		try {
+			hdlFiles = EntityManager.getEntity();
+		} catch (EntityException e) {
+			LogNeedBuild();
+			return new Pair<> (NO_BUILD, null);
+		}
 		
-		return null;
+		ReportFile reportFile = new ReportFile(this);
+		Pair<Integer, RuleResult> result = null;
+		if (reportFile.initialize()) {
+			for (Entry<String, HdlFile> entry: hdlFiles.entrySet()) {
+				HdlFile hdlFile = entry.getValue();
+				for (VHDLPackage vhdlPackage: hdlFile.getListHdlPackage()) {
+					boolean isValid = false;
+					for (IHandbookParam param: parameterList) {
+						isValid |= param.isValid(vhdlPackage.getId());
+					}
+					if (!isValid) {
+						Element element = reportFile.addViolation(vhdlPackage.getLocation());
+						reportFile.addElement(ReportFile.TAG_PACKAGE, vhdlPackage.getId(), element);
+						// TODO add sonar msg and error
+					}
+				}
+			}
+			result = reportFile.save();
+		}
+		return result;
 	}
 	
 	private List<IHandbookParam> getDefaultList(){
@@ -46,8 +81,19 @@ public class RuleGEN_01600 extends Rule{
 			Document document = DocumentBuilderFactory.newInstance().newDocumentBuilder().newDocument();
 			Element root = document.createElement("hb:RuleParams");
 			Element params = document.createElement("hb:StringParam");
-//			params.appendChild(document.create)
-			document.appendChild(root);
+			Element id = document.createElement("hb:ParamID");
+			id.appendChild(document.createTextNode("P1"));
+			Element position = document.createElement("hb:Position");
+			position.appendChild(document.createTextNode("Prefix"));
+			Element value = document.createElement("hb:Value");
+			value.appendChild(document.createTextNode("pkg"));
+			params.appendChild(id);
+			params.appendChild(position);
+			params.appendChild(value);
+			root.appendChild(params);
+			List<IHandbookParam> parameter= new ArrayList<>();
+			parameter.add(new StringParam(root));
+			return parameter;
 		} catch (ParserConfigurationException e) {
 			e.printStackTrace();
 		}
