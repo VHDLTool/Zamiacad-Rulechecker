@@ -249,6 +249,7 @@
 	<!-- Combinational processes have a sensitivity list including all inputs signals which are read. -->
 	<xs:complexType name="STD_06800_Type">
 		<xs:sequence>
+			<xs:element name="Signal" type="xs:string" minOccurs="1" maxOccurs="1"/>	
 			<xs:element name="SonarQubeMsg" type="rc:SonarQubeMSG_Type" minOccurs="1" maxOccurs="1"/>
 		</xs:sequence>
 	</xs:complexType>	

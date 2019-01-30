@@ -1,13 +1,12 @@
 package org.zamia.plugin.tool.vhdl.help;
 
-import java.awt.Desktop;
-import java.net.URI;
-
 import org.eclipse.jface.action.IAction;
 import org.eclipse.jface.viewers.ISelection;
 import org.eclipse.ui.IWorkbenchWindow;
 import org.eclipse.ui.IWorkbenchWindowActionDelegate;
 import org.zamia.ZamiaLogger;
+
+import edu.stanford.ejalbert.BrowserLauncher;
 
 public class OpenUserGuide implements IWorkbenchWindowActionDelegate {
 
@@ -16,9 +15,8 @@ public class OpenUserGuide implements IWorkbenchWindowActionDelegate {
 	@Override
 	public void run(IAction arg0) {
 		try {
-			Desktop desktop = java.awt.Desktop.getDesktop();
-			URI oURL = new URI("https://github.com/VHDLTool/Zamiacad-Rulechecker/wiki");
-			desktop.browse(oURL);
+			BrowserLauncher launcher = new BrowserLauncher();
+			launcher.openURLinBrowser("https://github.com/VHDLTool/Zamiacad-Rulechecker/wiki/");
 		} catch (Exception e) {
 			e.printStackTrace();
 		}
