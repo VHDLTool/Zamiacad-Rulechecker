@@ -23,6 +23,7 @@ import org.zamia.plugin.tool.vhdl.rules.RuleE;
 import org.zamia.plugin.tool.vhdl.rules.RuleResult;
 import org.zamia.plugin.tool.vhdl.rules.impl.Rule;
 import org.zamia.util.Pair;
+import org.zamia.vhdl.ast.Architecture;
 import org.zamia.vhdl.ast.Block;
 import org.zamia.vhdl.ast.ConcurrentAssertion;
 import org.zamia.vhdl.ast.ConcurrentProcedureCall;
@@ -105,13 +106,21 @@ public class RuleSTD_01200 extends Rule {
 				for (HdlEntity hdlEntity : hdlEntities) {
 					List<HdlArchitecture> hdlArchitectures = hdlEntity.getListHdlArchitecture();
 					for (HdlArchitecture hdlArchitecture : hdlArchitectures) {
-						for (int i = 0; i < hdlArchitecture.getArchitecture().getNumConcurrentStatements(); i++) {
-							ConcurrentStatement cStatement = hdlArchitecture.getArchitecture().getConcurrentStatement(i);
+						// do operations in each architecture
+						Architecture architecture = hdlArchitecture.getArchitecture();
+						// declarative items
+						for (int i = 0; i < architecture.getNumDeclarations(); i++) {
+							logger.info("[Declarative item] item at %d", architecture.getDeclaration(i).getLocation().fLine);
+						}
+						// concurrent statements
+						for (int i = 0; i < architecture.getNumConcurrentStatements(); i++) {
+							ConcurrentStatement cStatement = architecture.getConcurrentStatement(i);
 							logger.info("concurrent statement: %s in %s at %d", cStatement.getLabel(), cStatement.getLocation().fSF.getFileName(), cStatement.getLocation().fLine);
 							expandConcurrentStatement(cStatement);
 						}
-					}
+					} 
 				}
+				logger.info("\n\n");
 			}
 		} catch (EntityException e) {
 			e.printStackTrace();
@@ -125,7 +134,7 @@ public class RuleSTD_01200 extends Rule {
 		if (concurrentStatement instanceof SequentialProcess) {
 			SequentialProcess process = (SequentialProcess) concurrentStatement;
 			for (int i = 0; i < process.getNumDeclarations(); i++) {
-				logger.info("[Concurrent] Process declaration item at %s", process.getDeclaration(i).getLocation().fLine);
+				logger.info("[Sequential] Process declaration item at %s", process.getDeclaration(i).getLocation().fLine);
 			}
 			SequenceOfStatements statements = (SequenceOfStatements) process.getChild(0);
 			for (int j = 0; j < statements.getNumStatements(); j++) {
@@ -133,7 +142,8 @@ public class RuleSTD_01200 extends Rule {
 				expandSequentialStatement(statement);
 			}
 		} else if (concurrentStatement instanceof Block) {
-			
+			logger.info("[Concurrent] Block statement at %d", concurrentStatement.getLocation().fLine);
+			// TODO
 		} else if (concurrentStatement instanceof ConcurrentAssertion) {
 			logger.info("[Concurrent] Assert statement at %d", concurrentStatement.getLocation().fLine);
 		} else if (concurrentStatement instanceof ConcurrentProcedureCall) {
@@ -142,9 +152,13 @@ public class RuleSTD_01200 extends Rule {
 		} else if (concurrentStatement instanceof ConcurrentSignalAssignment) {
 			logger.info("[Concurrent] Signal assignment statement at %d", concurrentStatement.getLocation().fLine);
 		} else if (concurrentStatement instanceof GenerateStatement) {
+			logger.info("[Concurrent] Generate statement at %d", concurrentStatement.getLocation().fLine);
 			// TODO
 		} else if (concurrentStatement instanceof InstantiatedUnit) {
+			logger.info("[Concurrent] Instantiated unit statement at %d", concurrentStatement.getLocation().fLine);
 			// TODO
+		} else {
+			logger.info("[Concurrent] Error at %d", concurrentStatement.getLocation().fLine);
 		}
 	}
 	
