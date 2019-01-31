@@ -27,7 +27,7 @@ import org.zamia.vhdl.ast.VHDLPackage;
 public class RuleGEN_01600 extends Rule{
 	
 	private static final String POSITION = "Prefix";
-	private static final String VALUE = "pkg";
+	private static final String VALUE = "pkg_";
 	
 	private boolean withParameter = false;
 
