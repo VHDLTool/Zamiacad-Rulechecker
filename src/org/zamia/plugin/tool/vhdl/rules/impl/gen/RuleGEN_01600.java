@@ -28,8 +28,6 @@ public class RuleGEN_01600 extends Rule{
 	
 	private static final String POSITION = "Prefix";
 	private static final String VALUE = "pkg_";
-	
-	private boolean withParameter = false;
 
 	public RuleGEN_01600() {
 		super(RuleE.GEN_01600);
@@ -39,13 +37,9 @@ public class RuleGEN_01600 extends Rule{
 	public Pair<Integer, RuleResult> Launch(ZamiaProject zPrj, String ruleId, ParameterSource parameterSource) {
 		initializeRule(parameterSource, ruleId);
 		
-		List<IHandbookParam> parameterList;
-		if (withParameter) {
-			parameterList = getParameterList(zPrj);
-			if (parameterList == null) {
-				return new Pair<> (WRONG_PARAM, null);
-			}
-		} else {
+		List<IHandbookParam> parameterList = null;
+		parameterList = getParameterList(zPrj);
+		if (parameterList == null || parameterList.isEmpty()) {
 			parameterList = getDefaultList();
 		}
 
