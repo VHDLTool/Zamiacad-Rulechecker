@@ -40,7 +40,7 @@ public class RuleGEN_01600 extends Rule{
 		List<IHandbookParam> parameterList = null;
 		parameterList = getParameterList(zPrj);
 		if (parameterList == null || parameterList.isEmpty()) {
-			parameterList = getDefaultList();
+			parameterList = getDefaultStringParamList(POSITION, VALUE);
 		}
 
 		Map<String, HdlFile> hdlFiles = new HashMap<>();
@@ -72,28 +72,4 @@ public class RuleGEN_01600 extends Rule{
 		}
 		return result;
 	}
-	
-	private List<IHandbookParam> getDefaultList(){
-		try {
-			Document document = DocumentBuilderFactory.newInstance().newDocumentBuilder().newDocument();
-			
-			Element params = document.createElement("hb:StringParam");
-			Element id = document.createElement("hb:ParamID");
-			id.setTextContent("P1");
-			Element position = document.createElement("hb:Position");
-			position.setTextContent(POSITION);
-			Element value = document.createElement("hb:Value");
-			value.setTextContent(VALUE);
-			params.appendChild(id);
-			params.appendChild(position);
-			params.appendChild(value);
-			List<IHandbookParam> parameter= new ArrayList<>();
-			parameter.add(new StringParam(params));
-			return parameter;
-		} catch (ParserConfigurationException e) {
-			logger.error("Error in #getDefaultList: %s", e.getMessage());
-		}
-		return new ArrayList<>();
-	}
-
 }
