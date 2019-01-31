@@ -26,6 +26,9 @@ import org.zamia.vhdl.ast.VHDLPackage;
 
 public class RuleGEN_01600 extends Rule{
 	
+	private static final String POSITION = "Prefix";
+	private static final String VALUE = "pkg";
+	
 	private boolean withParameter = false;
 
 	public RuleGEN_01600() {
@@ -79,25 +82,24 @@ public class RuleGEN_01600 extends Rule{
 	private List<IHandbookParam> getDefaultList(){
 		try {
 			Document document = DocumentBuilderFactory.newInstance().newDocumentBuilder().newDocument();
-			Element root = document.createElement("hb:RuleParams");
+			
 			Element params = document.createElement("hb:StringParam");
 			Element id = document.createElement("hb:ParamID");
-			id.appendChild(document.createTextNode("P1"));
+			id.setTextContent("P1");
 			Element position = document.createElement("hb:Position");
-			position.appendChild(document.createTextNode("Prefix"));
+			position.setTextContent(POSITION);
 			Element value = document.createElement("hb:Value");
-			value.appendChild(document.createTextNode("pkg"));
+			value.setTextContent(VALUE);
 			params.appendChild(id);
 			params.appendChild(position);
 			params.appendChild(value);
-			root.appendChild(params);
 			List<IHandbookParam> parameter= new ArrayList<>();
-			parameter.add(new StringParam(root));
+			parameter.add(new StringParam(params));
 			return parameter;
 		} catch (ParserConfigurationException e) {
-			e.printStackTrace();
+			logger.error("Error in #getDefaultList: %s", e.getMessage());
 		}
-		return null;
+		return new ArrayList<>();
 	}
 
 }
