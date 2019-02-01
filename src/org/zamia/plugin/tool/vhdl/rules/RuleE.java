@@ -7,6 +7,7 @@ import org.zamia.plugin.tool.vhdl.rules.impl.gen.RuleGEN_02400;
 import org.zamia.plugin.tool.vhdl.rules.impl.gen.RuleGEN_04500;
 import org.zamia.plugin.tool.vhdl.rules.impl.gen.RuleGEN_04900;
 import org.zamia.plugin.tool.vhdl.rules.impl.gen.RuleGEN_01600;
+import org.zamia.plugin.tool.vhdl.rules.impl.gen.RuleGEN_02100;
 import org.zamia.plugin.tool.vhdl.rules.impl.std.RuleSTD_00200;
 import org.zamia.plugin.tool.vhdl.rules.impl.std.RuleSTD_00300;
 import org.zamia.plugin.tool.vhdl.rules.impl.std.RuleSTD_00400;
@@ -31,6 +32,7 @@ import org.zamia.plugin.tool.vhdl.rules.impl.std.RuleSTD_06800;
 		GEN_04500("GEN_04500", RuleGEN_04500.class, RuleTypeE.ALGO, false, "Reset Registers"),
 		GEN_04900("GEN_04900", RuleGEN_04900.class, RuleTypeE.ALGO, false, "Use of clock signal"),
 		GEN_01600("GEN_01600", RuleGEN_01600.class, RuleTypeE.ALGO, false, "Identification of package element"),
+		GEN_02100("GEN_02100", RuleGEN_02100.class, RuleTypeE.ALGO, false, "Name of RTL architectures"),
 		
 		// standard
 		STD_01800("STD_01800", RuleSTD_01800.class, RuleTypeE.HELP, false, "Primitive isolation"),
