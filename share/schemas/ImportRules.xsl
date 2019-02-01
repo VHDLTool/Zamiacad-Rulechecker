@@ -847,7 +847,6 @@
 											<xsl:when test="rc:STD_03700">
 												<xsl:call-template name="STD_03700Elements" />
 											</xsl:when>
-											</xsl:when>
 											<xsl:when test="rc:STD_06800">
 												<xsl:call-template name="STD_06800Elements" />
 											</xsl:when>
