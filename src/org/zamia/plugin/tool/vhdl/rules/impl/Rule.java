@@ -7,6 +7,11 @@ import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
 
+import javax.xml.parsers.DocumentBuilderFactory;
+import javax.xml.parsers.ParserConfigurationException;
+
+import org.w3c.dom.Document;
+import org.w3c.dom.Element;
 import org.zamia.ZamiaProject;
 import org.zamia.plugin.tool.vhdl.ClockSignal;
 import org.zamia.plugin.tool.vhdl.ClockSource;
@@ -27,6 +32,7 @@ import org.zamia.plugin.tool.vhdl.manager.ResetSignalSourceManager;
 import org.zamia.plugin.tool.vhdl.rules.IHandbookParam;
 import org.zamia.plugin.tool.vhdl.rules.RuleE;
 import org.zamia.plugin.tool.vhdl.rules.RuleResult;
+import org.zamia.plugin.tool.vhdl.rules.StringParam;
 import org.zamia.util.Pair;
 import org.zamia.vhdl.ast.Architecture;
 import org.zamia.vhdl.ast.Entity;
@@ -244,5 +250,28 @@ public abstract class Rule extends RuleManager {
 	
 	protected void LogNeedBuild() {
 		logger.error("Current project needs a build.");
+	}
+	
+	protected List<IHandbookParam> getDefaultStringParamList(String aPosition, String aValue){
+		try {
+			Document document = DocumentBuilderFactory.newInstance().newDocumentBuilder().newDocument();
+			
+			Element params = document.createElement("hb:StringParam");
+			Element id = document.createElement("hb:ParamID");
+			id.setTextContent("P1");
+			Element position = document.createElement("hb:Position");
+			position.setTextContent(aPosition);
+			Element value = document.createElement("hb:Value");
+			value.setTextContent(aValue);
+			params.appendChild(id);
+			params.appendChild(position);
+			params.appendChild(value);
+			List<IHandbookParam> parameter= new ArrayList<>();
+			parameter.add(new StringParam(params));
+			return parameter;
+		} catch (ParserConfigurationException e) {
+			logger.error("Error in #getDefaultList: %s", e.getMessage());
+		}
+		return new ArrayList<>();
 	}
 }
