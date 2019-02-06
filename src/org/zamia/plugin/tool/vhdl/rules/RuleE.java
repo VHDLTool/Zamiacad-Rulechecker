@@ -7,6 +7,7 @@ import org.zamia.plugin.tool.vhdl.rules.impl.gen.RuleGEN_02400;
 import org.zamia.plugin.tool.vhdl.rules.impl.gen.RuleGEN_04500;
 import org.zamia.plugin.tool.vhdl.rules.impl.gen.RuleGEN_04900;
 import org.zamia.plugin.tool.vhdl.rules.impl.gen.RuleGEN_01600;
+import org.zamia.plugin.tool.vhdl.rules.impl.gen.RuleGEN_02100;
 import org.zamia.plugin.tool.vhdl.rules.impl.std.RuleSTD_00200;
 import org.zamia.plugin.tool.vhdl.rules.impl.std.RuleSTD_00300;
 import org.zamia.plugin.tool.vhdl.rules.impl.std.RuleSTD_00400;
@@ -45,6 +46,7 @@ import org.zamia.plugin.tool.vhdl.rules.impl.std.RuleSTD_01300;
 		//generic
 		GEN_01200("GEN_01200", RuleGEN_01200.class, RuleTypeE.ALGO, true, "Identification of process label"),
 		GEN_01600("GEN_01600", RuleGEN_01600.class, RuleTypeE.ALGO, false, "Identification of package element"),
+		GEN_02100("GEN_02100", RuleGEN_02100.class, RuleTypeE.ALGO, false, "Name of RTL architectures"),
 		GEN_02300("GEN_02300", RuleGEN_02300.class, RuleTypeE.ALGO, false, "Preservation of Clock Name"),
 		GEN_02400("GEN_02400", RuleGEN_02400.class, RuleTypeE.ALGO, false, "Preservation of Reset Name"),
 		GEN_04500("GEN_04500", RuleGEN_04500.class, RuleTypeE.ALGO, false, "Reset Registers"),
