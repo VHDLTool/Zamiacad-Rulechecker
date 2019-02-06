@@ -92,10 +92,6 @@
 	<hb:Rule UID="STD_01100">
 		<hb:RuleUID>STD_01100</hb:RuleUID>
 		<hb:RuleGEN>STD_01100</hb:RuleGEN>
-	</hb:Rule>			
-	<hb:Rule UID="STD_06300">
-		<hb:RuleUID>STD_06300</hb:RuleUID>
-		<hb:RuleGEN>STD_06300</hb:RuleGEN>
 	</hb:Rule>		
 	<hb:Rule UID="STD_01700">
 		<hb:RuleUID>STD_01700</hb:RuleUID>
@@ -158,6 +154,10 @@
 	<hb:Rule UID="STD_05300">
 		<hb:RuleUID>STD_05300</hb:RuleUID>
 		<hb:RuleGEN>STD_05300</hb:RuleGEN>
+	</hb:Rule>			
+	<hb:Rule UID="STD_06300">
+		<hb:RuleUID>STD_06300</hb:RuleUID>
+		<hb:RuleGEN>STD_06300</hb:RuleGEN>
 	</hb:Rule>
 	<hb:Rule UID="STD_06800">
 		<hb:RuleUID>STD_06800</hb:RuleUID>
