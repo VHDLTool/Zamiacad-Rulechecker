@@ -32,7 +32,6 @@ public class SonarQubeRule {
 	public static final String SONAR_ERROR_STD_06300 = "Process %s contains a variable which name is %s";
 	public static final String SONAR_ERROR_STD_01700 = "%s %s is not declared at the beginning of the entity %s";
 	public static final String SONAR_ERROR_STD_06800 = "%s signal has got an initial value at definition.";
-	public static final String SONAR_ERROR_STD_06800 = "%s is initialised in the declaration section";
 	public static final String SONAR_ERROR_STD_01300 = "Port %s is declared on the same line as other ports";
 
 	/** Sonar remediation messages */
@@ -65,6 +64,5 @@ public class SonarQubeRule {
 	public static final String SONAR_MSG_STD_06300 = "Change variable %s by signal for process %s";
 	public static final String SONAR_MSG_STD_01700 = "Move %s declaration at the beginning of the entity %s";
 	public static final String SONAR_MSG_STD_06800 = "Remove initialization of %s signal in the definition.";
-	public static final String SONAR_MSG_STD_06800 = "Remove initialisation of %s signal in the declaration section";
 	public static final String SONAR_MSG_STD_01300 = "Dedicate one line for the declaration of %s";
 }
