@@ -139,7 +139,9 @@ public class EntityManager extends ToolManager {
 		if (info == ListUpdateE.YES && listHdlFile != null) {
 			return listHdlFile;
 		}
-		HdlFileManager.getHdlFile();
+		if (listHdlFile == null || listHdlFile.isEmpty()) {
+			HdlFileManager.getHdlFile();
+		}
 
 		info = ListUpdateE.YES;
 
