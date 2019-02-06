@@ -26,11 +26,11 @@ import org.zamia.plugin.tool.vhdl.rules.impl.std.RuleSTD_06800;
 		
 		//generic
 		GEN_01200("GEN_01200", RuleGEN_01200.class, RuleTypeE.ALGO, true, "Identification of process label"),
+		GEN_01600("GEN_01600", RuleGEN_01600.class, RuleTypeE.ALGO, false, "Identification of package element"),
 		GEN_02300("GEN_02300", RuleGEN_02300.class, RuleTypeE.ALGO, false, "Preservation of Clock Name"),
 		GEN_02400("GEN_02400", RuleGEN_02400.class, RuleTypeE.ALGO, false, "Preservation of Reset Name"),
 		GEN_04500("GEN_04500", RuleGEN_04500.class, RuleTypeE.ALGO, false, "Reset Registers"),
 		GEN_04900("GEN_04900", RuleGEN_04900.class, RuleTypeE.ALGO, false, "Use of clock signal"),
-		GEN_01600("GEN_01600", RuleGEN_01600.class, RuleTypeE.ALGO, false, "Identification of package element"),
 		
 		// standard
 		STD_01800("STD_01800", RuleSTD_01800.class, RuleTypeE.HELP, false, "Primitive isolation"),
