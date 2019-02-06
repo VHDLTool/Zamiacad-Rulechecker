@@ -41,6 +41,10 @@
 				<xs:element name="STD_00200"             type="rc:STD_00200_Type"/>
 				<xs:element name="STD_00300"             type="rc:STD_00300_Type"/>
 				<xs:element name="STD_00400"             type="rc:STD_00400_Type"/>
+				<xs:element name="STD_00900"             type="rc:STD_00900_Type"/>
+				<xs:element name="STD_01000"             type="rc:STD_01000_Type"/>
+				<xs:element name="STD_01100"             type="rc:STD_01100_Type"/>
+				<xs:element name="STD_01300"             type="rc:STD_01300_Type"/>
 				<xs:element name="STD_03600_R1"          type="rc:STD_03600_R1_Type"/>
 				<xs:element name="STD_03600_R2"          type="rc:STD_03600_R2_Type"/>
 				<xs:element name="STD_03800"             type="rc:STD_03800_Type"/>
@@ -51,16 +55,13 @@
 				<xs:element name="STD_04800_R2"          type="rc:STD_04800_R2_Type"/>
 				<xs:element name="STD_05000"             type="rc:STD_05000_Type"/>
 				<xs:element name="STD_05300"             type="rc:STD_05300_Type"/>
-				<xs:element name="STD_06800"             type="rc:STD_06800_Type"/>
-				<xs:element name="STD_01000"             type="rc:STD_01000_Type"/>
-				<xs:element name="STD_01100"             type="rc:STD_01100_Type"/>
-				<xs:element name="STD_00900"             type="rc:STD_00900_Type"/>
 				<xs:element name="STD_06300"             type="rc:STD_06300_Type"/>
+				<xs:element name="STD_06800"             type="rc:STD_06800_Type"/>
 				
 				<!-- Standard Help rules -->
+				<xs:element name="STD_01700"             type="rc:STD_01700_Type"/>
 				<xs:element name="STD_01800"             type="rc:STD_01800_Type"/>
 				<xs:element name="STD_03700"             type="rc:STD_03700_Type"/>
-				<xs:element name="STD_01700"             type="rc:STD_01700_Type"/>
 			</xs:choice>
 			
 		</xs:sequence>
@@ -141,7 +142,40 @@
 		<xs:sequence>
 			<xs:element name="SonarQubeMsg" type="rc:SonarQubeMSG_Type" minOccurs="1" maxOccurs="1"/>
 		</xs:sequence>
+	</xs:complexType>		
+	
+	<!-- File name of an entity -->
+	<!-- The file name for an entity VHDL file includes at least the entity name. -->
+	<xs:complexType name="STD_00900_Type">
+		<xs:sequence>
+			<xs:element name="SonarQubeMsg" type="rc:SonarQubeMSG_Type" minOccurs="1" maxOccurs="1"/>
+		</xs:sequence>
+	</xs:complexType>
+
+	<!-- Number of entities per file -->
+	<!-- Each source file contains only one VHDL entity. -->
+	<xs:complexType name="STD_01000_Type">
+		<xs:sequence>
+			<xs:element name="SonarQubeMsg" type="rc:SonarQubeMSG_Type" minOccurs="1" maxOccurs="1"/>
+		</xs:sequence>
+	</xs:complexType>
+	
+	<!-- Number of architectures in files -->
+	<!-- Each VHDL file includes only one architecture per file. -->
+	<xs:complexType name="STD_01100_Type">
+		<xs:sequence>
+			<xs:element name="SonarQubeMsg" type="rc:SonarQubeMSG_Type" minOccurs="1" maxOccurs="1"/>
+		</xs:sequence>
 	</xs:complexType>	
+
+	<!-- Number of ports declaration per line -->
+	<!-- Each line includes only one port definition or mapping. -->
+	<xs:complexType name="STD_01300_Type">
+		<xs:sequence>
+			<xs:element name="Port" type="xs:string" minOccurs="1" maxOccurs="1"/>
+			<xs:element name="SonarQubeMsg" type="rc:SonarQubeMSG_Type" minOccurs="1" maxOccurs="1"/>
+		</xs:sequence>
+	</xs:complexType>
 	
 	<!-- Reset Sensitive Level -->
 	<!-- Every synchronous process uses the same reset activation level. -->
@@ -244,39 +278,6 @@
 			<xs:element name="SonarQubeMsg" type="rc:SonarQubeMSG_Type" minOccurs="1" maxOccurs="1"/>
 		</xs:sequence>
 	</xs:complexType>	
-
-	<!-- Sensitivity list for combinational processes -->
-	<!-- Combinational processes have a sensitivity list including all inputs signals which are read. -->
-	<xs:complexType name="STD_06800_Type">
-		<xs:sequence>
-			<xs:element name="Signal" type="xs:string" minOccurs="1" maxOccurs="1"/>	
-			<xs:element name="SonarQubeMsg" type="rc:SonarQubeMSG_Type" minOccurs="1" maxOccurs="1"/>
-		</xs:sequence>
-	</xs:complexType>	
-
-	<!-- Number of entities per file -->
-	<!-- Each source file contains only one VHDL entity. -->
-	<xs:complexType name="STD_01000_Type">
-		<xs:sequence>
-			<xs:element name="SonarQubeMsg" type="rc:SonarQubeMSG_Type" minOccurs="1" maxOccurs="1"/>
-		</xs:sequence>
-	</xs:complexType>
-	
-	<!-- File name of an entity -->
-	<!-- The file name for an entity VHDL file includes at least the entity name. -->
-	<xs:complexType name="STD_00900_Type">
-		<xs:sequence>
-			<xs:element name="SonarQubeMsg" type="rc:SonarQubeMSG_Type" minOccurs="1" maxOccurs="1"/>
-		</xs:sequence>
-	</xs:complexType>
-	
-	<!-- Number of architectures in files -->
-	<!-- Each VHDL file includes only one architecture per file. -->
-	<xs:complexType name="STD_01100_Type">
-		<xs:sequence>
-			<xs:element name="SonarQubeMsg" type="rc:SonarQubeMSG_Type" minOccurs="1" maxOccurs="1"/>
-		</xs:sequence>
-	</xs:complexType>	
 	
 	<!-- Unsuitability of variables in RTL design -->
 	<!-- Variables are prohibited in the RTL design. -->
@@ -286,11 +287,30 @@
 			<xs:element name="Variable" type="xs:string" minOccurs="1" maxOccurs="1"/>	
 			<xs:element name="SonarQubeMsg" type="rc:SonarQubeMSG_Type" minOccurs="1" maxOccurs="1"/>
 		</xs:sequence>
-	</xs:complexType>		
+	</xs:complexType>
+
+	<!-- Sensitivity list for combinational processes -->
+	<!-- Combinational processes have a sensitivity list including all inputs signals which are read. -->
+	<xs:complexType name="STD_06800_Type">
+		<xs:sequence>
+			<xs:element name="Signal" type="xs:string" minOccurs="1" maxOccurs="1"/>	
+			<xs:element name="SonarQubeMsg" type="rc:SonarQubeMSG_Type" minOccurs="1" maxOccurs="1"/>
+		</xs:sequence>
+	</xs:complexType>	
 	
 	<!-- ====================================== -->
 	<!-- Specific types for Standard Help rules -->
 	<!-- ====================================== -->
+
+	<!-- Entity special ports -->
+	<!-- Special ports are the first group of an entity. -->
+	<xs:complexType name="STD_01700_Type">
+		<xs:sequence>
+			<xs:element name="Clock" type="xs:string" minOccurs="1" maxOccurs="1"/>
+			<xs:element name="Reset" type="xs:string" minOccurs="1" maxOccurs="1"/>
+			<xs:element name="SonarQubeMsg" type="rc:SonarQubeMSG_Type" minOccurs="1" maxOccurs="1"/>
+		</xs:sequence>
+	</xs:complexType>
 
 	<!-- Primitive isolation -->
 	<!-- Primitive are isolated in a wrapper entity defined in a dedicated VHDL file. -->
@@ -310,16 +330,6 @@
 			<xs:element name="SonarQubeMsg" type="rc:SonarQubeMSG_Type" minOccurs="1" maxOccurs="1"/>
 		</xs:sequence>
 	</xs:complexType>	
-
-	<!-- Entity special ports -->
-	<!-- Special ports are the first group of an entity. -->
-	<xs:complexType name="STD_01700_Type">
-		<xs:sequence>
-			<xs:element name="Clock" type="xs:string" minOccurs="1" maxOccurs="1"/>
-			<xs:element name="Reset" type="xs:string" minOccurs="1" maxOccurs="1"/>
-			<xs:element name="SonarQubeMsg" type="rc:SonarQubeMSG_Type" minOccurs="1" maxOccurs="1"/>
-		</xs:sequence>
-	</xs:complexType>
 
 	<!-- ===================================== -->
 	<!-- SonarQube types                       -->

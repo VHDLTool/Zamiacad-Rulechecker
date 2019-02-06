@@ -25,6 +25,7 @@ import org.zamia.plugin.tool.vhdl.rules.impl.std.RuleSTD_01100;
 import org.zamia.plugin.tool.vhdl.rules.impl.std.RuleSTD_00900;
 import org.zamia.plugin.tool.vhdl.rules.impl.std.RuleSTD_06300;
 import org.zamia.plugin.tool.vhdl.rules.impl.std.RuleSTD_01700;
+import org.zamia.plugin.tool.vhdl.rules.impl.std.RuleSTD_01300;
 
 	public enum RuleE {
 		
@@ -52,6 +53,11 @@ import org.zamia.plugin.tool.vhdl.rules.impl.std.RuleSTD_01700;
 		STD_00200("STD_00200", RuleSTD_00200.class, RuleTypeE.ALGO, true, "Name of clock signal"),
 		STD_00300("STD_00300", RuleSTD_00300.class, RuleTypeE.ALGO, true, "Name of reset signal"),
 		STD_00400("STD_00400", RuleSTD_00400.class, RuleTypeE.ALGO, false, "Label for Process"),
+		STD_00900("STD_00900", RuleSTD_00900.class, RuleTypeE.ALGO, false, "File name of an entity"),
+		STD_01000("STD_01000", RuleSTD_01000.class, RuleTypeE.ALGO, false, "Number of entities per file"),
+		STD_01100("STD_01100", RuleSTD_01100.class, RuleTypeE.ALGO, false, "Number of architectures in files"),
+		STD_01300("STD_01300", RuleSTD_01300.class, RuleTypeE.ALGO, false, "Number of ports declaration per line"),
+		STD_01700("STD_01700", RuleSTD_01700.class, RuleTypeE.HELP, false, "Entity special ports"),
 		STD_03600("STD_03600", RuleSTD_03600.class, RuleTypeE.ALGO, false, "Reset Sensitive Level"),
 		STD_03700("STD_03700", RuleSTD_03700.class, RuleTypeE.HELP, false, "Reset Assertion and Deassertion"),
 		STD_03800("STD_03800", RuleSTD_03800.class, RuleTypeE.ALGO, false, "Synchronous Elements Initialization"),
@@ -61,12 +67,8 @@ import org.zamia.plugin.tool.vhdl.rules.impl.std.RuleSTD_01700;
 		STD_04800("STD_04800", RuleSTD_04800.class, RuleTypeE.ALGO, false, "Clock Edge Sensitivity"), 
 		STD_05000("STD_05000", RuleSTD_05000.class, RuleTypeE.ALGO, false, "Sensitivity List for Synchronous Processes"), 
 		STD_05300("STD_05300", RuleSTD_05300.class, RuleTypeE.ALGO, false, "Sensitivity list for combinational processes"),
-		STD_06800("STD_06800", RuleSTD_06800.class, RuleTypeE.ALGO, false, "Unsuitability of signal initialization in declaration section"),
-		STD_01000("STD_01000", RuleSTD_01000.class, RuleTypeE.ALGO, false, "Number of entities per file"),
-		STD_01100("STD_01100", RuleSTD_01100.class, RuleTypeE.ALGO, false, "Number of architectures in files"),
-		STD_00900("STD_00900", RuleSTD_00900.class, RuleTypeE.ALGO, false, "File name of an entity"),
 		STD_06300("STD_06300", RuleSTD_06300.class, RuleTypeE.ALGO, false, "Unsuitability of variables in RTL design"),
-		STD_01700("STD_01700", RuleSTD_01700.class, RuleTypeE.HELP, false, "Entity special ports");
+		STD_06800("STD_06800", RuleSTD_06800.class, RuleTypeE.ALGO, false, "Unsuitability of signal initialization in declaration section");
 
 		
 		
