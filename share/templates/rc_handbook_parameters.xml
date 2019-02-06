@@ -9,6 +9,10 @@
 		are hard coded.</hb:description>
 	<hb:version_revision>creation</hb:version_revision>
 
+	<hb:Rule UID="CNE_01000">
+		<hb:RuleUID>CNE_01000</hb:RuleUID>
+		<hb:RuleGEN>GEN_01000</hb:RuleGEN>
+	</hb:Rule>
 	<hb:Rule UID="CNE_01200">
 		<hb:RuleUID>CNE_01200</hb:RuleUID>
 		<hb:RuleGEN>GEN_01200</hb:RuleGEN>

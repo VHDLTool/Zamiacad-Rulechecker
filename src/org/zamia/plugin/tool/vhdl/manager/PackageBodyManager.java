@@ -49,9 +49,7 @@ public class PackageBodyManager extends ToolManager {
 		if (info == ListUpdateE.YES && listHdlFile != null) {
 			return listHdlFile;
 		}
-		if (listHdlFile == null || listHdlFile.isEmpty()) {
-			HdlFileManager.getHdlFile();
-		}
+		HdlFileManager.getHdlFile();
 
 		info = ListUpdateE.YES;
 
@@ -88,10 +86,6 @@ public class PackageBodyManager extends ToolManager {
 					}
 				}
 			}
-		}
-		if (cmpt == 0) {
-			JOptionPane.showMessageDialog(null, "<html>A full project build is requested to use Rule Checker</html>", "Error",
-                    JOptionPane.ERROR_MESSAGE);
 		}
 		return listHdlFile;
 	}

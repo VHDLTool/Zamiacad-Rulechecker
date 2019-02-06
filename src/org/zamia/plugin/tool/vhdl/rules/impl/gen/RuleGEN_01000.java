@@ -40,7 +40,7 @@ public class RuleGEN_01000 extends Rule {
 	private ReportFile reportFile = new ReportFile(this);
 	private List<IHandbookParam> parameterList = null;
 
-	protected RuleGEN_01000() {
+	public RuleGEN_01000() {
 		super(RuleE.GEN_01000);
 	}
 
@@ -54,71 +54,74 @@ public class RuleGEN_01000 extends Rule {
 		}
 		
 		Pair<Integer, RuleResult> result = null;
-		
-		// search variable in function
-		try {
-			PackageBodyManager.getPackageBody();
-			PackageBodyManager.resetInfo();
-			Map<String, HdlFile> hdlFiles = ArchitectureManager.getArchitecture();
-			for (Entry<String, HdlFile> entry: hdlFiles.entrySet()) {
-				HdlFile hdlFile = entry.getValue();
-				for (HdlEntity hdlEntity: hdlFile.getListHdlEntity()) {
-					// search function in entity
-					List<BlockDeclarativeItem> items = hdlEntity.getEntity().fDeclarations;
-					for (BlockDeclarativeItem item: items) {
-						if (item instanceof SubProgram) {
-							searchVariableInSubProgram((SubProgram)item, hdlEntity.getEntity(), null);
+
+		if (reportFile.initialize()) {
+			// search variable in function
+			try {
+				PackageBodyManager.getPackageBody();
+				PackageBodyManager.resetInfo();
+				Map<String, HdlFile> hdlFiles = ArchitectureManager.getArchitecture();
+				for (Entry<String, HdlFile> entry: hdlFiles.entrySet()) {
+					HdlFile hdlFile = entry.getValue();
+					for (HdlEntity hdlEntity: hdlFile.getListHdlEntity()) {
+						// search function in entity
+						List<BlockDeclarativeItem> items = hdlEntity.getEntity().fDeclarations;
+						for (BlockDeclarativeItem item: items) {
+							if (item instanceof SubProgram) {
+								searchVariableInSubProgram((SubProgram)item, hdlEntity.getEntity(), null);
+							}
+						}
+						// search function in architecture
+						for (HdlArchitecture hdlArchitecture: hdlEntity.getListHdlArchitecture()) {
+							List<BlockDeclarativeItem> itemList = hdlArchitecture.getArchitecture().fDeclarations;
+							for (BlockDeclarativeItem item: itemList) {
+								if (item instanceof SubProgram) {
+									searchVariableInSubProgram((SubProgram)item, hdlEntity.getEntity(), hdlArchitecture.getArchitecture());
+								}
+							}
 						}
 					}
-					// search function in architecture
-					for (HdlArchitecture hdlArchitecture: hdlEntity.getListHdlArchitecture()) {
-						List<BlockDeclarativeItem> itemList = hdlArchitecture.getArchitecture().fDeclarations;
-						for (BlockDeclarativeItem item: itemList) {
+					// search function in package
+					for (VHDLPackage vhdlPackage: hdlFile.getListHdlPackage()) {
+						List<BlockDeclarativeItem> items = vhdlPackage.fDeclarations;
+						for (BlockDeclarativeItem item: items) {
 							if (item instanceof SubProgram) {
-								searchVariableInSubProgram((SubProgram)item, hdlEntity.getEntity(), hdlArchitecture.getArchitecture());
+								searchVariableInSubProgram((SubProgram)item, null, null);
+							}
+						}
+					}
+					// search function in package body
+					for (PackageBody packageBody: hdlFile.getListPackageBody()) {
+						List<BlockDeclarativeItem> items = packageBody.fDeclarations;
+						for (BlockDeclarativeItem item: items) {
+							if (item instanceof SubProgram) {
+								searchVariableInSubProgram((SubProgram)item, null, null);
 							}
 						}
 					}
 				}
-				for (VHDLPackage vhdlPackage: hdlFile.getListHdlPackage()) {
-					List<BlockDeclarativeItem> items = vhdlPackage.fDeclarations;
-					for (BlockDeclarativeItem item: items) {
-						if (item instanceof SubProgram) {
-							searchVariableInSubProgram((SubProgram)item, null, null);
-						}
-					}
-				}
-				for (PackageBody packageBody: hdlFile.getListPackageBody()) {
-					List<BlockDeclarativeItem> items = packageBody.fDeclarations;
-					for (BlockDeclarativeItem item: items) {
-						if (item instanceof SubProgram) {
-							searchVariableInSubProgram((SubProgram)item, null, null);
-						}
-					}
-				}
+			} catch (EntityException e) {
+				e.printStackTrace();
+				return new Pair<> (NO_BUILD, null);
 			}
-		} catch (EntityException e) {
-			e.printStackTrace();
-			return new Pair<> (NO_BUILD, null);
-		}
-		
-		// search variable in process
-		Dictionary<Process, ProcessInfo> processInfos = getAllProcesses();
-		Map<Process, ProcessInfo> processMap;
-		if (processInfos == null) {
-			return new Pair<> (NO_BUILD, null);
-		} else {
-			List<Process> keys = Collections.list(processInfos.keys());
-			processMap = keys.stream().collect(Collectors.toMap(Function.identity(), processInfos::get));
-		}
-		if (reportFile.initialize()) {
+			
+			// search variable in process
+			Dictionary<Process, ProcessInfo> processInfos = getAllProcesses();
+			Map<Process, ProcessInfo> processMap;
+			if (processInfos == null) {
+				return new Pair<> (NO_BUILD, null);
+			} else {
+				List<Process> keys = Collections.list(processInfos.keys());
+				processMap = keys.stream().collect(Collectors.toMap(Function.identity(), processInfos::get));
+			}
 			for (Entry<Process, ProcessInfo> entry: processMap.entrySet()) {
 				SequentialProcess process = entry.getKey().getSequentialProcess();
 				int n;
 				if ((n = process.getNumDeclarations()) > 0) {
 					BlockDeclarativeItem variable;
 					for (int i = 0; i < n; i++) {
-						if ((variable = process.getDeclaration(i)) instanceof VariableDeclaration) {
+						variable = process.getDeclaration(i);
+						if (variable instanceof VariableDeclaration) {
 							boolean isValid = false;
 							for (IHandbookParam param: parameterList) {
 								isValid |= param.isValid(variable.getId());
@@ -131,10 +134,15 @@ public class RuleGEN_01000 extends Rule {
 										);
 								reportFile.addElement(ReportFile.TAG_VARIABLE, variable.getId(), element);
 							}
+						} 
+						// search function in process
+						else if (variable instanceof SubProgram) {
+							searchVariableInSubProgram((SubProgram) variable, entry.getValue().getEntity(), entry.getValue().getArchitecture());
 						}
 					}
 				}
 			}
+			result = reportFile.save();
 		}
 		return result;
 	}
@@ -143,6 +151,7 @@ public class RuleGEN_01000 extends Rule {
 		for (int i = 0; i < subProgram.getNumDeclarations(); i++) {
 			BlockDeclarativeItem item = subProgram.getDeclaration(i);
 			if (item instanceof SubProgram) {
+				// search function in function
 				searchVariableInSubProgram((SubProgram) item, entity, architecture);
 			} else if (item instanceof VariableDeclaration) {
 				boolean isValid = false;
