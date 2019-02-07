@@ -6,6 +6,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
 
+import org.w3c.dom.Element;
 import org.zamia.ZamiaProject;
 import org.zamia.plugin.tool.vhdl.EntityException;
 import org.zamia.plugin.tool.vhdl.HdlArchitecture;
@@ -17,6 +18,7 @@ import org.zamia.plugin.tool.vhdl.rules.IHandbookParam;
 import org.zamia.plugin.tool.vhdl.rules.RuleE;
 import org.zamia.plugin.tool.vhdl.rules.RuleResult;
 import org.zamia.plugin.tool.vhdl.rules.impl.Rule;
+import org.zamia.plugin.tool.vhdl.rules.impl.SonarQubeRule;
 import org.zamia.util.Pair;
 import org.zamia.vhdl.ast.Architecture;
 
@@ -63,8 +65,12 @@ public class RuleGEN_02100 extends Rule {
 							isValid |= param.isValid(architecture.getId());
 						}
 						if (!isValid) {
-							reportFile.addViolation(architecture.getLocation(), hdlEntity.getEntity(), architecture);
-							// TODO add sonar msg and error
+							Element element = reportFile.addViolation(architecture.getLocation(), hdlEntity.getEntity(), architecture);
+							reportFile.addSonarTags(element,
+									SonarQubeRule.SONAR_ERROR_GEN_02100,
+									new Object[] {architecture.getId()},
+									SonarQubeRule.SONAR_MSG_GEN_02100,
+									new Object[] {architecture.getId()});
 						}
 					}
 				}
