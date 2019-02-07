@@ -41,6 +41,7 @@
 				<xs:element name="STD_00200"             type="rc:STD_00200_Type"/>
 				<xs:element name="STD_00300"             type="rc:STD_00300_Type"/>
 				<xs:element name="STD_00400"             type="rc:STD_00400_Type"/>
+				<xs:element name="STD_01200"             type="rc:STD_01200_Type"/>
 				<xs:element name="STD_03600_R1"          type="rc:STD_03600_R1_Type"/>
 				<xs:element name="STD_03600_R2"          type="rc:STD_03600_R2_Type"/>
 				<xs:element name="STD_03800"             type="rc:STD_03800_Type"/>
@@ -136,7 +137,15 @@
 		<xs:sequence>
 			<xs:element name="SonarQubeMsg" type="rc:SonarQubeMSG_Type" minOccurs="1" maxOccurs="1"/>
 		</xs:sequence>
-	</xs:complexType>	
+	</xs:complexType>		
+
+	<!-- Number of statements per line -->
+	<!-- Each line includes only one statement. -->
+	<xs:complexType name="STD_01200_Type">
+		<xs:sequence>
+			<xs:element name="SonarQubeMsg" type="rc:SonarQubeMSG_Type" minOccurs="1" maxOccurs="1"/>
+		</xs:sequence>
+	</xs:complexType>
 	
 	<!-- Reset Sensitive Level -->
 	<!-- Every synchronous process uses the same reset activation level. -->
