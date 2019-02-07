@@ -4,6 +4,7 @@ public class SonarQubeRule {
 	
 	/** Sonar error messages */
 	public static final String SONAR_ERROR_GEN_01200 = "Label %s is miswritten";
+	public static final String SONAR_ERROR_GEN_01600 = "The package %s is miswritten";
 	public static final String SONAR_ERROR_GEN_02300 = "Clock signal change its name from %s to %s";
 	public static final String SONAR_ERROR_GEN_02400 = "Reset signal change its name from %s to %s";
 	public static final String SONAR_ERROR_GEN_04900 = "Reset signal %s is misused";
@@ -30,6 +31,7 @@ public class SonarQubeRule {
 
 	/** Sonar remediation messages */
 	public static final String SONAR_MSG_GEN_01200 = "Change label name %s to include %s as %s";
+	public static final String SONAR_MSG_GEN_01600 = "Change the package %s to include pkg_ as prefix";
 	public static final String SONAR_MSG_GEN_02300 = "Change %s to %s";
 	public static final String SONAR_MSG_GEN_02400 = "Change signal name %s to %s";
 	public static final String SONAR_MSG_GEN_04900 = "Use %s for clock inputs only and not as common signal";
