@@ -22,6 +22,7 @@ import org.zamia.plugin.tool.vhdl.rules.IHandbookParam;
 import org.zamia.plugin.tool.vhdl.rules.RuleE;
 import org.zamia.plugin.tool.vhdl.rules.RuleResult;
 import org.zamia.plugin.tool.vhdl.rules.impl.Rule;
+import org.zamia.plugin.tool.vhdl.rules.impl.SonarQubeRule;
 import org.zamia.util.Pair;
 import org.zamia.vhdl.ast.Architecture;
 import org.zamia.vhdl.ast.BlockDeclarativeItem;
@@ -101,7 +102,7 @@ public class RuleGEN_01000 extends Rule {
 					}
 				}
 			} catch (EntityException e) {
-				e.printStackTrace();
+				logger.error(e.getMessage());
 				return new Pair<> (NO_BUILD, null);
 			}
 			
@@ -132,7 +133,15 @@ public class RuleGEN_01000 extends Rule {
 										entry.getValue().getEntity(),
 										entry.getValue().getArchitecture()
 										);
+								reportFile.addElement(ReportFile.TAG_PROCESS, process.getLabel(), element);
+								reportFile.addElement(ReportFile.TAG_FUNCTION, null, element);
+								reportFile.addElement(ReportFile.TAG_PROCEDURE, null, element);
 								reportFile.addElement(ReportFile.TAG_VARIABLE, variable.getId(), element);
+								reportFile.addSonarTags(element,
+										SonarQubeRule.SONAR_ERROR_GEN_01000,
+										new Object[] {variable.getId()},
+										SonarQubeRule.SONAR_MSG_GEN_01000,
+										new Object[] {variable.getId(), VALUE, POSITION.toLowerCase()});
 							}
 						} 
 						// search function in process
@@ -175,7 +184,15 @@ public class RuleGEN_01000 extends Rule {
 								architecture
 								);
 					}
+					reportFile.addElement(ReportFile.TAG_PROCESS, null, element);
+					reportFile.addElement(ReportFile.TAG_FUNCTION, subProgram.getChild(0) == null ? null : subProgram.getId(), element);
+					reportFile.addElement(ReportFile.TAG_PROCEDURE, subProgram.getChild(0) == null ? subProgram.getId() : null, element);
 					reportFile.addElement(ReportFile.TAG_VARIABLE, item.getId(), element);
+					reportFile.addSonarTags(element,
+							SonarQubeRule.SONAR_ERROR_GEN_01000,
+							new Object[] {item.getId()},
+							SonarQubeRule.SONAR_MSG_GEN_01000,
+							new Object[] {item.getId(), VALUE, POSITION.toLowerCase()});
 				}
 			}
 		}

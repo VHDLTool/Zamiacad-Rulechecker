@@ -40,6 +40,8 @@ public class ReportFile {
 	public static final String TAG_RESET_BEFORE              = NAMESPACE_PREFIX + "ResetBefore";
 	public static final String TAG_RESET_AFTER               = NAMESPACE_PREFIX + "ResetAfter";
 	public static final String TAG_PACKAGE                   = NAMESPACE_PREFIX + "Package";
+	public static final String TAG_FUNCTION                  = NAMESPACE_PREFIX + "Function";
+	public static final String TAG_PROCEDURE                 = NAMESPACE_PREFIX + "Procedure";
 
     public static final String TAG_VARIABLE                  = NAMESPACE_PREFIX + "Variable";
 	public static final String TAG_REGISTER                  = NAMESPACE_PREFIX + "Register";
