@@ -64,7 +64,7 @@ public class RuleGEN_01600 extends Rule{
 								SonarQubeRule.SONAR_ERROR_GEN_01600,
 								new Object[] {vhdlPackage.getId()},
 								SonarQubeRule.SONAR_MSG_GEN_01600,
-								new Object[] {vhdlPackage.getId()});
+								new Object[] {vhdlPackage.getId(), VALUE, POSITION.toLowerCase()});
 					}
 				}
 			}
