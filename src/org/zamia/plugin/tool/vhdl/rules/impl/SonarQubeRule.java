@@ -3,6 +3,7 @@ package org.zamia.plugin.tool.vhdl.rules.impl;
 public class SonarQubeRule {
 	
 	/** Sonar error messages */
+	public static final String SONAR_ERROR_GEN_01000 = "The variable %s is miswritten";
 	public static final String SONAR_ERROR_GEN_01200 = "Label %s is miswritten";
 	public static final String SONAR_ERROR_GEN_02300 = "Clock signal change its name from %s to %s";
 	public static final String SONAR_ERROR_GEN_02400 = "Reset signal change its name from %s to %s";
@@ -29,6 +30,7 @@ public class SonarQubeRule {
 	public static final String SONAR_ERROR_STD_06800 = "%s is initialised in the declaration section";
 
 	/** Sonar remediation messages */
+	public static final String SONAR_MSG_GEN_01000 = "Change the variable %s to include %s as %s";
 	public static final String SONAR_MSG_GEN_01200 = "Change label name %s to include %s as %s";
 	public static final String SONAR_MSG_GEN_02300 = "Change %s to %s";
 	public static final String SONAR_MSG_GEN_02400 = "Change signal name %s to %s";
