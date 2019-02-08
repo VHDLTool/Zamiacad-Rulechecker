@@ -10,6 +10,8 @@ import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
 
+import org.w3c.dom.Element;
+import org.zamia.SourceLocation;
 import org.zamia.ZamiaProject;
 import org.zamia.plugin.tool.vhdl.EntityException;
 import org.zamia.plugin.tool.vhdl.HdlArchitecture;
@@ -22,6 +24,7 @@ import org.zamia.plugin.tool.vhdl.manager.ProcessManager;
 import org.zamia.plugin.tool.vhdl.rules.RuleE;
 import org.zamia.plugin.tool.vhdl.rules.RuleResult;
 import org.zamia.plugin.tool.vhdl.rules.impl.Rule;
+import org.zamia.plugin.tool.vhdl.rules.impl.SonarQubeRule;
 import org.zamia.util.Pair;
 import org.zamia.vhdl.ast.Architecture;
 import org.zamia.vhdl.ast.Block;
@@ -52,6 +55,9 @@ import org.zamia.vhdl.ast.SequentialWait;
 import org.zamia.vhdl.ast.VHDLNode;
 
 public class RuleSTD_01200 extends Rule {
+	private int currentLine = 0;
+	private int targetLine = 0;
+	private ReportFile reportFile = new ReportFile(this);
 
 	public RuleSTD_01200() {
 		super(RuleE.STD_01200);
@@ -99,6 +105,8 @@ public class RuleSTD_01200 extends Rule {
 //			e.printStackTrace();
 //		}
 		
+		Pair<Integer, RuleResult> result = null;
+		
 		try {
 			Map<String, HdlFile> hdlFiles = ArchitectureManager.getArchitecture();
 			for (Entry<String, HdlFile> hdlFile : hdlFiles.entrySet()) {
@@ -110,12 +118,16 @@ public class RuleSTD_01200 extends Rule {
 						Architecture architecture = hdlArchitecture.getArchitecture();
 						// declarative items
 						for (int i = 0; i < architecture.getNumDeclarations(); i++) {
-							logger.info("[Declarative item] item at %d", architecture.getDeclaration(i).getLocation().fLine);
+							SourceLocation location = architecture.getDeclaration(i).getLocation();
+							logger.info("[Declarative item] item at %d", location.fLine);
+							checkViolation(location);
 						}
 						// concurrent statements
 						for (int i = 0; i < architecture.getNumConcurrentStatements(); i++) {
 							ConcurrentStatement cStatement = architecture.getConcurrentStatement(i);
+							SourceLocation location = cStatement.getLocation();
 							logger.info("concurrent statement: %s in %s at %d", cStatement.getLabel(), cStatement.getLocation().fSF.getFileName(), cStatement.getLocation().fLine);
+							checkViolation(location);
 							expandConcurrentStatement(cStatement);
 						}
 					} 
@@ -130,11 +142,28 @@ public class RuleSTD_01200 extends Rule {
 		return null;
 	}
 	
+	private void checkViolation(SourceLocation location) {
+		int line = location.fLine;
+		if(currentLine != line) {
+			currentLine = line;
+		} else {
+			if (currentLine != targetLine) {
+				targetLine = currentLine;
+				Element element = reportFile.addViolation(location);
+				reportFile.addSonarTags(element,
+						SonarQubeRule.SONAR_ERROR_STD_01200,
+						new Object[] {targetLine},
+						SonarQubeRule.SONAR_MSG_STD_01200, null);
+			}
+		}
+	}
+	
 	private void expandConcurrentStatement(ConcurrentStatement concurrentStatement) {
 		if (concurrentStatement instanceof SequentialProcess) {
 			SequentialProcess process = (SequentialProcess) concurrentStatement;
 			for (int i = 0; i < process.getNumDeclarations(); i++) {
 				logger.info("[Sequential] Process declaration item at %s", process.getDeclaration(i).getLocation().fLine);
+				checkViolation(process.getDeclaration(i).getLocation());
 			}
 			SequenceOfStatements statements = (SequenceOfStatements) process.getChild(0);
 			for (int j = 0; j < statements.getNumStatements(); j++) {
