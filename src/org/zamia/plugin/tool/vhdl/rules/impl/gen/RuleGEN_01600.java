@@ -33,7 +33,8 @@ public class RuleGEN_01600 extends Rule{
 		initializeRule(parameterSource, ruleId);
 		
 		List<IHandbookParam> parameterList = null;
-		parameterList = getParameterList(zPrj);
+		// Uncomment this line to enable parameter
+//		parameterList = getParameterList(zPrj);
 		if (parameterList == null || parameterList.isEmpty()) {
 			parameterList = getDefaultStringParamList(POSITION, VALUE);
 		}
