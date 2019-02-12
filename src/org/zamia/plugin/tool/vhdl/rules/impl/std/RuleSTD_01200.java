@@ -106,40 +106,43 @@ public class RuleSTD_01200 extends Rule {
 //		}
 		
 		Pair<Integer, RuleResult> result = null;
-		
-		try {
-			Map<String, HdlFile> hdlFiles = ArchitectureManager.getArchitecture();
-			for (Entry<String, HdlFile> hdlFile : hdlFiles.entrySet()) {
-				List<HdlEntity> hdlEntities = hdlFile.getValue().getListHdlEntity();
-				for (HdlEntity hdlEntity : hdlEntities) {
-					List<HdlArchitecture> hdlArchitectures = hdlEntity.getListHdlArchitecture();
-					for (HdlArchitecture hdlArchitecture : hdlArchitectures) {
-						// do operations in each architecture
-						Architecture architecture = hdlArchitecture.getArchitecture();
-						// declarative items
-						for (int i = 0; i < architecture.getNumDeclarations(); i++) {
-							SourceLocation location = architecture.getDeclaration(i).getLocation();
-							logger.info("[Declarative item] item at %d", location.fLine);
-							checkViolation(location);
-						}
-						// concurrent statements
-						for (int i = 0; i < architecture.getNumConcurrentStatements(); i++) {
-							ConcurrentStatement cStatement = architecture.getConcurrentStatement(i);
-							SourceLocation location = cStatement.getLocation();
-							logger.info("concurrent statement: %s in %s at %d", cStatement.getLabel(), cStatement.getLocation().fSF.getFileName(), cStatement.getLocation().fLine);
-							checkViolation(location);
-							expandConcurrentStatement(cStatement);
-						}
-					} 
+		if (reportFile.initialize()) {
+			try {
+				Map<String, HdlFile> hdlFiles = ArchitectureManager.getArchitecture();
+				for (Entry<String, HdlFile> hdlFile : hdlFiles.entrySet()) {
+					List<HdlEntity> hdlEntities = hdlFile.getValue().getListHdlEntity();
+					for (HdlEntity hdlEntity : hdlEntities) {
+						List<HdlArchitecture> hdlArchitectures = hdlEntity.getListHdlArchitecture();
+						for (HdlArchitecture hdlArchitecture : hdlArchitectures) {
+							// do operations in each architecture
+							Architecture architecture = hdlArchitecture.getArchitecture();
+							// declarative items
+							// TODO maybe contain functions
+							for (int i = 0; i < architecture.getNumDeclarations(); i++) {
+								SourceLocation location = architecture.getDeclaration(i).getLocation();
+								logger.info("[Declarative item] item at %d", location.fLine);
+								checkViolation(location);
+							}
+							// concurrent statements
+							for (int i = 0; i < architecture.getNumConcurrentStatements(); i++) {
+								ConcurrentStatement cStatement = architecture.getConcurrentStatement(i);
+								SourceLocation location = cStatement.getLocation();
+								logger.info("concurrent statement: %s in %s at %d", cStatement.getLabel(), cStatement.getLocation().fSF.getFileName(), cStatement.getLocation().fLine);
+								expandConcurrentStatement(cStatement);
+							}
+						} 
+					}
+					logger.info("\n\n");
 				}
-				logger.info("\n\n");
+			} catch (EntityException e) {
+				LogNeedBuild();
+				return new Pair<Integer, RuleResult>(NO_BUILD, null);
 			}
-		} catch (EntityException e) {
-			e.printStackTrace();
+			result = reportFile.save();
 		}
 		
 		
-		return null;
+		return result;
 	}
 	
 	private void checkViolation(SourceLocation location) {
@@ -175,11 +178,13 @@ public class RuleSTD_01200 extends Rule {
 			// TODO
 		} else if (concurrentStatement instanceof ConcurrentAssertion) {
 			logger.info("[Concurrent] Assert statement at %d", concurrentStatement.getLocation().fLine);
+			checkViolation(concurrentStatement.getLocation());
 		} else if (concurrentStatement instanceof ConcurrentProcedureCall) {
 			// TODO
 			logger.info("[Concurrent] Procedure call statement at %d", concurrentStatement.getLocation().fLine);
 		} else if (concurrentStatement instanceof ConcurrentSignalAssignment) {
 			logger.info("[Concurrent] Signal assignment statement at %d", concurrentStatement.getLocation().fLine);
+			checkViolation(concurrentStatement.getLocation());
 		} else if (concurrentStatement instanceof GenerateStatement) {
 			logger.info("[Concurrent] Generate statement at %d", concurrentStatement.getLocation().fLine);
 			// TODO
@@ -188,25 +193,32 @@ public class RuleSTD_01200 extends Rule {
 			// TODO
 		} else {
 			logger.info("[Concurrent] Error at %d", concurrentStatement.getLocation().fLine);
+			checkViolation(concurrentStatement.getLocation());
 		}
 	}
 	
 	private void expandSequentialStatement(SequentialStatement sequentialStatement) {
 		if (sequentialStatement instanceof NullStatement) {
 			logger.info("[Sequence] Null statement at %d", sequentialStatement.getLocation().fLine);
+			checkViolation(sequentialStatement.getLocation());
 		} else if (sequentialStatement instanceof ReturnStatement) {
 			logger.info("[Sequence] Return statement at %d", sequentialStatement.getLocation().fLine);
+			checkViolation(sequentialStatement.getLocation());
 		} else if (sequentialStatement instanceof SequentialAssert) {
 			logger.info("[Sequence] Assert statement at %d", sequentialStatement.getLocation().fLine);
+			checkViolation(sequentialStatement.getLocation()); 
 		} else if (sequentialStatement instanceof SequentialCase) {
 			SequentialCase caseStatement = (SequentialCase) sequentialStatement;
 			logger.info("[Sequence] Case statement, case at %d", caseStatement.getExpr().getLocation().fLine);
+			checkViolation(caseStatement.getExpr().getLocation());
 			for (int i = 1; i < caseStatement.getNumChildren(); i++) {
 				for (int j = 1; j < caseStatement.getChild(i).getNumChildren(); j++) {
 					if (caseStatement.getChild(i).getChild(j) == null) {
 						logger.info("[Sequence] Case statement, when others at %d", caseStatement.getChild(i).getLocation().fLine);
+						checkViolation(caseStatement.getChild(i).getLocation());
 					} else {
 						logger.info("[Sequence] Case statement, when at %d", caseStatement.getChild(i).getChild(j).getLocation().fLine);
+						checkViolation(caseStatement.getChild(i).getChild(j).getLocation());
 					}
 				}
 				SequenceOfStatements statements = (SequenceOfStatements) caseStatement.getChild(i).getChild(0);
@@ -218,9 +230,11 @@ public class RuleSTD_01200 extends Rule {
 			}
 		} else if (sequentialStatement instanceof SequentialExit) {
 			logger.info("[Sequence] Exit statement at %d", sequentialStatement.getLocation().fLine);
+			checkViolation(sequentialStatement.getLocation()); 
 		} else if (sequentialStatement instanceof SequentialIf) {
 			SequentialIf ifStatement = (SequentialIf) sequentialStatement;
 			logger.info("[Sequence] If statement, condition at %d", ifStatement.getCond().getLocation().fLine);
+			checkViolation(ifStatement.getCond().getLocation()); 
 			logger.info("[Sequence] If statement, then...");
 			SequenceOfStatements thenStatements = ifStatement.getThenStmt();
 			if (ifStatement != null) {
@@ -237,23 +251,29 @@ public class RuleSTD_01200 extends Rule {
 			}
 		} else if (sequentialStatement instanceof SequentialLoop) {
 			logger.info("[Sequence] Loop statement at %d", sequentialStatement.getLocation().fLine);
+			checkViolation(sequentialStatement.getLocation());
 			SequenceOfStatements statements = (SequenceOfStatements) sequentialStatement.getChild(0);
 			for (int j = 0; j < statements.getNumStatements(); j++) {
 				expandSequentialStatement(statements.getStatement(j));
 			}
 		} else if (sequentialStatement instanceof SequentialNextStatement) {
 			logger.info("[Sequence] Next statement at %d", sequentialStatement.getLocation().fLine);
+			checkViolation(sequentialStatement.getLocation()); 
 		} else if (sequentialStatement instanceof SequentialProcedureCall) {
 			// TODO
 			logger.info("[Sequence] Procedure call statement at %d", sequentialStatement.getLocation().fLine);
 		} else if (sequentialStatement instanceof SequentialReport) {
 			logger.info("[Sequence] Report statement at %d", sequentialStatement.getLocation().fLine);
+			checkViolation(sequentialStatement.getLocation()); 
 		} else if (sequentialStatement instanceof SequentialSignalAssignment) {
 			logger.info("[Sequence] Signal Assignment statement at %d", sequentialStatement.getLocation().fLine);
+			checkViolation(sequentialStatement.getLocation()); 
 		} else if (sequentialStatement instanceof SequentialVariableAssignment) {
 			logger.info("[Sequence] Variable Assignment statement at %d", sequentialStatement.getLocation().fLine);
+			checkViolation(sequentialStatement.getLocation()); 
 		} else if (sequentialStatement instanceof SequentialWait) {
 			logger.info("[Sequence] Wait statement at %d", sequentialStatement.getLocation().fLine);
+			checkViolation(sequentialStatement.getLocation()); 
 		} else {
 			logger.info("[Sequence] Error at %d", sequentialStatement.getLocation().fLine);
 		}
