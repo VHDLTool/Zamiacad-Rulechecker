@@ -123,7 +123,6 @@ public class RuleSTD_01200 extends Rule {
 							// do operations in each architecture
 							Architecture architecture = hdlArchitecture.getArchitecture();
 							// declarative items
-							// TODO maybe contain functions
 							for (int i = 0; i < architecture.getNumDeclarations(); i++) {
 								SourceLocation location = architecture.getDeclaration(i).getLocation();
 								logger.info("[Declarative item] item at %d", location.fLine);
@@ -140,6 +139,7 @@ public class RuleSTD_01200 extends Rule {
 					}
 					logger.info("\n\n");
 				}
+				// TODO search in entity, package, package body, etc.
 			} catch (EntityException e) {
 				LogNeedBuild();
 				return new Pair<Integer, RuleResult>(NO_BUILD, null);
@@ -223,7 +223,16 @@ public class RuleSTD_01200 extends Rule {
 			checkViolation(concurrentStatement.getLocation());
 		} else if (concurrentStatement instanceof GenerateStatement) {
 			logger.info("[Concurrent] Generate statement at %d", concurrentStatement.getLocation().fLine);
-			// TODO
+			GenerateStatement generateStatement = (GenerateStatement) concurrentStatement;
+			checkViolation(generateStatement.getLocation());
+			for (int i = 0; i < generateStatement.getNumChildren() - 2; i++) {
+				VHDLNode node = generateStatement.getChild(i);
+				if (node instanceof BlockDeclarativeItem) {
+					expandDeclarativeItem((BlockDeclarativeItem) node);
+				} else if (node instanceof ConcurrentStatement) {
+					expandConcurrentStatement((ConcurrentStatement) node);
+				}
+			}
 		} else if (concurrentStatement instanceof InstantiatedUnit) {
 			logger.info("[Concurrent] Instantiated unit statement at %d", concurrentStatement.getLocation().fLine);
 			InstantiatedUnit instantiatedUnit = (InstantiatedUnit) concurrentStatement;
@@ -241,7 +250,6 @@ public class RuleSTD_01200 extends Rule {
 			}
 		} else {
 			logger.info("[Concurrent] Error at %d", concurrentStatement.getLocation().fLine);
-			checkViolation(concurrentStatement.getLocation());
 		}
 	}
 	
