@@ -27,13 +27,18 @@ import org.zamia.plugin.tool.vhdl.rules.impl.Rule;
 import org.zamia.plugin.tool.vhdl.rules.impl.SonarQubeRule;
 import org.zamia.util.Pair;
 import org.zamia.vhdl.ast.Architecture;
+import org.zamia.vhdl.ast.AssociationElement;
+import org.zamia.vhdl.ast.AssociationList;
 import org.zamia.vhdl.ast.Block;
+import org.zamia.vhdl.ast.BlockDeclarativeItem;
+import org.zamia.vhdl.ast.ComponentDeclaration;
 import org.zamia.vhdl.ast.ConcurrentAssertion;
 import org.zamia.vhdl.ast.ConcurrentProcedureCall;
 import org.zamia.vhdl.ast.ConcurrentSignalAssignment;
 import org.zamia.vhdl.ast.ConcurrentStatement;
 import org.zamia.vhdl.ast.GenerateStatement;
 import org.zamia.vhdl.ast.InstantiatedUnit;
+import org.zamia.vhdl.ast.InterfaceList;
 import org.zamia.vhdl.ast.NullStatement;
 import org.zamia.vhdl.ast.Range;
 import org.zamia.vhdl.ast.ReturnStatement;
@@ -52,6 +57,7 @@ import org.zamia.vhdl.ast.SequentialSignalAssignment;
 import org.zamia.vhdl.ast.SequentialStatement;
 import org.zamia.vhdl.ast.SequentialVariableAssignment;
 import org.zamia.vhdl.ast.SequentialWait;
+import org.zamia.vhdl.ast.SubProgram;
 import org.zamia.vhdl.ast.VHDLNode;
 
 public class RuleSTD_01200 extends Rule {
@@ -121,7 +127,7 @@ public class RuleSTD_01200 extends Rule {
 							for (int i = 0; i < architecture.getNumDeclarations(); i++) {
 								SourceLocation location = architecture.getDeclaration(i).getLocation();
 								logger.info("[Declarative item] item at %d", location.fLine);
-								checkViolation(location);
+								expandDeclarativeItem(architecture.getDeclaration(i));
 							}
 							// concurrent statements
 							for (int i = 0; i < architecture.getNumConcurrentStatements(); i++) {
@@ -161,6 +167,36 @@ public class RuleSTD_01200 extends Rule {
 		}
 	}
 	
+	private void expandDeclarativeItem(BlockDeclarativeItem item) {
+		if (item instanceof ComponentDeclaration) {
+			ComponentDeclaration componentDeclaration = (ComponentDeclaration)item;
+			InterfaceList list = componentDeclaration.getInterfaces();
+			if (list != null) {
+				for (int i = 0; i < list.getNumInterfaces(); i++) {
+					checkViolation(list.get(i).getLocation());
+				}
+			}
+			list = componentDeclaration.getGenerics();
+			if (list != null) {
+				for (int i = 0; i < list.getNumInterfaces(); i++) {
+					checkViolation(list.get(i).getLocation());
+				}
+			}
+		} else if (item instanceof SubProgram) {
+			SubProgram subProgram = (SubProgram) item;
+			for (int i = 0; i < subProgram.getNumDeclarations(); i++) {
+				expandDeclarativeItem(subProgram.getDeclaration(i));
+			}
+			SequenceOfStatements statements = subProgram.getCode();
+			for (int j = 0; j < statements.getNumStatements(); j++) {
+				SequentialStatement statement = statements.getStatement(j);
+				expandSequentialStatement(statement);
+			}
+		} else {
+			checkViolation(item.getLocation());
+		}
+	}
+	
 	private void expandConcurrentStatement(ConcurrentStatement concurrentStatement) {
 		if (concurrentStatement instanceof SequentialProcess) {
 			SequentialProcess process = (SequentialProcess) concurrentStatement;
@@ -180,8 +216,8 @@ public class RuleSTD_01200 extends Rule {
 			logger.info("[Concurrent] Assert statement at %d", concurrentStatement.getLocation().fLine);
 			checkViolation(concurrentStatement.getLocation());
 		} else if (concurrentStatement instanceof ConcurrentProcedureCall) {
-			// TODO
 			logger.info("[Concurrent] Procedure call statement at %d", concurrentStatement.getLocation().fLine);
+			checkViolation(concurrentStatement.getLocation());
 		} else if (concurrentStatement instanceof ConcurrentSignalAssignment) {
 			logger.info("[Concurrent] Signal assignment statement at %d", concurrentStatement.getLocation().fLine);
 			checkViolation(concurrentStatement.getLocation());
@@ -190,7 +226,19 @@ public class RuleSTD_01200 extends Rule {
 			// TODO
 		} else if (concurrentStatement instanceof InstantiatedUnit) {
 			logger.info("[Concurrent] Instantiated unit statement at %d", concurrentStatement.getLocation().fLine);
-			// TODO
+			InstantiatedUnit instantiatedUnit = (InstantiatedUnit) concurrentStatement;
+			AssociationList mapList = instantiatedUnit.getGMS();
+			if (mapList != null) {
+				for (int i = 0; i < mapList.getNumAssociations(); i++) {
+					checkViolation(mapList.getAssociation(i).getLocation());
+				}
+			}
+			mapList = instantiatedUnit.getPMS();
+			if (mapList != null) {
+				for (int i = 0; i < mapList.getNumAssociations(); i++) {
+					checkViolation(mapList.getAssociation(i).getLocation());
+				}
+			}
 		} else {
 			logger.info("[Concurrent] Error at %d", concurrentStatement.getLocation().fLine);
 			checkViolation(concurrentStatement.getLocation());
@@ -260,8 +308,8 @@ public class RuleSTD_01200 extends Rule {
 			logger.info("[Sequence] Next statement at %d", sequentialStatement.getLocation().fLine);
 			checkViolation(sequentialStatement.getLocation()); 
 		} else if (sequentialStatement instanceof SequentialProcedureCall) {
-			// TODO
 			logger.info("[Sequence] Procedure call statement at %d", sequentialStatement.getLocation().fLine);
+			checkViolation(sequentialStatement.getLocation()); 
 		} else if (sequentialStatement instanceof SequentialReport) {
 			logger.info("[Sequence] Report statement at %d", sequentialStatement.getLocation().fLine);
 			checkViolation(sequentialStatement.getLocation()); 
