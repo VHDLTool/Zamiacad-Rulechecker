@@ -188,9 +188,11 @@ public class RuleSTD_01200 extends Rule {
 				expandDeclarativeItem(subProgram.getDeclaration(i));
 			}
 			SequenceOfStatements statements = subProgram.getCode();
-			for (int j = 0; j < statements.getNumStatements(); j++) {
-				SequentialStatement statement = statements.getStatement(j);
-				expandSequentialStatement(statement);
+			if (statements != null) {
+				for (int j = 0; j < statements.getNumStatements(); j++) {
+					SequentialStatement statement = statements.getStatement(j);
+					expandSequentialStatement(statement);
+				}
 			}
 		} else {
 			checkViolation(item.getLocation());
@@ -205,9 +207,11 @@ public class RuleSTD_01200 extends Rule {
 				checkViolation(process.getDeclaration(i).getLocation());
 			}
 			SequenceOfStatements statements = (SequenceOfStatements) process.getChild(0);
-			for (int j = 0; j < statements.getNumStatements(); j++) {
-				SequentialStatement statement = statements.getStatement(j);
-				expandSequentialStatement(statement);
+			if (statements != null) {
+				for (int j = 0; j < statements.getNumStatements(); j++) {
+					SequentialStatement statement = statements.getStatement(j);
+					expandSequentialStatement(statement);
+				}
 			}
 		} else if (concurrentStatement instanceof Block) {
 			logger.info("[Concurrent] Block statement at %d", concurrentStatement.getLocation().fLine);
@@ -293,7 +297,7 @@ public class RuleSTD_01200 extends Rule {
 			checkViolation(ifStatement.getCond().getLocation()); 
 			logger.info("[Sequence] If statement, then...");
 			SequenceOfStatements thenStatements = ifStatement.getThenStmt();
-			if (ifStatement != null) {
+			if (thenStatements != null) {
 				for (int i = 0; i < thenStatements.getNumStatements(); i++) {
 					expandSequentialStatement(thenStatements.getStatement(i));
 				}
@@ -309,8 +313,10 @@ public class RuleSTD_01200 extends Rule {
 			logger.info("[Sequence] Loop statement at %d", sequentialStatement.getLocation().fLine);
 			checkViolation(sequentialStatement.getLocation());
 			SequenceOfStatements statements = (SequenceOfStatements) sequentialStatement.getChild(0);
-			for (int j = 0; j < statements.getNumStatements(); j++) {
-				expandSequentialStatement(statements.getStatement(j));
+			if (statements != null) {
+				for (int j = 0; j < statements.getNumStatements(); j++) {
+					expandSequentialStatement(statements.getStatement(j));
+				}
 			}
 		} else if (sequentialStatement instanceof SequentialNextStatement) {
 			logger.info("[Sequence] Next statement at %d", sequentialStatement.getLocation().fLine);
