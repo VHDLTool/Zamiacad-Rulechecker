@@ -4,7 +4,7 @@ Bundle-Name: zamiaCAD Plugin
 Bundle-SymbolicName: org.zamia.plugin;singleton:=true
 Bundle-Version: 7.0.0.qualifier
 Bundle-RuleCheckerVersion: 7.0.0
-Bundle-RuleCheckerDate: 06/02/2019
+Bundle-RuleCheckerDate: 14/02/2019
 Bundle-Activator: org.zamia.plugin.ZamiaPlugin
 Require-Bundle: org.eclipse.core.resources,
  org.eclipse.core.runtime,
