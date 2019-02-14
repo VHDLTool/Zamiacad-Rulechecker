@@ -1,11 +1,5 @@
 package org.zamia.plugin.tool.vhdl.rules.impl.std;
 
-import java.io.File;
-import java.io.FileNotFoundException;
-import java.io.PrintStream;
-import java.util.Dictionary;
-import java.util.Enumeration;
-import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
@@ -17,17 +11,15 @@ import org.zamia.plugin.tool.vhdl.EntityException;
 import org.zamia.plugin.tool.vhdl.HdlArchitecture;
 import org.zamia.plugin.tool.vhdl.HdlEntity;
 import org.zamia.plugin.tool.vhdl.HdlFile;
-import org.zamia.plugin.tool.vhdl.Process;
 import org.zamia.plugin.tool.vhdl.ReportFile;
 import org.zamia.plugin.tool.vhdl.manager.ArchitectureManager;
-import org.zamia.plugin.tool.vhdl.manager.ProcessManager;
+import org.zamia.plugin.tool.vhdl.manager.PackageBodyManager;
 import org.zamia.plugin.tool.vhdl.rules.RuleE;
 import org.zamia.plugin.tool.vhdl.rules.RuleResult;
 import org.zamia.plugin.tool.vhdl.rules.impl.Rule;
 import org.zamia.plugin.tool.vhdl.rules.impl.SonarQubeRule;
 import org.zamia.util.Pair;
 import org.zamia.vhdl.ast.Architecture;
-import org.zamia.vhdl.ast.AssociationElement;
 import org.zamia.vhdl.ast.AssociationList;
 import org.zamia.vhdl.ast.Block;
 import org.zamia.vhdl.ast.BlockDeclarativeItem;
@@ -40,13 +32,12 @@ import org.zamia.vhdl.ast.GenerateStatement;
 import org.zamia.vhdl.ast.InstantiatedUnit;
 import org.zamia.vhdl.ast.InterfaceList;
 import org.zamia.vhdl.ast.NullStatement;
-import org.zamia.vhdl.ast.Range;
+import org.zamia.vhdl.ast.PackageBody;
 import org.zamia.vhdl.ast.ReturnStatement;
 import org.zamia.vhdl.ast.SequenceOfStatements;
 import org.zamia.vhdl.ast.SequentialAssert;
 import org.zamia.vhdl.ast.SequentialCase;
 import org.zamia.vhdl.ast.SequentialExit;
-import org.zamia.vhdl.ast.SequentialFor;
 import org.zamia.vhdl.ast.SequentialIf;
 import org.zamia.vhdl.ast.SequentialLoop;
 import org.zamia.vhdl.ast.SequentialNextStatement;
@@ -59,6 +50,7 @@ import org.zamia.vhdl.ast.SequentialVariableAssignment;
 import org.zamia.vhdl.ast.SequentialWait;
 import org.zamia.vhdl.ast.SubProgram;
 import org.zamia.vhdl.ast.VHDLNode;
+import org.zamia.vhdl.ast.VHDLPackage;
 
 public class RuleSTD_01200 extends Rule {
 	private int currentLine = 0;
@@ -72,44 +64,6 @@ public class RuleSTD_01200 extends Rule {
 	@Override
 	public Pair<Integer, RuleResult> Launch(ZamiaProject zPrj, String ruleId, ParameterSource parameterSource) {
 		initializeRule(parameterSource, ruleId);
-//		PrintStream aOut;
-//		try {
-//			aOut = new PrintStream(new File("C:\\Users\\xsheng\\Documents\\log.txt"));
-//			for (Entry<String, HdlFile> file : ArchitectureManager.getArchitecture().entrySet()) {
-//				if(!file.getValue().getListHdlEntity().isEmpty()) {
-//					HashSet<Object> set = new HashSet<>();
-//					VHDLNode.dump(aOut, file.getValue().getListHdlEntity().get(0).getListHdlArchitecture().get(0).getArchitecture(), 2, set);
-//				}
-//			}
-//			
-////			Dictionary<Process, ProcessInfo> processInfos = getAllProcesses();
-////			if (processInfos == null) {
-////				return new Pair<Integer, RuleResult> (NO_BUILD,null);
-////			}
-////			
-////			//// Write report
-////			
-////			Pair<Integer, RuleResult> result = null;
-////			
-////			ReportFile reportFile = new ReportFile(this);
-////			if (reportFile.initialize()) {
-////				Enumeration<Process> processes = processInfos.keys();
-////				while (processes.hasMoreElements()) {
-////					Process process = processes.nextElement();
-////					ProcessInfo processInfo = processInfos.get(process);
-////					HashSet<Object> set = new HashSet<>();
-////					VHDLNode.dump(aOut, process.getSequentialProcess(), 2, set);
-////				}
-////				
-////			}
-////
-////			return result;
-//		} catch (FileNotFoundException e1) {
-//			e1.printStackTrace();
-//		} catch (EntityException e) {
-//			// TODO Auto-generated catch block
-//			e.printStackTrace();
-//		}
 		
 		Pair<Integer, RuleResult> result = null;
 		if (reportFile.initialize()) {
@@ -118,6 +72,7 @@ public class RuleSTD_01200 extends Rule {
 				for (Entry<String, HdlFile> hdlFile : hdlFiles.entrySet()) {
 					List<HdlEntity> hdlEntities = hdlFile.getValue().getListHdlEntity();
 					for (HdlEntity hdlEntity : hdlEntities) {
+						// TODO do something in entity?
 						List<HdlArchitecture> hdlArchitectures = hdlEntity.getListHdlArchitecture();
 						for (HdlArchitecture hdlArchitecture : hdlArchitectures) {
 							// do operations in each architecture
@@ -137,9 +92,28 @@ public class RuleSTD_01200 extends Rule {
 							}
 						} 
 					}
-					logger.info("\n\n");
+					// do operations in each package
+					List<VHDLPackage> packages = hdlFile.getValue().getListHdlPackage();
+					for (VHDLPackage vhdlPackage : packages) {
+						for (int i = 0; i < vhdlPackage.getNumDeclarations(); i++) {
+							SourceLocation location = vhdlPackage.getDeclaration(i).getLocation();
+							logger.info("[Declarative item] item at %d", location.fLine);
+							expandDeclarativeItem(vhdlPackage.getDeclaration(i));
+						}
+					}
 				}
-				// TODO search in entity, package, package body, etc.
+				// do operations in each package body
+				hdlFiles = PackageBodyManager.getPackageBody();
+				for (Entry<String, HdlFile> hdlFile : hdlFiles.entrySet()) {
+					List<PackageBody> packageBodies = hdlFile.getValue().getListPackageBody();
+					for (PackageBody packageBody : packageBodies) {
+						for (int i = 0; i < packageBody.getNumDeclarations(); i++) {
+							SourceLocation location = packageBody.getDeclaration(i).getLocation();
+							logger.info("[Declarative item] item at %d", location.fLine);
+							expandDeclarativeItem(packageBody.getDeclaration(i));
+						}
+					}
+				}
 			} catch (EntityException e) {
 				LogNeedBuild();
 				return new Pair<Integer, RuleResult>(NO_BUILD, null);
