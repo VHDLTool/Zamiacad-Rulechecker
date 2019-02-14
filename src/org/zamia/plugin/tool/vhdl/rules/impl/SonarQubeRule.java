@@ -3,6 +3,7 @@ package org.zamia.plugin.tool.vhdl.rules.impl;
 public class SonarQubeRule {
 	
 	/** Sonar error messages */
+	public static final String SONAR_ERROR_GEN_01000 = "The variable %s is miswritten";
 	public static final String SONAR_ERROR_GEN_01200 = "Label %s is miswritten";
 	public static final String SONAR_ERROR_GEN_01600 = "The package %s is miswritten";
 	public static final String SONAR_ERROR_GEN_02100 = "The architecture %s is miswritten";
@@ -37,6 +38,7 @@ public class SonarQubeRule {
 	public static final String SONAR_ERROR_STD_01300 = "Port %s is declared on the same line as other ports";
 
 	/** Sonar remediation messages */
+	public static final String SONAR_MSG_GEN_01000 = "Change the variable %s to include %s as %s";
 	public static final String SONAR_MSG_GEN_01200 = "Change label name %s to include %s as %s";
 	public static final String SONAR_MSG_GEN_01600 = "Change the package %s to include %s as %s";
 	public static final String SONAR_MSG_GEN_02100 = "Replace the architecture %s by behavioral, rtl or simulation";

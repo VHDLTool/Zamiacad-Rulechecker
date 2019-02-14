@@ -33,6 +33,7 @@
 
 			<xs:choice>
 				<!-- CNES Algo rules -->
+				<xs:element name="CNE_01000"             type="rc:CNE_01000_Type"/>
 				<xs:element name="CNE_01200"             type="rc:CNE_01200_Type"/>
 				<xs:element name="CNE_01600"             type="rc:CNE_01600_Type"/>
 				<xs:element name="CNE_02100"             type="rc:CNE_02100_Type"/>
@@ -72,6 +73,18 @@
 	<!-- ===================================== -->
 	<!-- Specific types for CNES Algo rules    -->
 	<!-- ===================================== -->
+
+	<!-- Identification of variable name -->
+	<!-- The name of a variable use "v_" prefix. -->
+	<xs:complexType name="CNE_01000_Type">
+		<xs:sequence>
+			<xs:element name="Process" type="xs:string" minOccurs="1" maxOccurs="1"/>
+			<xs:element name="Function" type="xs:string" minOccurs="1" maxOccurs="1"/>
+			<xs:element name="Procedure" type="xs:string" minOccurs="1" maxOccurs="1"/>
+			<xs:element name="Variable" type="xs:string" minOccurs="1" maxOccurs="1"/>
+			<xs:element name="SonarQubeMsg" type="rc:SonarQubeMSG_Type" minOccurs="1" maxOccurs="1"/>
+		</xs:sequence>
+	</xs:complexType>
 
 	<!-- Identification of process label -->
 	<!-- Process label name starts by a prefix: "P_". -->

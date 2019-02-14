@@ -9,6 +9,7 @@ import java.io.LineNumberReader;
 import java.util.ArrayList;
 import java.util.List;
 
+import org.zamia.vhdl.ast.PackageBody;
 import org.zamia.vhdl.ast.Use;
 import org.zamia.vhdl.ast.VHDLPackage;
 
@@ -19,6 +20,8 @@ public class HdlFile  implements Cloneable {
 	private ArrayList<HdlEntity> listHdlEntity = new ArrayList<HdlEntity>();
 	
 	private ArrayList<VHDLPackage> listHdlPackage = new ArrayList<VHDLPackage>();
+	
+	private List<PackageBody> listPackageBody = new ArrayList<>();
 	
 	private Integer nbLine;
 	
@@ -135,6 +138,10 @@ public class HdlFile  implements Cloneable {
 		listHdlEntity = new ArrayList<HdlEntity>();
 		
 	}
+	
+	public void clearPackageBody() {
+		listPackageBody = new ArrayList<>();
+	}
 
 
 	public ClockSource isSignalRegister(SignalSource signalSource) {
@@ -149,6 +156,15 @@ public class HdlFile  implements Cloneable {
 		return null;
 	}
 
+	public void addPackageBody(PackageBody packageBody) {
+		if (listPackageBody == null) {
+			listPackageBody = new ArrayList<>();
+		}
+		this.listPackageBody.add(packageBody);
+	}
 
+	public List<PackageBody> getListPackageBody() {
+		return listPackageBody;
+	}
 	
 }
