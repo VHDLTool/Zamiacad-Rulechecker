@@ -14,6 +14,7 @@ public class SonarQubeRule {
 	public static final String SONAR_ERROR_STD_00200 = "Clock %s signal miswritten";
 	public static final String SONAR_ERROR_STD_00300 = "Reset signal %s is miswritten";
 	public static final String SONAR_ERROR_STD_00400 = "Label is missing";
+	public static final String SONAR_ERROR_STD_01200 = "The line %d contains multiple instructions";
 	public static final String SONAR_ERROR_STD_01800_IEEE = "IEEE library identified";
 	public static final String SONAR_ERROR_STD_01800_OTHER = "Other library identified";
 	public static final String SONAR_ERROR_STD_03600_LEVEL_1 = "Reset signal %s is active %s on contrary of other reset signal inside %s";
@@ -49,6 +50,7 @@ public class SonarQubeRule {
 	public static final String SONAR_MSG_STD_00200 = "Change signal name %s to %s";
 	public static final String SONAR_MSG_STD_00300 = "Change signal name %s to %s";
 	public static final String SONAR_MSG_STD_00400 = "Add label to the process";
+	public static final String SONAR_MSG_STD_01200 = "Dedicate one line for one single instruction";
 	public static final String SONAR_MSG_STD_01800_IEEE = "Nothing to be done";
 	public static final String SONAR_MSG_STD_01800_OTHER = "If %s is a technology dependent library, use it only in a single VHDL file";
 	public static final String SONAR_MSG_STD_03600_LEVEL_1 = "Choose a unique reset polarity for every reset signal in entity %s";

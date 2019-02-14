@@ -29,6 +29,7 @@ import org.zamia.plugin.tool.vhdl.rules.impl.std.RuleSTD_00900;
 import org.zamia.plugin.tool.vhdl.rules.impl.std.RuleSTD_06300;
 import org.zamia.plugin.tool.vhdl.rules.impl.std.RuleSTD_01700;
 import org.zamia.plugin.tool.vhdl.rules.impl.std.RuleSTD_01300;
+import org.zamia.plugin.tool.vhdl.rules.impl.std.RuleSTD_01200;
 
 	public enum RuleE {
 		
@@ -75,6 +76,7 @@ import org.zamia.plugin.tool.vhdl.rules.impl.std.RuleSTD_01300;
 		STD_05300("STD_05300", RuleSTD_05300.class, RuleTypeE.ALGO, false, "Sensitivity list for combinational processes"),
 		STD_06300("STD_06300", RuleSTD_06300.class, RuleTypeE.ALGO, false, "Unsuitability of variables in RTL design"),
 		STD_06800("STD_06800", RuleSTD_06800.class, RuleTypeE.ALGO, false, "Unsuitability of signal initialization in declaration section");
+		STD_01200("STD_01200", RuleSTD_01200.class, RuleTypeE.ALGO, false, "Number of statements per line");
 
 		
 		
