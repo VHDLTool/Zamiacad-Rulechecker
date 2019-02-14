@@ -73,6 +73,7 @@
 			<xs:element name="Process" type="xs:string" minOccurs="1" maxOccurs="1"/>
 			<xs:element name="Function" type="xs:string" minOccurs="1" maxOccurs="1"/>
 			<xs:element name="Procedure" type="xs:string" minOccurs="1" maxOccurs="1"/>
+			<xs:element name="Variable" type="xs:string" minOccurs="1" maxOccurs="1"/>
 			<xs:element name="SonarQubeMsg" type="rc:SonarQubeMSG_Type" minOccurs="1" maxOccurs="1"/>
 		</xs:sequence>
 	</xs:complexType>
