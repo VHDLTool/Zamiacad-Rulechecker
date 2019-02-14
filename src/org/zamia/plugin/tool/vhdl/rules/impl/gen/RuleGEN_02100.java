@@ -36,7 +36,8 @@ public class RuleGEN_02100 extends Rule {
 		initializeRule(parameterSource, ruleId);
 		
 		List<IHandbookParam> parameterList = null;
-		parameterList = getParameterList(zPrj);
+		// Uncomment the line to enable parameter
+//		parameterList = getParameterList(zPrj);
 		if (parameterList == null || parameterList.isEmpty()) {
 			parameterList = new ArrayList<>();
 			for (String value : VALUES) {
