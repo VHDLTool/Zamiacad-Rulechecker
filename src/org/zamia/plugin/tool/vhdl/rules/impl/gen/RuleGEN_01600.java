@@ -1,15 +1,10 @@
 package org.zamia.plugin.tool.vhdl.rules.impl.gen;
 
-import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
 
-import javax.xml.parsers.DocumentBuilderFactory;
-import javax.xml.parsers.ParserConfigurationException;
-
-import org.w3c.dom.Document;
 import org.w3c.dom.Element;
 import org.zamia.ZamiaProject;
 import org.zamia.plugin.tool.vhdl.EntityException;
@@ -19,8 +14,8 @@ import org.zamia.plugin.tool.vhdl.ReportFile;
 import org.zamia.plugin.tool.vhdl.rules.IHandbookParam;
 import org.zamia.plugin.tool.vhdl.rules.RuleE;
 import org.zamia.plugin.tool.vhdl.rules.RuleResult;
-import org.zamia.plugin.tool.vhdl.rules.StringParam;
 import org.zamia.plugin.tool.vhdl.rules.impl.Rule;
+import org.zamia.plugin.tool.vhdl.rules.impl.SonarQubeRule;
 import org.zamia.util.Pair;
 import org.zamia.vhdl.ast.VHDLPackage;
 
@@ -38,7 +33,8 @@ public class RuleGEN_01600 extends Rule{
 		initializeRule(parameterSource, ruleId);
 		
 		List<IHandbookParam> parameterList = null;
-		parameterList = getParameterList(zPrj);
+		// Uncomment this line to enable parameter
+//		parameterList = getParameterList(zPrj);
 		if (parameterList == null || parameterList.isEmpty()) {
 			parameterList = getDefaultStringParamList(POSITION, VALUE);
 		}
@@ -64,7 +60,12 @@ public class RuleGEN_01600 extends Rule{
 					if (!isValid) {
 						Element element = reportFile.addViolation(vhdlPackage.getLocation());
 						reportFile.addElement(ReportFile.TAG_PACKAGE, vhdlPackage.getId(), element);
-						// TODO add sonar msg and error
+						reportFile.addSonarTags(
+								element,
+								SonarQubeRule.SONAR_ERROR_GEN_01600,
+								new Object[] {vhdlPackage.getId()},
+								SonarQubeRule.SONAR_MSG_GEN_01600,
+								new Object[] {vhdlPackage.getId(), VALUE, POSITION.toLowerCase()});
 					}
 				}
 			}

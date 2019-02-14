@@ -12,6 +12,7 @@
 	<hb:Rule UID="CNE_01200">
 		<hb:RuleUID>CNE_01200</hb:RuleUID>
 		<hb:RuleGEN>GEN_01200</hb:RuleGEN>
+		
 	   <hb:RuleParams>
 			<hb:StringParam>
 			   <hb:ParamID>P1</hb:ParamID>

@@ -34,6 +34,7 @@
 			<xs:choice>
 				<!-- CNES Algo rules -->
 				<xs:element name="CNE_01200"             type="rc:CNE_01200_Type"/>
+				<xs:element name="CNE_01600"             type="rc:CNE_01600_Type"/>
 				<xs:element name="CNE_02300"             type="rc:CNE_02300_Type"/>
 				<xs:element name="CNE_02400"             type="rc:CNE_02400_Type"/>
 				<xs:element name="CNE_04900"             type="rc:CNE_04900_Type"/>
@@ -76,6 +77,15 @@
 	<xs:complexType name="CNE_01200_Type">
 		<xs:sequence>
 			<xs:element name="Process" type="xs:string" minOccurs="1" maxOccurs="1"/>
+			<xs:element name="SonarQubeMsg" type="rc:SonarQubeMSG_Type" minOccurs="1" maxOccurs="1"/>
+		</xs:sequence>
+	</xs:complexType>
+
+	<!-- Identification of package element -->
+	<!-- The prefix of package element name is "pkg_". -->
+	<xs:complexType name="CNE_01600_Type">
+		<xs:sequence>
+			<xs:element name="Package" type="xs:string" minOccurs="1" maxOccurs="1"/>
 			<xs:element name="SonarQubeMsg" type="rc:SonarQubeMSG_Type" minOccurs="1" maxOccurs="1"/>
 		</xs:sequence>
 	</xs:complexType>	
