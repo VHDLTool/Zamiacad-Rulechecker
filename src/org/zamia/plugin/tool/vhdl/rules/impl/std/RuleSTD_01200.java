@@ -30,6 +30,7 @@ import org.zamia.vhdl.ast.ConcurrentSignalAssignment;
 import org.zamia.vhdl.ast.ConcurrentStatement;
 import org.zamia.vhdl.ast.GenerateStatement;
 import org.zamia.vhdl.ast.InstantiatedUnit;
+import org.zamia.vhdl.ast.InterfaceDeclaration;
 import org.zamia.vhdl.ast.InterfaceList;
 import org.zamia.vhdl.ast.NullStatement;
 import org.zamia.vhdl.ast.PackageBody;
@@ -55,6 +56,7 @@ import org.zamia.vhdl.ast.VHDLPackage;
 public class RuleSTD_01200 extends Rule {
 	private int currentLine = 0;
 	private int targetLine = 0;
+	private int targetCol = 0;
 	private ReportFile reportFile = new ReportFile(this);
 
 	public RuleSTD_01200() {
@@ -86,7 +88,6 @@ public class RuleSTD_01200 extends Rule {
 							// concurrent statements
 							for (int i = 0; i < architecture.getNumConcurrentStatements(); i++) {
 								ConcurrentStatement cStatement = architecture.getConcurrentStatement(i);
-								SourceLocation location = cStatement.getLocation();
 								logger.info("concurrent statement: %s in %s at %d", cStatement.getLabel(), cStatement.getLocation().fSF.getFileName(), cStatement.getLocation().fLine);
 								expandConcurrentStatement(cStatement);
 							}
@@ -116,7 +117,7 @@ public class RuleSTD_01200 extends Rule {
 				}
 			} catch (EntityException e) {
 				LogNeedBuild();
-				return new Pair<Integer, RuleResult>(NO_BUILD, null);
+				return new Pair<>(NO_BUILD, null);
 			}
 			result = reportFile.save();
 		}
@@ -141,6 +142,23 @@ public class RuleSTD_01200 extends Rule {
 		}
 	}
 	
+	private void checkInterfaceViolation(InterfaceDeclaration interfaceDeclaration) {
+		int line = interfaceDeclaration.getLocation().fLine;
+		if(currentLine != line) {
+			currentLine = line;
+			targetCol = interfaceDeclaration.getType().getLocation().fCol;
+		} else {
+			if (interfaceDeclaration.getType().getLocation().fCol != targetCol && currentLine != targetLine) {
+				targetLine = currentLine;
+				Element element = reportFile.addViolation(interfaceDeclaration.getLocation());
+				reportFile.addSonarTags(element,
+						SonarQubeRule.SONAR_ERROR_STD_01200,
+						new Object[] {line},
+						SonarQubeRule.SONAR_MSG_STD_01200, null);
+			}
+		}
+	}
+	
 	private void expandDeclarativeItem(BlockDeclarativeItem item) {
 		if (item instanceof ComponentDeclaration) {
 			ComponentDeclaration componentDeclaration = (ComponentDeclaration)item;
@@ -158,6 +176,12 @@ public class RuleSTD_01200 extends Rule {
 			}
 		} else if (item instanceof SubProgram) {
 			SubProgram subProgram = (SubProgram) item;
+			for (int i = 0; i < subProgram.getNumInterfaces(); i++) {
+				checkInterfaceViolation(subProgram.getInterface(i));
+			}
+			if (subProgram.getChild(0) != null) {
+				checkViolation(subProgram.getChild(0).getLocation());
+			}
 			for (int i = 0; i < subProgram.getNumDeclarations(); i++) {
 				expandDeclarativeItem(subProgram.getDeclaration(i));
 			}
@@ -176,6 +200,7 @@ public class RuleSTD_01200 extends Rule {
 	private void expandConcurrentStatement(ConcurrentStatement concurrentStatement) {
 		if (concurrentStatement instanceof SequentialProcess) {
 			SequentialProcess process = (SequentialProcess) concurrentStatement;
+			checkViolation(process.getLocation());
 			for (int i = 0; i < process.getNumDeclarations(); i++) {
 				logger.info("[Sequential] Process declaration item at %s", process.getDeclaration(i).getLocation().fLine);
 				checkViolation(process.getDeclaration(i).getLocation());
