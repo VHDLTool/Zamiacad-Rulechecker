@@ -19,7 +19,11 @@ import org.zamia.plugin.tool.vhdl.rules.RuleResult;
 import org.zamia.plugin.tool.vhdl.rules.impl.Rule;
 import org.zamia.plugin.tool.vhdl.rules.impl.SonarQubeRule;
 import org.zamia.util.Pair;
+import org.zamia.vhdl.ast.AssociationElement;
+import org.zamia.vhdl.ast.AssociationList;
+import org.zamia.vhdl.ast.ConcurrentStatement;
 import org.zamia.vhdl.ast.Entity;
+import org.zamia.vhdl.ast.InstantiatedUnit;
 import org.zamia.vhdl.ast.InterfaceDeclaration;
 
 public class RuleSTD_01300 extends Rule {
@@ -68,6 +72,42 @@ public class RuleSTD_01300 extends Rule {
 						} else {
 							line = location.fLine;
 							firsPort = port;
+						}
+					}
+					for (HdlArchitecture hdlArchitecture : architectureList) {
+						for (int i = 0; i < hdlArchitecture.getArchitecture().getNumConcurrentStatements(); i++) {
+							ConcurrentStatement statement = hdlArchitecture.getArchitecture().getConcurrentStatement(i);
+							if (statement instanceof InstantiatedUnit) {
+								AssociationList portMaps = ((InstantiatedUnit)statement).getPMS();
+								if (portMaps != null) {
+									AssociationElement firstMap = null;
+									for (int j = 0; j < portMaps.getNumAssociations(); j++) {
+										AssociationElement map = portMaps.getAssociation(j);
+										if (line == map.getLocation().fLine) {
+											if (firstMap != null) {
+												Element element = reportFile.addViolation(map.getLocation(), entity.getId(), hdlArchitecture.getArchitecture().getId());
+												reportFile.addElement(ReportFile.TAG_PORT, firstMap.getFormalPart().getName().getId(), element);
+												reportFile.addSonarTags(element,
+														SonarQubeRule.SONAR_ERROR_STD_01300,
+														new Object[] {firstMap.getFormalPart().getName().getId()},
+														SonarQubeRule.SONAR_MSG_STD_01300,
+														new Object[] {firstMap.getFormalPart().getName().getId()});
+												firstMap = null;
+											}
+											Element info = reportFile.addViolation(map.getLocation(), entity.getId(), hdlArchitecture.getArchitecture().getId());
+											reportFile.addElement(ReportFile.TAG_PORT, map.getFormalPart().getName().getId(), info);
+											reportFile.addSonarTags(info,
+													SonarQubeRule.SONAR_ERROR_STD_01300,
+													new Object[] {map.getFormalPart().getName().getId()},
+													SonarQubeRule.SONAR_MSG_STD_01300,
+													new Object[] {map.getFormalPart().getName().getId()});
+										} else {
+											line = map.getLocation().fLine;
+											firstMap = map;
+										}
+									}
+								}
+							}
 						}
 					}
 				}
