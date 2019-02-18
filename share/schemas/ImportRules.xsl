@@ -64,12 +64,37 @@
 		<table:table-column table:style-name="co3" table:default-cell-style-name="Default"/> <!-- Architecture -->
 	</xsl:template>
 
+	<!-- Columns configuration for mandatory sonarqube elements -->
+	<xsl:template name="SonarqubeColumnsConfiguration">
+		<!-- Format the columns of the table -->
+		<table:table-column table:style-name="co10" table:default-cell-style-name="Default"/> <!-- SonarError -->
+		<table:table-column table:style-name="co10" table:default-cell-style-name="Default"/> <!-- SonarRemediationMsg -->
+	</xsl:template>
+
+	<!-- Columns configuration for CNE_01000 -->
+	<xsl:template name="CNE_01000ColumnsConfiguration">
+		<!-- Format the columns of the table -->
+		<table:table-column table:style-name="co4" table:default-cell-style-name="Default"/> <!-- Process -->
+		<table:table-column table:style-name="co4" table:default-cell-style-name="Default"/> <!-- Function -->
+		<table:table-column table:style-name="co4" table:default-cell-style-name="Default"/> <!-- Procedure -->
+		<table:table-column table:style-name="co4" table:default-cell-style-name="Default"/> <!-- Variable -->
+	</xsl:template>
+
 	<!-- Columns configuration for CNE_01200 -->
 	<xsl:template name="CNE_01200ColumnsConfiguration">
 		<!-- Format the columns of the table -->
 		<table:table-column table:style-name="co6" table:default-cell-style-name="Default"/> <!-- Process -->
-		<table:table-column table:style-name="co10" table:default-cell-style-name="Default"/> <!-- SonarError -->
-		<table:table-column table:style-name="co10" table:default-cell-style-name="Default"/> <!-- SonarRemediationMsg -->
+	</xsl:template>
+
+	<!-- Columns configuration for CNE_01600 -->
+	<xsl:template name="CNE_01600ColumnsConfiguration">
+		<!-- Format the columns of the table -->
+		<table:table-column table:style-name="co6" table:default-cell-style-name="Default"/> <!-- Package -->
+	</xsl:template>
+
+	<!-- Columns configuration for CNE_02100 -->
+	<xsl:template name="CNE_02100ColumnsConfiguration">
+		<!-- No expected data. Nothing to do -->
 	</xsl:template>
 
 	<!-- Columns configuration for CNE_02300 -->
@@ -78,8 +103,6 @@
 		<table:table-column table:style-name="co3" table:default-cell-style-name="Default"/> <!-- Instance -->
 		<table:table-column table:style-name="co3" table:default-cell-style-name="Default"/> <!-- ClockBefore -->
 		<table:table-column table:style-name="co3" table:default-cell-style-name="Default"/> <!-- ClockAfter --> 
-		<table:table-column table:style-name="co10" table:default-cell-style-name="Default"/> <!-- SonarError -->
-		<table:table-column table:style-name="co10" table:default-cell-style-name="Default"/> <!-- SonarRemediationMsg -->
 	</xsl:template>
 
 	<!-- Columns configuration for CNE_02400 -->
@@ -88,16 +111,12 @@
 		<table:table-column table:style-name="co3" table:default-cell-style-name="Default"/> <!-- Instance --> 
 		<table:table-column table:style-name="co3" table:default-cell-style-name="Default"/> <!-- ResetBefore --> 
 		<table:table-column table:style-name="co3" table:default-cell-style-name="Default"/> <!-- ResetAfter --> 
-		<table:table-column table:style-name="co10" table:default-cell-style-name="Default"/> <!-- SonarError -->
-		<table:table-column table:style-name="co10" table:default-cell-style-name="Default"/> <!-- SonarRemediationMsg -->
 	</xsl:template>
 
 	<!-- Columns configuration for CNE_04900 -->
 	<xsl:template name="CNE_04900ColumnsConfiguration">
 		<!-- Format the columns of the table -->
 		<table:table-column table:style-name="co6" table:default-cell-style-name="Default"/> <!-- Clock --> 
-		<table:table-column table:style-name="co10" table:default-cell-style-name="Default"/> <!-- SonarError -->
-		<table:table-column table:style-name="co10" table:default-cell-style-name="Default"/> <!-- SonarRemediationMsg -->
 	</xsl:template>
 
 	<!-- Columns configuration for STD_00200 -->
@@ -105,8 +124,6 @@
 		<!-- Format the columns of the table -->
 		<table:table-column table:style-name="co6" table:default-cell-style-name="Default"/> <!-- Clock --> 
 		<table:table-column table:style-name="co6" table:default-cell-style-name="Default"/> <!-- Process --> 
-		<table:table-column table:style-name="co10" table:default-cell-style-name="Default"/> <!-- SonarError -->
-		<table:table-column table:style-name="co10" table:default-cell-style-name="Default"/> <!-- SonarRemediationMsg -->
 	</xsl:template>
 
 	<!-- Columns configuration for STD_00300 -->
@@ -114,14 +131,50 @@
 		<!-- Format the columns of the table -->
 		<table:table-column table:style-name="co6" table:default-cell-style-name="Default"/> <!-- Reset --> 
 		<table:table-column table:style-name="co6" table:default-cell-style-name="Default"/> <!-- Process --> 
-		<table:table-column table:style-name="co10" table:default-cell-style-name="Default"/> <!-- SonarError -->
-		<table:table-column table:style-name="co10" table:default-cell-style-name="Default"/> <!-- SonarRemediationMsg -->
 	</xsl:template>
 
 	<!-- Columns configuration for STD_00400 -->
 	<xsl:template name="STD_00400ColumnsConfiguration">
-		<table:table-column table:style-name="co10" table:default-cell-style-name="Default"/> <!-- SonarError -->
-		<table:table-column table:style-name="co10" table:default-cell-style-name="Default"/> <!-- SonarRemediationMsg -->
+		<!-- No expected data. Nothing to do -->
+	</xsl:template>
+
+	<!-- Columns configuration for STD_00900 -->
+	<xsl:template name="STD_00900ColumnsConfiguration">
+		<!-- No expected data. Nothing to do -->
+	</xsl:template>
+
+	<!-- Columns configuration for STD_01000 -->
+	<xsl:template name="STD_01000ColumnsConfiguration">
+		<!-- No expected data. Nothing to do -->
+	</xsl:template>
+
+	<!-- Columns configuration for STD_01100 -->
+	<xsl:template name="STD_01100ColumnsConfiguration">
+		<!-- No expected data. Nothing to do -->
+	</xsl:template>
+
+	<!-- Columns configuration for STD_01200 -->
+	<xsl:template name="STD_01200ColumnsConfiguration">
+		<!-- No expected data. Nothing to do -->
+	</xsl:template>
+
+	<!-- Columns configuration for STD_01300 -->
+	<xsl:template name="STD_01300ColumnsConfiguration">
+		<!-- Format the columns of the table -->
+		<table:table-column table:style-name="co6" table:default-cell-style-name="Default"/> <!-- Port --> 
+	</xsl:template>
+
+	<!-- Columns configuration for STD_01700 -->
+	<xsl:template name="STD_01700ColumnsConfiguration">
+		<!-- Format the columns of the table -->
+		<table:table-column table:style-name="co6" table:default-cell-style-name="Default"/> <!-- Clock --> 
+		<table:table-column table:style-name="co6" table:default-cell-style-name="Default"/> <!-- Reset --> 
+	</xsl:template>
+
+	<!-- Columns configuration for STD_01800 -->
+	<xsl:template name="STD_01800ColumnsConfiguration">
+		<!-- Format the columns of the table -->
+		<table:table-column table:style-name="co6" table:default-cell-style-name="Default"/> <!-- Library --> 
 	</xsl:template>
 
 	<!-- Columns configuration for STD_03600_R1 -->
@@ -131,8 +184,6 @@
 		<table:table-column table:style-name="co6" table:default-cell-style-name="Default"/> <!-- Process --> 
 		<table:table-column table:style-name="co4" table:default-cell-style-name="Default"/> <!-- SourceTag --> 
 		<table:table-column table:style-name="co2" table:default-cell-style-name="Default"/> <!-- Level --> 
-		<table:table-column table:style-name="co10" table:default-cell-style-name="Default"/> <!-- SonarError -->
-		<table:table-column table:style-name="co10" table:default-cell-style-name="Default"/> <!-- SonarRemediationMsg -->
 	</xsl:template>
 
 	<!-- Columns configuration for STD_03600_R2 -->
@@ -140,8 +191,13 @@
 		<!-- Format the columns of the table -->
 		<table:table-column table:style-name="co4" table:default-cell-style-name="Default"/> <!-- SourceTag --> 
 		<table:table-column table:style-name="co2" table:default-cell-style-name="Default"/> <!-- Level --> 
-		<table:table-column table:style-name="co10" table:default-cell-style-name="Default"/> <!-- SonarError -->
-		<table:table-column table:style-name="co10" table:default-cell-style-name="Default"/> <!-- SonarRemediationMsg -->
+	</xsl:template>
+
+	<!-- Columns configuration for STD_03700 -->
+	<xsl:template name="STD_03700ColumnsConfiguration">
+		<!-- Format the columns of the table -->
+		<table:table-column table:style-name="co6" table:default-cell-style-name="Default"/> <!-- Reset --> 
+		<table:table-column table:style-name="co6" table:default-cell-style-name="Default"/> <!-- SignalType --> 
 	</xsl:template>
 
 	<!-- Columns configuration for STD_03800 -->
@@ -150,8 +206,6 @@
 		<table:table-column table:style-name="co6" table:default-cell-style-name="Default"/> <!-- Register --> 
 		<table:table-column table:style-name="co6" table:default-cell-style-name="Default"/> <!-- Clock --> 
 		<table:table-column table:style-name="co6" table:default-cell-style-name="Default"/> <!-- Process --> 
-		<table:table-column table:style-name="co10" table:default-cell-style-name="Default"/> <!-- SonarError -->
-		<table:table-column table:style-name="co10" table:default-cell-style-name="Default"/> <!-- SonarRemediationMsg -->
 	</xsl:template>
 
 	<!-- Columns configuration for STD_04500 -->
@@ -160,8 +214,6 @@
 		<table:table-column table:style-name="co6" table:default-cell-style-name="Default"/> <!-- SourceTag --> 
 		<table:table-column table:style-name="co6" table:default-cell-style-name="Default"/> <!-- Clock --> 
 		<table:table-column table:style-name="co6" table:default-cell-style-name="Default"/> <!-- SignalType --> 
-		<table:table-column table:style-name="co10" table:default-cell-style-name="Default"/> <!-- SonarError -->
-		<table:table-column table:style-name="co10" table:default-cell-style-name="Default"/> <!-- SonarRemediationMsg -->
 	</xsl:template>
 		
 	<!-- Columns configuration for STD_04600 -->
@@ -170,8 +222,6 @@
 		<table:table-column table:style-name="co6" table:default-cell-style-name="Default"/> <!-- SourceTag --> 
 		<table:table-column table:style-name="co6" table:default-cell-style-name="Default"/> <!-- Clock --> 
 		<table:table-column table:style-name="co6" table:default-cell-style-name="Default"/> <!-- SignalType --> 
-		<table:table-column table:style-name="co10" table:default-cell-style-name="Default"/> <!-- SonarError -->
-		<table:table-column table:style-name="co10" table:default-cell-style-name="Default"/> <!-- SonarRemediationMsg -->
 	</xsl:template>
 
 	<!-- Columns configuration for STD_04700 -->
@@ -180,8 +230,6 @@
 		<table:table-column table:style-name="co6" table:default-cell-style-name="Default"/> <!-- SourceTag --> 
 		<table:table-column table:style-name="co6" table:default-cell-style-name="Default"/> <!-- Clock --> 
 		<table:table-column table:style-name="co6" table:default-cell-style-name="Default"/> <!-- SignalType --> 
-		<table:table-column table:style-name="co10" table:default-cell-style-name="Default"/> <!-- SonarError -->
-		<table:table-column table:style-name="co10" table:default-cell-style-name="Default"/> <!-- SonarRemediationMsg -->
 	</xsl:template>
 
 	<!-- Columns configuration for STD_04800_R1 -->
@@ -191,8 +239,6 @@
 		<table:table-column table:style-name="co6" table:default-cell-style-name="Default"/> <!-- Process --> 
 		<table:table-column table:style-name="co4" table:default-cell-style-name="Default"/> <!-- SourceTag --> 
 		<table:table-column table:style-name="co2" table:default-cell-style-name="Default"/> <!-- Edge --> 
-		<table:table-column table:style-name="co10" table:default-cell-style-name="Default"/> <!-- SonarError -->
-		<table:table-column table:style-name="co10" table:default-cell-style-name="Default"/> <!-- SonarRemediationMsg -->
 	</xsl:template>
 	
 	<!-- Columns configuration for STD_04800_R2 -->
@@ -200,8 +246,6 @@
 		<!-- Format the columns of the table -->
 		<table:table-column table:style-name="co4" table:default-cell-style-name="Default"/> <!-- SourceTag --> 
 		<table:table-column table:style-name="co2" table:default-cell-style-name="Default"/> <!-- Edge --> 
-		<table:table-column table:style-name="co10" table:default-cell-style-name="Default"/> <!-- SonarError -->
-		<table:table-column table:style-name="co10" table:default-cell-style-name="Default"/> <!-- SonarRemediationMsg -->
 	</xsl:template>
 	
 	<!-- Columns configuration for STD_05000 -->
@@ -209,8 +253,6 @@
 		<!-- Format the columns of the table -->
 		<table:table-column table:style-name="co6" table:default-cell-style-name="Default"/> <!-- Process --> 
 		<table:table-column table:style-name="co6" table:default-cell-style-name="Default"/> <!-- Sensitivity --> 
-		<table:table-column table:style-name="co10" table:default-cell-style-name="Default"/> <!-- SonarError -->
-		<table:table-column table:style-name="co10" table:default-cell-style-name="Default"/> <!-- SonarRemediationMsg -->
 	</xsl:template>
 
 	<!-- Columns configuration for STD_05300 -->
@@ -218,33 +260,25 @@
 		<!-- Format the columns of the table -->
 		<table:table-column table:style-name="co6" table:default-cell-style-name="Default"/> <!-- Process --> 
 		<table:table-column table:style-name="co6" table:default-cell-style-name="Default"/> <!-- Sensitivity --> 
-		<table:table-column table:style-name="co10" table:default-cell-style-name="Default"/> <!-- SonarError -->
-		<table:table-column table:style-name="co10" table:default-cell-style-name="Default"/> <!-- SonarRemediationMsg -->
 	</xsl:template>
 
-	<!-- Columns configuration for STD_01800 -->
-	<xsl:template name="STD_01800ColumnsConfiguration">
+	<!-- Columns configuration for STD_05900 -->
+	<xsl:template name="STD_05900ColumnsConfiguration">
 		<!-- Format the columns of the table -->
-		<table:table-column table:style-name="co6" table:default-cell-style-name="Default"/> <!-- Library --> 
-		<table:table-column table:style-name="co10" table:default-cell-style-name="Default"/> <!-- SonarError -->
-		<table:table-column table:style-name="co10" table:default-cell-style-name="Default"/> <!-- SonarRemediationMsg -->
-	</xsl:template>
+		<table:table-column table:style-name="co6" table:default-cell-style-name="Default"/> <!-- Object --> 
+		</xsl:template>
 
-	<!-- Columns configuration for STD_03700 -->
-	<xsl:template name="STD_03700ColumnsConfiguration">
+	<!-- Columns configuration for STD_06300 -->
+	<xsl:template name="STD_06300ColumnsConfiguration">
 		<!-- Format the columns of the table -->
-		<table:table-column table:style-name="co6" table:default-cell-style-name="Default"/> <!-- Reset --> 
-		<table:table-column table:style-name="co6" table:default-cell-style-name="Default"/> <!-- SignalType --> 
-		<table:table-column table:style-name="co10" table:default-cell-style-name="Default"/> <!-- SonarError -->
-		<table:table-column table:style-name="co10" table:default-cell-style-name="Default"/> <!-- SonarRemediationMsg -->
+		<table:table-column table:style-name="co6" table:default-cell-style-name="Default"/> <!-- Process --> 
+		<table:table-column table:style-name="co6" table:default-cell-style-name="Default"/> <!-- Variable --> 
 	</xsl:template>
 
 	<!-- Columns configuration for STD_06800 -->
 	<xsl:template name="STD_06800ColumnsConfiguration">
 		<!-- Format the columns of the table -->
 		<table:table-column table:style-name="co6" table:default-cell-style-name="Default"/> <!-- Signal --> 
-		<table:table-column table:style-name="co10" table:default-cell-style-name="Default"/> <!-- SonarError -->
-		<table:table-column table:style-name="co10" table:default-cell-style-name="Default"/> <!-- SonarRemediationMsg -->
 	</xsl:template>
 
 	<!-- ============================================================================== -->
@@ -262,11 +296,33 @@
 		<table:table-cell office:value-type="string"><text:p>Architecture</text:p></table:table-cell>
 	</xsl:template>
 
+	<!-- Headers for mandatory sonarqube elements -->
+	<xsl:template name="SonarqubeHeaders">
+		<table:table-cell office:value-type="string"><text:p>Sonar Error</text:p></table:table-cell>
+		<table:table-cell office:value-type="string"><text:p>Sonar Remediation Message</text:p></table:table-cell>
+	</xsl:template>
+
+	<!-- Headers for CNE_01000 -->
+	<xsl:template name="CNE_01000Headers">
+		<table:table-cell office:value-type="string"><text:p>Process</text:p></table:table-cell>
+		<table:table-cell office:value-type="string"><text:p>FunctionProcess</text:p></table:table-cell>
+		<table:table-cell office:value-type="string"><text:p>Procedure</text:p></table:table-cell>
+		<table:table-cell office:value-type="string"><text:p>Variable</text:p></table:table-cell>
+	</xsl:template>
+
 	<!-- Headers for CNE_01200 -->
 	<xsl:template name="CNE_01200Headers">
 		<table:table-cell office:value-type="string"><text:p>Process</text:p></table:table-cell>
-		<table:table-cell office:value-type="string"><text:p>Sonar Error</text:p></table:table-cell>
-		<table:table-cell office:value-type="string"><text:p>Sonar Remediation Message</text:p></table:table-cell>
+	</xsl:template>
+
+	<!-- Headers for CNE_01600 -->
+	<xsl:template name="CNE_01600Headers">
+		<table:table-cell office:value-type="string"><text:p>Package</text:p></table:table-cell>
+	</xsl:template>
+
+	<!-- Headers for CNE_02100 -->
+	<xsl:template name="CNE_02100Headers">
+		<!-- No expected data. Nothing to do -->
 	</xsl:template>
 
 	<!-- Headers for CNE_02300 -->
@@ -274,8 +330,6 @@
 		<table:table-cell office:value-type="string"><text:p>Instance</text:p></table:table-cell>
 		<table:table-cell office:value-type="string"><text:p>Clock Before</text:p></table:table-cell>
 		<table:table-cell office:value-type="string"><text:p>Clock After</text:p></table:table-cell>
-		<table:table-cell office:value-type="string"><text:p>Sonar Error</text:p></table:table-cell>
-		<table:table-cell office:value-type="string"><text:p>Sonar Remediation Message</text:p></table:table-cell>
 	</xsl:template>
 
 	<!-- Headers for CNE_02400 -->
@@ -283,55 +337,84 @@
 		<table:table-cell office:value-type="string"><text:p>Instance</text:p></table:table-cell>
 		<table:table-cell office:value-type="string"><text:p>Reset Before</text:p></table:table-cell>
 		<table:table-cell office:value-type="string"><text:p>Reset After</text:p></table:table-cell>
-		<table:table-cell office:value-type="string"><text:p>Sonar Error</text:p></table:table-cell>
-		<table:table-cell office:value-type="string"><text:p>Sonar Remediation Message</text:p></table:table-cell>
 	</xsl:template>
 	
 	<!-- Headers for CNE_04900 -->
 	<xsl:template name="CNE_04900Headers">
 		<table:table-cell office:value-type="string"><text:p>Clock</text:p></table:table-cell>
-		<table:table-cell office:value-type="string"><text:p>Sonar Error</text:p></table:table-cell>
-		<table:table-cell office:value-type="string"><text:p>Sonar Remediation Message</text:p></table:table-cell>
 	</xsl:template>
 
 	<!-- Headers for STD_00200 -->
 	<xsl:template name="STD_00200Headers">
 		<table:table-cell office:value-type="string"><text:p>Clock</text:p></table:table-cell>
 		<table:table-cell office:value-type="string"><text:p>Process</text:p></table:table-cell>
-		<table:table-cell office:value-type="string"><text:p>Sonar Error</text:p></table:table-cell>
-		<table:table-cell office:value-type="string"><text:p>Sonar Remediation Message</text:p></table:table-cell>
 	</xsl:template>
 
 	<!-- Headers for STD_00300 -->
 	<xsl:template name="STD_00300Headers">
 		<table:table-cell office:value-type="string"><text:p>Reset</text:p></table:table-cell>
 		<table:table-cell office:value-type="string"><text:p>Process</text:p></table:table-cell>
-		<table:table-cell office:value-type="string"><text:p>Sonar Error</text:p></table:table-cell>
-		<table:table-cell office:value-type="string"><text:p>Sonar Remediation Message</text:p></table:table-cell>
 	</xsl:template>
 
 	<!-- Headers for STD_00400 -->
 	<xsl:template name="STD_00400Headers">
-		<table:table-cell office:value-type="string"><text:p>Sonar Error</text:p></table:table-cell>
-		<table:table-cell office:value-type="string"><text:p>Sonar Remediation Message</text:p></table:table-cell>
+		<!-- No expected data. Nothing to do -->
 	</xsl:template>
 	
+	<!-- Headers for STD_00900 -->
+	<xsl:template name="STD_00900Headers">
+		<!-- No expected data. Nothing to do -->
+	</xsl:template>
+	
+	<!-- Headers for STD_01000 -->
+	<xsl:template name="STD_01000Headers">
+		<!-- No expected data. Nothing to do -->
+	</xsl:template>
+	
+	<!-- Headers for STD_01100 -->
+	<xsl:template name="STD_01100Headers">
+		<!-- No expected data. Nothing to do -->
+	</xsl:template>
+	
+	<!-- Headers for STD_01200 -->
+	<xsl:template name="STD_01200Headers">
+		<!-- No expected data. Nothing to do -->
+	</xsl:template>
+	
+	<!-- Headers for STD_01300 -->
+	<xsl:template name="STD_01300Headers">
+		<table:table-cell office:value-type="string"><text:p>Port</text:p></table:table-cell>
+	</xsl:template>
+
+	<!-- Headers for STD_01700 -->
+	<xsl:template name="STD_01700Headers">
+		<table:table-cell office:value-type="string"><text:p>Clock</text:p></table:table-cell>
+		<table:table-cell office:value-type="string"><text:p>Reset</text:p></table:table-cell>
+	</xsl:template>
+
+	<!-- Headers for STD_01800 -->
+	<xsl:template name="STD_01800Headers">
+		<table:table-cell office:value-type="string"><text:p>Library</text:p></table:table-cell>
+	</xsl:template>
+
+	<!-- Headers for STD_03700 -->
+	<xsl:template name="STD_03700Headers">
+		<table:table-cell office:value-type="string"><text:p>Reset</text:p></table:table-cell>
+		<table:table-cell office:value-type="string"><text:p>SignalType</text:p></table:table-cell>
+	</xsl:template>
+
 	<!-- Headers for STD_03600_R1 -->
 	<xsl:template name="STD_03600R1Headers">
 		<table:table-cell office:value-type="string"><text:p>Reset</text:p></table:table-cell>
 		<table:table-cell office:value-type="string"><text:p>Process</text:p></table:table-cell>
 		<table:table-cell office:value-type="string"><text:p>Source Tag</text:p></table:table-cell>
 		<table:table-cell office:value-type="string"><text:p>Level</text:p></table:table-cell>
-		<table:table-cell office:value-type="string"><text:p>Sonar Error</text:p></table:table-cell>
-		<table:table-cell office:value-type="string"><text:p>Sonar Remediation Message</text:p></table:table-cell>
 	</xsl:template>
 
 	<!-- Headers for STD_03600_R2 -->
 	<xsl:template name="STD_03600R2Headers">
 		<table:table-cell office:value-type="string"><text:p>Source Tag</text:p></table:table-cell>
 		<table:table-cell office:value-type="string"><text:p>Level</text:p></table:table-cell>
-		<table:table-cell office:value-type="string"><text:p>Sonar Error</text:p></table:table-cell>
-		<table:table-cell office:value-type="string"><text:p>Sonar Remediation Message</text:p></table:table-cell>
 	</xsl:template>
 
 	<!-- Headers for STD_03800 -->
@@ -339,8 +422,6 @@
 		<table:table-cell office:value-type="string"><text:p>Register</text:p></table:table-cell>
 		<table:table-cell office:value-type="string"><text:p>Clock</text:p></table:table-cell>
 		<table:table-cell office:value-type="string"><text:p>Process</text:p></table:table-cell>
-		<table:table-cell office:value-type="string"><text:p>Sonar Error</text:p></table:table-cell>
-		<table:table-cell office:value-type="string"><text:p>Sonar Remediation Message</text:p></table:table-cell>
 	</xsl:template>
 
 	<!-- Headers for STD_04500 -->
@@ -348,8 +429,6 @@
 		<table:table-cell office:value-type="string"><text:p>Source Tag</text:p></table:table-cell>
 		<table:table-cell office:value-type="string"><text:p>Clock</text:p></table:table-cell>
 		<table:table-cell office:value-type="string"><text:p>Signal Type</text:p></table:table-cell>
-		<table:table-cell office:value-type="string"><text:p>Sonar Error</text:p></table:table-cell>
-		<table:table-cell office:value-type="string"><text:p>Sonar Remediation Message</text:p></table:table-cell>
 	</xsl:template>
 
 	<!-- Headers for STD_04600 -->
@@ -357,8 +436,6 @@
 		<table:table-cell office:value-type="string"><text:p>Source Tag</text:p></table:table-cell>
 		<table:table-cell office:value-type="string"><text:p>Clock</text:p></table:table-cell>
 		<table:table-cell office:value-type="string"><text:p>Signal Type</text:p></table:table-cell>
-		<table:table-cell office:value-type="string"><text:p>Sonar Error</text:p></table:table-cell>
-		<table:table-cell office:value-type="string"><text:p>Sonar Remediation Message</text:p></table:table-cell>
 	</xsl:template>
 
 	<!-- Headers for STD_04700 -->
@@ -366,8 +443,6 @@
 		<table:table-cell office:value-type="string"><text:p>Source Tag</text:p></table:table-cell>
 		<table:table-cell office:value-type="string"><text:p>Clock</text:p></table:table-cell>
 		<table:table-cell office:value-type="string"><text:p>Signal Type</text:p></table:table-cell>
-		<table:table-cell office:value-type="string"><text:p>Sonar Error</text:p></table:table-cell>
-		<table:table-cell office:value-type="string"><text:p>Sonar Remediation Message</text:p></table:table-cell>
 	</xsl:template>
 
 	<!-- Headers for STD_04800_R1 -->
@@ -376,54 +451,40 @@
 		<table:table-cell office:value-type="string"><text:p>Process</text:p></table:table-cell>
 		<table:table-cell office:value-type="string"><text:p>Source Tag</text:p></table:table-cell>
 		<table:table-cell office:value-type="string"><text:p>Edge</text:p></table:table-cell>
-		<table:table-cell office:value-type="string"><text:p>Sonar Error</text:p></table:table-cell>
-		<table:table-cell office:value-type="string"><text:p>Sonar Remediation Message</text:p></table:table-cell>
 	</xsl:template>
 
 	<!-- Headers for STD_04800_R2 -->
 	<xsl:template name="STD_04800R2Headers">
 		<table:table-cell office:value-type="string"><text:p>Source Tag</text:p></table:table-cell>
 		<table:table-cell office:value-type="string"><text:p>Edge</text:p></table:table-cell>
-		<table:table-cell office:value-type="string"><text:p>Sonar Error</text:p></table:table-cell>
-		<table:table-cell office:value-type="string"><text:p>Sonar Remediation Message</text:p></table:table-cell>
 	</xsl:template>
 	
 	<!-- Headers for STD_05000 -->
 	<xsl:template name="STD_05000Headers">
 		<table:table-cell office:value-type="string"><text:p>Process</text:p></table:table-cell>
 		<table:table-cell office:value-type="string"><text:p>Sensitivity</text:p></table:table-cell>
-		<table:table-cell office:value-type="string"><text:p>Sonar Error</text:p></table:table-cell>
-		<table:table-cell office:value-type="string"><text:p>Sonar Remediation Message</text:p></table:table-cell>
 	</xsl:template>
 
 	<!-- Headers for STD_05300 -->
 	<xsl:template name="STD_05300Headers">
 		<table:table-cell office:value-type="string"><text:p>Process</text:p></table:table-cell>
 		<table:table-cell office:value-type="string"><text:p>Sensitivity</text:p></table:table-cell>
-		<table:table-cell office:value-type="string"><text:p>Sonar Error</text:p></table:table-cell>
-		<table:table-cell office:value-type="string"><text:p>Sonar Remediation Message</text:p></table:table-cell>
 	</xsl:template>
 
-	<!-- Headers for STD_01800 -->
-	<xsl:template name="STD_01800Headers">
-		<table:table-cell office:value-type="string"><text:p>Library</text:p></table:table-cell>
-		<table:table-cell office:value-type="string"><text:p>Sonar Error</text:p></table:table-cell>
-		<table:table-cell office:value-type="string"><text:p>Sonar Remediation Message</text:p></table:table-cell>
+	<!-- Headers for STD_05900 -->
+	<xsl:template name="STD_05900Headers">
+		<table:table-cell office:value-type="string"><text:p>ObjectName</text:p></table:table-cell>
 	</xsl:template>
 
-	<!-- Headers for STD_03700 -->
-	<xsl:template name="STD_03700Headers">
-		<table:table-cell office:value-type="string"><text:p>Reset</text:p></table:table-cell>
-		<table:table-cell office:value-type="string"><text:p>SignalType</text:p></table:table-cell>
-		<table:table-cell office:value-type="string"><text:p>Sonar Error</text:p></table:table-cell>
-		<table:table-cell office:value-type="string"><text:p>Sonar Remediation Message</text:p></table:table-cell>
+	<!-- Headers for STD_06300 -->
+	<xsl:template name="STD_06300Headers">
+		<table:table-cell office:value-type="string"><text:p>Process</text:p></table:table-cell>
+		<table:table-cell office:value-type="string"><text:p>Variable</text:p></table:table-cell>
 	</xsl:template>
 
 	<!-- Headers for STD_06800 -->
 	<xsl:template name="STD_06800Headers">
 		<table:table-cell office:value-type="string"><text:p>Signal</text:p></table:table-cell>
-		<table:table-cell office:value-type="string"><text:p>Sonar Error</text:p></table:table-cell>
-		<table:table-cell office:value-type="string"><text:p>Sonar Remediation Message</text:p></table:table-cell>
 	</xsl:template>
 
 
@@ -442,11 +503,34 @@
 		<table:table-cell><text:p><xsl:value-of select="rc:Architecture"/></text:p></table:table-cell>
 	</xsl:template>
 
+	<!-- CNE_01000 elements -->
+	<xsl:template name="CNE_01000Elements">
+		<table:table-cell><text:p><xsl:value-of select="rc:CNE_01000/rc:Process"/></text:p></table:table-cell>
+		<table:table-cell><text:p><xsl:value-of select="rc:CNE_01000/rc:Function"/></text:p></table:table-cell>
+		<table:table-cell><text:p><xsl:value-of select="rc:CNE_01000/rc:Procedure"/></text:p></table:table-cell>
+		<table:table-cell><text:p><xsl:value-of select="rc:CNE_01000/rc:Variable"/></text:p></table:table-cell>
+		<table:table-cell><text:p><xsl:value-of select="rc:CNE_01000/rc:SonarQubeMsg/rc:SonarError"/></text:p></table:table-cell>
+		<table:table-cell><text:p><xsl:value-of select="rc:CNE_01000/rc:SonarQubeMsg/rc:SonarRemediationMsg"/></text:p></table:table-cell>
+	</xsl:template>
+
 	<!-- CNE_01200 elements -->
 	<xsl:template name="CNE_01200Elements">
 		<table:table-cell><text:p><xsl:value-of select="rc:CNE_01200/rc:Process"/></text:p></table:table-cell>
 		<table:table-cell><text:p><xsl:value-of select="rc:CNE_01200/rc:SonarQubeMsg/rc:SonarError"/></text:p></table:table-cell>
 		<table:table-cell><text:p><xsl:value-of select="rc:CNE_01200/rc:SonarQubeMsg/rc:SonarRemediationMsg"/></text:p></table:table-cell>
+	</xsl:template>
+
+	<!-- CNE_01600 elements -->
+	<xsl:template name="CNE_01600Elements">
+		<table:table-cell><text:p><xsl:value-of select="rc:CNE_01600/rc:Package"/></text:p></table:table-cell>
+		<table:table-cell><text:p><xsl:value-of select="rc:CNE_01600/rc:SonarQubeMsg/rc:SonarError"/></text:p></table:table-cell>
+		<table:table-cell><text:p><xsl:value-of select="rc:CNE_01600/rc:SonarQubeMsg/rc:SonarRemediationMsg"/></text:p></table:table-cell>
+	</xsl:template>
+
+	<!-- CNE_02100 elements -->
+	<xsl:template name="CNE_02100Elements">
+		<table:table-cell><text:p><xsl:value-of select="rc:CNE_02100/rc:SonarQubeMsg/rc:SonarError"/></text:p></table:table-cell>
+		<table:table-cell><text:p><xsl:value-of select="rc:CNE_02100/rc:SonarQubeMsg/rc:SonarRemediationMsg"/></text:p></table:table-cell>
 	</xsl:template>
 
 	<!-- CNE_02300 elements -->
@@ -492,9 +576,56 @@
 
 	<!-- STD_00400 elements -->
 	<xsl:template name="STD_00400Elements">
-		<!-- No expected data. Nothing to do -->
+		<table:table-cell><text:p><xsl:value-of select="rc:STD_00400/rc:SonarQubeMsg/rc:SonarError"/></text:p></table:table-cell>
+		<table:table-cell><text:p><xsl:value-of select="rc:STD_00400/rc:SonarQubeMsg/rc:SonarRemediationMsg"/></text:p></table:table-cell>
 	</xsl:template>
 
+	<!-- STD_00900 elements -->
+	<xsl:template name="STD_00900Elements">
+		<table:table-cell><text:p><xsl:value-of select="rc:STD_00900/rc:SonarQubeMsg/rc:SonarError"/></text:p></table:table-cell>
+		<table:table-cell><text:p><xsl:value-of select="rc:STD_00900/rc:SonarQubeMsg/rc:SonarRemediationMsg"/></text:p></table:table-cell>
+	</xsl:template>
+
+	<!-- STD_01000 elements -->
+	<xsl:template name="STD_01000Elements">
+		<table:table-cell><text:p><xsl:value-of select="rc:STD_01000/rc:SonarQubeMsg/rc:SonarError"/></text:p></table:table-cell>
+		<table:table-cell><text:p><xsl:value-of select="rc:STD_01000/rc:SonarQubeMsg/rc:SonarRemediationMsg"/></text:p></table:table-cell>
+	</xsl:template>
+
+	<!-- STD_01100 elements -->
+	<xsl:template name="STD_01100Elements">
+		<table:table-cell><text:p><xsl:value-of select="rc:STD_01100/rc:SonarQubeMsg/rc:SonarError"/></text:p></table:table-cell>
+		<table:table-cell><text:p><xsl:value-of select="rc:STD_01100/rc:SonarQubeMsg/rc:SonarRemediationMsg"/></text:p></table:table-cell>
+	</xsl:template>
+
+	<!-- STD_01200 elements -->
+	<xsl:template name="STD_01200Elements">
+		<table:table-cell><text:p><xsl:value-of select="rc:STD_01200/rc:SonarQubeMsg/rc:SonarError"/></text:p></table:table-cell>
+		<table:table-cell><text:p><xsl:value-of select="rc:STD_01200/rc:SonarQubeMsg/rc:SonarRemediationMsg"/></text:p></table:table-cell>
+	</xsl:template>
+
+	<!-- STD_01300 elements -->
+	<xsl:template name="STD_01300Elements">
+		<table:table-cell><text:p><xsl:value-of select="rc:STD_01300/rc:Port"/></text:p></table:table-cell>
+		<table:table-cell><text:p><xsl:value-of select="rc:STD_01300/rc:SonarQubeMsg/rc:SonarError"/></text:p></table:table-cell>
+		<table:table-cell><text:p><xsl:value-of select="rc:STD_01300/rc:SonarQubeMsg/rc:SonarRemediationMsg"/></text:p></table:table-cell>
+	</xsl:template>
+	
+	<!-- STD_01700 elements -->
+	<xsl:template name="STD_01700Elements">
+		<table:table-cell><text:p><xsl:value-of select="rc:STD_01700/rc:Clock"/></text:p></table:table-cell>
+		<table:table-cell><text:p><xsl:value-of select="rc:STD_01700/rc:Reset"/></text:p></table:table-cell>
+		<table:table-cell><text:p><xsl:value-of select="rc:STD_01700/rc:SonarQubeMsg/rc:SonarError"/></text:p></table:table-cell>
+		<table:table-cell><text:p><xsl:value-of select="rc:STD_01700/rc:SonarQubeMsg/rc:SonarRemediationMsg"/></text:p></table:table-cell>
+	</xsl:template>
+
+	<!-- STD_01800 elements -->
+	<xsl:template name="STD_01800Elements">
+		<table:table-cell><text:p><xsl:value-of select="rc:STD_01800/rc:Library"/></text:p></table:table-cell>
+		<table:table-cell><text:p><xsl:value-of select="rc:STD_01800/rc:SonarQubeMsg/rc:SonarError"/></text:p></table:table-cell>
+		<table:table-cell><text:p><xsl:value-of select="rc:STD_01800/rc:SonarQubeMsg/rc:SonarRemediationMsg"/></text:p></table:table-cell>
+	</xsl:template>
+	
 	<!-- STD_03600_R1 elements -->
 	<xsl:template name="STD_03600R1Elements">
 		<table:table-cell><text:p><xsl:value-of select="rc:STD_03600_R1/rc:Reset"/></text:p></table:table-cell>
@@ -511,6 +642,14 @@
 		<table:table-cell><text:p><xsl:value-of select="rc:STD_03600_R2/rc:Level"/></text:p></table:table-cell>
 		<table:table-cell><text:p><xsl:value-of select="rc:STD_03600_R2/rc:SonarQubeMsg/rc:SonarError"/></text:p></table:table-cell>
 		<table:table-cell><text:p><xsl:value-of select="rc:STD_03600_R2/rc:SonarQubeMsg/rc:SonarRemediationMsg"/></text:p></table:table-cell>
+	</xsl:template>
+	
+	<!-- STD_03700 elements -->
+	<xsl:template name="STD_03700Elements">
+		<table:table-cell><text:p><xsl:value-of select="rc:STD_03700/rc:Reset"/></text:p></table:table-cell>
+		<table:table-cell><text:p><xsl:value-of select="rc:STD_03700/rc:SignalType"/></text:p></table:table-cell>
+		<table:table-cell><text:p><xsl:value-of select="rc:STD_03700/rc:SonarQubeMsg/rc:SonarError"/></text:p></table:table-cell>
+		<table:table-cell><text:p><xsl:value-of select="rc:STD_03700/rc:SonarQubeMsg/rc:SonarRemediationMsg"/></text:p></table:table-cell>
 	</xsl:template>
 	
 	<!-- STD_03800 elements -->
@@ -583,19 +722,19 @@
 		<table:table-cell><text:p><xsl:value-of select="rc:STD_05300/rc:SonarQubeMsg/rc:SonarRemediationMsg"/></text:p></table:table-cell>
 	</xsl:template>
 	
-	<!-- STD_01800 elements -->
-	<xsl:template name="STD_01800Elements">
-		<table:table-cell><text:p><xsl:value-of select="rc:STD_01800/rc:Library"/></text:p></table:table-cell>
-		<table:table-cell><text:p><xsl:value-of select="rc:STD_01800/rc:SonarQubeMsg/rc:SonarError"/></text:p></table:table-cell>
-		<table:table-cell><text:p><xsl:value-of select="rc:STD_01800/rc:SonarQubeMsg/rc:SonarRemediationMsg"/></text:p></table:table-cell>
+	<!-- STD_05900 elements -->
+	<xsl:template name="STD_05900Elements">
+		<table:table-cell><text:p><xsl:value-of select="rc:STD_05900/rc:ObjectName"/></text:p></table:table-cell>
+		<table:table-cell><text:p><xsl:value-of select="rc:STD_05900/rc:SonarQubeMsg/rc:SonarError"/></text:p></table:table-cell>
+		<table:table-cell><text:p><xsl:value-of select="rc:STD_05900/rc:SonarQubeMsg/rc:SonarRemediationMsg"/></text:p></table:table-cell>
 	</xsl:template>
 	
-	<!-- STD_03700 elements -->
-	<xsl:template name="STD_03700Elements">
-		<table:table-cell><text:p><xsl:value-of select="rc:STD_03700/rc:Reset"/></text:p></table:table-cell>
-		<table:table-cell><text:p><xsl:value-of select="rc:STD_03700/rc:SignalType"/></text:p></table:table-cell>
-		<table:table-cell><text:p><xsl:value-of select="rc:STD_03700/rc:SonarQubeMsg/rc:SonarError"/></text:p></table:table-cell>
-		<table:table-cell><text:p><xsl:value-of select="rc:STD_03700/rc:SonarQubeMsg/rc:SonarRemediationMsg"/></text:p></table:table-cell>
+	<!-- STD_06300 elements -->
+	<xsl:template name="STD_06300Elements">
+		<table:table-cell><text:p><xsl:value-of select="rc:STD_06300/rc:Process"/></text:p></table:table-cell>
+		<table:table-cell><text:p><xsl:value-of select="rc:STD_06300/rc:Variable"/></text:p></table:table-cell>
+		<table:table-cell><text:p><xsl:value-of select="rc:STD_06300/rc:SonarQubeMsg/rc:SonarError"/></text:p></table:table-cell>
+		<table:table-cell><text:p><xsl:value-of select="rc:STD_06300/rc:SonarQubeMsg/rc:SonarRemediationMsg"/></text:p></table:table-cell>
 	</xsl:template>
 	
 	<!-- STD_06800 elements -->
@@ -644,8 +783,17 @@
 						<xsl:call-template name="MandatoryColumnsConfiguration" />
 						<xsl:choose>
 							<!-- CNE rules -->
+							<xsl:when test="/rc:ReportRule/rc:RuleFailure/rc:CNE_01000">
+								<xsl:call-template name="CNE_01000ColumnsConfiguration" />
+							</xsl:when>
 							<xsl:when test="/rc:ReportRule/rc:RuleFailure/rc:CNE_01200">
 								<xsl:call-template name="CNE_01200ColumnsConfiguration" />
+							</xsl:when>
+							<xsl:when test="/rc:ReportRule/rc:RuleFailure/rc:CNE_01600">
+								<xsl:call-template name="CNE_01600ColumnsConfiguration" />
+							</xsl:when>
+							<xsl:when test="/rc:ReportRule/rc:RuleFailure/rc:CNE_02100">
+								<xsl:call-template name="CNE_02100ColumnsConfiguration" />
 							</xsl:when>
 							<xsl:when test="/rc:ReportRule/rc:RuleFailure/rc:CNE_02300">
 								<xsl:call-template name="CNE_02300ColumnsConfiguration" />
@@ -667,11 +815,35 @@
 							<xsl:when test="/rc:ReportRule/rc:RuleFailure/rc:STD_00400">
 								<xsl:call-template name="STD_00400ColumnsConfiguration" />
 							</xsl:when>
+							<xsl:when test="/rc:ReportRule/rc:RuleFailure/rc:STD_00900">
+								<xsl:call-template name="STD_00900ColumnsConfiguration" />
+							</xsl:when>
+							<xsl:when test="/rc:ReportRule/rc:RuleFailure/rc:STD_01000">
+								<xsl:call-template name="STD_01000ColumnsConfiguration" />
+							</xsl:when>
+							<xsl:when test="/rc:ReportRule/rc:RuleFailure/rc:STD_01100">
+								<xsl:call-template name="STD_01100ColumnsConfiguration" />
+							</xsl:when>
+							<xsl:when test="/rc:ReportRule/rc:RuleFailure/rc:STD_01200">
+								<xsl:call-template name="STD_01200ColumnsConfiguration" />
+							</xsl:when>
+							<xsl:when test="/rc:ReportRule/rc:RuleFailure/rc:STD_01300">
+								<xsl:call-template name="STD_01300ColumnsConfiguration" />
+							</xsl:when>
+							<xsl:when test="/rc:ReportRule/rc:RuleFailure/rc:STD_01700">
+								<xsl:call-template name="STD_01700ColumnsConfiguration" />
+							</xsl:when>
+							<xsl:when test="/rc:ReportRule/rc:RuleFailure/rc:STD_01800">
+								<xsl:call-template name="STD_01800ColumnsConfiguration" />
+							</xsl:when>
 							<xsl:when test="/rc:ReportRule/rc:RuleFailure/rc:STD_03600_R1">
 								<xsl:call-template name="STD_03600R1ColumnsConfiguration" />
 							</xsl:when>
 							<xsl:when test="/rc:ReportRule/rc:RuleFailure/rc:STD_03600_R2">
 								<xsl:call-template name="STD_03600R2ColumnsConfiguration" />
+							</xsl:when>
+							<xsl:when test="/rc:ReportRule/rc:RuleFailure/rc:STD_03700">
+								<xsl:call-template name="STD_03700ColumnsConfiguration" />
 							</xsl:when>
 							<xsl:when test="/rc:ReportRule/rc:RuleFailure/rc:STD_03800">
 								<xsl:call-template name="STD_03800ColumnsConfiguration" />
@@ -697,16 +869,17 @@
 							<xsl:when test="/rc:ReportRule/rc:RuleFailure/rc:STD_05300">
 								<xsl:call-template name="STD_05300ColumnsConfiguration" />
 							</xsl:when>
-							<xsl:when test="/rc:ReportRule/rc:RuleFailure/rc:STD_01800">
-								<xsl:call-template name="STD_01800ColumnsConfiguration" />
+							<xsl:when test="/rc:ReportRule/rc:RuleFailure/rc:STD_05900">
+								<xsl:call-template name="STD_05900ColumnsConfiguration" />
 							</xsl:when>
-							<xsl:when test="/rc:ReportRule/rc:RuleFailure/rc:STD_03700">
-								<xsl:call-template name="STD_03700ColumnsConfiguration" />
+							<xsl:when test="/rc:ReportRule/rc:RuleFailure/rc:STD_06300">
+								<xsl:call-template name="STD_06300ColumnsConfiguration" />
 							</xsl:when>
 							<xsl:when test="/rc:ReportRule/rc:RuleFailure/rc:STD_06800">
 								<xsl:call-template name="STD_06800ColumnsConfiguration" />
 							</xsl:when>
 						</xsl:choose>
+						<xsl:call-template name="SonarqubeColumnsConfiguration" />
 						
 						<!-- ================= Headers ================= -->
 						<table:table-header-rows>
@@ -715,8 +888,17 @@
 								
 								<xsl:choose>
 									<!-- CNE rules -->
+									<xsl:when test="/rc:ReportRule/rc:RuleFailure/rc:CNE_01000">
+										<xsl:call-template name="CNE_01000Headers" />
+									</xsl:when>
 									<xsl:when test="/rc:ReportRule/rc:RuleFailure/rc:CNE_01200">
 										<xsl:call-template name="CNE_01200Headers" />
+									</xsl:when>
+									<xsl:when test="/rc:ReportRule/rc:RuleFailure/rc:CNE_01600">
+										<xsl:call-template name="CNE_01600Headers" />
+									</xsl:when>
+									<xsl:when test="/rc:ReportRule/rc:RuleFailure/rc:CNE_02100">
+										<xsl:call-template name="CNE_02100Headers" />
 									</xsl:when>
 									<xsl:when test="/rc:ReportRule/rc:RuleFailure/rc:CNE_02300">
 										<xsl:call-template name="CNE_02300Headers" />
@@ -737,11 +919,35 @@
 									<xsl:when test="/rc:ReportRule/rc:RuleFailure/rc:STD_00400">
 										<xsl:call-template name="STD_00400Headers" />
 									</xsl:when>
+									<xsl:when test="/rc:ReportRule/rc:RuleFailure/rc:STD_00900">
+										<xsl:call-template name="STD_00900Headers" />
+									</xsl:when>
+									<xsl:when test="/rc:ReportRule/rc:RuleFailure/rc:STD_01000">
+										<xsl:call-template name="STD_01000Headers" />
+									</xsl:when>
+									<xsl:when test="/rc:ReportRule/rc:RuleFailure/rc:STD_01100">
+										<xsl:call-template name="STD_01100Headers" />
+									</xsl:when>
+									<xsl:when test="/rc:ReportRule/rc:RuleFailure/rc:STD_01200">
+										<xsl:call-template name="STD_01200Headers" />
+									</xsl:when>
+									<xsl:when test="/rc:ReportRule/rc:RuleFailure/rc:STD_01300">
+										<xsl:call-template name="STD_01300Headers" />
+									</xsl:when>
+									<xsl:when test="/rc:ReportRule/rc:RuleFailure/rc:STD_01700">
+										<xsl:call-template name="STD_01700Headers" />
+									</xsl:when>
+									<xsl:when test="/rc:ReportRule/rc:RuleFailure/rc:STD_01800">
+										<xsl:call-template name="STD_01800Headers" />
+									</xsl:when>
 									<xsl:when test="/rc:ReportRule/rc:RuleFailure/rc:STD_03600_R1">
 										<xsl:call-template name="STD_03600R1Headers" />
 									</xsl:when>
 									<xsl:when test="/rc:ReportRule/rc:RuleFailure/rc:STD_03600_R2">
 										<xsl:call-template name="STD_03600R2Headers" />
+									</xsl:when>
+									<xsl:when test="/rc:ReportRule/rc:RuleFailure/rc:STD_03700">
+										<xsl:call-template name="STD_03700Headers" />
 									</xsl:when>
 									<xsl:when test="/rc:ReportRule/rc:RuleFailure/rc:STD_03800">
 										<xsl:call-template name="STD_03800Headers" />
@@ -767,16 +973,17 @@
 									<xsl:when test="/rc:ReportRule/rc:RuleFailure/rc:STD_05300">
 										<xsl:call-template name="STD_05300Headers" />
 									</xsl:when>
-									<xsl:when test="/rc:ReportRule/rc:RuleFailure/rc:STD_01800">
-										<xsl:call-template name="STD_01800Headers" />
+									<xsl:when test="/rc:ReportRule/rc:RuleFailure/rc:STD_05900">
+										<xsl:call-template name="STD_05900Headers" />
 									</xsl:when>
-									<xsl:when test="/rc:ReportRule/rc:RuleFailure/rc:STD_03700">
-										<xsl:call-template name="STD_03700Headers" />
+									<xsl:when test="/rc:ReportRule/rc:RuleFailure/rc:STD_06300">
+										<xsl:call-template name="STD_06300Headers" />
 									</xsl:when>
 									<xsl:when test="/rc:ReportRule/rc:RuleFailure/rc:STD_06800">
 										<xsl:call-template name="STD_06800Headers" />
 									</xsl:when>
 								</xsl:choose>
+								<xsl:call-template name="SonarqubeHeaders" />
 							</table:table-row>
 						</table:table-header-rows>
 
@@ -789,8 +996,17 @@
 
 										<xsl:choose>
 											<!-- CNE rules -->
+											<xsl:when test="rc:CNE_01000">
+												<xsl:call-template name="CNE_01000Elements" />
+											</xsl:when>
 											<xsl:when test="rc:CNE_01200">
 												<xsl:call-template name="CNE_01200Elements" />
+											</xsl:when>
+											<xsl:when test="rc:CNE_01600">
+												<xsl:call-template name="CNE_01600Elements" />
+											</xsl:when>
+											<xsl:when test="rc:CNE_02100">
+												<xsl:call-template name="CNE_02100Elements" />
 											</xsl:when>
 											<xsl:when test="rc:CNE_02300">
 												<xsl:call-template name="CNE_02300Elements" />
@@ -811,11 +1027,35 @@
 											<xsl:when test="rc:STD_00400">
 												<xsl:call-template name="STD_00400Elements" />
 											</xsl:when>
+											<xsl:when test="rc:STD_00900">
+												<xsl:call-template name="STD_00900Elements" />
+											</xsl:when>
+											<xsl:when test="rc:STD_01000">
+												<xsl:call-template name="STD_01000Elements" />
+											</xsl:when>
+											<xsl:when test="rc:STD_01100">
+												<xsl:call-template name="STD_01100Elements" />
+											</xsl:when>
+											<xsl:when test="rc:STD_01200">
+												<xsl:call-template name="STD_01200Elements" />
+											</xsl:when>
+											<xsl:when test="rc:STD_01300">
+												<xsl:call-template name="STD_01300Elements" />
+											</xsl:when>
+											<xsl:when test="rc:STD_01700">
+												<xsl:call-template name="STD_01700Elements" />
+											</xsl:when>
+											<xsl:when test="rc:STD_01800">
+												<xsl:call-template name="STD_01800Elements" />
+											</xsl:when>
 											<xsl:when test="rc:STD_03600_R1">
 												<xsl:call-template name="STD_03600R1Elements" />
 											</xsl:when>
 											<xsl:when test="rc:STD_03600_R2">
 												<xsl:call-template name="STD_03600R2Elements" />
+											</xsl:when>
+											<xsl:when test="rc:STD_03700">
+												<xsl:call-template name="STD_03700Elements" />
 											</xsl:when>
 											<xsl:when test="rc:STD_03800">
 												<xsl:call-template name="STD_03800Elements" />
@@ -841,12 +1081,11 @@
 											<xsl:when test="rc:STD_05300">
 												<xsl:call-template name="STD_05300Elements" />
 											</xsl:when>
-											<xsl:when test="rc:STD_01800">
-												<xsl:call-template name="STD_01800Elements" />
+											<xsl:when test="rc:STD_05900">
+												<xsl:call-template name="STD_05900Elements" />
 											</xsl:when>
-											<xsl:when test="rc:STD_03700">
-												<xsl:call-template name="STD_03700Elements" />
-											</xsl:when>
+											<xsl:when test="rc:STD_06300">
+												<xsl:call-template name="STD_06300Elements" />
 											</xsl:when>
 											<xsl:when test="rc:STD_06800">
 												<xsl:call-template name="STD_06800Elements" />
@@ -862,8 +1101,17 @@
 
 										<xsl:choose>
 											<!-- CNE rules -->
+											<xsl:when test="rc:CNE_01000">
+												<xsl:call-template name="CNE_01000Elements" />
+											</xsl:when>
 											<xsl:when test="rc:CNE_01200">
 												<xsl:call-template name="CNE_01200Elements" />
+											</xsl:when>
+											<xsl:when test="rc:CNE_01600">
+												<xsl:call-template name="CNE_01600Elements" />
+											</xsl:when>
+											<xsl:when test="rc:CNE_02100">
+												<xsl:call-template name="CNE_02100Elements" />
 											</xsl:when>
 											<xsl:when test="rc:CNE_02300">
 												<xsl:call-template name="CNE_02300Elements" />
@@ -884,11 +1132,35 @@
 											<xsl:when test="rc:STD_00400">
 												<xsl:call-template name="STD_00400Elements" />
 											</xsl:when>
+											<xsl:when test="rc:STD_00900">
+												<xsl:call-template name="STD_00900Elements" />
+											</xsl:when>
+											<xsl:when test="rc:STD_01000">
+												<xsl:call-template name="STD_01000Elements" />
+											</xsl:when>
+											<xsl:when test="rc:STD_01100">
+												<xsl:call-template name="STD_01100Elements" />
+											</xsl:when>
+											<xsl:when test="rc:STD_01200">
+												<xsl:call-template name="STD_01200Elements" />
+											</xsl:when>
+											<xsl:when test="rc:STD_01300">
+												<xsl:call-template name="STD_01300Elements" />
+											</xsl:when>
+											<xsl:when test="rc:STD_01700">
+												<xsl:call-template name="STD_01700Elements" />
+											</xsl:when>
+											<xsl:when test="rc:STD_01800">
+												<xsl:call-template name="STD_01800Elements" />
+											</xsl:when>
 											<xsl:when test="rc:STD_03600_R1">
 												<xsl:call-template name="STD_03600R1Elements" />
 											</xsl:when>
 											<xsl:when test="rc:STD_03600_R2">
 												<xsl:call-template name="STD_03600R2Elements" />
+											</xsl:when>
+											<xsl:when test="rc:STD_03700">
+												<xsl:call-template name="STD_03700Elements" />
 											</xsl:when>
 											<xsl:when test="rc:STD_03800">
 												<xsl:call-template name="STD_03800Elements" />
@@ -914,11 +1186,11 @@
 											<xsl:when test="rc:STD_05300">
 												<xsl:call-template name="STD_05300Elements" />
 											</xsl:when>
-											<xsl:when test="rc:STD_01800">
-												<xsl:call-template name="STD_01800Elements" />
+											<xsl:when test="rc:STD_05900">
+												<xsl:call-template name="STD_05900Elements" />
 											</xsl:when>
-											<xsl:when test="rc:STD_03700">
-												<xsl:call-template name="STD_03700Elements" />
+											<xsl:when test="rc:STD_06300">
+												<xsl:call-template name="STD_06300Elements" />
 											</xsl:when>
 											<xsl:when test="rc:STD_06800">
 												<xsl:call-template name="STD_06800Elements" />
