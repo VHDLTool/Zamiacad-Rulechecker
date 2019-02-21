@@ -23,7 +23,6 @@ import org.zamia.vhdl.ast.Architecture;
 import org.zamia.vhdl.ast.AssociationList;
 import org.zamia.vhdl.ast.Block;
 import org.zamia.vhdl.ast.BlockDeclarativeItem;
-import org.zamia.vhdl.ast.ComponentDeclaration;
 import org.zamia.vhdl.ast.ConcurrentAssertion;
 import org.zamia.vhdl.ast.ConcurrentProcedureCall;
 import org.zamia.vhdl.ast.ConcurrentSignalAssignment;
@@ -31,7 +30,6 @@ import org.zamia.vhdl.ast.ConcurrentStatement;
 import org.zamia.vhdl.ast.GenerateStatement;
 import org.zamia.vhdl.ast.InstantiatedUnit;
 import org.zamia.vhdl.ast.InterfaceDeclaration;
-import org.zamia.vhdl.ast.InterfaceList;
 import org.zamia.vhdl.ast.NullStatement;
 import org.zamia.vhdl.ast.PackageBody;
 import org.zamia.vhdl.ast.ReturnStatement;
@@ -54,10 +52,14 @@ import org.zamia.vhdl.ast.VHDLNode;
 import org.zamia.vhdl.ast.VHDLPackage;
 
 public class RuleSTD_01200 extends Rule {
+	
 	private int currentLine = 0;
 	private int targetLine = 0;
 	private int targetCol = 0;
 	private ReportFile reportFile = new ReportFile(this);
+	
+	private String entityId;
+	private String architectureId;
 
 	public RuleSTD_01200() {
 		super(RuleE.STD_01200);
@@ -75,10 +77,12 @@ public class RuleSTD_01200 extends Rule {
 					List<HdlEntity> hdlEntities = hdlFile.getValue().getListHdlEntity();
 					for (HdlEntity hdlEntity : hdlEntities) {
 						// TODO do something in entity?
+						entityId = hdlEntity.getEntity().getId();
 						List<HdlArchitecture> hdlArchitectures = hdlEntity.getListHdlArchitecture();
 						for (HdlArchitecture hdlArchitecture : hdlArchitectures) {
 							// do operations in each architecture
 							Architecture architecture = hdlArchitecture.getArchitecture();
+							architectureId = architecture.getId();
 							// declarative items
 							for (int i = 0; i < architecture.getNumDeclarations(); i++) {
 								SourceLocation location = architecture.getDeclaration(i).getLocation();
@@ -93,6 +97,10 @@ public class RuleSTD_01200 extends Rule {
 							}
 						} 
 					}
+				}
+				entityId = architectureId = "";
+				hdlFiles = PackageBodyManager.getPackageBody();
+				for (Entry<String, HdlFile> hdlFile : hdlFiles.entrySet()) {
 					// do operations in each package
 					List<VHDLPackage> packages = hdlFile.getValue().getListHdlPackage();
 					for (VHDLPackage vhdlPackage : packages) {
@@ -102,10 +110,7 @@ public class RuleSTD_01200 extends Rule {
 							expandDeclarativeItem(vhdlPackage.getDeclaration(i));
 						}
 					}
-				}
-				// do operations in each package body
-				hdlFiles = PackageBodyManager.getPackageBody();
-				for (Entry<String, HdlFile> hdlFile : hdlFiles.entrySet()) {
+					// do operations in each package body
 					List<PackageBody> packageBodies = hdlFile.getValue().getListPackageBody();
 					for (PackageBody packageBody : packageBodies) {
 						for (int i = 0; i < packageBody.getNumDeclarations(); i++) {
@@ -133,7 +138,7 @@ public class RuleSTD_01200 extends Rule {
 		} else {
 			if (currentLine != targetLine) {
 				targetLine = currentLine;
-				Element element = reportFile.addViolation(location);
+				Element element = reportFile.addViolation(location, entityId, architectureId);
 				reportFile.addSonarTags(element,
 						SonarQubeRule.SONAR_ERROR_STD_01200,
 						new Object[] {targetLine},
@@ -150,7 +155,7 @@ public class RuleSTD_01200 extends Rule {
 		} else {
 			if (interfaceDeclaration.getType().getLocation().fCol != targetCol && currentLine != targetLine) {
 				targetLine = currentLine;
-				Element element = reportFile.addViolation(interfaceDeclaration.getLocation());
+				Element element = reportFile.addViolation(interfaceDeclaration.getLocation(), entityId, architectureId);
 				reportFile.addSonarTags(element,
 						SonarQubeRule.SONAR_ERROR_STD_01200,
 						new Object[] {line},
@@ -160,21 +165,7 @@ public class RuleSTD_01200 extends Rule {
 	}
 	
 	private void expandDeclarativeItem(BlockDeclarativeItem item) {
-		if (item instanceof ComponentDeclaration) {
-			ComponentDeclaration componentDeclaration = (ComponentDeclaration)item;
-			InterfaceList list = componentDeclaration.getInterfaces();
-			if (list != null) {
-				for (int i = 0; i < list.getNumInterfaces(); i++) {
-					checkViolation(list.get(i).getLocation());
-				}
-			}
-			list = componentDeclaration.getGenerics();
-			if (list != null) {
-				for (int i = 0; i < list.getNumInterfaces(); i++) {
-					checkViolation(list.get(i).getLocation());
-				}
-			}
-		} else if (item instanceof SubProgram) {
+		if (item instanceof SubProgram) {
 			SubProgram subProgram = (SubProgram) item;
 			for (int i = 0; i < subProgram.getNumInterfaces(); i++) {
 				checkInterfaceViolation(subProgram.getInterface(i));
@@ -253,6 +244,7 @@ public class RuleSTD_01200 extends Rule {
 			}
 		} else {
 			logger.info("[Concurrent] Error at %d", concurrentStatement.getLocation().fLine);
+			checkViolation(concurrentStatement.getLocation());
 		}
 	}
 	
@@ -337,6 +329,7 @@ public class RuleSTD_01200 extends Rule {
 			checkViolation(sequentialStatement.getLocation()); 
 		} else {
 			logger.info("[Sequence] Error at %d", sequentialStatement.getLocation().fLine);
+			checkViolation(sequentialStatement.getLocation()); 
 		}
 	}
 
