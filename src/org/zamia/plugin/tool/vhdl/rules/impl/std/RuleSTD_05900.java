@@ -1,6 +1,5 @@
 package org.zamia.plugin.tool.vhdl.rules.impl.std;
 
-import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
@@ -17,6 +16,7 @@ import org.zamia.plugin.tool.vhdl.manager.PackageBodyManager;
 import org.zamia.plugin.tool.vhdl.rules.RuleE;
 import org.zamia.plugin.tool.vhdl.rules.RuleResult;
 import org.zamia.plugin.tool.vhdl.rules.impl.Rule;
+import org.zamia.plugin.tool.vhdl.rules.impl.SonarQubeRule;
 import org.zamia.util.Pair;
 import org.zamia.vhdl.ast.Architecture;
 import org.zamia.vhdl.ast.Block;
@@ -39,21 +39,14 @@ import org.zamia.vhdl.ast.VariableDeclaration;
 public class RuleSTD_05900 extends Rule {
 	
 	private static final String INTEGER = "INTEGER";
-	private static final String [] REPORT_TAGS = new String[]{ReportFile.TAG_PORT, ReportFile.TAG_SIGNAL, ReportFile.TAG_VARIABLE};
 	
-	private final Map<String, Integer> map;
 	
 	private String entityID = null;
 	private String architectureID = null;
-	private String [] values = new String[] {"", "", ""};
 	private ReportFile reportFile = new ReportFile(this);
 
 	public RuleSTD_05900() {
 		super(RuleE.STD_05900);
-		map = new HashMap<>();
-		for (int i = 0; i < REPORT_TAGS.length; i++) {
-			map.put(REPORT_TAGS[i], i);
-		}
 	}
 
 	@Override
@@ -113,47 +106,31 @@ public class RuleSTD_05900 extends Rule {
 		return result;
 	}
 	
-	private void setValues(int i, String value) {
-		for (int j = 0; j < values.length; j++) {
-			if (j == i) {
-				values[j] = value;
-			} else {
-				values[j] = "";
-			}
-		}
-	}
-	
 	private void checkViolation(VHDLNode node) {
 		TypeDefinition type = null;
-		String sonarTag = null;
+		String id = null;
 		if (node instanceof SignalDeclaration) {
 			SignalDeclaration item = (SignalDeclaration)node;
 			type = item.getType();
-			sonarTag = "signal";
-			setValues(map.get(ReportFile.TAG_SIGNAL), item.getId());
+			id = item.getId();
 		} else if (node instanceof VariableDeclaration) {
 			VariableDeclaration item = (VariableDeclaration)node;
 			type = (TypeDefinition) item.getChild(0);
-			sonarTag = "variable";
-			setValues(map.get(ReportFile.TAG_VARIABLE), item.getId());
+			id = item.getId();
 		} else if (node instanceof SharedVariableDeclaration) {
 			SharedVariableDeclaration item = (SharedVariableDeclaration)node;
 			type = item.getType();
-			sonarTag = "variable";
-			setValues(map.get(ReportFile.TAG_VARIABLE), item.getId());
+			id = item.getId();
 		} else if (node instanceof InterfaceDeclaration) {
 			InterfaceDeclaration item = (InterfaceDeclaration)node;
 			type = item.getType();
-			sonarTag = "port";
-			setValues(map.get(ReportFile.TAG_PORT), item.getId());
+			id = item.getId();
 		}
 
 		if (type!= null && type.toString().contains(INTEGER) && type.getNumChildren() == 1) {
 			Element element = reportFile.addViolation(node.getLocation(), entityID, architectureID);
-			for (int i = 0; i < REPORT_TAGS.length; i++) {
-				reportFile.addElement(REPORT_TAGS[i], values[i], element);
-			}
-			// TODO add sonar msg
+			reportFile.addElement(ReportFile.TAG_OBJECT_NAME, id, element);
+			reportFile.addSonarTags(element, SonarQubeRule.SONAR_ERROR_STD_05900, new Object[] {id}, SonarQubeRule.SONAR_MSG_STD_05900, new Object[] {id});
 		}
 	}
 	

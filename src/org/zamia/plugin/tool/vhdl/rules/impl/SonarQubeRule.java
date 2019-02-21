@@ -35,6 +35,7 @@ public class SonarQubeRule {
 	public static final String SONAR_ERROR_STD_05000_MORE = "Signal %s should not be in the sensitivity list of the process";
 	public static final String SONAR_ERROR_STD_05300_MISSING = "Signal %s is not in the sensitivity list of the process";
 	public static final String SONAR_ERROR_STD_05300_MORE = "Signal %s should not be in the sensitivity list of the process";
+	public static final String SONAR_ERROR_STD_05900 = "The range of integer %s is not constrained";
 	public static final String SONAR_ERROR_STD_06300 = "Process %s contains a variable which name is %s";
 	public static final String SONAR_ERROR_STD_06800 = "%s signal has got an initial value at definition.";
 
@@ -71,6 +72,7 @@ public class SonarQubeRule {
 	public static final String SONAR_MSG_STD_05000_MORE = "Use only clock and reset signals in the sensitivity of a synchronous process";
 	public static final String SONAR_MSG_STD_05300_MISSING = "Add %s in the sensitivity list of %s";
 	public static final String SONAR_MSG_STD_05300_MORE = "Remove %s from the sensitivity list of %s";
+	public static final String SONAR_MSG_STD_05900 = "Constraint the range of integer %s";
 	public static final String SONAR_MSG_STD_06300 = "Change variable %s by signal for process %s";
 	public static final String SONAR_MSG_STD_06800 = "Remove initialization of %s signal in the definition.";
 }
