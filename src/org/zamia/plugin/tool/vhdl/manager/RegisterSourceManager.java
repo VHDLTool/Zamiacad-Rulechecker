@@ -1,6 +1,6 @@
 package org.zamia.plugin.tool.vhdl.manager;
 
-import java.io.File;
+import java.io.Serializable;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
@@ -21,7 +21,6 @@ import org.zamia.plugin.tool.vhdl.Process;
 import org.zamia.plugin.tool.vhdl.RegisterInput;
 import org.zamia.plugin.tool.vhdl.ResetSignal;
 import org.zamia.plugin.tool.vhdl.SignalSource;
-import org.zamia.util.Pair;
 
 public class RegisterSourceManager extends ToolManager {
 
@@ -176,5 +175,38 @@ public class RegisterSourceManager extends ToolManager {
 		info = ListUpdateE.NO;
 	}
 
+	private static class Pair<T, U> implements Serializable {
+		private final T fFirst;
+
+		private final U fSecond;
+
+		public Pair(T aFirst, U aSecond) {
+			fFirst = aFirst;
+			fSecond = aSecond;
+		}
+
+		public T getFirst() {
+			return fFirst;
+		}
+
+		public U getSecond() {
+			return fSecond;
+		}
+
+		@Override
+		public String toString() {
+			return "("+fFirst+","+fSecond+")";
+		}
+		
+		@Override
+		public boolean equals(Object obj) {
+			return (obj instanceof Pair) && fFirst.equals(((Pair)obj).fFirst) && fSecond.equals(((Pair)obj).fSecond);
+		}
+		@Override
+		public int hashCode() {
+			return this.toString().hashCode();
+		}
+
+	}
 
 }
