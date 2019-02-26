@@ -49,7 +49,6 @@ public class RuleSTD_01000 extends Rule {
 				for (Entry<String, HdlFile> entry: hdlFiles.entrySet()) {
 					file = entry.getValue();
 					fileName = file.getFile().getName();
-					logger.info("File %s contains %d entity", fileName, file.getListHdlEntity().size());
 					if (file.getListHdlEntity().size() > 1) {
 						ArrayList<HdlEntity> entities = file.getListHdlEntity();
 						for (HdlEntity entity: entities) {
