@@ -53,10 +53,8 @@ public class RuleSTD_01100 extends Rule {
 					} else if (hdlFile.getListHdlEntity().size() == 1) {
 						// if there is only one entity in the file
 						fileName = hdlFile.getFile().getName();
-						logger.info(">>>>>>> File: %s <1 entity>", fileName);
 						HdlEntity hdlEntity = hdlFile.getListHdlEntity().get(0);
 						List<HdlArchitecture> hdlArchitectures = hdlEntity.getListHdlArchitecture();
-						logger.info("<<<<<<<<< %d architextures in this entity", hdlArchitectures.size());
 						if (hdlArchitectures.size() > 1) {
 							for (HdlArchitecture hdlArchitecture: hdlArchitectures) {
 								Element element = reportFile.addViolation(hdlArchitecture.getArchitecture().getLocation(), hdlEntity.getEntity(), hdlArchitecture.getArchitecture());
@@ -66,12 +64,10 @@ public class RuleSTD_01100 extends Rule {
 					} else {
 						// if there are multiple entities in the file
 						fileName = hdlFile.getFile().getName();
-						logger.info(">>>>>>> File: %s  <n entities>", fileName);
 						List<HdlEntity> entities = hdlFile.getListHdlEntity();
 						List<HdlArchitecture> hdlArchitectures = new ArrayList<>();
 						for (HdlEntity hdlEntity: entities) {
 							hdlArchitectures.addAll(hdlEntity.getListHdlArchitecture());
-							logger.info("<<<<<<<<< %d architextures in entity: %s", hdlEntity.getListHdlArchitecture().size(), hdlEntity.getEntity().getId());
 						}
 						if (hdlArchitectures.size() > 1) {
 							for (HdlArchitecture hdlArchitecture: hdlArchitectures) {
