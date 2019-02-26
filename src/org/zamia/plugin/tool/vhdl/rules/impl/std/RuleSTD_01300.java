@@ -88,7 +88,7 @@ public class RuleSTD_01300 extends Rule {
                     for (int i = 0; i < vhdlPackage.getNumDeclarations(); i++) {
                     	BlockDeclarativeItem item = vhdlPackage.getDeclaration(i);
                     	if (item instanceof ComponentDeclaration) {
-                			checkInComponent((ComponentDeclaration) item, "", "");
+                			checkInComponent((ComponentDeclaration) item, " ", " ");
                 		}
                     }
                 }
