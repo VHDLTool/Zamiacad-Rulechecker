@@ -119,17 +119,14 @@ public class RegisterSourceManager extends ToolManager {
 
 	
 	private static void searchRegisterOrigin(RegisterInput register, SourceLocation sourceLocation, String signalName, HdlEntity hdlEntity, HdlArchitecture hdlArchitecture) {
-		logger.info("## Search signal = %s in entity = %s", signalName, hdlEntity.toString());
 		Pair<String, String> pair = new Pair<>(signalName, hdlEntity.toString());
 		if (procedureSet.contains(pair)) {
-			logger.info("Already handled");
 			return;
 		}
 		if (register.toString().equalsIgnoreCase(signalName)) {
 			return;
 		}
 		procedureSet.add(pair);
-		//logger.info("Handling procedure: %s", procedureSet.toString());
 		List<SignalSource> listSearchSignalOrigin = searchSignalOrigin(signalName, hdlEntity, hdlArchitecture, true);
 		if (listSearchSignalOrigin.isEmpty()) {
 			String structName = (signalName.toString().indexOf("(") == -1 ? 
@@ -139,33 +136,21 @@ public class RegisterSourceManager extends ToolManager {
 				listSearchSignalOrigin = searchSignalOrigin(structName, hdlEntity, hdlArchitecture, true);
 			}
 		}
-		if(listSearchSignalOrigin.isEmpty()) {
-			logger.info("Empty list, search next.");
-		} else {
-			logger.info("Signal source list = %s", listSearchSignalOrigin.toString());
-		}
 		for (SignalSource signalSource : listSearchSignalOrigin) {
 			
 			if (signalSource != null && signalSource.getSignalDeclaration() != null) {
-				logger.info(">>>> Verify the signal source = %s", signalSource.toString());
 				HdlFile hdlFile2 = listHdlFile.get("/"+sourceLocation.fSF.getLocalPath());
 				ClockSource clockSourceRegister = hdlFile2.isSignalRegister(signalSource);
 				if (clockSourceRegister == null) {
-					logger.info("Failed with null");
 					List<String> listOperand = signalSource.getListOperand();
 					for (String operand : listOperand) {
-						logger.info("Check operand = %s", operand);
 						if (signalName.equalsIgnoreCase(operand)) { return;}
-						logger.info(">>>>>>>>>>>>> Start recursive search");
 						searchRegisterOrigin(register, signalSource.getLocation(), operand, signalSource.getHdlEntity(), signalSource.getHdlArchitecture());
-						logger.info("<<<<<<<<<<<<< Finish recursive search in operand = %s", operand);
 					}
 				} else {
-					logger.info("Passed");
 					signalSource.addClockSourceRegister(clockSourceRegister);
 					register.addRegisterSource(signalSource);
 				}
-				logger.info("<<<< End verify the signal source = %s", signalSource.toString());
 			}
 		}
 	}
