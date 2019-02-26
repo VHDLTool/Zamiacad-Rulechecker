@@ -41,8 +41,8 @@ public class RuleSTD_05900 extends Rule {
 	private static final String INTEGER = "INTEGER";
 	
 	
-	private String entityID = null;
-	private String architectureID = null;
+	private String entityID = " ";
+	private String architectureID = " ";
 	private ReportFile reportFile = new ReportFile(this);
 
 	public RuleSTD_05900() {
@@ -78,7 +78,7 @@ public class RuleSTD_05900 extends Rule {
 							}
 						} 
 					}
-					entityID = architectureID = null;
+					entityID = architectureID = " ";
 					// do operations in each package
 					List<VHDLPackage> packages = hdlFile.getValue().getListHdlPackage();
 					for (VHDLPackage vhdlPackage : packages) {
@@ -160,7 +160,6 @@ public class RuleSTD_05900 extends Rule {
 				checkViolation(process.getDeclaration(i));
 			}
 		} else if (concurrentStatement instanceof Block) {
-			logger.info("[Concurrent] Block statement at %d", concurrentStatement.getLocation().fLine);
 			// TODO
 		} else if (concurrentStatement instanceof GenerateStatement) {
 			GenerateStatement generateStatement = (GenerateStatement) concurrentStatement;
