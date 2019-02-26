@@ -29,7 +29,8 @@ public class RegisterSourceManager extends ToolManager {
 	private boolean logFile = true;
 
 	private static ListUpdateE info;
-	
+
+	// Applied for bug failed(-1) in FN22 on the first build
 	private static Set<Pair<String, String>> procedureSet;
 
 	
@@ -160,6 +161,9 @@ public class RegisterSourceManager extends ToolManager {
 		info = ListUpdateE.NO;
 	}
 
+	// Applied for bug failed(-1) in FN22 on the first build
+	// This class is the duplicate of Pair in ZamiaCode
+	// We add equals to more easily compare objects
 	private static class Pair<T, U> implements Serializable {
 		private final T fFirst;
 
