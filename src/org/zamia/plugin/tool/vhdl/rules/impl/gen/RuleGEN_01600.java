@@ -58,7 +58,7 @@ public class RuleGEN_01600 extends Rule{
 						isValid |= param.isValid(vhdlPackage.getId());
 					}
 					if (!isValid) {
-						Element element = reportFile.addViolation(vhdlPackage.getLocation());
+						Element element = reportFile.addViolation(vhdlPackage.getLocation(), " ", " ");
 						reportFile.addElement(ReportFile.TAG_PACKAGE, vhdlPackage.getId(), element);
 						reportFile.addSonarTags(
 								element,
