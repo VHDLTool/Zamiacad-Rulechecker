@@ -83,10 +83,8 @@ public class RuleSTD_01700 extends Rule {
 						int specialPortCnt = 0;
 						for (int i = 0; i < entity.getNumInterfaceDeclarations(); i++) {
 							isClock = false;
-							logger.info(">>>>>>> Entity: %s >>>>>>> Interface: %s", entity.getId(), entity.getPorts().get(i).getId());
 							if (clockList != null) {
 								for (ClockSignal clockSignal: clockList) {
-									logger.info("<<<<<<<< Clock: %s", clockSignal.toString());
 									if (clockSignal.toString().equalsIgnoreCase(entity.getPorts().get(i).getId())) {
 										isClock = true;
 										if (i != specialPortCnt) {
@@ -106,7 +104,6 @@ public class RuleSTD_01700 extends Rule {
 							}
 							if (resetList != null) {
 								for (ResetSignal resetSignal: resetList) {
-									logger.info("<<<<<<<< Reset: %s", resetSignal.toString());
 									if (resetSignal.toString().equalsIgnoreCase(entity.getPorts().get(i).getId())) {
 										if (i != specialPortCnt) {
 											Element info = reportFile.addViolation(entity.getPorts().get(i).getLocation(), entity, resetSignal.getArchitecture());
