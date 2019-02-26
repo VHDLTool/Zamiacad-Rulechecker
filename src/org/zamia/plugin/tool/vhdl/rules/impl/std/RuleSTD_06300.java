@@ -58,7 +58,7 @@ public class RuleSTD_06300 extends Rule {
 									entry.getValue().getEntity(),
 									entry.getValue().getArchitecture()
 									);
-							reportFile.addElement(ReportFile.TAG_PROCESS, process.getLabel(), element);
+							reportFile.addElement(ReportFile.TAG_PROCESS, process.getLabel() != null ? process.getLabel() : " ", element);
 							reportFile.addElement(ReportFile.TAG_VARIABLE, variable.getId(), element);
 							reportFile.addSonarTags(element, SonarQubeRule.SONAR_ERROR_STD_06300, new Object[] {process.getLabel(), variable.getId()},
 									SonarQubeRule.SONAR_MSG_STD_06300, new Object[] {variable.getId(), process.getLabel()});
