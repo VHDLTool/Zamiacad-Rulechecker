@@ -82,7 +82,7 @@ public class RuleSTD_01200 extends Rule {
 						} 
 					}
 				}
-				entityId = architectureId = "";
+				entityId = architectureId = " ";
 				hdlFiles = PackageBodyManager.getPackageBody();
 				for (Entry<String, HdlFile> hdlFile : hdlFiles.entrySet()) {
 					// do operations in each package
