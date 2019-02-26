@@ -70,12 +70,12 @@ public class RuleGEN_01000 extends Rule {
 							if (!isValid) {
 								Element element;
 								if (hdlEntity == null) {
-									element = reportFile.addViolation(item.getLocation());
+									element = reportFile.addViolation(item.getLocation(), " ", " ");
 								} else if (hdlArchitecture == null) {
 									element = reportFile.addViolation(
 										item.getLocation(),
 										hdlEntity.getEntity().getId(),
-										""
+										" "
 										);
 								} else {
 									element = reportFile.addViolation(
@@ -84,9 +84,9 @@ public class RuleGEN_01000 extends Rule {
 											hdlArchitecture.getArchitecture()
 											);
 								}
-								reportFile.addElement(ReportFile.TAG_PROCESS, null, element);
-								reportFile.addElement(ReportFile.TAG_FUNCTION, hdlSubProgram.getType() == TYPE_SUBPROGRAM.FUNCTION ? subProgram.getId() : null, element);
-								reportFile.addElement(ReportFile.TAG_PROCEDURE, hdlSubProgram.getType() == TYPE_SUBPROGRAM.PROCEDURE ? subProgram.getId() : null, element);
+								reportFile.addElement(ReportFile.TAG_PROCESS, " ", element);
+								reportFile.addElement(ReportFile.TAG_FUNCTION, hdlSubProgram.getType() == TYPE_SUBPROGRAM.FUNCTION ? subProgram.getId() : " ", element);
+								reportFile.addElement(ReportFile.TAG_PROCEDURE, hdlSubProgram.getType() == TYPE_SUBPROGRAM.PROCEDURE ? subProgram.getId() : " ", element);
 								reportFile.addElement(ReportFile.TAG_VARIABLE, item.getId(), element);
 								reportFile.addSonarTags(element,
 										SonarQubeRule.SONAR_ERROR_GEN_01000,
@@ -129,9 +129,9 @@ public class RuleGEN_01000 extends Rule {
 										entry.getValue().getEntity(),
 										entry.getValue().getArchitecture()
 										);
-								reportFile.addElement(ReportFile.TAG_PROCESS, process.getLabel(), element);
-								reportFile.addElement(ReportFile.TAG_FUNCTION, null, element);
-								reportFile.addElement(ReportFile.TAG_PROCEDURE, null, element);
+								reportFile.addElement(ReportFile.TAG_PROCESS, process.getLabel() != null ? process.getLabel() : " ", element);
+								reportFile.addElement(ReportFile.TAG_FUNCTION, " ", element);
+								reportFile.addElement(ReportFile.TAG_PROCEDURE, " ", element);
 								reportFile.addElement(ReportFile.TAG_VARIABLE, variable.getId(), element);
 								reportFile.addSonarTags(element,
 										SonarQubeRule.SONAR_ERROR_GEN_01000,
