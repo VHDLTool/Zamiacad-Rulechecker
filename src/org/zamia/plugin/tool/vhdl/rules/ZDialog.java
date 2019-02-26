@@ -25,6 +25,7 @@ import javax.swing.JTable;
 import javax.swing.JTextField;
 import javax.swing.RowFilter;
 import javax.swing.border.TitledBorder;
+import javax.swing.table.AbstractTableModel;
 import javax.swing.table.TableColumn;
 import javax.swing.table.TableModel;
 import javax.swing.table.TableRowSorter;
@@ -379,6 +380,17 @@ public class ZDialog extends ZDialogManager  {
 		@Override
 		public void actionPerformed(ActionEvent e) {
 			updateConfigSelectedRules();
+			
+			// This block is intended to reset the last column
+			//
+			// Related bug: 
+			// If we click the last column and then click launch, the clicked cell will not be updated on UI level
+			//
+			table.getColumnModel().getColumn(RuleObject.COL_LOG_FILE).setCellEditor(null);
+			revalidate();
+			repaint();
+			((AbstractTableModel)table.getModel()).fireTableDataChanged();
+			table.getColumnModel().getColumn(RuleObject.COL_LOG_FILE).setCellEditor(new ButtonCellEditor());
 			
 			deleteDirectory("rule");
 			
