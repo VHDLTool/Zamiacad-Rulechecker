@@ -160,7 +160,6 @@ public class RuleSTD_05900 extends Rule {
 				checkViolation(process.getDeclaration(i));
 			}
 		} else if (concurrentStatement instanceof Block) {
-			logger.info("[Concurrent] Block statement at %d", concurrentStatement.getLocation().fLine);
 			// TODO
 		} else if (concurrentStatement instanceof GenerateStatement) {
 			GenerateStatement generateStatement = (GenerateStatement) concurrentStatement;
