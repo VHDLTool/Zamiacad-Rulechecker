@@ -124,4 +124,8 @@ public class SubProgramManager extends ToolManager {
 		close();
 	}
 
+	public static void resetInfo() {
+		info = ListUpdateE.NO;
+	}
+
 }
