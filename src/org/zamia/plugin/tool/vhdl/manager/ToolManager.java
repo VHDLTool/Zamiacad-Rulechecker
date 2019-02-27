@@ -927,6 +927,7 @@ public abstract class ToolManager implements IWorkbenchWindowActionDelegate {
 			ResetSignalReadManager.resetInfo();
 			ResetSignalManager.resetInfo();
 			ResetSignalSourceManager.resetInfo();
+			PackageBodyManager.resetInfo();
 			infoComponent = ListUpdateE.NO;
 		}
 	}
