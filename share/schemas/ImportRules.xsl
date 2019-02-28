@@ -305,7 +305,7 @@
 	<!-- Headers for CNE_01000 -->
 	<xsl:template name="CNE_01000Headers">
 		<table:table-cell office:value-type="string"><text:p>Process</text:p></table:table-cell>
-		<table:table-cell office:value-type="string"><text:p>FunctionProcess</text:p></table:table-cell>
+		<table:table-cell office:value-type="string"><text:p>Function</text:p></table:table-cell>
 		<table:table-cell office:value-type="string"><text:p>Procedure</text:p></table:table-cell>
 		<table:table-cell office:value-type="string"><text:p>Variable</text:p></table:table-cell>
 	</xsl:template>
