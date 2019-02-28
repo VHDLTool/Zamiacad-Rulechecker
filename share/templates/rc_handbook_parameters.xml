@@ -9,6 +9,10 @@
 		are hard coded.</hb:description>
 	<hb:version_revision>creation</hb:version_revision>
 
+	<hb:Rule UID="CNE_01000">
+		<hb:RuleUID>CNE_01000</hb:RuleUID>
+		<hb:RuleGEN>GEN_01000</hb:RuleGEN>
+	</hb:Rule>
 	<hb:Rule UID="CNE_01200">
 		<hb:RuleUID>CNE_01200</hb:RuleUID>
 		<hb:RuleGEN>GEN_01200</hb:RuleGEN>
@@ -20,7 +24,15 @@
 			   <hb:Value>p_</hb:Value>
 		   </hb:StringParam>
 	   </hb:RuleParams>
-
+		
+	</hb:Rule>
+	<hb:Rule UID="CNE_01600">
+		<hb:RuleUID>CNE_01600</hb:RuleUID>
+		<hb:RuleGEN>GEN_01600</hb:RuleGEN>
+	</hb:Rule>
+	<hb:Rule UID="CNE_02100">
+		<hb:RuleUID>CNE_02100</hb:RuleUID>
+		<hb:RuleGEN>GEN_02100</hb:RuleGEN>
 	</hb:Rule>
 	<hb:Rule UID="CNE_02300">
 		<hb:RuleUID>CNE_02300</hb:RuleUID>
@@ -34,7 +46,6 @@
 		<hb:RuleUID>CNE_04900</hb:RuleUID>
 		<hb:RuleGEN>GEN_04900</hb:RuleGEN>
 	</hb:Rule>
-	
 	
 	<hb:Rule UID="STD_00200">
 		<hb:RuleUID>STD_00200</hb:RuleUID>
@@ -80,6 +91,30 @@
 	<hb:Rule UID="STD_00400">
 		<hb:RuleUID>STD_00400</hb:RuleUID>
 		<hb:RuleGEN>STD_00400</hb:RuleGEN>
+	</hb:Rule>		
+	<hb:Rule UID="STD_00900">
+		<hb:RuleUID>STD_00900</hb:RuleUID>
+		<hb:RuleGEN>STD_00900</hb:RuleGEN>
+	</hb:Rule>			
+	<hb:Rule UID="STD_01000">
+		<hb:RuleUID>STD_01000</hb:RuleUID>
+		<hb:RuleGEN>STD_01000</hb:RuleGEN>
+	</hb:Rule>			
+	<hb:Rule UID="STD_01100">
+		<hb:RuleUID>STD_01100</hb:RuleUID>
+		<hb:RuleGEN>STD_01100</hb:RuleGEN>
+	</hb:Rule>	
+	<hb:Rule UID="STD_01200">
+		<hb:RuleUID>STD_01200</hb:RuleUID>
+		<hb:RuleGEN>STD_01200</hb:RuleGEN>
+	</hb:Rule>
+	<hb:Rule UID="STD_01300">
+		<hb:RuleUID>STD_01300</hb:RuleUID>
+		<hb:RuleGEN>STD_01300</hb:RuleGEN>
+	</hb:Rule>	
+	<hb:Rule UID="STD_01700">
+		<hb:RuleUID>STD_01700</hb:RuleUID>
+		<hb:RuleGEN>STD_01700</hb:RuleGEN>
 	</hb:Rule>
 	<hb:Rule UID="STD_01800">
 		<hb:RuleUID>STD_01800</hb:RuleUID>
@@ -138,6 +173,14 @@
 	<hb:Rule UID="STD_05300">
 		<hb:RuleUID>STD_05300</hb:RuleUID>
 		<hb:RuleGEN>STD_05300</hb:RuleGEN>
+	</hb:Rule>	
+	<hb:Rule UID="STD_05900">
+		<hb:RuleUID>STD_05900</hb:RuleUID>
+		<hb:RuleGEN>STD_05900</hb:RuleGEN>
+	</hb:Rule>			
+	<hb:Rule UID="STD_06300">
+		<hb:RuleUID>STD_06300</hb:RuleUID>
+		<hb:RuleGEN>STD_06300</hb:RuleGEN>
 	</hb:Rule>
 	<hb:Rule UID="STD_06800">
 		<hb:RuleUID>STD_06800</hb:RuleUID>

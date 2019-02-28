@@ -1,9 +1,11 @@
 package org.zamia.plugin.tool.vhdl.manager;
 
-import java.io.File;
+import java.io.Serializable;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
+import java.util.Set;
 
 import org.eclipse.jface.action.IAction;
 import org.zamia.SourceLocation;
@@ -27,6 +29,9 @@ public class RegisterSourceManager extends ToolManager {
 	private boolean logFile = true;
 
 	private static ListUpdateE info;
+
+	// Applied for bug failed(-1) in FN22 on the first build
+	private static Set<Pair<String, String>> procedureSet;
 
 	
 	@Override
@@ -65,7 +70,7 @@ public class RegisterSourceManager extends ToolManager {
 		RegisterAffectationManager.getRegisterAffectation();
 		
 		info = ListUpdateE.YES;
-		
+		procedureSet = new HashSet<>();
 		for(Entry<String, HdlFile> entry : listHdlFile.entrySet()) {
 			HdlFile hdlFile = entry.getValue();
 			if (hdlFile.getListHdlEntity() != null) {
@@ -115,9 +120,14 @@ public class RegisterSourceManager extends ToolManager {
 
 	
 	private static void searchRegisterOrigin(RegisterInput register, SourceLocation sourceLocation, String signalName, HdlEntity hdlEntity, HdlArchitecture hdlArchitecture) {
+		Pair<String, String> pair = new Pair<>(signalName, hdlEntity.toString());
+		if (procedureSet.contains(pair)) {
+			return;
+		}
 		if (register.toString().equalsIgnoreCase(signalName)) {
 			return;
 		}
+		procedureSet.add(pair);
 		List<SignalSource> listSearchSignalOrigin = searchSignalOrigin(signalName, hdlEntity, hdlArchitecture, true);
 		if (listSearchSignalOrigin.isEmpty()) {
 			String structName = (signalName.toString().indexOf("(") == -1 ? 
@@ -151,5 +161,41 @@ public class RegisterSourceManager extends ToolManager {
 		info = ListUpdateE.NO;
 	}
 
+	// Applied for bug failed(-1) in FN22 on the first build
+	// This class is the duplicate of Pair in ZamiaCode
+	// We add equals to more easily compare objects
+	private static class Pair<T, U> implements Serializable {
+		private final T fFirst;
+
+		private final U fSecond;
+
+		public Pair(T aFirst, U aSecond) {
+			fFirst = aFirst;
+			fSecond = aSecond;
+		}
+
+		public T getFirst() {
+			return fFirst;
+		}
+
+		public U getSecond() {
+			return fSecond;
+		}
+
+		@Override
+		public String toString() {
+			return "("+fFirst+","+fSecond+")";
+		}
+		
+		@Override
+		public boolean equals(Object obj) {
+			return (obj instanceof Pair) && fFirst.equals(((Pair)obj).fFirst) && fSecond.equals(((Pair)obj).fSecond);
+		}
+		@Override
+		public int hashCode() {
+			return this.toString().hashCode();
+		}
+
+	}
 
 }

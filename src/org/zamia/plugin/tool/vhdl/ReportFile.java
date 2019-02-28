@@ -39,7 +39,12 @@ public class ReportFile {
 	public static final String TAG_RESET                     = NAMESPACE_PREFIX + "Reset";
 	public static final String TAG_RESET_BEFORE              = NAMESPACE_PREFIX + "ResetBefore";
 	public static final String TAG_RESET_AFTER               = NAMESPACE_PREFIX + "ResetAfter";
+	public static final String TAG_PORT                      = NAMESPACE_PREFIX + "Port";
+	public static final String TAG_PACKAGE                   = NAMESPACE_PREFIX + "Package";
+	public static final String TAG_FUNCTION                  = NAMESPACE_PREFIX + "Function";
+	public static final String TAG_PROCEDURE                 = NAMESPACE_PREFIX + "Procedure";
 
+	public static final String TAG_VARIABLE                  = NAMESPACE_PREFIX + "Variable";
 	public static final String TAG_REGISTER                  = NAMESPACE_PREFIX + "Register";
 	public static final String TAG_INSTANCE                  = NAMESPACE_PREFIX + "Instance";
 	public static final String TAG_SOURCE_LEVEL              = NAMESPACE_PREFIX + "Level";
@@ -51,6 +56,7 @@ public class ReportFile {
 	public static final String TAG_LIBRARY                   = NAMESPACE_PREFIX + "Library";
 	public static final String TAG_SONAR_ERROR               = NAMESPACE_PREFIX + "SonarError";
 	public static final String TAG_SONAR_MSG              	 = NAMESPACE_PREFIX + "SonarRemediationMsg";
+	public static final String TAG_OBJECT_NAME               = NAMESPACE_PREFIX + "ObjectName";
 	
 	private static final String TAG_NAMESPACE_PREFIX          = "xmlns:rc";
 	private static final String TAG_NAMESPACE                 = "RULECHECKER";
