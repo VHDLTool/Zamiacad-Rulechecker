@@ -9,7 +9,7 @@
 	<classpathentry exported="true" kind="lib" path="share/jars/jakarta-oro-2.0.8.jar"/>
 	<classpathentry exported="true" kind="lib" path="share/jars/log4j-1.2.14.jar"/>
 	<classpathentry exported="true" kind="lib" path="share/jars/log5j-1.2.jar"/>
-	<classpathentry combineaccessrules="false" kind="src" path="/zamiacad"/>
 	<classpathentry kind="lib" path="share/jars/BrowserLauncher2-all-1_3.jar"/>
+	<classpathentry combineaccessrules="false" kind="src" path="/Zamiacad-code"/>
 	<classpathentry kind="output" path="bin"/>
 </classpath>
