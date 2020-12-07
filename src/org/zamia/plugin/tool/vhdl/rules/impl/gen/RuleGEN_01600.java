@@ -34,7 +34,7 @@ public class RuleGEN_01600 extends Rule{
 		
 		List<IHandbookParam> parameterList = null;
 		// Uncomment this line to enable parameter
-//		parameterList = getParameterList(zPrj);
+		parameterList = getParameterList(zPrj);
 		if (parameterList == null || parameterList.isEmpty()) {
 			parameterList = getDefaultStringParamList(POSITION, VALUE);
 		}
