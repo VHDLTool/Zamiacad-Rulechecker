@@ -14,6 +14,7 @@ import org.zamia.plugin.tool.vhdl.ReportFile;
 import org.zamia.plugin.tool.vhdl.rules.IHandbookParam;
 import org.zamia.plugin.tool.vhdl.rules.RuleE;
 import org.zamia.plugin.tool.vhdl.rules.RuleResult;
+import org.zamia.plugin.tool.vhdl.rules.StringParam;
 import org.zamia.plugin.tool.vhdl.rules.impl.Rule;
 import org.zamia.plugin.tool.vhdl.rules.impl.SonarQubeRule;
 import org.zamia.util.Pair;
@@ -21,8 +22,7 @@ import org.zamia.vhdl.ast.VHDLPackage;
 
 public class RuleGEN_01600 extends Rule{
 	
-	private static final String POSITION = "Prefix";
-	private static final String VALUE = "pkg_";
+
 
 	public RuleGEN_01600() {
 		super(RuleE.GEN_01600);
@@ -33,10 +33,11 @@ public class RuleGEN_01600 extends Rule{
 		initializeRule(parameterSource, ruleId);
 		
 		List<IHandbookParam> parameterList = null;
-		// Uncomment this line to enable parameter
-//		parameterList = getParameterList(zPrj);
-		if (parameterList == null || parameterList.isEmpty()) {
-			parameterList = getDefaultStringParamList(POSITION, VALUE);
+
+		//// Initialize the parameter from rule configuration.
+		parameterList = getParameterList(zPrj);
+		if (parameterList == null) {
+			return new Pair<Integer, RuleResult> (WRONG_PARAM, null);
 		}
 
 		Map<String, HdlFile> hdlFiles = new HashMap<>();
@@ -60,12 +61,40 @@ public class RuleGEN_01600 extends Rule{
 					if (!isValid) {
 						Element element = reportFile.addViolation(vhdlPackage.getLocation(), " ", " ");
 						reportFile.addElement(ReportFile.TAG_PACKAGE, vhdlPackage.getId(), element);
+						
+						//FIXME: this is copy pasted from RuleSTD__00200.java
+						String paramString = null;
+						HashMap<StringParam.Position, String> params = new HashMap<StringParam.Position, String>();
+						for (IHandbookParam param : parameterList)
+						{
+							if (param instanceof StringParam)
+							{
+								StringParam stringParam = (StringParam) param;
+								
+								if (params.containsKey(stringParam.getPosition()))
+								{
+									String positionValues = (String) params.get(stringParam.getPosition());
+									params.put(stringParam.getPosition(), positionValues + ", " + stringParam.getValue());
+								}
+								else
+								{
+									params.put(stringParam.getPosition(), stringParam.getValue());
+								}
+							}
+						}
+						for (Map.Entry<StringParam.Position, String> entry2: params.entrySet())
+						{
+							paramString = paramString != null? paramString + " or to ": "";
+							paramString = paramString + entry2.getKey().toString() + " " + entry2.getValue();
+						}
+						//endFIXME
+						
 						reportFile.addSonarTags(
 								element,
 								SonarQubeRule.SONAR_ERROR_GEN_01600,
 								new Object[] {vhdlPackage.getId()},
 								SonarQubeRule.SONAR_MSG_GEN_01600,
-								new Object[] {vhdlPackage.getId(), VALUE, POSITION.toLowerCase()});
+								new Object[] {vhdlPackage.getId(), paramString.toLowerCase()});
 					}
 				}
 			}

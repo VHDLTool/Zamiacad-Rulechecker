@@ -3,7 +3,9 @@ package org.zamia.plugin.tool.vhdl.rules.impl.gen;
 import java.util.Arrays;
 import java.util.Dictionary;
 import java.util.Enumeration;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 import org.w3c.dom.Element;
 import org.zamia.SourceLocation;
@@ -74,7 +76,7 @@ public class RuleGEN_01200 extends Rule {
 						Element info = reportFile.addViolation(location, entity, architecture);
 						reportFile.addElement(ReportFile.TAG_PROCESS, processLabel, info);
 
-						String paramPosition = null;
+						/*String paramPosition = null;
 						String paramValue = null;
 						if (parameterList.size() == 1)
 						{
@@ -85,11 +87,37 @@ public class RuleGEN_01200 extends Rule {
 								paramPosition = stringParam.getPosition().toString().toLowerCase();
 								paramValue = stringParam.getValue().toLowerCase();
 							}
-						}
-						
-						if (paramPosition != null && paramValue != null)
+						}*/
+						//FIXME: this is copy pasted from RuleSTD__00200.java
+						String paramString = null;
+						HashMap<StringParam.Position, String> params = new HashMap<StringParam.Position, String>();
+						for (IHandbookParam param : parameterList)
 						{
-							reportFile.addSonarTags(info, SonarQubeRule.SONAR_ERROR_GEN_01200, new Object[] {processLabel}, SonarQubeRule.SONAR_MSG_GEN_01200, new Object[] {processLabel, paramValue, paramPosition});
+							if (param instanceof StringParam)
+							{
+								StringParam stringParam = (StringParam) param;
+								
+								if (params.containsKey(stringParam.getPosition()))
+								{
+									String positionValues = (String) params.get(stringParam.getPosition());
+									params.put(stringParam.getPosition(), positionValues + ", " + stringParam.getValue());
+								}
+								else
+								{
+									params.put(stringParam.getPosition(), stringParam.getValue());
+								}
+							}
+						}
+						for (Map.Entry<StringParam.Position, String> entry2: params.entrySet())
+						{
+							paramString = paramString != null? paramString + " or to ": "";
+							paramString = paramString + entry2.getKey().toString() + " " + entry2.getValue();
+						}
+						//endFIXME
+						
+						if (paramString != null )
+						{
+							reportFile.addSonarTags(info, SonarQubeRule.SONAR_ERROR_GEN_01200, new Object[] {processLabel}, SonarQubeRule.SONAR_MSG_GEN_01200, new Object[] {processLabel, paramString.toLowerCase()});
 						}
 					}
 				}
