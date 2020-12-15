@@ -99,6 +99,10 @@ public class RuleSTD_01800 extends Rule {
 			while (libraryNames.hasMoreElements()) {
 				String libraryName = libraryNames.nextElement();
 				for (SourceLocation location : _libraryInfos.get(libraryName)) {
+					
+					//path to convert line 0 to line 1 (otherwise sonarqube doen't handle it correctly)
+					if(location.fLine ==0 ) {location.fLine=1;}
+					
 					Element info = reportFile.addViolation(location);
 					reportFile.addElement(ReportFile.TAG_LIBRARY, libraryName, info);
 					
