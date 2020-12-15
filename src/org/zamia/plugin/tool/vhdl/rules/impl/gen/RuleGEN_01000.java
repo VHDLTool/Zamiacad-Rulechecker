@@ -2,6 +2,7 @@ package org.zamia.plugin.tool.vhdl.rules.impl.gen;
 
 import java.util.Collections;
 import java.util.Dictionary;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
@@ -21,6 +22,7 @@ import org.zamia.plugin.tool.vhdl.manager.SubProgramManager;
 import org.zamia.plugin.tool.vhdl.rules.IHandbookParam;
 import org.zamia.plugin.tool.vhdl.rules.RuleE;
 import org.zamia.plugin.tool.vhdl.rules.RuleResult;
+import org.zamia.plugin.tool.vhdl.rules.StringParam;
 import org.zamia.plugin.tool.vhdl.rules.impl.Rule;
 import org.zamia.plugin.tool.vhdl.rules.impl.SonarQubeRule;
 import org.zamia.util.Pair;
@@ -31,8 +33,6 @@ import org.zamia.vhdl.ast.VariableDeclaration;
 
 public class RuleGEN_01000 extends Rule {
 	
-	private static final String POSITION = "Prefix";
-	private static final String VALUE = "v_";
 
 	public RuleGEN_01000() {
 		super(RuleE.GEN_01000);
@@ -45,10 +45,10 @@ public class RuleGEN_01000 extends Rule {
 		ReportFile reportFile = new ReportFile(this);
 		List<IHandbookParam> parameterList = null;
 		
-		// Uncomment this line to enable parameters
-//		parameterList = getParameterList(zPrj);
-		if (parameterList == null || parameterList.isEmpty()) {
-			parameterList = getDefaultStringParamList(POSITION, VALUE);
+		//// Initialize the parameter from rule configuration.
+		parameterList = getParameterList(zPrj);
+		if (parameterList == null) {
+			return new Pair<Integer, RuleResult> (WRONG_PARAM, null);
 		}
 		
 		Pair<Integer, RuleResult> result = null;
@@ -88,11 +88,37 @@ public class RuleGEN_01000 extends Rule {
 								reportFile.addElement(ReportFile.TAG_FUNCTION, hdlSubProgram.getType() == TYPE_SUBPROGRAM.FUNCTION ? subProgram.getId() : " ", element);
 								reportFile.addElement(ReportFile.TAG_PROCEDURE, hdlSubProgram.getType() == TYPE_SUBPROGRAM.PROCEDURE ? subProgram.getId() : " ", element);
 								reportFile.addElement(ReportFile.TAG_VARIABLE, item.getId(), element);
+								//FIXME: this is copy pasted from RuleSTD__00200.java
+								String paramString = null;
+								HashMap<StringParam.Position, String> params = new HashMap<StringParam.Position, String>();
+								for (IHandbookParam param : parameterList)
+								{
+									if (param instanceof StringParam)
+									{
+										StringParam stringParam = (StringParam) param;
+										
+										if (params.containsKey(stringParam.getPosition()))
+										{
+											String positionValues = (String) params.get(stringParam.getPosition());
+											params.put(stringParam.getPosition(), positionValues + ", " + stringParam.getValue());
+										}
+										else
+										{
+											params.put(stringParam.getPosition(), stringParam.getValue());
+										}
+									}
+								}
+								for (Map.Entry<StringParam.Position, String> entry2: params.entrySet())
+								{
+									paramString = paramString != null? paramString + " or to ": "";
+									paramString = paramString + entry2.getKey().toString() + " " + entry2.getValue();
+								}
+								//endFIXME
 								reportFile.addSonarTags(element,
 										SonarQubeRule.SONAR_ERROR_GEN_01000,
 										new Object[] {item.getId()},
 										SonarQubeRule.SONAR_MSG_GEN_01000,
-										new Object[] {item.getId(), VALUE, POSITION.toLowerCase()});
+										new Object[] {item.getId(), paramString.toLowerCase()});
 							}
 						}
 					}
@@ -133,11 +159,37 @@ public class RuleGEN_01000 extends Rule {
 								reportFile.addElement(ReportFile.TAG_FUNCTION, " ", element);
 								reportFile.addElement(ReportFile.TAG_PROCEDURE, " ", element);
 								reportFile.addElement(ReportFile.TAG_VARIABLE, variable.getId(), element);
+								//FIXME: this is copy pasted from RuleSTD__00200.java
+								String paramString = null;
+								HashMap<StringParam.Position, String> params = new HashMap<StringParam.Position, String>();
+								for (IHandbookParam param : parameterList)
+								{
+									if (param instanceof StringParam)
+									{
+										StringParam stringParam = (StringParam) param;
+										
+										if (params.containsKey(stringParam.getPosition()))
+										{
+											String positionValues = (String) params.get(stringParam.getPosition());
+											params.put(stringParam.getPosition(), positionValues + ", " + stringParam.getValue());
+										}
+										else
+										{
+											params.put(stringParam.getPosition(), stringParam.getValue());
+										}
+									}
+								}
+								for (Map.Entry<StringParam.Position, String> entry2: params.entrySet())
+								{
+									paramString = paramString != null? paramString + " or to ": "";
+									paramString = paramString + entry2.getKey().toString() + " " + entry2.getValue();
+								}
+								//endFIXME
 								reportFile.addSonarTags(element,
 										SonarQubeRule.SONAR_ERROR_GEN_01000,
 										new Object[] {variable.getId()},
 										SonarQubeRule.SONAR_MSG_GEN_01000,
-										new Object[] {variable.getId(), VALUE, POSITION.toLowerCase()});
+										new Object[] {variable.getId(), paramString.toLowerCase()});
 							}
 						}
 					}
