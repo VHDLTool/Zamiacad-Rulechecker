@@ -36,13 +36,10 @@ public class RuleGEN_02100 extends Rule {
 		initializeRule(parameterSource, ruleId);
 		
 		List<IHandbookParam> parameterList = null;
-		// Uncomment the line to enable parameter
+		//// Initialize the parameter from rule configuration.
 		parameterList = getParameterList(zPrj);
-		if (parameterList == null || parameterList.isEmpty()) {
-			parameterList = new ArrayList<>();
-			for (String value : VALUES) {
-				parameterList.addAll(getDefaultStringParamList(POSITION, value));
-			}
+		if (parameterList == null) {
+			return new Pair<Integer, RuleResult> (WRONG_PARAM, null);
 		}
 
 		Map<String, HdlFile> hdlFiles = new HashMap<>();

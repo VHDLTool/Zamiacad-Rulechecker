@@ -45,10 +45,10 @@ public class RuleGEN_01000 extends Rule {
 		ReportFile reportFile = new ReportFile(this);
 		List<IHandbookParam> parameterList = null;
 		
-		// Uncomment this line to enable parameters
+		//// Initialize the parameter from rule configuration.
 		parameterList = getParameterList(zPrj);
-		if (parameterList == null || parameterList.isEmpty()) {
-			parameterList = getDefaultStringParamList(POSITION, VALUE);
+		if (parameterList == null) {
+			return new Pair<Integer, RuleResult> (WRONG_PARAM, null);
 		}
 		
 		Pair<Integer, RuleResult> result = null;
