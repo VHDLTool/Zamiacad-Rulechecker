@@ -2,9 +2,9 @@ Manifest-Version: 1.0
 Bundle-ManifestVersion: 2
 Bundle-Name: zamiaCAD Plugin
 Bundle-SymbolicName: org.zamia.plugin;singleton:=true
-Bundle-Version: 7.0.0.qualifier
-Bundle-RuleCheckerVersion: 7.0.0
-Bundle-RuleCheckerDate: 27/02/2019
+Bundle-Version: 7.0.2.qualifier
+Bundle-RuleCheckerVersion: 7.0.2
+Bundle-RuleCheckerDate: 15/12/2020
 Bundle-Activator: org.zamia.plugin.ZamiaPlugin
 Require-Bundle: org.eclipse.core.resources,
  org.eclipse.core.runtime,
